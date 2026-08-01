@@ -25,7 +25,10 @@ PHP needs these extensions: `pdo_mysql`, `mbstring`, `xml`, `curl`, `zip`, `gd`,
 
 Optional, only for the OCR / language-assessment features:
 - `tesseract` (image OCR — PDFs go through Gemini instead)
-- `python3` + `pip install faster-whisper` (audio transcription)
+- `python3` + `pip install faster-whisper` (audio transcription). Without it, a language
+  assessment finishes as `failed` with `failure_reason=transcription_unavailable` rather than
+  crashing the queue — the rest of the app is unaffected. The clarity/pronunciation score also
+  needs word timestamps, which this package provides by default.
 
 Both degrade gracefully when missing; the rest of the app works without them.
 
@@ -133,7 +136,9 @@ GEMINI_API_KEY=
 GEMINI_MODEL=gemini-3.6-flash
 ```
 
-`APP_ENV=local` matters: it makes the OTP endpoint return `debug_otp_code` in the response, so you can log in without any SMS provider.
+`APP_ENV=local` matters: it makes the OTP endpoint return `debug_otp_code` in the response, so you can log in without any SMS provider. That only holds while `OTP_CHANNELS=log` (the default) — the code is never echoed back once a real provider delivers it.
+
+To send real codes, fill the `WHATSAPP_*` and `TWILIO_*` keys in `.env.example` and set `OTP_CHANNELS=whatsapp,sms`: WhatsApp is tried first, SMS is the fallback, and a channel with missing credentials is skipped. Delivery limits (`OTP_RESEND_COOLDOWN`, `OTP_MAX_SENDS`, `OTP_MAX_ATTEMPTS`) live in `config/otp.php`.
 
 Then:
 
@@ -162,7 +167,7 @@ php artisan queue:work
 
 The queue worker is not optional: document OCR and language assessment are queued jobs. Without it, every upload sits at `ocr_status=pending` and looks broken.
 
-Sanity check: `curl http://127.0.0.1:8000/api/auth/otp/request -H 'Accept: application/json' -d 'phone=+212600000001'` should return JSON containing `debug_otp_code`.
+Sanity check: `curl http://127.0.0.1:8000/api/auth/otp/request -H 'Accept: application/json' -d 'phone=+212600000001'` should return JSON containing `debug_otp_code`. A second identical call within 60 seconds is meant to return `429` with a `retry_after` — that is the resend cooldown, not a bug.
 
 ---
 
@@ -227,5 +232,8 @@ cd mobile && npx expo start --port 8082                    # app
 | Expo prompts to change port / exits | Port 8081 held by phpMyAdmin — pass `--port 8082` |
 | App requests hang or `ERR_CONNECTION_REFUSED` | `EXPO_PUBLIC_API_URL` has a stale IP, or `php artisan serve` isn't running / isn't bound to `0.0.0.0` |
 | Uploads stuck at `pending` | `php artisan queue:work` isn't running |
-| No OTP code shown | `APP_ENV` isn't `local` |
+| A change "saved" on the phone never reaches the server | It is in the device's offline queue — Account → *Saved on this device* lists what is waiting and anything that needs a decision |
+| Uploads fail in the browser build with no queueing | Expected: media uploads are online-only on web, by design (G) |
+| No OTP code shown | `APP_ENV` isn't `local`, or `OTP_CHANNELS` is not `log` |
+| `429` on sign-in | Resend cooldown (60s) or the per-number hourly ceiling; `retry_after` says how long |
 | Config changes ignored | `php artisan config:clear` |

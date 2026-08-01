@@ -310,3 +310,22 @@ select.field-input {
   font-size: 14px;
   line-height: 20px;
 }
+
+/* An anchor that has to sit in a row of buttons — opening a document is a
+   navigation, not a form action, so it stays a link. */
+a.btn {
+  text-decoration: none;
+}
+
+/* Printing a dossier is how a recruiter passes a candidate to a colleague or
+   an end client. The console's own controls are not part of that. */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .card {
+    border: none;
+    padding: 0;
+  }
+}

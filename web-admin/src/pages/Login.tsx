@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { apiErrorMessage } from '../lib/apiError'
 import { Button, Field, StepLedger, Notice, Badge, Wordmark } from '../components/ui'
 
 export default function Login() {
@@ -21,8 +22,8 @@ export default function Login() {
       const { debugCode } = await requestOtp(phone)
       setDebugCode(debugCode)
       setStep('code')
-    } catch {
-      setError('Could not send a code — check the phone number and try again.')
+    } catch (e) {
+      setError(apiErrorMessage(e, 'Could not send a code — check the phone number and try again.'))
     } finally {
       setBusy(false)
     }
@@ -35,8 +36,8 @@ export default function Login() {
     try {
       await verifyOtp(phone, code)
       navigate('/')
-    } catch {
-      setError('That code is invalid or has expired.')
+    } catch (e) {
+      setError(apiErrorMessage(e, 'That code is invalid or has expired.'))
     } finally {
       setBusy(false)
     }

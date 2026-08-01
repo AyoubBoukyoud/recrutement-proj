@@ -2,6 +2,7 @@
 
 namespace App\Services\Ocr;
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -118,6 +119,17 @@ class GeminiCvExtractor
     }
 
     /**
+     * Rate limiting and server-side faults are about the API's moment, not the
+     * document. Everything else — 400, 401, 403, 404 — will fail identically
+     * on every retry, so it degrades to confidence 0 instead of burning the
+     * queue's attempts.
+     */
+    private function isTransient(int $status): bool
+    {
+        return $status === 429 || $status === 408 || $status >= 500;
+    }
+
+    /**
      * @return array{fields: array<string, mixed>, confidence: int}
      */
     public function extract(string $absolutePath, string $mimeType): array
@@ -153,6 +165,10 @@ class GeminiCvExtractor
                         'schema' => self::SCHEMA,
                     ],
                 ]);
+        } catch (ConnectionException $e) {
+            // The request never completed — nothing was learned about the
+            // document, so this is the queue's problem, not the candidate's.
+            throw new TransientOcrFailure('Gemini CV extraction could not reach the API: '.$e->getMessage(), 0, $e);
         } catch (\Throwable $e) {
             Log::error('Gemini CV extraction failed: '.$e->getMessage());
 
@@ -160,7 +176,13 @@ class GeminiCvExtractor
         }
 
         if ($response->failed()) {
-            Log::error('Gemini CV extraction returned '.$response->status().': '.$response->body());
+            $message = 'Gemini CV extraction returned '.$response->status().': '.$response->body();
+
+            if ($this->isTransient($response->status())) {
+                throw new TransientOcrFailure($message);
+            }
+
+            Log::error($message);
 
             return $this->empty();
         }

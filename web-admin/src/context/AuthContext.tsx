@@ -28,7 +28,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function verifyOtp(phone: string, code: string) {
-    const { data } = await api.post('/auth/otp/verify', { phone, code })
+    // Names the token in the candidate's/staff member's device list, so a
+    // dashboard session is distinguishable from a phone.
+    const { data } = await api.post('/auth/otp/verify', {
+      phone,
+      code,
+      device_name: `Dashboard · ${navigator.platform || 'browser'}`,
+    })
     localStorage.setItem('auth_token', data.token)
     localStorage.setItem('auth_user', JSON.stringify(data.user))
     setUser(data.user)

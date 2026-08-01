@@ -3,10 +3,13 @@
 namespace Tests\Feature;
 
 use App\Jobs\ProcessDocumentOcr;
-use App\Services\CandidateProfileResolver;
 use App\Models\Document;
 use App\Models\User;
+use App\Services\CandidateProfileResolver;
+use App\Services\Ocr\DocumentFieldExtractor;
 use App\Services\Ocr\GeminiCvExtractor;
+use App\Services\Ocr\TesseractOcrService;
+use App\Services\Ocr\TransientOcrFailure;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -25,6 +28,9 @@ class GeminiCvExtractionTest extends TestCase
             'services.gemini.key' => 'test-key',
             'services.gemini.model' => 'gemini-3.6-flash',
             'services.gemini.endpoint' => 'https://generativelanguage.googleapis.com/v1beta/interactions',
+            // These tests are about which engine is chosen and what it returns.
+            // Escalation is a separate decision, exercised in OcrPipelineTest.
+            'ocr.escalate_to_cloud' => false,
         ]);
     }
 
@@ -32,37 +38,37 @@ class GeminiCvExtractionTest extends TestCase
     {
         Http::fake([
             '*' => Http::response(self::interaction([
-                    'full_name' => 'Yassin El Amrani',
-                    'first_name' => 'Yassin',
-                    'last_name' => 'El Amrani',
-                    'email' => 'yassin@example.com',
-                    'phone' => '+212600112233',
-                    'profession' => 'Nurse',
-                    'specialization' => 'ICU',
-                    'years_of_experience' => 7,
-                    'date_of_birth' => '',
-                    'educations' => [
-                        [
-                            'level' => 'bachelor',
-                            'field' => 'Nursing',
-                            'institution' => 'Institut Supérieur',
-                            'started_at' => '2012-09-01',
-                            'ended_at' => '2015-06-30',
-                        ],
+                'full_name' => 'Yassin El Amrani',
+                'first_name' => 'Yassin',
+                'last_name' => 'El Amrani',
+                'email' => 'yassin@example.com',
+                'phone' => '+212600112233',
+                'profession' => 'Nurse',
+                'specialization' => 'ICU',
+                'years_of_experience' => 7,
+                'date_of_birth' => '',
+                'educations' => [
+                    [
+                        'level' => 'bachelor',
+                        'field' => 'Nursing',
+                        'institution' => 'Institut Supérieur',
+                        'started_at' => '2012-09-01',
+                        'ended_at' => '2015-06-30',
                     ],
-                    'languages' => [
-                        ['language' => 'fr', 'cefr_level' => 'C1'],
-                        ['language' => 'de', 'cefr_level' => 'B1'],
-                    ],
-                    'confidence' => 88,
+                ],
+                'languages' => [
+                    ['language' => 'fr', 'cefr_level' => 'C1'],
+                    ['language' => 'de', 'cefr_level' => 'B1'],
+                ],
+                'confidence' => 88,
             ])),
         ]);
 
         $document = $this->makeDocument('cv', 'cv.pdf');
 
         (new ProcessDocumentOcr($document->id))->handle(
-            app(\App\Services\Ocr\TesseractOcrService::class),
-            app(\App\Services\Ocr\DocumentFieldExtractor::class),
+            app(TesseractOcrService::class),
+            app(DocumentFieldExtractor::class),
             app(GeminiCvExtractor::class),
         );
 
@@ -88,8 +94,8 @@ class GeminiCvExtractionTest extends TestCase
         $document = $this->makeDocument('cv', 'cv.pdf', 'PDFBYTES');
 
         (new ProcessDocumentOcr($document->id))->handle(
-            app(\App\Services\Ocr\TesseractOcrService::class),
-            app(\App\Services\Ocr\DocumentFieldExtractor::class),
+            app(TesseractOcrService::class),
+            app(DocumentFieldExtractor::class),
             app(GeminiCvExtractor::class),
         );
 
@@ -106,15 +112,36 @@ class GeminiCvExtractionTest extends TestCase
         });
     }
 
-    public function test_a_failed_call_marks_the_document_failed_without_throwing(): void
+    /**
+     * A rate limit is the API having a bad minute; it says nothing about the
+     * document. It has to reach the queue as a throw so the attempt is
+     * repeated — swallowing it into confidence 0 condemned readable CVs.
+     */
+    public function test_a_rate_limited_call_throws_so_the_queue_retries(): void
     {
         Http::fake(['*' => Http::response('rate limited', 429)]);
 
         $document = $this->makeDocument('cv', 'cv.pdf');
 
+        $this->expectException(TransientOcrFailure::class);
+
         (new ProcessDocumentOcr($document->id))->handle(
-            app(\App\Services\Ocr\TesseractOcrService::class),
-            app(\App\Services\Ocr\DocumentFieldExtractor::class),
+            app(TesseractOcrService::class),
+            app(DocumentFieldExtractor::class),
+            app(GeminiCvExtractor::class),
+        );
+    }
+
+    /** A 400 will fail identically every time, so it must not burn the retries. */
+    public function test_a_permanently_rejected_call_marks_the_document_failed_without_throwing(): void
+    {
+        Http::fake(['*' => Http::response('bad request', 400)]);
+
+        $document = $this->makeDocument('cv', 'cv.pdf');
+
+        (new ProcessDocumentOcr($document->id))->handle(
+            app(TesseractOcrService::class),
+            app(DocumentFieldExtractor::class),
             app(GeminiCvExtractor::class),
         );
 
@@ -132,8 +159,8 @@ class GeminiCvExtractionTest extends TestCase
         $document = $this->makeDocument('cv', 'cv.pdf');
 
         (new ProcessDocumentOcr($document->id))->handle(
-            app(\App\Services\Ocr\TesseractOcrService::class),
-            app(\App\Services\Ocr\DocumentFieldExtractor::class),
+            app(TesseractOcrService::class),
+            app(DocumentFieldExtractor::class),
             app(GeminiCvExtractor::class),
         );
 
@@ -148,8 +175,8 @@ class GeminiCvExtractionTest extends TestCase
         $document = $this->makeDocument('certificate', 'scan.jpg');
 
         (new ProcessDocumentOcr($document->id))->handle(
-            app(\App\Services\Ocr\TesseractOcrService::class),
-            app(\App\Services\Ocr\DocumentFieldExtractor::class),
+            app(TesseractOcrService::class),
+            app(DocumentFieldExtractor::class),
             app(GeminiCvExtractor::class),
         );
 
@@ -186,8 +213,8 @@ class GeminiCvExtractionTest extends TestCase
         $document = $this->makeDocument('cv', 'cv.pdf');
 
         (new ProcessDocumentOcr($document->id))->handle(
-            app(\App\Services\Ocr\TesseractOcrService::class),
-            app(\App\Services\Ocr\DocumentFieldExtractor::class),
+            app(TesseractOcrService::class),
+            app(DocumentFieldExtractor::class),
             app(GeminiCvExtractor::class),
         );
 
@@ -212,8 +239,8 @@ class GeminiCvExtractionTest extends TestCase
         $document = $this->makeDocument('cv', 'cv.pdf');
 
         (new ProcessDocumentOcr($document->id))->handle(
-            app(\App\Services\Ocr\TesseractOcrService::class),
-            app(\App\Services\Ocr\DocumentFieldExtractor::class),
+            app(TesseractOcrService::class),
+            app(DocumentFieldExtractor::class),
             app(GeminiCvExtractor::class),
         );
 
@@ -228,7 +255,9 @@ class GeminiCvExtractionTest extends TestCase
 
         // Self-reported 100 must not survive a degenerate response.
         $this->assertSame(40, $document->extraction->confidence);
-        $this->assertSame('failed', $document->ocr_status);
+        // A profession did survive, so there is something to correct — the
+        // candidate is sent to the review form, not told to re-photograph it.
+        $this->assertSame('needs_review', $document->ocr_status);
     }
 
     public function test_it_rejects_a_date_that_is_shaped_right_but_impossible(): void
@@ -242,8 +271,8 @@ class GeminiCvExtractionTest extends TestCase
         $document = $this->makeDocument('cv', 'cv.pdf');
 
         (new ProcessDocumentOcr($document->id))->handle(
-            app(\App\Services\Ocr\TesseractOcrService::class),
-            app(\App\Services\Ocr\DocumentFieldExtractor::class),
+            app(TesseractOcrService::class),
+            app(DocumentFieldExtractor::class),
             app(GeminiCvExtractor::class),
         );
 

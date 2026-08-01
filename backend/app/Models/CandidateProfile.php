@@ -19,6 +19,10 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'terms_consent_at',
     'cndp_consent_at',
     'presentation_video_path',
+    'submitted_at',
+    'verified_at',
+    'verified_by_id',
+    'admin_notes',
 ])]
 class CandidateProfile extends Model
 {
@@ -28,6 +32,8 @@ class CandidateProfile extends Model
             'date_of_birth' => 'date',
             'terms_consent_at' => 'datetime',
             'cndp_consent_at' => 'datetime',
+            'submitted_at' => 'datetime',
+            'verified_at' => 'datetime',
         ];
     }
 
@@ -54,6 +60,23 @@ class CandidateProfile extends Model
     public function languageAssessments(): HasMany
     {
         return $this->hasMany(LanguageAssessment::class);
+    }
+
+    /** Every recruiter who has saved this candidate; scoped per recruiter in queries. */
+    public function shortlistEntries(): HasMany
+    {
+        return $this->hasMany(RecruiterShortlist::class);
+    }
+
+    public function taskAssignments(): HasMany
+    {
+        return $this->hasMany(TaskAssignment::class);
+    }
+
+    /** The administrator who vouched for this dossier, if one has. */
+    public function verifiedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'verified_by_id');
     }
 
     public function referralRegistration(): HasOne

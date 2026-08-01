@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\OtpCode;
 use App\Models\ReferralAgent;
 use App\Models\User;
 use App\Services\OtpService;
+use App\Support\PhoneNumber;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class AuthController extends Controller
 {
@@ -15,9 +18,16 @@ class AuthController extends Controller
 
     public function requestOtp(Request $request): JsonResponse
     {
+        // Normalise before validating so "+212 600-000-000" and "00212600000000"
+        // reach the same account, the same OTP record and the same throttle
+        // bucket as "+212600000000".
+        $request->merge(['phone' => PhoneNumber::normalize((string) $request->input('phone', ''))]);
+
         $data = $request->validate([
-            'phone' => ['required', 'string', 'min:8', 'max:20'],
+            'phone' => ['required', 'string', 'max:20', PhoneNumber::E164_RULE],
             'referral_token' => ['sometimes', 'nullable', 'string'],
+        ], [
+            'phone.regex' => 'Enter your number in international format, for example +212600000000.',
         ]);
 
         $user = User::firstOrCreate(['phone' => $data['phone']]);
@@ -29,38 +39,53 @@ class AuthController extends Controller
         // Only attach a referral if the candidate doesn't have a profile yet —
         // consumed in CandidateProfileResolver at profile-creation time.
         if (! empty($data['referral_token']) && ! $user->candidateProfile) {
-            $agent = ReferralAgent::where('qr_code_token', $data['referral_token'])->first();
+            // Accepts a token an agent has since rotated away from, until the
+            // grace period on it runs out — printed QR codes outlive buttons.
+            $agent = ReferralAgent::findByToken($data['referral_token']);
             if ($agent) {
                 $user->forceFill(['pending_referral_agent_id' => $agent->id])->save();
             }
         }
 
-        $code = $this->otpService->generateAndSend($user);
+        // Throttling, delivery failure and channel choice are all raised as
+        // exceptions that render themselves — see App\Services\Otp\Exceptions.
+        $dispatch = $this->otpService->send($data['phone'], OtpCode::PURPOSE_LOGIN, $user);
 
         return response()->json([
             'message' => 'OTP sent.',
-            // Only ever returned locally, so the flow is testable without a paid SMS/WhatsApp provider.
-            'debug_otp_code' => app()->environment('local') ? $code : null,
+            ...$dispatch->toArray(),
         ]);
     }
 
     public function verifyOtp(Request $request): JsonResponse
     {
+        $request->merge(['phone' => PhoneNumber::normalize((string) $request->input('phone', ''))]);
+
         $data = $request->validate([
-            'phone' => ['required', 'string'],
-            'code' => ['required', 'string', 'size:6'],
+            'phone' => ['required', 'string', PhoneNumber::E164_RULE],
+            'code' => ['required', 'string', 'size:'.config('otp.code_length', 6)],
+            // Named so the candidate can recognise it in their device list.
+            'device_name' => ['sometimes', 'nullable', 'string', 'max:100'],
         ]);
+
+        $this->otpService->verify($data['phone'], $data['code']);
 
         $user = User::where('phone', $data['phone'])->first();
 
-        if (! $user || ! $this->otpService->verify($user, $data['code'])) {
+        if (! $user) {
             return response()->json(['message' => 'Invalid or expired code.'], 422);
         }
 
-        $token = $user->createToken('mobile')->plainTextToken;
+        $user->forceFill(['phone_verified_at' => Carbon::now()])->save();
+
+        $token = $user->createToken($data['device_name'] ?? null ?: 'Mobile app');
 
         return response()->json([
-            'token' => $token,
+            'token' => $token->plainTextToken,
+            'session' => [
+                'id' => $token->accessToken->getKey(),
+                'device_name' => $token->accessToken->name,
+            ],
             'user' => [
                 'id' => $user->id,
                 'phone' => $user->phone,

@@ -3,10 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\CandidateProfile;
 use App\Services\CandidateProfileResolver;
+use App\Services\ProfileCompleteness;
+use App\Services\RecruiterProfileView;
+use App\Services\ReferralCommissions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class CandidateProfileController extends Controller
 {
@@ -14,7 +20,7 @@ class CandidateProfileController extends Controller
     {
         $profile = CandidateProfileResolver::resolve($request->user());
 
-        return response()->json($profile->load(['educations', 'languages']));
+        return response()->json($this->payload($profile));
     }
 
     public function update(Request $request): JsonResponse
@@ -29,9 +35,18 @@ class CandidateProfileController extends Controller
             'availability_status' => ['sometimes', 'in:immediate,within_1_month,within_2_months'],
             'terms_accepted' => ['sometimes', 'boolean'],
             'cndp_accepted' => ['sometimes', 'boolean'],
+            // Optimistic concurrency: what the client believed the dossier
+            // looked like when the candidate started editing. Optional, so a
+            // client that does not care keeps last-write-wins.
+            'base_updated_at' => ['sometimes', 'nullable', 'date'],
+            // "I know, apply mine anyway" — the resolution of a 409.
+            'force' => ['sometimes', 'boolean'],
         ]);
 
         $profile = CandidateProfileResolver::resolve($request->user());
+
+        $this->guardAgainstConflict($profile, $data);
+        unset($data['base_updated_at'], $data['force']);
 
         if (array_key_exists('terms_accepted', $data)) {
             $data['terms_consent_at'] = $data['terms_accepted'] ? now() : null;
@@ -45,7 +60,42 @@ class CandidateProfileController extends Controller
 
         $profile->update($data);
 
-        return response()->json($profile->fresh(['educations', 'languages']));
+        return response()->json($this->payload($profile->fresh()));
+    }
+
+    /**
+     * Refuse a write that was composed against a version of the dossier
+     * somebody has since replaced.
+     *
+     * Sessions run on several devices at once and edits can sit in an offline
+     * queue for hours, so "the last request to arrive wins" quietly destroys
+     * work — the candidate fills in a page on a phone with no signal, edits
+     * the same page on a laptop, and the phone's copy overwrites it on
+     * reconnect with no sign that anything happened. A 409 hands that decision
+     * back to the person whose data it is; the offline queue holds the
+     * mutation aside and asks.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    private function guardAgainstConflict(CandidateProfile $profile, array $data): void
+    {
+        $base = $data['base_updated_at'] ?? null;
+
+        if (! $base || filter_var($data['force'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+            return;
+        }
+
+        // Second resolution: the column stores seconds, so a same-second edit
+        // is indistinguishable from no edit and is let through rather than
+        // raising a conflict nobody can explain.
+        if ($profile->updated_at?->gt(Carbon::parse($base))) {
+            abort(response()->json([
+                'message' => 'This dossier was changed on another device after you started editing.',
+                'reason' => 'conflict',
+                'server_updated_at' => $profile->updated_at,
+                'server' => $this->payload($profile),
+            ], 409));
+        }
     }
 
     public function uploadVideo(Request $request): JsonResponse
@@ -63,6 +113,57 @@ class CandidateProfileController extends Controller
         $path = $request->file('video')->store('videos', 'public');
         $profile->update(['presentation_video_path' => $path]);
 
-        return response()->json($profile->fresh());
+        return response()->json($this->payload($profile->fresh()));
+    }
+
+    /**
+     * The dossier as a recruiter will actually receive it, so the candidate can
+     * check it before submitting rather than after.
+     */
+    public function preview(Request $request): JsonResponse
+    {
+        $profile = CandidateProfileResolver::resolve($request->user());
+
+        return response()->json([
+            'visible_to_recruiters' => RecruiterProfileView::isVisible($profile),
+            'profile' => RecruiterProfileView::for($profile),
+        ]);
+    }
+
+    /**
+     * The candidate declares the dossier finished. Refused while a required
+     * section is still empty, and the response names them so the review step
+     * can send the candidate back to the step that is missing something.
+     */
+    public function submit(Request $request): JsonResponse
+    {
+        $profile = CandidateProfileResolver::resolve($request->user());
+        $completeness = ProfileCompleteness::for($profile);
+
+        if (! $completeness['can_submit']) {
+            throw ValidationException::withMessages([
+                'missing_required' => $completeness['missing_required'],
+            ]);
+        }
+
+        // Re-submitting after an edit is normal and re-stamps the date rather
+        // than being rejected as "already submitted".
+        $profile->update(['submitted_at' => now()]);
+
+        // The milestone a referral commission is earned on — idempotent, so a
+        // re-submission does not re-earn it.
+        app(ReferralCommissions::class)->qualify($profile);
+
+        return response()->json($this->payload($profile->fresh()));
+    }
+
+    /** Every profile response carries its own progress, so no client recomputes it. */
+    private function payload(CandidateProfile $profile): array
+    {
+        // documents is loaded because completeness reads the CV and certificate
+        // flags off it — and having it here spares the builder a second request.
+        $profile->load(['educations', 'languages.certificateDocument', 'documents']);
+
+        return $profile->toArray() + ['completeness' => ProfileCompleteness::for($profile)];
     }
 }
