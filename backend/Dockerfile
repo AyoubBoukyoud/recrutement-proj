@@ -9,13 +9,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libzip-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev libicu-dev \
         default-mysql-client \
         tesseract-ocr tesseract-ocr-eng tesseract-ocr-fra tesseract-ocr-ara tesseract-ocr-deu \
-        python3 python3-pip ffmpeg \
+        python3 python3-venv ffmpeg \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" pdo_mysql mbstring bcmath gd zip pcntl intl \
-    && pip3 install --no-cache-dir --break-system-packages faster-whisper \
+    && python3 -m venv /opt/whisper-venv \
+    && /opt/whisper-venv/bin/pip install --no-cache-dir faster-whisper \
     && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
+
+# Make the whisper venv's python (with faster-whisper installed) accessible
+# so that scripts/transcribe.py can import faster_whisper via #!/usr/bin/env python3
+ENV PATH="/opt/whisper-venv/bin:$PATH"
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 

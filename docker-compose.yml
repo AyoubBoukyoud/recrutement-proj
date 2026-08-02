@@ -4,10 +4,10 @@ services:
     container_name: recruitment_mysql
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: recruitment
-      MYSQL_USER: recruitment
-      MYSQL_PASSWORD: recruitment
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-recruitment}
+      MYSQL_USER: ${MYSQL_USER:-recruitment}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-recruitment}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
     ports:
       - "3307:3306"
     volumes:
