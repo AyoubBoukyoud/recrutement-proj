@@ -4,10 +4,10 @@ services:
     container_name: recruitment_mysql
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: recruitment
-      MYSQL_USER: recruitment
-      MYSQL_PASSWORD: recruitment
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-recruitment}
+      MYSQL_USER: ${MYSQL_USER:-recruitment}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-recruitment}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
     ports:
       - "3307:3306"
     volumes:
@@ -31,5 +31,77 @@ services:
     depends_on:
       - mysql
 
+  backend:
+    build:
+      context: ./backend
+    container_name: recruitment_backend
+    restart: unless-stopped
+    environment: &backend_env
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_DATABASE: recruitment
+      DB_USERNAME: recruitment
+      DB_PASSWORD: recruitment
+      SESSION_DRIVER: database
+      QUEUE_CONNECTION: database
+      CACHE_STORE: database
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/var/www/html
+      - backend_vendor:/var/www/html/vendor
+      - backend_node_modules:/var/www/html/node_modules
+      - backend_public_build:/var/www/html/public/build
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/up"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  queue:
+    build:
+      context: ./backend
+    container_name: recruitment_queue
+    restart: unless-stopped
+    command: ["php", "artisan", "queue:work", "--tries=3", "--timeout=180"]
+    environment: *backend_env
+    volumes:
+      - ./backend:/var/www/html
+      - backend_vendor:/var/www/html/vendor
+      - backend_node_modules:/var/www/html/node_modules
+      - backend_public_build:/var/www/html/public/build
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  web-admin:
+    build:
+      context: ./web-admin
+    container_name: recruitment_web_admin
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://127.0.0.1:8000/api
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./web-admin:/app
+      - web_admin_node_modules:/app/node_modules
+    depends_on:
+      backend:
+        condition: service_healthy
+
 volumes:
   mysql_data:
+  backend_vendor:
+  backend_node_modules:
+  backend_public_build:
+  web_admin_node_modules:
