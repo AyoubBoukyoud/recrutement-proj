@@ -28,8 +28,8 @@ Every status below cites the file that justifies it. A route existing is not evi
 | F | Complaint & feedback management (§3F) | **DONE** |
 | G | Offline-first mobile architecture (§3G) | **DONE** |
 | H | UX & design language (§3H) | **DONE** |
-| I | Administrative dashboard & operations (§4) | **PARTIAL** |
-| J | Referral / parrainage system (§4) | **PARTIAL** |
+| I | Administrative dashboard & operations (§4) | **DONE** |
+| J | Referral / parrainage system (§4) | **DONE** |
 | K | Monetization — subscriptions & payments (§2) | **MISSING** |
 
 The single largest hole is **K**: the business model has no representation in the codebase at all.
@@ -330,35 +330,99 @@ feedback, and one consistent way of showing waiting and failure.
 
 ---
 
-## I. Administrative Dashboard & Operations — PARTIAL
+## I. Administrative Dashboard & Operations — DONE
 
-**Done** — the 4-item completeness checklist exactly as specced, complaint triage, connectivity status.
-`web-admin/src/pages/AdminDashboard.tsx`, `backend/app/Http/Controllers/Api/AdminCandidateController.php`
+**Done** — platform metrics, the daily remote internship end to end, a paginated and filterable
+candidate list with a full dossier behind each row, verification, document approval, complaint
+triage and user/role management.
+`web-admin/src/pages/AdminDashboard.tsx`, `web-admin/src/components/admin/`,
+`backend/app/Http/Controllers/Api/` (`AdminCandidateController`, `AdminTaskController`,
+`AdminUserController`, `AdminMetricsController`, `CandidateTaskController`),
+`backend/app/Services/TaskEngagement.php`, `mobile/src/screens/DailyTasksScreen.tsx`
 
-**Missing**
+- **Daily remote internship.** `tasks` (the catalogue) and `task_assignments` (one candidate's copy
+  of an activity, for one day). Administrators maintain the catalogue, assign a day's work in one
+  call, and read back what came of it; candidates get a **Daily** tab showing today's work, a
+  bounded catch-up list, and a mark-done flow that asks how long it actually took — the number that
+  says whether the "~1 hour a day" estimates are honest. `TaskEngagement` computes completion rate,
+  overdue count, minutes over 7 days and a streak, and is the single definition used by the
+  dashboard, the metrics rollup and the candidate's own progress card.
+  Activities are **retired, never deleted**: assignments already made are the only record of what a
+  candidate was asked to do.
+- **Candidate detail view.** `GET /admin/candidates/{profile}` returns the whole dossier plus
+  checklist, completeness and engagement. An administrator could previously see a checklist row and
+  had no way to open what it described, which made every follow-up conversation guesswork.
+- **Verification and document approval.** `candidate_profiles.verified_at` / `verified_by_id` /
+  `admin_notes`, and `documents.approval_status` with a mandatory reason on rejection. Approval is
+  deliberately separate from `ocr_status`: a legible photograph of the wrong diploma scans perfectly
+  and is still not acceptable, and the candidate needs to know which of the two happened.
+- **User and role management.** `GET /admin/users` (search + role filter, paginated),
+  `GET /admin/roles`, `PATCH /admin/users/{user}/roles`. The server refuses the two mis-clicks that
+  lock everybody out of the product: dropping your own Administrator role, and demoting the last
+  administrator on the platform.
+- **Metrics.** `GET /admin/metrics` — candidates by stage, documents awaiting approval, unreadable
+  scans, complaint backlog including complaints **no alert ever reached anyone** for, assessments,
+  internship engagement and referral growth. Rendered as a stat header that refreshes every 30s.
+- **Pagination everywhere.** The existing `Pagination` component is wired into candidates, users and
+  the activity catalogue. The header used to read `{data.data.length} candidates`, which would have
+  said "20 candidates" forever once the platform passed twenty.
+- **The 501 catch-all is gone.** With the admin surface actually built it turned a typo'd path into
+  "not implemented yet" instead of an honest 404; a test pins the 404.
 
-- **Daily remote internship / task tracking is entirely absent.** This is a spec pillar (§4, "~1 hour per day") with no table, no endpoint, no page and no type. Requires schema before any UI.
-- **No candidate detail view for admins.** An admin sees a checklist row and cannot open the dossier.
-- **No user or role management UI**, despite four roles being defined.
-- **No pagination** — the defect recruiter search no longer has; `Pagination` is there to reuse. The header reads `{data.data.length} candidates`, which will say "20 candidates" forever once the platform crosses 20.
-- The checklist is display-only by design; there is no admin override, no "verified by admin" flag and no document approval workflow.
-- No system metrics or analytics of any kind.
-- Anything an admin UI requests beyond `/admin/ping`, `/admin/candidates` and `/admin/complaints` hits the 501 catch-all at `backend/routes/api.php:55`.
+Covered by `backend/tests/Feature/AdminOperationsTest.php` (22 tests).
+
+**Remaining** — the activity catalogue ships empty; what preparation work to set is a product
+decision, not one to seed with invented content. No analytics over time (trend lines, cohort
+retention) — the metrics endpoint answers "now", not "since when".
 
 ---
 
-## J. Referral / Parrainage System — PARTIAL
+## J. Referral / Parrainage System — DONE
 
-**Done** — token generation and rotation, client-side QR rendering, and a complete attribution loop: token → `users.pending_referral_agent_id` → consumed at profile creation → `referral_registrations` row → surfaced as `referred_by` in the admin list.
-`web-admin/src/pages/AgentDashboard.tsx`, `backend/app/Http/Controllers/Api/ReferralAgentController.php`, `backend/app/Services/CandidateProfileResolver.php`
+**Done** — token generation, rotation with a grace period, QR rendering with download/print/copy, an
+in-app scanner, the full attribution loop, and a commission lifecycle from earning to payout.
+`mobile/src/screens/ScanReferralScreen.tsx`, `mobile/src/lib/referralToken.ts`,
+`web-admin/src/pages/AgentDashboard.tsx`, `web-admin/src/components/ReferralPayouts.tsx`,
+`backend/app/Http/Controllers/Api/ReferralAgentController.php`, `AdminReferralController.php`,
+`backend/app/Services/ReferralCommissions.php`, `backend/config/referrals.php`
 
-**Missing**
+- **The scanner the permission prompt was describing.** `ScanReferralScreen` reads the code with
+  `CameraView`'s QR scanner and lands on sign-in with the token attached — the same state the deep
+  link produces, so there is one path, not two. `parseReferralToken` accepts the deep link, an https
+  link with `?ref=`, or a bare token, and refuses anything else rather than guessing: attributing a
+  registration to the wrong agent is worse than asking for another scan. `mobile/app.json`'s camera
+  copy is now true.
+- **Commission tracking.** `referral_registrations` carries `commission_status`
+  (pending → qualified → approved → paid, or rejected), amount, currency and the timestamps behind
+  each move. A referral **qualifies when the referred candidate submits their dossier** — a scanned
+  code proves nothing, a submitted dossier is what the business can place — and the amount is
+  stamped at that moment from the agent's rate (`referral_agents.commission_rate`, falling back to
+  `config/referrals.php`), so changing a rate later cannot move money already earned. Qualifying is
+  idempotent: re-submitting neither re-earns nor resets an approved commission.
+- **Payout is deliberately manual.** `GET /admin/referrals` queues what is owed first;
+  `PATCH /admin/referrals/{registration}` approves, pays (with a transfer or receipt reference) or
+  rejects, and logs who did it. There is no payment rail in this codebase (see K), so a schema that
+  claimed money had moved would be lying.
+- **Agents see the list and the money.** `GET /referrals/agent` returns owed / paid / lifetime plus
+  counts per status; `GET /referrals/agent/registrations` lists who they brought in, with names and
+  commission state only — an agent is owed an explanation of their commission, not access to the
+  dossier a candidate filled in for employers.
+- **Rotation is a decision, not a button.** The replaced token keeps attributing for
+  `referrals.previous_token_grace_days` (30 by default), the dashboard states the consequence and
+  the date before rotating, and afterwards shows how long the old code stays live. Set the grace to
+  0 for the old immediate behaviour.
+- **QR export.** Download as PNG, print (console chrome suppressed), or copy the link — a field
+  agent no longer has to screenshot their own screen.
 
-- **No in-app QR scanner.** `mobile/app.json`'s camera permission copy tells the user it is needed to "scan referral QR codes", but no scanning code exists — registration relies on the phone's native camera opening the `recruitment://register?ref=TOKEN` deep link. Either build the scanner or fix the permission copy; as written it is a false statement to the user at the permission prompt.
-- **Commission tracking does not exist** — no rates, no amounts, no payout state. Spec §4 says registrations are attributed "for commission tracking"; only the attribution half is built.
-- **Agents see a count, not a list.** No view of who they referred, and no earnings.
-- **Rotating a token silently invalidates every printed QR already in circulation** — no warning, no confirmation dialog, no grace period.
-- No download, print or share action for the QR; a field agent can only screenshot it.
+Covered by `backend/tests/Feature/ReferralProgrammeTest.php` (rotation grace, qualification,
+rate stamping, agent scoping, payout, role gating).
+
+**Remaining**
+
+- Commission is per *registration*, not per placement. Charging on a hire needs the placement
+  concept K depends on; the recruiter pipeline added in E (`stage = placed`) is where that would
+  hook in.
+- No agent leaderboard, targets or payout batching.
 
 ---
 
@@ -385,7 +449,7 @@ Things that read as finished and are not. These matter more than the plain gaps 
 | 2 | ~~OCR pre-fills the profile~~ | Fixed. `App\Services\Ocr\ExtractionApplier` writes confirmed fields to `candidate_profiles`, `educations` and `candidate_languages`, filling blanks by default and reporting what it kept. |
 | 3 | ~~Recruiters review assessment metrics~~ | Fixed. Pace, clarity, filler ratio, duration, the score breakdown and the transcript render in `AssessmentMetrics.tsx`. |
 | 4 | ~~Language certificates can be certified~~ | Fixed. `POST /candidate/languages/{language}/certificate` is the one path that writes `certificate_document_id` and `source='certified'`. |
-| 5 | Lists are paginated | Fixed for recruiter search and the shortlist. **The admin dashboard still has no pagination UI** (I) and silently truncates at 20. |
+| 5 | ~~Lists are paginated~~ | Fixed. `Pagination` is wired into recruiter search, the shortlist, the admin candidate list, users and the activity catalogue. |
 | 6 | ~~OTP delivery is swappable~~ | Fixed. `App\Contracts\OtpChannel` with log, WhatsApp and Twilio drivers behind `config/otp.php`. |
 | 7 | Logging out ends the session | Web-admin `logout()` clears localStorage and never calls `POST /auth/logout` — the Sanctum token stays valid. |
 
@@ -417,9 +481,8 @@ language hint to Whisper. *Fixed in E:* the min-CEFR filter comparing an ENUM co
 ## Cross-cutting
 
 - **i18n coverage is partial by design.** The comment in `mobile/src/i18n/index.ts` states only auth-flow and navigation strings are translated across en/fr/ar/de; the profile builder, documents and language assessment screens are hardcoded English. The mechanism (including real RTL via `I18nManager.forceRTL` in `mobile/src/lib/language.ts`) is sound — what remains is a content pass. Spec §6 lists full internationalisation as MVP scope.
-- **Test coverage is nine suites plus the CV extractor.** `GeminiCvExtractionTest.php` is genuinely good, and OTP delivery, throttling, sessions and recovery are covered by `OtpAuthTest`/`OtpChannelTest`/`AccountSessionTest`. Recruiter search, the shortlist and the contact gate are covered by `RecruiterSearchTest`/`RecruiterShortlistTest`. Untested: profile CRUD, education, languages, the admin checklist, referral attribution. `CefrScorer`, `PronunciationAnalyzer` and the assessment pipeline now have unit and feature suites. No factories exist for any domain model beyond `User`. No frontend or mobile tests at all.
+- **Test coverage is ten suites plus the CV extractor.** `GeminiCvExtractionTest.php` is genuinely good, and OTP delivery, throttling, sessions and recovery are covered by `OtpAuthTest`/`OtpChannelTest`/`AccountSessionTest`. Recruiter search, the shortlist and the contact gate are covered by `RecruiterSearchTest`/`RecruiterShortlistTest`. The referral programme is covered by `ReferralProgrammeTest`. Untested: profile CRUD, education, languages, the admin checklist. `CefrScorer`, `PronunciationAnalyzer` and the assessment pipeline now have unit and feature suites. No factories exist for any domain model beyond `User`. No frontend or mobile tests at all.
 - **Dead dependency:** `zustand` is in `mobile/package.json` and used nowhere in `src` — all client state is Context plus TanStack Query. Remove it or adopt it.
-- **Permission copy vs behaviour:** the QR-scanning claim in `mobile/app.json`, covered in J.
 - **Endpoints the backend exposes that mobile never calls:** `GET /auth/me`, `GET /candidate/educations`, `GET /candidate/languages`, `GET /candidate/documents/{id}`, `GET /candidate/language-assessments/{id}`. Either wire them or drop them.
 
 ---

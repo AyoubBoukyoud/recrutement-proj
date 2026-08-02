@@ -5,7 +5,7 @@ Monorepo with three apps:
 | Folder       | What it is                        | Runs on                  |
 | ------------ | --------------------------------- | ------------------------ |
 | `backend/`   | Laravel 13 API                    | http://127.0.0.1:8000    |
-| `web-admin/` | React + Vite admin/recruiter UI   | http://127.0.0.1:5173    |
+| `web-admin/` | React + Vite admin/recruiter UI   | http://localhost:5173    |
 | `mobile/`    | React Native (Expo) candidate app | Metro on port **8082**   |
 
 MySQL + phpMyAdmin run in Docker.
@@ -165,7 +165,9 @@ php artisan serve --host=0.0.0.0 --port=8000
 php artisan queue:work
 ```
 
-The queue worker is not optional: document OCR and language assessment are queued jobs. Without it, every upload sits at `ocr_status=pending` and looks broken.
+The queue worker is not optional: document OCR and language assessment are queued jobs. Without it, every upload sits at `ocr_status=pending` and looks broken — the app shows "Queued for scanning…" with nothing behind it.
+
+If that has already happened, `php artisan documents:scan-pending --minutes=0` scans everything left waiting, inline. The same command is scheduled every ten minutes (`routes/console.php`) as a safety net, which only runs if `php artisan schedule:work` — or a real cron entry — is running.
 
 Sanity check: `curl http://127.0.0.1:8000/api/auth/otp/request -H 'Accept: application/json' -d 'phone=+212600000001'` should return JSON containing `debug_otp_code`. A second identical call within 60 seconds is meant to return `429` with a `retry_after` — that is the resend cooldown, not a bug.
 
@@ -179,7 +181,7 @@ npm install
 npm run dev
 ```
 
-Opens on http://127.0.0.1:5173. `web-admin/.env` already points at `http://127.0.0.1:8000/api`.
+Opens on http://localhost:5173 — Vite binds the IPv6 loopback only, so `127.0.0.1:5173` is refused. `web-admin/.env` already points at `http://127.0.0.1:8000/api`.
 
 Login: enter a seeded phone number, and the OTP code is shown on screen (local env only).
 
@@ -192,13 +194,13 @@ cd mobile
 npm install
 ```
 
-**Set the API URL first.** `mobile/.env` hardcodes a LAN IP that will be wrong on your machine:
+**No API URL to set.** The app derives it from the Metro dev server the device is already connected
+to (`src/lib/api.ts`), so a phone that reached Metro on your LAN IP calls the API on the same IP,
+port 8000. Metro logs what it resolved: `[api] http://…:8000/api`.
 
-```dotenv
-EXPO_PUBLIC_API_URL=http://<YOUR_LAN_IP>:8000/api
-```
-
-Find your IP with `ip -4 addr` (Linux) or `ipconfig getifaddr en0` (macOS). Use the real LAN IP, not `localhost` — a phone on the same Wi-Fi can't reach your laptop's loopback. If you'll only run the web target, `http://127.0.0.1:8000/api` works.
+Set `EXPO_PUBLIC_API_URL` in `mobile/.env` only for a real build, for `expo start --tunnel`, or for
+an API that is not on port 8000 of this machine. It wins over the derivation when present, and Metro
+inlines it at startup — restart with `--clear` after changing it.
 
 Start Metro on 8082 (8081 is phpMyAdmin's):
 
@@ -231,7 +233,7 @@ cd mobile && npx expo start --port 8082                    # app
 | `SQLSTATE[HY000] [2002] Connection refused` | Docker not up, or `DB_PORT` isn't `3307` |
 | Expo prompts to change port / exits | Port 8081 held by phpMyAdmin — pass `--port 8082` |
 | App requests hang or `ERR_CONNECTION_REFUSED` | `EXPO_PUBLIC_API_URL` has a stale IP, or `php artisan serve` isn't running / isn't bound to `0.0.0.0` |
-| Uploads stuck at `pending` | `php artisan queue:work` isn't running |
+| Uploads stuck at `pending` | `php artisan queue:work` isn't running. To scan what is already waiting: `php artisan documents:scan-pending --minutes=0` |
 | A change "saved" on the phone never reaches the server | It is in the device's offline queue — Account → *Saved on this device* lists what is waiting and anything that needs a decision |
 | Uploads fail in the browser build with no queueing | Expected: media uploads are online-only on web, by design (G) |
 | No OTP code shown | `APP_ENV` isn't `local`, or `OTP_CHANNELS` is not `log` |

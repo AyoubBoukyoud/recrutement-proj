@@ -267,12 +267,20 @@ class AdminOperationsTest extends TestCase
         $profile->update(['first_name' => 'Yassin', 'last_name' => 'El Amrani']);
         $profile->educations()->create(['level' => 'bachelor', 'field' => 'Nursing']);
 
+        $profile->taskAssignments()->create([
+            'task_id' => $this->task()->id,
+            'assigned_for' => today(),
+        ]);
+
         $this->getJson("/api/admin/candidates/{$profile->id}")
             ->assertSuccessful()
             ->assertJsonPath('first_name', 'Yassin')
             ->assertJsonPath('user.phone', $candidate->phone)
             ->assertJsonCount(1, 'educations')
-            ->assertJsonStructure(['completeness', 'checklist', 'engagement']);
+            // The detail view carries what the assignment panel renders off it.
+            ->assertJsonCount(1, 'task_assignments')
+            ->assertJsonPath('task_assignments.0.task.title', 'Read one German news article aloud')
+            ->assertJsonStructure(['completeness', 'checklist', 'engagement', 'documents']);
     }
 
     public function test_an_administrator_vouches_for_a_dossier(): void
