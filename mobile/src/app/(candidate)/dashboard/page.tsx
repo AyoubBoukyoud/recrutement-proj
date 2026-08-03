@@ -1,0 +1,124 @@
+'use client';
+
+// Interface 10 — Tableau de bord candidat.
+
+import Link from 'next/link';
+import { useProfile } from '@/context/ProfileContext';
+import { ChecklistItem } from '@/components/shared/ChecklistItem';
+
+const QUICK_ACTIONS = [
+  { href: '/documents', label: 'Ajouter un document', icon: 'description' },
+  { href: '/video', label: 'Enregistrer une vidéo', icon: 'videocam' },
+  { href: '/test-langue', label: 'Passer le test de langue', icon: 'mic' },
+  { href: '/profil', label: 'Voir mon profil public', icon: 'account_circle' },
+  { href: '/cours-allemand', label: "Leçon d'allemand du jour", icon: 'translate' },
+  { href: '/offres', label: "Voir les offres d'emploi", icon: 'work' },
+  { href: '/simulateur-salaire', label: 'Simuler mon salaire', icon: 'calculate' },
+  { href: '/visibilite', label: 'Ma visibilité', icon: 'insights' },
+  { href: '/parrainage', label: 'Parrainer un ami', icon: 'group_add' },
+  { href: '/verification-identite', label: 'Vérifier mon identité', icon: 'verified_user' },
+  { href: '/matching-preferences', label: 'Préférences de matching', icon: 'tune' },
+];
+
+export default function DashboardPage() {
+  const { profile } = useProfile();
+
+  const cvDone = profile.documents.some((d) => d.type === 'cv');
+  const diplomaDone = profile.documents.some((d) => d.type === 'diplome' || d.type === 'autre');
+  const videoDone = Boolean(profile.videoUrl);
+  const testDone = profile.testLangueScore !== null;
+  const doneCount = [cvDone, diplomaDone, videoDone, testDone].filter(Boolean).length;
+  const percent = 20 + doneCount * 20;
+
+  return (
+    <div>
+      <header className="sticky top-0 z-20 flex w-full items-center justify-between border-b border-surface-container-high bg-surface-container-lowest/90 px-6 py-3.5 backdrop-blur-md">
+        <div>
+          <h1 className="text-base font-extrabold text-primary">Bonjour, {profile.firstName || 'Candidat'} 👋</h1>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-tertiary">Espace Candidat</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <button type="button" className="relative rounded-full p-2 transition-colors hover:bg-surface-container-low active:scale-95">
+            <span className="material-symbols-outlined text-onSurface-variant" style={{ fontSize: 22 }}>
+              notifications
+            </span>
+            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full border border-surface bg-error" />
+          </button>
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-black text-onPrimary shadow-sm">
+            {profile.avatarInitials || '—'}
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-md space-y-6 px-6 pb-8 pt-4">
+        <section className="fade-in-entry opacity-0 flex flex-col items-center rounded-pillar border border-outline-variant bg-surface-container-lowest p-6 text-center shadow-subtle">
+          <div className="mb-4 flex w-full items-center justify-between">
+            <h2 className="text-sm font-extrabold text-onSurface">Progression du profil</h2>
+            <span className="text-xs font-extrabold text-primary">{percent}%</span>
+          </div>
+          <div
+            className="relative mb-5 flex h-36 w-36 items-center justify-center rounded-full shadow-inner transition-all duration-500"
+            style={{
+              background: `radial-gradient(closest-side, white 82%, transparent 83% 100%), conic-gradient(#1B5E37 ${percent}%, #EDEEEF 0)`,
+            }}
+          >
+            <span className="text-3xl font-black leading-none tracking-tight text-primary">{percent}%</span>
+          </div>
+          <p className="px-2 text-xs leading-relaxed text-onSurface-variant font-medium">
+            Complétez votre profil pour apparaître en priorité auprès des recruteurs allemands.
+          </p>
+        </section>
+
+        <div className="fade-in-entry stagger-1 opacity-0 flex items-center justify-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-surface-container-low px-4 py-2 shadow-sm">
+            <span className="material-symbols-outlined fill animate-pulse text-primary" style={{ fontSize: 16 }}>
+              visibility
+            </span>
+            <span className="text-xs font-medium text-onSurface">
+              Profil visible par <span className="font-extrabold text-primary">12 recruteurs</span>
+            </span>
+          </div>
+        </div>
+
+        <section className="fade-in-entry stagger-2 opacity-0 space-y-3">
+          <h2 className="text-lg font-extrabold text-primary">À compléter</h2>
+          <div className="overflow-hidden rounded-pillar border border-outline-variant bg-surface-container-lowest shadow-subtle divide-y divide-surface-container-high">
+            <ChecklistItem label="Profil personnel complété" status="done" />
+            <ChecklistItem label="Secteur et qualification renseignés" status="done" />
+            <ChecklistItem label="CV téléchargé" status={cvDone ? 'done' : 'pending'} href="/documents" actionLabel="Ajouter" />
+            <ChecklistItem label="Certificats / diplômes" status={diplomaDone ? 'done' : 'pending'} href="/documents" actionLabel="Ajouter" />
+            <ChecklistItem label="Vidéo de présentation" status={videoDone ? 'done' : 'pending'} href="/video" actionLabel="Enregistrer" />
+            <ChecklistItem label="Test de langue" status={testDone ? 'done' : 'pending'} href="/test-langue" actionLabel="Passer le test" />
+            <ChecklistItem
+              label="Identité vérifiée"
+              status={profile.identityVerified ? 'done' : 'pending'}
+              href="/verification-identite"
+              actionLabel="Vérifier"
+            />
+          </div>
+        </section>
+
+        <section className="fade-in-entry stagger-3 opacity-0 space-y-3">
+          <h2 className="text-lg font-extrabold text-primary">Actions rapides</h2>
+          <div className="grid grid-cols-2 gap-3">
+            {QUICK_ACTIONS.map((action) => (
+              <Link
+                key={action.href}
+                href={action.href}
+                className="flex flex-col items-center gap-2 rounded-pillar border border-outline-variant bg-surface-container-lowest p-4 text-center shadow-subtle transition-all duration-200 hover:border-primary/50 hover:bg-surface-container-low/50 active:scale-[0.98]"
+              >
+                <div className="flex h-11 w-11 items-center justify-center rounded-pillar bg-surface-container-low text-primary">
+                  <span className="material-symbols-outlined" style={{ fontSize: 26 }}>
+                    {action.icon}
+                  </span>
+                </div>
+                <span className="text-xs font-bold text-onSurface">{action.label}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
+
