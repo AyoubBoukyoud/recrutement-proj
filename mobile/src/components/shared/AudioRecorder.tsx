@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface AudioRecorderProps {
   onRecordingComplete?: (blobUrl: string) => void;
 }
 
 export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
+  const { t } = useLanguage();
   const [isRecording, setIsRecording] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +26,7 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
     setError(null);
     try {
       if (!navigator.mediaDevices?.getUserMedia) {
-        setError("L'enregistrement audio n'est pas disponible sur cet appareil.");
+        setError(t('common:components.audioRecorder.unsupported'));
         return;
       }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -42,7 +44,7 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
       setSeconds(0);
       intervalRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
     } catch {
-      setError("Impossible d'accéder au microphone. Vérifiez les autorisations.");
+      setError(t('common:components.audioRecorder.micError'));
     }
   };
 
@@ -62,7 +64,7 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
         className={`flex h-20 w-20 items-center justify-center rounded-full shadow-floating transition ${
           isRecording ? 'animate-pulse bg-error' : 'bg-primary-container hover:opacity-90'
         }`}
-        aria-label={isRecording ? "Arrêter l'enregistrement" : "Démarrer l'enregistrement"}
+        aria-label={isRecording ? t('common:components.audioRecorder.stop') : t('common:components.audioRecorder.start')}
       >
         <span
           className={`material-symbols-outlined fill ${isRecording ? 'text-onError' : 'text-on-primary'}`}
@@ -71,7 +73,9 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
           {isRecording ? 'stop' : 'mic'}
         </span>
       </button>
-      <span className="text-sm font-semibold text-primary-dark">{isRecording ? formatTime(seconds) : 'Appuyer pour enregistrer'}</span>
+      <span className="text-sm font-semibold text-primary-dark">
+        {isRecording ? <span dir="ltr">{formatTime(seconds)}</span> : t('common:components.audioRecorder.prompt')}
+      </span>
       {error && <span className="text-center text-xs font-medium text-error">{error}</span>}
     </div>
   );

@@ -4,8 +4,34 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
+
+const REGION_LABEL_KEYS: Record<string, string> = {
+  Berlin: 'matchingPreferences.regions.berlin',
+  Bavière: 'matchingPreferences.regions.baviere',
+  Hambourg: 'matchingPreferences.regions.hambourg',
+  Saxe: 'matchingPreferences.regions.saxe',
+  'Bade-Wurtemberg': 'matchingPreferences.regions.badeWurtemberg',
+  Hesse: 'matchingPreferences.regions.hesse',
+};
+
+const COMPANY_TYPE_LABEL_KEYS: Record<string, string> = {
+  'Grand groupe': 'matchingPreferences.companyTypes.grandGroupe',
+  PME: 'matchingPreferences.companyTypes.pme',
+  'Start-up': 'matchingPreferences.companyTypes.startup',
+  'Peu importe': 'matchingPreferences.companyTypes.peuImporte',
+};
+
+const SECTOR_LABEL_KEYS: Record<string, string> = {
+  Santé: 'matchingPreferences.sectors.sante',
+  Logistique: 'matchingPreferences.sectors.logistique',
+  Électricité: 'matchingPreferences.sectors.electricite',
+  Hôtellerie: 'matchingPreferences.sectors.hotellerie',
+  Construction: 'matchingPreferences.sectors.construction',
+};
 
 export default function MatchingPreferencesPage() {
+  const { t } = useLanguage();
   const [regions, setRegions] = useState<{ [key: string]: boolean }>({
     Berlin: true,
     Bavière: false,
@@ -50,19 +76,19 @@ export default function MatchingPreferencesPage() {
           <div className="flex items-center gap-4">
             <Link
               href="/dashboard"
-              aria-label="Retour"
+              aria-label={t('common:actions.back')}
               className="flex h-10 w-10 items-center justify-center rounded-full text-primary transition-colors hover:bg-surface-container-high active:scale-95"
             >
               <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
                 arrow_back
               </span>
             </Link>
-            <h1 className="text-lg font-bold text-primary">Mes préférences</h1>
+            <h1 className="text-lg font-bold text-primary">{t('candidateC:matchingPreferences.title')}</h1>
           </div>
           <div className="flex items-center gap-2">
             <Link
               href="/profil"
-              aria-label="Mon profil"
+              aria-label={t('candidateC:matchingPreferences.profileAria')}
               className="flex h-10 w-10 items-center justify-center rounded-full text-onSurface-variant transition-colors hover:bg-surface-container-high active:scale-95"
             >
               <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
@@ -77,9 +103,9 @@ export default function MatchingPreferencesPage() {
       <main className="mx-auto max-w-xl px-4 py-4 space-y-6">
         {/* Welcome Section */}
         <div className="py-2">
-          <h2 className="text-2xl font-extrabold text-onSurface">Personnalisez vos opportunités</h2>
+          <h2 className="text-2xl font-extrabold text-onSurface">{t('candidateC:matchingPreferences.heroTitle')}</h2>
           <p className="mt-1 text-sm font-medium leading-relaxed text-onSurface-variant">
-            Définissez vos critères pour que nous puissions vous proposer les meilleures offres en Allemagne.
+            {t('candidateC:matchingPreferences.heroDescription')}
           </p>
         </div>
 
@@ -89,7 +115,7 @@ export default function MatchingPreferencesPage() {
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
               map
             </span>
-            Région souhaitée en Allemagne
+            {t('candidateC:matchingPreferences.regionsTitle')}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             {Object.keys(regions).map((regionName) => (
@@ -97,7 +123,7 @@ export default function MatchingPreferencesPage() {
                 key={regionName}
                 className="group flex cursor-pointer items-center justify-between rounded-lg border border-outline-variant p-3.5 transition-colors hover:bg-surface-container-low"
               >
-                <span className="text-sm font-semibold text-onSurface">{regionName}</span>
+                <span className="text-sm font-semibold text-onSurface">{t(`candidateC:${REGION_LABEL_KEYS[regionName]}`)}</span>
                 <input
                   type="checkbox"
                   checked={regions[regionName]}
@@ -115,7 +141,7 @@ export default function MatchingPreferencesPage() {
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
               corporate_fare
             </span>
-            Type d&apos;entreprise
+            {t('candidateC:matchingPreferences.companyTypeTitle')}
           </h3>
           <div className="flex flex-wrap gap-2 pt-1">
             {['Grand groupe', 'PME', 'Start-up', 'Peu importe'].map((type) => (
@@ -129,7 +155,7 @@ export default function MatchingPreferencesPage() {
                     : 'border-2 border-outline-variant text-onSurface-variant hover:border-primary hover:text-primary'
                 }`}
               >
-                {type}
+                {t(`candidateC:${COMPANY_TYPE_LABEL_KEYS[type]}`)}
               </button>
             ))}
           </div>
@@ -141,7 +167,7 @@ export default function MatchingPreferencesPage() {
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
               category
             </span>
-            Secteurs d&apos;activité
+            {t('candidateC:matchingPreferences.sectorsTitle')}
           </h3>
           <div className="flex flex-wrap gap-2 pt-1">
             {sectors.map((sec) => (
@@ -149,7 +175,7 @@ export default function MatchingPreferencesPage() {
                 key={sec}
                 className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-surface-container-high px-4 py-2 text-xs font-bold text-primary shadow-xs"
               >
-                <span>{sec}</span>
+                <span>{t(`candidateC:${SECTOR_LABEL_KEYS[sec]}`)}</span>
                 <span
                   onClick={() => removeSector(sec)}
                   className="material-symbols-outlined cursor-pointer hover:opacity-75"
@@ -171,7 +197,7 @@ export default function MatchingPreferencesPage() {
                   <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
                     add
                   </span>
-                  {sec}
+                  {t(`candidateC:${SECTOR_LABEL_KEYS[sec]}`)}
                 </button>
               ))}
           </div>
@@ -183,7 +209,7 @@ export default function MatchingPreferencesPage() {
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
               payments
             </span>
-            Salaire minimum (Annuel)
+            {t('candidateC:matchingPreferences.salaryTitle')}
           </h3>
           <div className="relative mt-2">
             <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-base font-extrabold text-onSurface-variant">
@@ -225,7 +251,7 @@ export default function MatchingPreferencesPage() {
             }}
           />
           <div className="absolute inset-0 flex items-end bg-gradient-to-t from-primary/80 to-transparent p-5">
-            <p className="text-sm font-semibold text-onPrimary">Découvrez votre futur chez-vous en Allemagne.</p>
+            <p className="text-sm font-semibold text-onPrimary">{t('candidateC:matchingPreferences.discoverCaption')}</p>
           </div>
         </div>
 
@@ -234,7 +260,7 @@ export default function MatchingPreferencesPage() {
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
               check_circle
             </span>
-            Vos préférences de matching ont été enregistrées avec succès !
+            {t('candidateC:matchingPreferences.savedToast')}
           </div>
         )}
 
@@ -245,7 +271,7 @@ export default function MatchingPreferencesPage() {
             onClick={handleSave}
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 text-base font-extrabold text-onPrimary shadow-lg transition-all hover:bg-primary/90 active:scale-95"
           >
-            <span>Enregistrer les préférences</span>
+            <span>{t('candidateC:matchingPreferences.saveButton')}</span>
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
               save
             </span>

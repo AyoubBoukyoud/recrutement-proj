@@ -1,0 +1,168 @@
+{
+  "shared": {
+    "seeAll": "Alle anzeigen"
+  },
+  "utilisateurs": {
+    "title": "Benutzer",
+    "subtitle": "{{count}} registrierte Konten.",
+    "searchPlaceholder": "Einen Benutzer suchen…",
+    "roleFilter": {
+      "all": "Alle",
+      "candidates": "Kandidaten",
+      "employers": "Arbeitgeber"
+    },
+    "table": {
+      "name": "Name",
+      "role": "Rolle",
+      "email": "E-Mail",
+      "status": "Status",
+      "registeredAt": "Registriert am"
+    },
+    "status": {
+      "actif": "Aktiv",
+      "suspendu": "Gesperrt",
+      "en_attente": "Ausstehend"
+    },
+    "validateLink": "Validieren →",
+    "goToValidation": "Zur Validierung →"
+  },
+  "validation": {
+    "title": "Profilvalidierung",
+    "subtitle": "{{count}} Profil(e) warten auf die Überprüfung der Nachweisdokumente.",
+    "syncStatus": "Synchronisierung: Online-Modus",
+    "submittedOnPrefix": "Eingereicht am",
+    "decision": {
+      "valide": "Bestätigt",
+      "rejete": "Abgelehnt"
+    },
+    "ocrBadge": "OCR 98 %",
+    "reject": "Ablehnen",
+    "validate": "Bestätigen",
+    "processing": "Verarbeitung…",
+    "empty": "Keine ausstehenden Profile."
+  },
+  "statistiques": {
+    "title": "Statistiken",
+    "filters": "Filter",
+    "periods": {
+      "7d": "7T",
+      "30d": "30T",
+      "90d": "90T",
+      "12m": "12 Monate"
+    },
+    "kpi": {
+      "registeredCandidates": "Registrierte Kandidaten",
+      "activeEmployers": "Aktive Arbeitgeber",
+      "matchingRate": "Matching-Rate",
+      "conversionRate": "Konversionsrate"
+    },
+    "charts": {
+      "monthlyRegistrations": "Monatliche Registrierungen",
+      "months": {
+        "jan": "Jan",
+        "mar": "Mär",
+        "mai": "Mai",
+        "juil": "Jul",
+        "sep": "Sep",
+        "nov": "Nov"
+      },
+      "profileCompletion": "Profilvervollständigung",
+      "average": "Durchschnitt",
+      "readyForMatching": "Bereit für Matching",
+      "sectorBreakdown": "Verteilung nach Branche",
+      "germanLevel": "Deutschniveau"
+    },
+    "sectors": {
+      "it": "IT",
+      "sante": "Gesundheitswesen",
+      "btp": "Bauwesen",
+      "artisanat": "Handwerk",
+      "autre": "Sonstige"
+    },
+    "topEmployers": {
+      "title": "Top-Arbeitgeber",
+      "hires": "{{count}} Einstellungen"
+    },
+    "demandedSectors": {
+      "title": "Gefragte Branchen",
+      "analyses": "Analysen",
+      "openings": "{{count}} offene Stellen",
+      "items": {
+        "softwareDev": "Softwareentwicklung",
+        "nursing": "Krankenpflege",
+        "warehouseManagement": "Lagerverwaltung"
+      }
+    },
+    "exportPdf": "Bericht exportieren (PDF)"
+  },
+  "parrainage": {
+    "title": "Empfehlungsprogramm verwalten",
+    "totalDue": "Gesamtbetrag fällig diesen Monat",
+    "vsLastMonth": "+12 % im Vergleich zum Vormonat",
+    "activeAgents": "Aktive Vermittler",
+    "monthlyGoal": "75 % des Monatsziels",
+    "commissionTiers": "Provisionsstufen",
+    "registration": "Registrierung",
+    "profileCompleted": "Profil vervollständigt",
+    "commercialAgents": "Vertriebsmitarbeiter",
+    "addAgent": "Vermittler hinzufügen",
+    "topAgent": "Top-Vermittler",
+    "referrals": "Empfehlungen",
+    "latestReferrals": "Neueste Empfehlungen",
+    "table": {
+      "referee": "Empfohlene Person",
+      "sponsorAgent": "Empfehlender Vermittler",
+      "date": "Datum",
+      "statusAndCommission": "Status & Provision"
+    },
+    "status": {
+      "invite": "Eingeladen",
+      "inscrit": "Registriert",
+      "recrute": "Eingestellt"
+    },
+    "kpi": {
+      "referrals": "Empfehlungen",
+      "recruitedViaReferral": "Eingestellt über Empfehlung",
+      "rewardsDistributed": "Ausgezahlte Prämien"
+    },
+    "qrModal": {
+      "title": "QR-Code des Vermittlers",
+      "instructionsPrefix": "Scannen Sie diesen Code, um eine neue Empfehlung zuzuweisen an",
+      "downloadJpg": "JPG herunterladen",
+      "printBadge": "Badge drucken"
+    }
+  },
+  "reclamations": {
+    "title": "Beschwerden",
+    "filters": {
+      "open": "Offen ({{count}})",
+      "inProgress": "In Bearbeitung ({{count}})",
+      "resolved": "Gelöst ({{count}})",
+      "all": "Alle"
+    },
+    "searchPlaceholder": "Ein Ticket suchen…",
+    "authorRole": {
+      "candidate": "Kandidat",
+      "employer": "Arbeitgeber"
+    },
+    "empty": "Kein Ticket gefunden.",
+    "detail": {
+      "title": "Ticketdetails",
+      "author": "Verfasser",
+      "category": "Kategorie",
+      "ticketSettings": "Ticketeinstellungen",
+      "status": "Status",
+      "statusOptions": {
+        "ouverte": "Offen",
+        "en_cours": "In Bearbeitung",
+        "resolue": "Gelöst"
+      },
+      "replyPlaceholder": "Ihre Antwort eingeben…"
+    },
+    "status": {
+      "ouverte": "Offen",
+      "en_cours": "In Bearbeitung",
+      "resolue": "Gelöst"
+    }
+  }
+}

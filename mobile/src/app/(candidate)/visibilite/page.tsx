@@ -4,8 +4,10 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function VisibilitePage() {
+  const { t, language } = useLanguage();
   const [dashOffset, setDashOffset] = useState(263.89);
 
   useEffect(() => {
@@ -22,15 +24,17 @@ export default function VisibilitePage() {
       <header className="sticky top-0 z-40 mx-auto flex w-full max-w-xl items-center justify-between border-b border-surface-container-high bg-surface px-4 py-4">
         <Link
           href="/dashboard"
-          aria-label="Retour"
+          aria-label={t('common:actions.back')}
           className="flex items-center text-primary transition-opacity hover:opacity-80 active:scale-95"
         >
           <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
             arrow_back
           </span>
         </Link>
-        <h1 className="text-xl font-extrabold text-primary">Ma visibilité</h1>
-        <div className="text-sm font-extrabold text-primary">FR</div>
+        <h1 className="text-xl font-extrabold text-primary">{t('candidateD:visibilite.title')}</h1>
+        <div dir="ltr" className="text-sm font-extrabold text-primary">
+          {language.toUpperCase()}
+        </div>
       </header>
 
       <main className="mx-auto mt-6 max-w-xl px-4">
@@ -69,7 +73,7 @@ export default function VisibilitePage() {
           </div>
           <div className="mt-4 flex items-center gap-2 rounded-full bg-gold/20 px-4 py-1 text-xs font-bold text-tertiary shadow-sm border border-gold/30">
             <span className="material-symbols-outlined fill text-[18px]">workspace_premium</span>
-            Niveau : Or
+            {t('candidateD:visibilite.level')}
           </div>
         </section>
 
@@ -77,8 +81,10 @@ export default function VisibilitePage() {
         <section className="mb-10 space-y-4">
           <div className="rounded-pillar border border-outline-variant bg-surface-container-lowest p-4 shadow-subtle backdrop-blur-md">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-medium text-onSurface">Complétude du profil</span>
-              <span className="text-sm font-extrabold text-primary">+80 pts</span>
+              <span className="text-sm font-medium text-onSurface">{t('candidateD:visibilite.profileCompleteness')}</span>
+              <span dir="ltr" className="text-sm font-extrabold text-primary">
+                {t('candidateD:visibilite.points', { value: 80 })}
+              </span>
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-surface-container">
               <div className="h-2 rounded-full bg-primary" style={{ width: '80%' }} />
@@ -87,8 +93,10 @@ export default function VisibilitePage() {
 
           <div className="rounded-pillar border border-outline-variant bg-surface-container-lowest p-4 shadow-subtle backdrop-blur-md">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-medium text-onSurface">Activité mensuelle</span>
-              <span className="text-sm font-extrabold text-primary">+60 pts</span>
+              <span className="text-sm font-medium text-onSurface">{t('candidateD:visibilite.monthlyActivity')}</span>
+              <span dir="ltr" className="text-sm font-extrabold text-primary">
+                {t('candidateD:visibilite.points', { value: 60 })}
+              </span>
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-surface-container">
               <div className="h-2 rounded-full bg-primary" style={{ width: '60%' }} />
@@ -97,8 +105,10 @@ export default function VisibilitePage() {
 
           <div className="rounded-pillar border border-outline-variant bg-surface-container-lowest p-4 shadow-subtle backdrop-blur-md">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-medium text-onSurface">Badges obtenus</span>
-              <span className="text-sm font-extrabold text-primary">+90 pts</span>
+              <span className="text-sm font-medium text-onSurface">{t('candidateD:visibilite.badgesEarned')}</span>
+              <span dir="ltr" className="text-sm font-extrabold text-primary">
+                {t('candidateD:visibilite.points', { value: 90 })}
+              </span>
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-surface-container">
               <div className="h-2 rounded-full bg-primary" style={{ width: '90%' }} />
@@ -108,7 +118,7 @@ export default function VisibilitePage() {
 
         {/* Conseils pour progresser - Task Section */}
         <section className="mb-10">
-          <h2 className="mb-4 text-xl font-bold text-onSurface">Conseils pour progresser</h2>
+          <h2 className="mb-4 text-xl font-bold text-onSurface">{t('candidateD:visibilite.tips.title')}</h2>
           <div className="space-y-4">
             {/* Task Card 1 */}
             <div className="flex flex-col gap-4 rounded-pillar border border-outline-variant border-l-4 border-l-primary bg-surface-container-lowest p-4 shadow-subtle">
@@ -117,14 +127,15 @@ export default function VisibilitePage() {
                   <span className="material-symbols-outlined text-[24px]">videocam</span>
                 </div>
                 <p className="text-sm leading-relaxed text-onSurface font-medium">
-                  Ajoutez une vidéo de présentation pour gagner <span className="font-bold text-primary">+15 points.</span>
+                  {t('candidateD:visibilite.tips.videoPrefix')}{' '}
+                  <span className="font-bold text-primary">{t('candidateD:visibilite.tips.videoBonus', { value: 15 })}</span>
                 </p>
               </div>
               <Link
                 href="/video"
                 className="block w-full rounded-pillar bg-primary py-3 text-center text-sm font-bold text-onPrimary transition-all hover:bg-primary/90 active:scale-[0.98]"
               >
-                Filmer
+                {t('candidateD:visibilite.tips.filmCta')}
               </Link>
             </div>
 
@@ -135,14 +146,15 @@ export default function VisibilitePage() {
                   <span className="material-symbols-outlined text-[24px]">language</span>
                 </div>
                 <p className="text-sm leading-relaxed text-onSurface font-medium">
-                  Passez le test d&apos;allemand pour débloquer le badge <span className="font-bold text-tertiary">Vérifié.</span>
+                  {t('candidateD:visibilite.tips.germanPrefix')}{' '}
+                  <span className="font-bold text-tertiary">{t('candidateD:visibilite.tips.germanBadge')}</span>
                 </p>
               </div>
               <Link
                 href="/test-langue"
                 className="block w-full rounded-pillar border border-primary py-3 text-center text-sm font-bold text-primary transition-all hover:bg-surface-container-low active:scale-[0.98]"
               >
-                Passer le test
+                {t('candidateD:visibilite.tips.testCta')}
               </Link>
             </div>
           </div>
@@ -151,9 +163,9 @@ export default function VisibilitePage() {
         {/* Derniers badges Section */}
         <section className="mb-10">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-onSurface">Derniers badges</h2>
+            <h2 className="text-xl font-bold text-onSurface">{t('candidateD:visibilite.badgesSection.title')}</h2>
             <button type="button" className="text-sm font-bold text-primary">
-              Voir tout
+              {t('candidateD:visibilite.badgesSection.seeAll')}
             </button>
           </div>
           <div className="flex gap-4 overflow-x-auto pb-4">
@@ -161,21 +173,27 @@ export default function VisibilitePage() {
               <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-error/10 text-error">
                 <span className="material-symbols-outlined fill text-[28px]">verified_user</span>
               </div>
-              <span className="text-xs font-bold leading-tight text-onSurface">Identité Vérifiée</span>
+              <span className="text-xs font-bold leading-tight text-onSurface">
+                {t('candidateD:visibilite.badgesSection.identityVerified')}
+              </span>
             </div>
 
             <div className="flex w-32 shrink-0 flex-col items-center rounded-pillar border border-outline-variant bg-surface-container-lowest p-4 text-center shadow-subtle">
               <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-gold/20 text-tertiary">
                 <span className="material-symbols-outlined fill text-[28px]">translate</span>
               </div>
-              <span className="text-xs font-bold leading-tight text-onSurface">Test Arabe C2</span>
+              <span className="text-xs font-bold leading-tight text-onSurface">
+                {t('candidateD:visibilite.badgesSection.arabicTestC2')}
+              </span>
             </div>
 
             <div className="flex w-32 shrink-0 flex-col items-center rounded-pillar border border-outline-variant bg-surface-container-lowest p-4 text-center shadow-subtle">
               <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-surface-container-low text-primary">
                 <span className="material-symbols-outlined fill text-[28px]">code</span>
               </div>
-              <span className="text-xs font-bold leading-tight text-onSurface">Python Pro</span>
+              <span className="text-xs font-bold leading-tight text-onSurface">
+                {t('candidateD:visibilite.badgesSection.pythonPro')}
+              </span>
             </div>
           </div>
         </section>

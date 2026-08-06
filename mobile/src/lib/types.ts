@@ -51,6 +51,7 @@ export interface CandidateProfile {
   completedSteps: ProfileStep[];
   isComplete: boolean;
   avatarInitials: string;
+  avatarUrl: string | null;
 }
 
 export interface JobOffer {

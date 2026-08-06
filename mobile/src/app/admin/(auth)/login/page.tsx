@@ -5,10 +5,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const { loginAdmin } = useAuth();
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +23,7 @@ export default function AdminLoginPage() {
     const success = await loginAdmin(email, password);
     setIsSubmitting(false);
     if (!success) {
-      setError('Identifiants invalides.');
+      setError(t('auth:adminLogin.errorInvalid'));
       return;
     }
     router.replace('/admin/utilisateurs');
@@ -33,23 +35,28 @@ export default function AdminLoginPage() {
         <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold text-onGold shadow-floating">
           <span className="material-symbols-outlined" style={{ fontSize: 28 }}>shield_person</span>
         </div>
-        <h1 className="text-center text-2xl font-bold text-white">Administration</h1>
-        <p className="mt-1.5 text-center text-sm text-primary-light">Accès réservé à l&apos;équipe Amud Skills.</p>
+        <h1 className="text-center text-2xl font-bold text-white">{t('auth:adminLogin.title')}</h1>
+        <p className="mt-1.5 text-center text-sm text-primary-light">{t('auth:adminLogin.subtitle')}</p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4 rounded-3xl bg-surface-lowest p-6 shadow-floating">
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-onSurface-variant">Identifiant</label>
+            <label className="mb-1.5 block text-xs font-semibold text-onSurface-variant">
+              {t('auth:adminLogin.identifierLabel')}
+            </label>
             <input
               type="email"
+              dir="ltr"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full rounded-xl border border-outline-variant px-4 py-3 text-sm font-medium text-onSurface outline-none focus:border-primary"
-              placeholder="admin@amudskills.com"
+              placeholder={t('auth:adminLogin.identifierPlaceholder')}
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-onSurface-variant">Mot de passe</label>
+            <label className="mb-1.5 block text-xs font-semibold text-onSurface-variant">
+              {t('auth:adminLogin.passwordLabel')}
+            </label>
             <input
               type="password"
               value={password}
@@ -67,7 +74,7 @@ export default function AdminLoginPage() {
             disabled={isSubmitting}
             className="w-full rounded-xl bg-primary py-3.5 text-sm font-bold text-onPrimary shadow-soft transition hover:opacity-90 disabled:opacity-60"
           >
-            {isSubmitting ? 'Connexion…' : 'Se connecter'}
+            {isSubmitting ? t('auth:adminLogin.submitting') : t('auth:adminLogin.submitCta')}
           </button>
         </form>
       </div>

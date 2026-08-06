@@ -6,14 +6,16 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useProfile } from '@/context/ProfileContext';
 import { useNetwork } from '@/context/NetworkContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { DocumentViewer } from '@/components/shared/DocumentViewer';
+import { WithPageSkeleton } from '@/components/shared/SkeletonLoader';
 import type { DocumentEntry } from '@/lib/types';
 
-const DOC_TYPES: { type: DocumentEntry['type']; label: string }[] = [
-  { type: 'cv', label: 'CV' },
-  { type: 'diplome', label: 'Diplôme' },
-  { type: 'passeport', label: 'Passeport' },
-  { type: 'autre', label: 'Autre' },
+const DOC_TYPES: { type: DocumentEntry['type']; labelKey: string }[] = [
+  { type: 'cv', labelKey: 'candidateB:documents.docTypes.cv' },
+  { type: 'diplome', labelKey: 'candidateB:documents.docTypes.diplome' },
+  { type: 'passeport', labelKey: 'candidateB:documents.docTypes.passeport' },
+  { type: 'autre', labelKey: 'candidateB:documents.docTypes.autre' },
 ];
 
 type FlowState = 'idle' | 'scanning' | 'ready';
@@ -21,6 +23,7 @@ type FlowState = 'idle' | 'scanning' | 'ready';
 export default function DocumentsPage() {
   const { profile, updateProfile } = useProfile();
   const { isOnline, queueAction } = useNetwork();
+  const { t } = useLanguage();
   const [selectedType, setSelectedType] = useState<DocumentEntry['type']>('cv');
   const [flowState, setFlowState] = useState<FlowState>('idle');
   const [draftName, setDraftName] = useState('');
@@ -62,9 +65,9 @@ export default function DocumentsPage() {
 
     if (!isOnline) {
       queueAction('upload_document', { document: doc });
-      setToast("Document mis en file d'attente — synchronisation dès la reconnexion.");
+      setToast(t('candidateB:documents.toastQueued'));
     } else {
-      setToast('Document ajouté avec succès.');
+      setToast(t('candidateB:documents.toastSuccess'));
     }
 
     setFlowState('idle');
@@ -76,18 +79,19 @@ export default function DocumentsPage() {
   };
 
   return (
+    <WithPageSkeleton layout="list">
     <div className="min-h-screen bg-surface pb-24">
       <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-outline-variant/30 bg-surface/90 px-6 py-4 backdrop-blur-md">
         <Link href="/dashboard" className="text-primary-dark transition-opacity hover:opacity-80">
           <span className="material-symbols-outlined" style={{ fontSize: 22 }}>arrow_back</span>
         </Link>
-        <h1 className="text-lg font-bold text-primary-dark">Ajouter un document</h1>
+        <h1 className="text-lg font-bold text-primary-dark">{t('candidateB:documents.headerTitle')}</h1>
       </header>
 
       <main className="mx-auto max-w-xl space-y-6 px-6 pt-6">
         <section>
           <div className="flex justify-between gap-1 overflow-x-auto rounded-xl bg-surface-container p-1">
-            {DOC_TYPES.map(({ type, label }) => (
+            {DOC_TYPES.map(({ type, labelKey }) => (
               <button
                 key={type}
                 type="button"
@@ -96,7 +100,7 @@ export default function DocumentsPage() {
                   selectedType === type ? 'bg-primary-container text-on-primary' : 'text-onSurface-variant hover:bg-surface-container-lowest/60'
                 }`}
               >
-                {label}
+                {t(labelKey)}
               </button>
             ))}
           </div>
@@ -113,8 +117,8 @@ export default function DocumentsPage() {
                 <span className="material-symbols-outlined" style={{ fontSize: 30 }}>upload_file</span>
               </div>
               <div>
-                <h3 className="text-base font-semibold text-onSurface">Prenez une photo ou importez un fichier</h3>
-                <p className="text-sm text-outline">PDF, JPG, PNG — Max 10 Mo</p>
+                <h3 className="text-base font-semibold text-onSurface">{t('candidateB:documents.dropzoneTitle')}</h3>
+                <p className="text-sm text-outline">{t('candidateB:documents.dropzoneHint')}</p>
               </div>
             </button>
             <div className="mt-4 grid grid-cols-2 gap-4">
@@ -124,7 +128,7 @@ export default function DocumentsPage() {
                 className="flex items-center justify-center gap-2 rounded-xl border border-outline-variant py-3 px-4 font-medium transition-colors hover:bg-surface-container"
               >
                 <span className="material-symbols-outlined text-primary-container" style={{ fontSize: 20 }}>photo_camera</span>
-                Prendre une photo
+                {t('candidateB:documents.takePhoto')}
               </button>
               <button
                 type="button"
@@ -132,7 +136,7 @@ export default function DocumentsPage() {
                 className="flex items-center justify-center gap-2 rounded-xl border border-outline-variant py-3 px-4 font-medium transition-colors hover:bg-surface-container"
               >
                 <span className="material-symbols-outlined text-primary-container" style={{ fontSize: 20 }}>image</span>
-                Importer
+                {t('candidateB:documents.import')}
               </button>
             </div>
           </section>
@@ -144,7 +148,7 @@ export default function DocumentsPage() {
               <div className="absolute inset-x-0 top-0 h-1 animate-[scan_1.8s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-primary-container to-transparent shadow-[0_0_15px_2px_rgba(27,94,55,0.5)]" />
               <div className="absolute inset-0 flex items-center justify-center bg-primary-container/10">
                 <div className="rounded-full bg-surface-container-lowest/90 px-6 py-2 shadow-sm backdrop-blur-sm">
-                  <span className="font-medium text-primary-container">Numérisation…</span>
+                  <span className="font-medium text-primary-container">{t('candidateB:documents.scanningLabel')}</span>
                 </div>
               </div>
               <div className="flex flex-col items-center gap-2 text-primary-container">
@@ -153,7 +157,7 @@ export default function DocumentsPage() {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm font-medium text-onSurface-variant">
-                <span>Analyse du document en cours…</span>
+                <span>{t('candidateB:documents.scanningProgress')}</span>
                 <span>{scanProgress}%</span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-surface-container">
@@ -170,15 +174,15 @@ export default function DocumentsPage() {
           <section className="rounded-2xl border border-surface-container-high bg-surface-container-lowest p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.03)]">
             <div className="mb-6 flex items-center justify-between">
               <span className="flex items-center gap-1 rounded-full bg-primary-container/10 px-3 py-1 text-xs font-bold text-primary-container">
-                <span className="material-symbols-outlined" style={{ fontSize: 14 }}>check_circle</span> Succès
+                <span className="material-symbols-outlined" style={{ fontSize: 14 }}>check_circle</span> {t('candidateB:documents.success')}
               </span>
-              <span className="text-xs text-outline">Analyse IA terminée</span>
+              <span className="text-xs text-outline">{t('candidateB:documents.aiComplete')}</span>
             </div>
 
             {selectedType === 'diplome' ? (
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-outline">Nom complet</label>
+                  <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-outline">{t('candidateB:documents.fullName')}</label>
                   <input
                     value={draftFullName}
                     onChange={(e) => setDraftFullName(e.target.value)}
@@ -186,17 +190,17 @@ export default function DocumentsPage() {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-outline">Institution</label>
+                  <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-outline">{t('candidateB:documents.institution')}</label>
                   <input
                     value={draftInstitution}
                     onChange={(e) => setDraftInstitution(e.target.value)}
-                    placeholder="Nom de l'établissement"
+                    placeholder={t('candidateB:documents.institutionPlaceholder')}
                     className="w-full rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm font-medium outline-none focus:border-primary-container"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-outline">Année</label>
+                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-outline">{t('candidateB:documents.year')}</label>
                     <input
                       value={draftYear}
                       onChange={(e) => setDraftYear(e.target.value)}
@@ -205,10 +209,10 @@ export default function DocumentsPage() {
                     />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-outline">Type</label>
+                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-outline">{t('candidateB:documents.type')}</label>
                     <input
                       disabled
-                      value={DOC_TYPES.find((d) => d.type === selectedType)?.label ?? ''}
+                      value={t(DOC_TYPES.find((d) => d.type === selectedType)?.labelKey ?? '')}
                       className="w-full rounded-xl border border-outline-variant bg-surface-container-low px-3 py-2.5 text-sm font-medium text-onSurface-variant"
                     />
                   </div>
@@ -217,7 +221,7 @@ export default function DocumentsPage() {
             ) : (
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-outline">Nom du fichier</label>
+                  <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-outline">{t('candidateB:documents.fileName')}</label>
                   <input
                     value={draftName}
                     onChange={(e) => setDraftName(e.target.value)}
@@ -225,10 +229,10 @@ export default function DocumentsPage() {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-outline">Type de document</label>
+                  <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-outline">{t('candidateB:documents.docType')}</label>
                   <input
                     disabled
-                    value={DOC_TYPES.find((d) => d.type === selectedType)?.label ?? ''}
+                    value={t(DOC_TYPES.find((d) => d.type === selectedType)?.labelKey ?? '')}
                     className="w-full rounded-xl border border-outline-variant bg-surface-container-low px-3 py-2.5 text-sm font-medium text-onSurface-variant"
                   />
                 </div>
@@ -240,7 +244,7 @@ export default function DocumentsPage() {
               onClick={confirmUpload}
               className="mt-6 w-full rounded-xl bg-primary-container py-4 text-sm font-bold text-on-primary shadow-sm transition-all hover:opacity-90 active:scale-[0.98]"
             >
-              Confirmer et enregistrer
+              {t('candidateB:documents.confirmCta')}
             </button>
           </section>
         )}
@@ -253,10 +257,10 @@ export default function DocumentsPage() {
         )}
 
         <section className="space-y-3 pb-6">
-          <h2 className="px-1 text-lg font-bold text-onSurface">Documents importés ({profile.documents.length})</h2>
+          <h2 className="px-1 text-lg font-bold text-onSurface">{t('candidateB:documents.importedTitle', { count: profile.documents.length })}</h2>
           {profile.documents.length === 0 ? (
             <p className="rounded-xl bg-surface-container p-4 text-center text-sm text-onSurface-variant">
-              Aucun document pour le moment.
+              {t('candidateB:documents.noDocuments')}
             </p>
           ) : (
             <div className="space-y-2.5">
@@ -277,5 +281,6 @@ export default function DocumentsPage() {
         }
       `}</style>
     </div>
+    </WithPageSkeleton>
   );
 }

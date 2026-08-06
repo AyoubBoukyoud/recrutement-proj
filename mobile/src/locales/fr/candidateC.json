@@ -1,0 +1,152 @@
+{
+  "shared": {
+    "pageTitle": "Simuler mon salaire",
+    "form": {
+      "profession": "Profession",
+      "professionPlaceholder": "Ex: Infirmier",
+      "region": "Région en Allemagne",
+      "experience": "Années d'expérience",
+      "calculateButton": "Calculer"
+    },
+    "regions": {
+      "berlin": "Berlin",
+      "baviereMunich": "Bavière (Munich)",
+      "badeWurtembergStuttgart": "Bade-Wurtemberg (Stuttgart)",
+      "hesseFrancfort": "Hesse (Francfort)",
+      "rhenanieNordWestphalie": "Rhénanie-du-Nord-Westphalie"
+    },
+    "grossMonthlySalary": "Salaire brut mensuel estimé",
+    "perMonth": "/ mois",
+    "results": {
+      "low": "Bas ({{value}} €)",
+      "high": "Haut ({{value}} €)"
+    },
+    "netSalary": "Salaire net estimé",
+    "resteAVivre": "Reste à vivre",
+    "afterRentCharges": "Après loyer et charges",
+    "estimationBadge": "Estimation {{year}}",
+    "expenseLabel": "Poste de dépense",
+    "amountLabel": "Montant",
+    "totalCostLabel": "Coût total estimé",
+    "aid": {
+      "prefix": "Aides possibles :",
+      "programName": "Programme THAMM"
+    },
+    "optimizeProfileTitle": "Optimisez votre profil",
+    "optimizeProfileDescription": "Les salaires peuvent varier de 20% selon la certification de votre niveau d'allemand (B1/B2).",
+    "viewLanguageCoursesLink": "Voir les cours de langue",
+    "needHelpTitle": "Besoin d'accompagnement ?",
+    "needHelpDescription": "Nos conseillers vous aident à préparer votre dossier de visa et à trouver votre premier logement.",
+    "tags": {
+      "housingSearch": "Recherche de logement",
+      "visaAssistance": "Assistance Visa",
+      "bankAccount": "Ouverture compte bancaire"
+    },
+    "downloadPdfButton": "Télécharger l'estimation (PDF)"
+  },
+  "salaire": {
+    "subtitle": "Estimez votre futur niveau de vie en Allemagne et anticipez votre transition professionnelle.",
+    "calculatingText": "Calcul en cours…",
+    "migrationTitle": "Migration : devis estimatif",
+    "migrationCosts": {
+      "visa": "Visa de travail (Consulat)",
+      "flight": "Billet d'avion (Casa → Allemagne)",
+      "insurance": "Assurance voyage (90 jours)",
+      "rent": "Premier loyer + Caution (estimation)",
+      "translation": "Traduction certifiée des documents"
+    },
+    "aidDescription": "Vous pourriez être éligible à un remboursement partiel de ces frais via les accords bilatéraux Maroc–Allemagne.",
+    "contactAdvisorLink": "Contacter un conseiller"
+  },
+  "simulateurSalaire": {
+    "notificationsAria": "Notifications",
+    "subtitle": "Estimez votre futur niveau de vie en Allemagne et prévoyez votre transition professionnelle en toute sérénité.",
+    "professions": {
+      "infirmier": "Infirmier",
+      "ingenieurLogiciel": "Ingénieur logiciel",
+      "technicienMaintenance": "Technicien maintenance",
+      "chauffeurPoidsLourd": "Chauffeur poids lourd"
+    },
+    "calculatingText": "Calcul en cours...",
+    "migrationTitle": "Migration : Devis estimatif",
+    "migrationCosts": {
+      "visa": "Visa de travail (Consulat)",
+      "flight": "Billet d'avion (Casa - Berlin)",
+      "insurance": "Assurance voyage (90 jours)",
+      "rent": "Premier loyer + Caution (Estimation)",
+      "translation": "Traduction certifiée documents"
+    },
+    "aidDescription": "Vous pourriez être éligible à un remboursement partiel de ces frais via les accords bilatéraux Maroc-Allemagne."
+  },
+  "matchingPreferences": {
+    "title": "Mes préférences",
+    "profileAria": "Mon profil",
+    "heroTitle": "Personnalisez vos opportunités",
+    "heroDescription": "Définissez vos critères pour que nous puissions vous proposer les meilleures offres en Allemagne.",
+    "regionsTitle": "Région souhaitée en Allemagne",
+    "regions": {
+      "berlin": "Berlin",
+      "baviere": "Bavière",
+      "hambourg": "Hambourg",
+      "saxe": "Saxe",
+      "badeWurtemberg": "Bade-Wurtemberg",
+      "hesse": "Hesse"
+    },
+    "companyTypeTitle": "Type d'entreprise",
+    "companyTypes": {
+      "grandGroupe": "Grand groupe",
+      "pme": "PME",
+      "startup": "Start-up",
+      "peuImporte": "Peu importe"
+    },
+    "sectorsTitle": "Secteurs d'activité",
+    "sectors": {
+      "sante": "Santé",
+      "logistique": "Logistique",
+      "electricite": "Électricité",
+      "hotellerie": "Hôtellerie",
+      "construction": "Construction"
+    },
+    "salaryTitle": "Salaire minimum (Annuel)",
+    "discoverCaption": "Découvrez votre futur chez-vous en Allemagne.",
+    "savedToast": "Vos préférences de matching ont été enregistrées avec succès !",
+    "saveButton": "Enregistrer les préférences"
+  },
+  "dashboard": {
+    "greeting": "Bonjour, {{name}} 👋",
+    "defaultName": "Candidat",
+    "spaceLabel": "Espace Candidat",
+    "progressTitle": "Progression du profil",
+    "progressDescription": "Complétez votre profil pour apparaître en priorité auprès des recruteurs allemands.",
+    "visibleByPrefix": "Profil visible par",
+    "visibleByCount": "{{count}} recruteurs",
+    "toCompleteTitle": "À compléter",
+    "checklist": {
+      "personalProfile": "Profil personnel complété",
+      "sectorQualification": "Secteur et qualification renseignés",
+      "cv": "CV téléchargé",
+      "diploma": "Certificats / diplômes",
+      "video": "Vidéo de présentation",
+      "languageTest": "Test de langue",
+      "identity": "Identité vérifiée",
+      "addAction": "Ajouter",
+      "recordAction": "Enregistrer",
+      "takeTestAction": "Passer le test",
+      "verifyAction": "Vérifier"
+    },
+    "quickActionsTitle": "Actions rapides",
+    "quickActions": {
+      "addDocument": "Ajouter un document",
+      "recordVideo": "Enregistrer une vidéo",
+      "languageTest": "Passer le test de langue",
+      "viewPublicProfile": "Voir mon profil public",
+      "germanLessonOfDay": "Leçon d'allemand du jour",
+      "viewJobOffers": "Voir les offres d'emploi",
+      "simulateSalary": "Simuler mon salaire",
+      "myVisibility": "Ma visibilité",
+      "referFriend": "Parrainer un ami",
+      "verifyIdentity": "Vérifier mon identité",
+      "matchingPreferences": "Préférences de matching"
+    }
+  }
+}

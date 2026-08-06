@@ -1,6 +1,7 @@
 'use client';
 
 import { CEFR_LEVELS } from '@/lib/mockData';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface CEFRGaugeProps {
   level: (typeof CEFR_LEVELS)[number] | null;
@@ -10,6 +11,7 @@ interface CEFRGaugeProps {
 }
 
 export function CEFRGauge({ level, interactive = false, onChange, label }: CEFRGaugeProps) {
+  const { t } = useLanguage();
   const activeIndex = level ? CEFR_LEVELS.indexOf(level) : -1;
 
   return (
@@ -36,7 +38,9 @@ export function CEFRGauge({ level, interactive = false, onChange, label }: CEFRG
           <span key={lvl}>{lvl}</span>
         ))}
       </div>
-      {level && <div className="mt-1.5 text-sm font-bold text-primary">Niveau {level}</div>}
+      {level && (
+        <div className="mt-1.5 text-sm font-bold text-primary">{t('common:components.cefrGauge.level', { level })}</div>
+      )}
     </div>
   );
 }

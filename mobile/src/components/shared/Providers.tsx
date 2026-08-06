@@ -5,6 +5,9 @@ import { AuthProvider } from '@/context/AuthContext';
 import { ProfileProvider } from '@/context/ProfileContext';
 import { NetworkProvider } from '@/context/NetworkContext';
 import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
+import { SettingsProvider } from '@/context/SettingsContext';
+import { ThemeProvider } from 'next-themes';
+import { Toaster } from 'react-hot-toast';
 import { OfflineBanner } from './OfflineBanner';
 import { SyncBadge } from './SyncBadge';
 import { InstallPrompt } from './InstallPrompt';
@@ -23,18 +26,23 @@ function HtmlLangSync() {
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <AuthProvider>
-      <ProfileProvider>
-        <NetworkProvider>
-          <LanguageProvider>
-            <HtmlLangSync />
-            <OfflineBanner />
-            {children}
-            <SyncBadge />
-            <InstallPrompt />
-          </LanguageProvider>
-        </NetworkProvider>
-      </ProfileProvider>
-    </AuthProvider>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <SettingsProvider>
+        <AuthProvider>
+          <ProfileProvider>
+            <NetworkProvider>
+              <LanguageProvider>
+                <HtmlLangSync />
+                <OfflineBanner />
+                {children}
+                <Toaster position="top-center" />
+                <SyncBadge />
+                <InstallPrompt />
+              </LanguageProvider>
+            </NetworkProvider>
+          </ProfileProvider>
+        </AuthProvider>
+      </SettingsProvider>
+    </ThemeProvider>
   );
 }

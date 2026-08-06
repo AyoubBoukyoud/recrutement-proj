@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useNetwork } from '@/context/NetworkContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { CEFRGauge } from '@/components/shared/CEFRGauge';
 import { VideoPlayer } from '@/components/shared/VideoPlayer';
 import { MOCK_CANDIDATES, CEFR_LEVELS } from '@/lib/mockData';
@@ -13,6 +14,7 @@ import { MOCK_CANDIDATES, CEFR_LEVELS } from '@/lib/mockData';
 export default function CandidateDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { isOnline, queueAction } = useNetwork();
+  const { t } = useLanguage();
   const candidate = MOCK_CANDIDATES.find((c) => c.id === params.id);
   const [mutualInterest, setMutualInterest] = useState(candidate?.mutualInterest ?? false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -21,9 +23,9 @@ export default function CandidateDetailPage({ params }: { params: { id: string }
   if (!candidate) {
     return (
       <div className="mx-auto max-w-2xl p-6">
-        <Link href="/employer/recherche" className="text-xs font-semibold text-onSurface-variant">← Retour</Link>
+        <Link href="/employer/recherche" className="text-xs font-semibold text-onSurface-variant">{t('employer:candidatDetail.notFoundBack')}</Link>
         <p className="mt-6 rounded-xl bg-surface-container p-6 text-center text-sm text-onSurface-variant">
-          Candidat introuvable.
+          {t('employer:candidatDetail.notFound')}
         </p>
       </div>
     );
@@ -50,11 +52,11 @@ export default function CandidateDetailPage({ params }: { params: { id: string }
       <header className="flex h-16 items-center justify-between border-b border-outline-variant bg-surface px-6 md:px-8">
         <Link href="/employer/recherche" className="flex items-center gap-2 text-primary transition-colors hover:bg-surface-container">
           <span className="material-symbols-outlined" style={{ fontSize: 22 }}>arrow_back</span>
-          <span className="text-lg font-bold text-onSurface">Candidate Profile</span>
+          <span className="text-lg font-bold text-onSurface">{t('employer:candidatDetail.headerTitle')}</span>
         </Link>
         <span className="hidden items-center gap-1 rounded-full bg-gold-light px-3 py-1 text-sm font-bold text-gold-dark md:inline-flex">
           <span className="material-symbols-outlined" style={{ fontSize: 16 }}>stars</span>
-          {candidate.matchScore}% Match
+          <span dir="ltr">{candidate.matchScore}%</span> {t('employer:candidatDetail.matchLabel')}
         </span>
       </header>
 
@@ -77,23 +79,23 @@ export default function CandidateDetailPage({ params }: { params: { id: string }
               <h1 className="text-3xl font-bold text-onSurface">{candidate.name}</h1>
               {candidate.status === 'nouveau' && (
                 <span className="rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-onPrimary">
-                  Disponible
+                  {t('employer:candidatDetail.available')}
                 </span>
               )}
             </div>
-            <p className="mb-4 text-lg text-onSurface-variant">{candidate.role} · {candidate.yearsExperience} ans · {candidate.city}, Maroc</p>
+            <p className="mb-4 text-lg text-onSurface-variant">{t('employer:candidatDetail.roleYearsCity', { role: candidate.role, years: candidate.yearsExperience, city: candidate.city })}</p>
             <div className="flex flex-wrap gap-3">
               <div className="flex items-center gap-2 rounded-xl border border-outline-variant bg-surface-high px-4 py-2">
                 <span className="material-symbols-outlined text-primary" style={{ fontSize: 18 }}>work_history</span>
-                <span className="text-sm text-onSurface">{candidate.yearsExperience} ans d&apos;expérience</span>
+                <span className="text-sm text-onSurface">{t('employer:candidatDetail.yearsExperience', { years: candidate.yearsExperience })}</span>
               </div>
               <div className="flex items-center gap-2 rounded-xl border border-outline-variant bg-surface-high px-4 py-2">
                 <span className="material-symbols-outlined text-primary" style={{ fontSize: 18 }}>verified_user</span>
-                <span className="text-sm text-onSurface">Documents vérifiés</span>
+                <span className="text-sm text-onSurface">{t('employer:candidatDetail.documentsVerified')}</span>
               </div>
               <div className="flex items-center gap-2 rounded-xl border border-gold/30 bg-gold-light px-4 py-2 md:hidden">
                 <span className="material-symbols-outlined text-gold-dark" style={{ fontSize: 18 }}>stars</span>
-                <span className="text-sm font-bold text-gold-dark">{candidate.matchScore}% Match</span>
+                <span className="text-sm font-bold text-gold-dark"><span dir="ltr">{candidate.matchScore}%</span> {t('employer:candidatDetail.matchLabel')}</span>
               </div>
             </div>
           </div>
@@ -104,31 +106,37 @@ export default function CandidateDetailPage({ params }: { params: { id: string }
             <article className="space-y-3 rounded-xl border-l-4 border-primary bg-surface-lowest p-6 shadow-sm">
               <div className="flex items-center gap-2 text-primary">
                 <span className="material-symbols-outlined" style={{ fontSize: 20 }}>auto_awesome</span>
-                <h4 className="text-lg font-bold">Résumé du candidat</h4>
+                <h4 className="text-lg font-bold">{t('employer:candidatDetail.summaryTitle')}</h4>
               </div>
               <p className="text-sm leading-relaxed text-onSurface-variant">
-                {candidate.name.split(' ')[0]} est un{candidate.role.match(/^[AEIOUaeiou]/) ? '' : '(e)'} {candidate.role.toLowerCase()} avec {candidate.yearsExperience} ans d&apos;expérience
-                dans le secteur {candidate.sector}. Niveau d&apos;allemand estimé : {candidate.languageLevel}, ce qui le/la prépare bien pour une intégration
-                rapide en entreprise allemande. Statut actuel du dossier : {candidate.status}.
+                {t('employer:candidatDetail.summary', {
+                  firstName: candidate.name.split(' ')[0],
+                  genderSuffix: candidate.role.match(/^[AEIOUaeiou]/) ? '' : '(e)',
+                  role: candidate.role.toLowerCase(),
+                  years: candidate.yearsExperience,
+                  sector: candidate.sector,
+                  languageLevel: candidate.languageLevel,
+                  status: candidate.status,
+                })}
               </p>
             </article>
 
             <article className="space-y-4 rounded-xl bg-surface-lowest p-6 shadow-sm">
               <div className="flex items-center justify-between">
-                <h4 className="text-lg font-bold text-onSurface">Vidéo de présentation</h4>
+                <h4 className="text-lg font-bold text-onSurface">{t('employer:candidatDetail.videoTitle')}</h4>
               </div>
               <VideoPlayer src={null} />
             </article>
 
             <article className="space-y-4 rounded-xl bg-surface-lowest p-6 shadow-sm">
-              <h4 className="text-lg font-bold text-onSurface">Profil professionnel</h4>
+              <h4 className="text-lg font-bold text-onSurface">{t('employer:candidatDetail.professionalProfileTitle')}</h4>
               <div className="flex gap-4">
                 <div className="mt-1 h-3 w-3 shrink-0 rounded-full border-4 border-surface-lowest bg-primary-light shadow-sm" />
                 <div>
                   <p className="font-bold text-onSurface">{candidate.role}</p>
                   <p className="text-sm text-onSurface-variant">{candidate.sector} · {candidate.city}</p>
                   <p className="mt-2 text-sm text-onSurface-variant">
-                    {candidate.yearsExperience} ans d&apos;expérience cumulée dans ce secteur, statut de candidature : {candidate.status}.
+                    {t('employer:candidatDetail.experienceCumulative', { years: candidate.yearsExperience, status: candidate.status })}
                   </p>
                 </div>
               </div>
@@ -137,10 +145,10 @@ export default function CandidateDetailPage({ params }: { params: { id: string }
 
           <div className="space-y-6 md:col-span-5 lg:col-span-4">
             <article className="space-y-4 rounded-xl bg-surface-lowest p-6 shadow-sm">
-              <h4 className="text-lg font-bold text-onSurface">Compétences linguistiques</h4>
-              <CEFRGauge label={`Allemand (estimé)`} level={level} />
+              <h4 className="text-lg font-bold text-onSurface">{t('employer:candidatDetail.languageSkillsTitle')}</h4>
+              <CEFRGauge label={t('employer:candidatDetail.germanEstimated')} level={level} />
               <div className="flex items-center justify-between text-sm">
-                <span className="font-bold text-onSurface">Niveau déclaré</span>
+                <span className="font-bold text-onSurface">{t('employer:candidatDetail.declaredLevel')}</span>
                 <span className="font-bold text-primary">{candidate.languageLevel}</span>
               </div>
             </article>
@@ -148,21 +156,21 @@ export default function CandidateDetailPage({ params }: { params: { id: string }
             <article className="space-y-3 rounded-xl border border-dashed border-outline bg-surface-highest/30 p-6">
               <div className="flex items-center gap-3 text-onSurface">
                 <span className="material-symbols-outlined" style={{ fontSize: 20 }}>lock</span>
-                <h4 className="text-sm font-bold uppercase tracking-wider">Confidentialité</h4>
+                <h4 className="text-sm font-bold uppercase tracking-wider">{t('employer:candidatDetail.confidentiality')}</h4>
               </div>
               <div className="space-y-3">
                 <div className="rounded-lg bg-surface-lowest/60 p-3">
-                  <p className="mb-1 text-xs text-onSurface-variant">Nom complet</p>
+                  <p className="mb-1 text-xs text-onSurface-variant">{t('employer:candidatDetail.fullName')}</p>
                   <p className={`font-bold ${mutualInterest ? '' : 'select-none blur-[3px]'}`}>{candidate.name}</p>
                 </div>
                 <div className="rounded-lg bg-surface-lowest/60 p-3">
-                  <p className="mb-1 text-xs text-onSurface-variant">Téléphone</p>
+                  <p className="mb-1 text-xs text-onSurface-variant">{t('employer:candidatDetail.phone')}</p>
                   <p className={`font-bold ${mutualInterest ? '' : 'select-none blur-[3px]'}`}>
-                    {mutualInterest ? '+212 6XX-XXXXXX' : '+212 6XX-XXXXXX'}
+                    <span dir="ltr">{mutualInterest ? '+212 6XX-XXXXXX' : '+212 6XX-XXXXXX'}</span>
                   </p>
                 </div>
                 <p className="pt-2 text-center text-xs font-bold italic text-primary">
-                  {mutualInterest ? 'Visible — intérêt mutuel confirmé' : 'Visible après intérêt mutuel'}
+                  {mutualInterest ? t('employer:candidatDetail.visibleMutual') : t('employer:candidatDetail.visibleAfterMutual')}
                 </p>
               </div>
             </article>
@@ -170,13 +178,13 @@ export default function CandidateDetailPage({ params }: { params: { id: string }
             <article className="space-y-3 rounded-xl bg-surface-low p-6">
               <div className="flex items-center gap-2 text-onSurface-variant">
                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>sticky_note_2</span>
-                <label htmlFor="recruiter-notes" className="text-xs font-bold uppercase tracking-tight">Notes privées</label>
+                <label htmlFor="recruiter-notes" className="text-xs font-bold uppercase tracking-tight">{t('employer:candidatDetail.notesLabel')}</label>
               </div>
               <textarea
                 id="recruiter-notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Notes visibles uniquement par vous…"
+                placeholder={t('employer:candidatDetail.notesPlaceholder')}
                 className="min-h-[100px] w-full resize-none rounded-lg border border-outline-variant bg-surface-lowest p-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
             </article>
@@ -203,7 +211,11 @@ export default function CandidateDetailPage({ params }: { params: { id: string }
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
               {mutualInterest ? 'chat' : 'send'}
             </span>
-            {isSubmitting ? 'Envoi…' : mutualInterest ? 'Contacter' : 'Exprimer un intérêt'}
+            {isSubmitting
+              ? t('employer:candidatDetail.sending')
+              : mutualInterest
+                ? t('employer:candidatDetail.contact')
+                : t('employer:candidatDetail.expressInterest')}
           </span>
         </button>
       </div>

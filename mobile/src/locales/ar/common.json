@@ -1,0 +1,140 @@
+{
+  "brand": {
+    "tagline": "طريقك المباشر نحو وظيفة في ألمانيا",
+    "badge": "Bridging Talent"
+  },
+  "nav": {
+    "dashboard": "الرئيسية",
+    "offres": "العروض",
+    "documents": "الوثائق",
+    "profile": "الملف الشخصي",
+    "support": "الدعم",
+    "employerDashboard": "لوحة التحكم",
+    "recherche": "البحث",
+    "matchings": "التوافقات",
+    "messagerie": "الرسائل",
+    "suivi": "المتابعة",
+    "adminUtilisateurs": "المستخدمون",
+    "adminValidation": "التحقق من الملفات",
+    "adminReclamations": "الشكاوى",
+    "adminStatistiques": "الإحصائيات",
+    "adminParrainage": "الإحالة",
+    "settings": "الإعدادات"
+  },
+  "space": {
+    "employer": "فضاء صاحب العمل",
+    "admin": "الإدارة"
+  },
+  "menu": {
+    "open": "فتح القائمة",
+    "close": "إغلاق القائمة"
+  },
+  "adminLayout": {
+    "roleTitle": "المدير الرئيسي"
+  },
+  "actions": {
+    "continue": "متابعة",
+    "back": "رجوع",
+    "loading": "جار التحميل…",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "logout": "تسجيل الخروج"
+  },
+  "feedback": {
+    "errorGeneric": "حدث خطأ. حاول مرة أخرى.",
+    "successGeneric": "تم الحفظ بنجاح."
+  },
+  "language": {
+    "interfaceLabel": "لغة الواجهة",
+    "chooseTitle": "اختر لغتك",
+    "chooseHint": "يمكنك تغييرها في أي وقت من ملفك الشخصي."
+  },
+  "settings": {
+    "pageTitle": "الإعدادات",
+    "backAriaLabel": "رجوع",
+    "profile": {
+      "title": "صورة الملف الشخصي",
+      "subtitle": "عدّل صورتك الرمزية"
+    },
+    "appearance": {
+      "title": "المظهر",
+      "light": "فاتح",
+      "dark": "داكن",
+      "system": "النظام"
+    },
+    "language": {
+      "title": "اللغة"
+    },
+    "textSize": {
+      "title": "حجم النص",
+      "small": "صغير",
+      "medium": "متوسط",
+      "large": "كبير"
+    }
+  },
+  "offlineBanner": "⚠️ وضع عدم الاتصال – سيتم مزامنة تعديلاتك عند استعادة الاتصال.",
+  "offlinePage": {
+    "title": "أنت غير متصل بالإنترنت",
+    "description": "هذه الصفحة غير متوفرة بدون اتصال. تحقق من شبكتك ثم أعد المحاولة.",
+    "retry": "إعادة المحاولة"
+  },
+  "install": {
+    "title": "تثبيت Amud Skills",
+    "subtitle": "أضف التطبيق إلى شاشتك الرئيسية للوصول السريع، حتى بدون اتصال.",
+    "cta": "تثبيت",
+    "dismiss": "لاحقًا",
+    "iosHint": "اضغط على مشاركة، ثم \"على الشاشة الرئيسية\" لتثبيت التطبيق."
+  },
+  "sync": {
+    "pending": "قيد الانتظار",
+    "pendingCount": "{{count}} قيد الانتظار",
+    "syncing": "جارٍ المزامنة…",
+    "synced": "تمت المزامنة"
+  },
+  "components": {
+    "candidateCard": {
+      "status": {
+        "nouveau": "جديد",
+        "contacte": "تم التواصل",
+        "entretien": "مقابلة",
+        "valide": "مقبول"
+      }
+    },
+    "checklist": {
+      "addDefault": "إضافة"
+    },
+    "documentViewer": {
+      "status": {
+        "valide": "مقبول",
+        "enAttente": "قيد الانتظار",
+        "rejete": "مرفوض"
+      },
+      "remove": "إزالة"
+    },
+    "filterPanel": {
+      "close": "إغلاق",
+      "reset": "إعادة التعيين",
+      "apply": "تطبيق"
+    },
+    "timeline": {
+      "inProgress": "جارٍ"
+    },
+    "videoPlayer": {
+      "noVideo": "لا يوجد فيديو متاح",
+      "pause": "إيقاف مؤقت",
+      "play": "تشغيل",
+      "unmute": "تفعيل الصوت",
+      "mute": "كتم الصوت"
+    },
+    "audioRecorder": {
+      "unsupported": "تسجيل الصوت غير متوفر على هذا الجهاز.",
+      "micError": "تعذر الوصول إلى الميكروفون. تحقق من الأذونات.",
+      "stop": "إيقاف التسجيل",
+      "start": "بدء التسجيل",
+      "prompt": "اضغط للتسجيل"
+    },
+    "cefrGauge": {
+      "level": "المستوى {{level}}"
+    }
+  }
+}

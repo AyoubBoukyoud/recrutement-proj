@@ -1,9 +1,11 @@
 'use client';
 
 import { useNetwork } from '@/context/NetworkContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 export function SyncBadge() {
   const { isOnline, pendingCount, isSyncing } = useNetwork();
+  const { t } = useLanguage();
 
   if (isOnline && pendingCount === 0 && !isSyncing) return null;
 
@@ -16,7 +18,11 @@ export function SyncBadge() {
         {!isOnline ? 'cloud_off' : isSyncing ? 'sync' : 'cloud_done'}
       </span>
       <span className="text-xs font-semibold">
-        {pendingCount > 0 ? `${pendingCount} en attente` : isSyncing ? 'Synchronisation…' : 'Synchronisé'}
+        {pendingCount > 0
+          ? t('common:sync.pendingCount', { count: pendingCount })
+          : isSyncing
+            ? t('common:sync.syncing')
+            : t('common:sync.synced')}
       </span>
     </div>
   );

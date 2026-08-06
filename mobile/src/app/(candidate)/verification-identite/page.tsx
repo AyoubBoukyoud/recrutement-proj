@@ -4,8 +4,10 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function VerificationIdentitePage() {
+  const { t } = useLanguage();
   const [flashOn, setFlashOn] = useState(true);
   const [captured, setCaptured] = useState(false);
   const [showFlashEffect, setShowFlashEffect] = useState(false);
@@ -28,14 +30,14 @@ export default function VerificationIdentitePage() {
         >
           <span className="material-symbols-outlined text-2xl">arrow_back</span>
         </Link>
-        <h1 className="flex-1 pr-10 text-center text-lg font-extrabold text-primary">Vérification d&apos;identité</h1>
+        <h1 className="flex-1 pr-10 text-center text-lg font-extrabold text-primary">{t('candidateB:verificationIdentite.headerTitle')}</h1>
       </header>
 
       <main className="mx-auto flex flex-1 w-full max-w-md flex-col items-center px-4 pb-12">
         {/* Instructions Section */}
         <section className="w-full py-4 text-center">
           <p className="text-base font-semibold leading-relaxed text-onSurface-variant">
-            Prenez un selfie en tenant votre passeport ouvert à côté de votre visage.
+            {t('candidateB:verificationIdentite.instructions')}
           </p>
         </section>
 
@@ -45,7 +47,7 @@ export default function VerificationIdentitePage() {
           <div className="absolute inset-0 z-0">
             <img
               className="h-full w-full object-cover opacity-60"
-              alt="Aperçu caméra selfie et passeport"
+              alt={t('candidateB:verificationIdentite.cameraAlt')}
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0J62yrUrgNKW6qRo4MTSKpR9xZDqjtmuXqCzQYX241WJSfaD4RHB4Qqa7n3MJ_-sLQVFElrtZSz5KZYMTKTtNcYZcEOserq0PjmI2gGW_WMaJVkcdcA2tPYG7lyxFus273OQiMXUXe2K20CdLg5L4eFRb5CG9dIikTYHi8HMFIRLH4gbxdBt0ESv_xZsNB6uG23Q3kSZNZmBM251MXQOF9rKrnDtsVuduDWu42iyj-QR5uMAQJjCG"
             />
           </div>
@@ -72,10 +74,10 @@ export default function VerificationIdentitePage() {
 
             {/* Labels for guides */}
             <div className="absolute left-[10%] top-[10%] rounded bg-primary/80 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
-              Visage
+              {t('candidateB:verificationIdentite.faceLabel')}
             </div>
             <div className="absolute bottom-[42%] right-[10%] rounded bg-primary/80 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
-              Passeport
+              {t('candidateB:verificationIdentite.passportLabel')}
             </div>
           </div>
 
@@ -123,7 +125,7 @@ export default function VerificationIdentitePage() {
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
               check_circle
             </span>
-            Capture effectuée avec succès ! En cours d&apos;analyse…
+            {t('candidateB:verificationIdentite.captureSuccess')}
           </div>
         )}
 
@@ -136,10 +138,10 @@ export default function VerificationIdentitePage() {
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
               person
             </span>
-            Retour au Profil
+            {t('candidateB:verificationIdentite.backToProfile')}
           </Link>
           <p className="px-6 text-center text-[11px] leading-relaxed text-onSurface-variant opacity-80 font-medium">
-            Vos données sont chiffrées et traitées conformément à la réglementation européenne sur la protection des données (RGPD).
+            {t('candidateB:verificationIdentite.gdprNotice')}
           </p>
         </div>
       </main>

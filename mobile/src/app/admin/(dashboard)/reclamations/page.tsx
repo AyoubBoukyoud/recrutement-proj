@@ -5,12 +5,7 @@
 import { useMemo, useState } from 'react';
 import { MOCK_RECLAMATIONS } from '@/lib/mockData';
 import type { ReclamationEntry } from '@/lib/types';
-
-const STATUS_LABEL: Record<ReclamationEntry['status'], string> = {
-  ouverte: 'Ouverte',
-  en_cours: 'En cours',
-  resolue: 'Résolue',
-};
+import { useLanguage } from '@/context/LanguageContext';
 
 const STATUS_CLASS: Record<ReclamationEntry['status'], string> = {
   ouverte: 'bg-secondary-light text-onSecondary-container',
@@ -19,6 +14,12 @@ const STATUS_CLASS: Record<ReclamationEntry['status'], string> = {
 };
 
 export default function AdminReclamationsPage() {
+  const { t } = useLanguage();
+  const STATUS_LABEL: Record<ReclamationEntry['status'], string> = {
+    ouverte: t('admin:reclamations.status.ouverte'),
+    en_cours: t('admin:reclamations.status.en_cours'),
+    resolue: t('admin:reclamations.status.resolue'),
+  };
   const [tickets, setTickets] = useState<ReclamationEntry[]>(MOCK_RECLAMATIONS);
   const [filter, setFilter] = useState<'all' | ReclamationEntry['status']>('all');
   const [query, setQuery] = useState('');
@@ -48,7 +49,7 @@ export default function AdminReclamationsPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <header className="flex h-16 items-center gap-3 border-b border-outline-variant bg-surface px-4 md:px-8">
-        <h1 className="text-xl font-bold text-primary">Réclamations</h1>
+        <h1 className="text-xl font-bold text-primary">{t('admin:reclamations.title')}</h1>
         <span className="rounded-full bg-primary-light px-2 py-0.5 text-xs font-bold text-onPrimary-container">{tickets.length}</span>
       </header>
 
@@ -61,7 +62,7 @@ export default function AdminReclamationsPage() {
               filter === 'ouverte' ? 'border-primary bg-primary-light text-onPrimary-container' : 'border-outline-variant text-onSurface-variant'
             }`}
           >
-            Ouvertes ({counts.ouverte})
+            {t('admin:reclamations.filters.open', { count: counts.ouverte })}
           </button>
           <button
             type="button"
@@ -70,7 +71,7 @@ export default function AdminReclamationsPage() {
               filter === 'en_cours' ? 'border-primary bg-primary-light text-onPrimary-container' : 'border-outline-variant text-onSurface-variant'
             }`}
           >
-            En cours ({counts.en_cours})
+            {t('admin:reclamations.filters.inProgress', { count: counts.en_cours })}
           </button>
           <button
             type="button"
@@ -79,7 +80,7 @@ export default function AdminReclamationsPage() {
               filter === 'resolue' ? 'border-primary bg-primary-light text-onPrimary-container' : 'border-outline-variant text-onSurface-variant'
             }`}
           >
-            Résolues ({counts.resolue})
+            {t('admin:reclamations.filters.resolved', { count: counts.resolue })}
           </button>
           <button
             type="button"
@@ -88,7 +89,7 @@ export default function AdminReclamationsPage() {
               filter === 'all' ? 'border-primary bg-primary-light text-onPrimary-container' : 'border-outline-variant text-onSurface-variant'
             }`}
           >
-            Tous
+            {t('admin:reclamations.filters.all')}
           </button>
         </div>
 
@@ -100,7 +101,7 @@ export default function AdminReclamationsPage() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Rechercher un ticket…"
+              placeholder={t('admin:reclamations.searchPlaceholder')}
               className="w-full rounded-xl border border-outline-variant bg-surface-low py-3 pl-10 pr-4 text-sm outline-none transition-all focus:ring-2 focus:ring-primary"
             />
           </div>
@@ -119,7 +120,7 @@ export default function AdminReclamationsPage() {
                 <div className="mt-1 flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary" style={{ fontSize: 14 }}>person</span>
                   <p className="text-sm text-onSurface-variant">
-                    {ticket.authorName} <span className="opacity-60">· {ticket.authorRole === 'candidate' ? 'Candidat' : 'Employeur'}</span>
+                    {ticket.authorName} <span className="opacity-60">· {ticket.authorRole === 'candidate' ? t('admin:reclamations.authorRole.candidate') : t('admin:reclamations.authorRole.employer')}</span>
                   </p>
                 </div>
               </div>
@@ -132,7 +133,7 @@ export default function AdminReclamationsPage() {
             </button>
           ))}
           {filtered.length === 0 && (
-            <p className="rounded-xl bg-surface-container p-6 text-center text-sm text-onSurface-variant">Aucun ticket trouvé.</p>
+            <p className="rounded-xl bg-surface-container p-6 text-center text-sm text-onSurface-variant">{t('admin:reclamations.empty')}</p>
           )}
         </div>
       </div>
@@ -146,8 +147,8 @@ export default function AdminReclamationsPage() {
                 <span className="material-symbols-outlined" style={{ fontSize: 22 }}>arrow_back</span>
               </button>
               <div className="text-center">
-                <p className="text-xs font-bold text-onSurface-variant">#{activeTicket.id}</p>
-                <h2 className="text-lg font-bold text-primary">Détails Ticket</h2>
+                <p className="text-xs font-bold text-onSurface-variant">#<span dir="ltr">{activeTicket.id}</span></p>
+                <h2 className="text-lg font-bold text-primary">{t('admin:reclamations.detail.title')}</h2>
               </div>
               <div className="w-10" />
             </div>
@@ -157,11 +158,11 @@ export default function AdminReclamationsPage() {
                 <h3 className="mb-4 text-lg font-bold text-onSurface">{activeTicket.subject}</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-onSurface-variant opacity-60">Auteur</p>
+                    <p className="text-onSurface-variant opacity-60">{t('admin:reclamations.detail.author')}</p>
                     <p className="font-bold">{activeTicket.authorName}</p>
                   </div>
                   <div>
-                    <p className="text-onSurface-variant opacity-60">Catégorie</p>
+                    <p className="text-onSurface-variant opacity-60">{t('admin:reclamations.detail.category')}</p>
                     <p className="font-bold">{activeTicket.category}</p>
                   </div>
                 </div>
@@ -172,17 +173,17 @@ export default function AdminReclamationsPage() {
               </div>
 
               <div className="space-y-3 rounded-2xl border border-primary/10 bg-surface-container p-4">
-                <p className="text-xs font-bold uppercase tracking-wider text-primary">Paramètres du ticket</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-primary">{t('admin:reclamations.detail.ticketSettings')}</p>
                 <div className="space-y-1">
-                  <label className="px-1 text-xs text-onSurface-variant">Statut</label>
+                  <label className="px-1 text-xs text-onSurface-variant">{t('admin:reclamations.detail.status')}</label>
                   <select
                     value={activeTicket.status}
                     onChange={(e) => setStatus(activeTicket.id, e.target.value as ReclamationEntry['status'])}
                     className="w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 text-sm focus:border-primary focus:ring-primary"
                   >
-                    <option value="ouverte">Ouvert</option>
-                    <option value="en_cours">En cours</option>
-                    <option value="resolue">Résolu</option>
+                    <option value="ouverte">{t('admin:reclamations.detail.statusOptions.ouverte')}</option>
+                    <option value="en_cours">{t('admin:reclamations.detail.statusOptions.en_cours')}</option>
+                    <option value="resolue">{t('admin:reclamations.detail.statusOptions.resolue')}</option>
                   </select>
                 </div>
               </div>
@@ -192,7 +193,7 @@ export default function AdminReclamationsPage() {
               <div className="flex items-end gap-2">
                 <textarea
                   rows={1}
-                  placeholder="Tapez votre réponse…"
+                  placeholder={t('admin:reclamations.detail.replyPlaceholder')}
                   className="flex-grow resize-none rounded-2xl border border-outline-variant bg-surface-low px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
                 />
                 <button type="button" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-onPrimary shadow-lg transition-transform active:scale-90">

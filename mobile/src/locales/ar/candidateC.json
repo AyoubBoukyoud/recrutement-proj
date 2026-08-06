@@ -1,0 +1,152 @@
+{
+  "shared": {
+    "pageTitle": "محاكاة راتبي",
+    "form": {
+      "profession": "المهنة",
+      "professionPlaceholder": "مثال: ممرض",
+      "region": "المنطقة في ألمانيا",
+      "experience": "سنوات الخبرة",
+      "calculateButton": "احسب"
+    },
+    "regions": {
+      "berlin": "برلين",
+      "baviereMunich": "بافاريا (ميونخ)",
+      "badeWurtembergStuttgart": "بادن-فورتمبرغ (شتوتغارت)",
+      "hesseFrancfort": "هيسن (فرانكفورت)",
+      "rhenanieNordWestphalie": "شمال الراين-وستفاليا"
+    },
+    "grossMonthlySalary": "الراتب الإجمالي الشهري المقدر",
+    "perMonth": "/ شهريًا",
+    "results": {
+      "low": "الأدنى ({{value}} €)",
+      "high": "الأعلى ({{value}} €)"
+    },
+    "netSalary": "الراتب الصافي المقدر",
+    "resteAVivre": "الدخل المتبقي للعيش",
+    "afterRentCharges": "بعد الإيجار والمصاريف",
+    "estimationBadge": "تقدير {{year}}",
+    "expenseLabel": "بند المصروف",
+    "amountLabel": "المبلغ",
+    "totalCostLabel": "التكلفة الإجمالية المقدرة",
+    "aid": {
+      "prefix": "مساعدات محتملة:",
+      "programName": "برنامج THAMM"
+    },
+    "optimizeProfileTitle": "حسّن ملفك الشخصي",
+    "optimizeProfileDescription": "يمكن أن تختلف الرواتب بنسبة 20% حسب شهادة مستواك في اللغة الألمانية (B1/B2).",
+    "viewLanguageCoursesLink": "عرض دورات اللغة",
+    "needHelpTitle": "هل تحتاج إلى مرافقة؟",
+    "needHelpDescription": "يساعدك مستشارونا في تحضير ملف التأشيرة والعثور على أول سكن لك.",
+    "tags": {
+      "housingSearch": "البحث عن سكن",
+      "visaAssistance": "المساعدة في التأشيرة",
+      "bankAccount": "فتح حساب بنكي"
+    },
+    "downloadPdfButton": "تحميل التقدير (PDF)"
+  },
+  "salaire": {
+    "subtitle": "قدّر مستوى معيشتك المستقبلي في ألمانيا واستعد لانتقالك المهني.",
+    "calculatingText": "جارٍ الحساب…",
+    "migrationTitle": "الهجرة: تقدير التكاليف",
+    "migrationCosts": {
+      "visa": "تأشيرة العمل (القنصلية)",
+      "flight": "تذكرة الطيران (الدار البيضاء ← ألمانيا)",
+      "insurance": "تأمين السفر (90 يومًا)",
+      "rent": "الإيجار الأول + الضمان (تقدير)",
+      "translation": "الترجمة المعتمدة للوثائق"
+    },
+    "aidDescription": "قد تكون مؤهلاً للحصول على استرداد جزئي لهذه المصاريف عبر الاتفاقيات الثنائية بين المغرب وألمانيا.",
+    "contactAdvisorLink": "الاتصال بمستشار"
+  },
+  "simulateurSalaire": {
+    "notificationsAria": "الإشعارات",
+    "subtitle": "قدّر مستوى معيشتك المستقبلي في ألمانيا وخطط لانتقالك المهني بكل طمأنينة.",
+    "professions": {
+      "infirmier": "ممرض",
+      "ingenieurLogiciel": "مهندس برمجيات",
+      "technicienMaintenance": "تقني صيانة",
+      "chauffeurPoidsLourd": "سائق شاحنة"
+    },
+    "calculatingText": "جارٍ الحساب...",
+    "migrationTitle": "الهجرة: تقدير التكاليف",
+    "migrationCosts": {
+      "visa": "تأشيرة العمل (القنصلية)",
+      "flight": "تذكرة الطيران (الدار البيضاء - برلين)",
+      "insurance": "تأمين السفر (90 يومًا)",
+      "rent": "الإيجار الأول + الضمان (تقدير)",
+      "translation": "الترجمة المعتمدة للوثائق"
+    },
+    "aidDescription": "قد تكون مؤهلاً للحصول على استرداد جزئي لهذه المصاريف عبر الاتفاقيات الثنائية بين المغرب وألمانيا."
+  },
+  "matchingPreferences": {
+    "title": "تفضيلاتي",
+    "profileAria": "ملفي الشخصي",
+    "heroTitle": "خصص فرصك",
+    "heroDescription": "حدد معاييرك لنتمكن من اقتراح أفضل العروض المتاحة في ألمانيا عليك.",
+    "regionsTitle": "المنطقة المرغوبة في ألمانيا",
+    "regions": {
+      "berlin": "برلين",
+      "baviere": "بافاريا",
+      "hambourg": "هامبورغ",
+      "saxe": "ساكسونيا",
+      "badeWurtemberg": "بادن-فورتمبرغ",
+      "hesse": "هيسن"
+    },
+    "companyTypeTitle": "نوع الشركة",
+    "companyTypes": {
+      "grandGroupe": "مجموعة كبرى",
+      "pme": "شركة صغيرة أو متوسطة",
+      "startup": "شركة ناشئة",
+      "peuImporte": "غير مهم"
+    },
+    "sectorsTitle": "قطاعات النشاط",
+    "sectors": {
+      "sante": "الصحة",
+      "logistique": "اللوجستيك",
+      "electricite": "الكهرباء",
+      "hotellerie": "الفندقة",
+      "construction": "البناء"
+    },
+    "salaryTitle": "الحد الأدنى للراتب (سنويًا)",
+    "discoverCaption": "اكتشف مستقبلك في ألمانيا.",
+    "savedToast": "تم حفظ تفضيلات المطابقة الخاصة بك بنجاح!",
+    "saveButton": "حفظ التفضيلات"
+  },
+  "dashboard": {
+    "greeting": "مرحبًا، {{name}} 👋",
+    "defaultName": "مرشح",
+    "spaceLabel": "فضاء المرشح",
+    "progressTitle": "تقدم الملف الشخصي",
+    "progressDescription": "أكمل ملفك الشخصي لتظهر بالأولوية لدى مسؤولي التوظيف الألمان.",
+    "visibleByPrefix": "الملف الشخصي مرئي لدى",
+    "visibleByCount": "{{count}} من مسؤولي التوظيف",
+    "toCompleteTitle": "للإكمال",
+    "checklist": {
+      "personalProfile": "الملف الشخصي مكتمل",
+      "sectorQualification": "القطاع والمؤهل محددان",
+      "cv": "تم رفع السيرة الذاتية",
+      "diploma": "الشهادات / الدبلومات",
+      "video": "فيديو التعريف",
+      "languageTest": "اختبار اللغة",
+      "identity": "الهوية موثقة",
+      "addAction": "إضافة",
+      "recordAction": "تسجيل",
+      "takeTestAction": "إجراء الاختبار",
+      "verifyAction": "التحقق"
+    },
+    "quickActionsTitle": "إجراءات سريعة",
+    "quickActions": {
+      "addDocument": "إضافة وثيقة",
+      "recordVideo": "تسجيل فيديو",
+      "languageTest": "إجراء اختبار اللغة",
+      "viewPublicProfile": "عرض ملفي الشخصي العام",
+      "germanLessonOfDay": "درس اللغة الألمانية اليوم",
+      "viewJobOffers": "عرض عروض العمل",
+      "simulateSalary": "محاكاة راتبي",
+      "myVisibility": "ظهوري",
+      "referFriend": "دعوة صديق",
+      "verifyIdentity": "التحقق من هويتي",
+      "matchingPreferences": "تفضيلات المطابقة"
+    }
+  }
+}

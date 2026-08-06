@@ -24,6 +24,7 @@ export const EMPTY_PROFILE: CandidateProfile = {
   completedSteps: [],
   isComplete: false,
   avatarInitials: '',
+  avatarUrl: null,
 };
 
 interface ProfileContextValue {

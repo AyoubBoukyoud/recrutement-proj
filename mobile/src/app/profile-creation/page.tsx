@@ -7,20 +7,22 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useProfile } from '@/context/ProfileContext';
 import { useNetwork } from '@/context/NetworkContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { CEFRGauge } from '@/components/shared/CEFRGauge';
-import { SECTORS } from '@/lib/mockData';
+import { SECTORS, SECTOR_DATABASE } from '@/lib/mockData';
 import type { CEFRLevel, ProfileStep } from '@/lib/types';
 
-const STEP_TITLES: Record<ProfileStep, { title: string; arabic: string; subtitle: string }> = {
-  1: { title: 'Vos informations personnelles', arabic: 'معلوماتك الشخصية', subtitle: 'Ces informations permettent aux employeurs de vous identifier et de vous contacter facilement.' },
-  2: { title: "Votre secteur d'activité", arabic: 'مجال عملي', subtitle: 'Choisissez le domaine qui correspond le mieux à vos compétences.' },
-  3: { title: 'Vos compétences linguistiques', arabic: 'مهاراتي اللغوية', subtitle: 'Indiquez votre niveau dans chaque langue.' },
-  4: { title: 'Quand êtes-vous disponible ?', arabic: 'متى أنت متاح؟', subtitle: 'Les employeurs allemands préfèrent les candidats disponibles rapidement.' },
-  5: { title: 'Presque terminé !', arabic: 'على وشك الانتهاء!', subtitle: 'Pour finaliser votre inscription, veuillez accepter les conditions suivantes.' },
+// Libellé arabe fixe (bilingue FR/AR) affiché sous le titre de chaque étape, indépendamment de la langue d'interface.
+const STEP_ARABIC: Record<ProfileStep, string> = {
+  1: 'معلوماتك الشخصية',
+  2: 'مجال عملي',
+  3: 'مهاراتي اللغوية',
+  4: 'متى أنت متاح؟',
+  5: 'على وشك الانتهاء!',
 };
 
 const LANGUAGE_NAMES = ['Allemand', 'Anglais', 'Français'];
-const ADDITIONAL_LANGUAGE_OPTIONS = ['Arabe', 'Espagnol', 'Italien', 'Néerlandais', 'Portugais', 'Turc'];
+const ADDITIONAL_LANGUAGE_OPTIONS = ['Arabe', 'Espagnol', 'Italien', 'Néerlandais', 'Portugais', 'Turc', 'Autre'];
 
 const REGIONS = [
   'Casablanca-Settat',
@@ -61,6 +63,7 @@ function ProfileCreationContent() {
   const { user } = useAuth();
   const { profile, updateProfile, markStepComplete } = useProfile();
   const { isOnline, queueAction } = useNetwork();
+  const { t } = useLanguage();
 
   const stepParam = Number(searchParams.get('step') ?? '1');
   const step = (stepParam >= 1 && stepParam <= 5 ? stepParam : 1) as ProfileStep;
@@ -73,6 +76,9 @@ function ProfileCreationContent() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [languageToAdd, setLanguageToAdd] = useState('');
+  const [customLanguage, setCustomLanguage] = useState('');
+  const [sectorQuery, setSectorQuery] = useState('');
+  const [isSectorSearchFocused, setIsSectorSearchFocused] = useState(false);
 
   useEffect(() => {
     setForm(profile);
@@ -104,6 +110,24 @@ function ProfileCreationContent() {
     setForm((prev) => ({ ...prev, languages: prev.languages.filter((l) => l.language !== language) }));
   };
 
+  const handleAddLanguage = () => {
+    const name = languageToAdd === 'Autre' ? customLanguage.trim() : languageToAdd;
+    if (!name) return;
+    addLanguage(name);
+    setCustomLanguage('');
+  };
+
+  const sectorMatches =
+    sectorQuery.trim().length > 0
+      ? SECTOR_DATABASE.filter((s) => s.toLowerCase().includes(sectorQuery.trim().toLowerCase())).slice(0, 8)
+      : [];
+
+  const selectSector = (sector: string) => {
+    setForm((p) => ({ ...p, sector }));
+    setSectorQuery(sector);
+    setIsSectorSearchFocused(false);
+  };
+
   const selectedAvailability = AVAILABILITY_OPTIONS.find((o) => o.notice === form.noticePeriodWeeks)?.key ?? 'immediate';
 
   const selectAvailability = (option: (typeof AVAILABILITY_OPTIONS)[number]) => {
@@ -113,23 +137,23 @@ function ProfileCreationContent() {
   const validateStep = (): string | null => {
     if (step === 1) {
       if (!form.firstName || !form.lastName || !form.birthDate || !form.city) {
-        return 'Merci de remplir tous les champs requis.';
+        return t('candidateA:profileCreation.validation.step1');
       }
     }
     if (step === 2) {
-      if (!form.sector || !form.jobTitle) return 'Merci de sélectionner un secteur et un métier.';
+      if (!form.sector || !form.jobTitle) return t('candidateA:profileCreation.validation.step2');
     }
     if (step === 3) {
       if (form.languages.length < LANGUAGE_NAMES.length || form.languages.some((l) => !l.level)) {
-        return 'Merci de renseigner un niveau pour chaque langue.';
+        return t('candidateA:profileCreation.validation.step3');
       }
     }
     if (step === 4) {
-      if (!form.desiredStartDate) return 'Merci d\'indiquer une date de disponibilité.';
+      if (!form.desiredStartDate) return t('candidateA:profileCreation.validation.step4');
     }
     if (step === 5) {
       if (!consents.cgu || !consents.privacy || !consents.certify) {
-        return 'Merci d\'accepter les conditions requises pour continuer.';
+        return t('candidateA:profileCreation.validation.step5');
       }
     }
     return null;
@@ -162,11 +186,13 @@ function ProfileCreationContent() {
     }
   };
 
-  const { title, arabic, subtitle } = STEP_TITLES[step];
+  const title = t(`candidateA:profileCreation.steps.${step}.title`);
+  const subtitle = t(`candidateA:profileCreation.steps.${step}.subtitle`);
+  const arabic = STEP_ARABIC[step];
   const isLastStep = step === 5;
 
   return (
-    <main className="mx-auto min-h-screen max-w-md bg-surface pb-32 shadow-subtle flex flex-col">
+    <main className="mx-auto min-h-screen w-full max-w-md md:max-w-2xl bg-surface pb-32 shadow-subtle flex flex-col">
       <header className="sticky top-0 z-10 border-b border-surface-container-high bg-surface px-6 py-4">
         <div className="flex items-center justify-between">
           {step > 1 ? (
@@ -178,7 +204,7 @@ function ProfileCreationContent() {
               <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
                 arrow_back
               </span>
-              Retour
+              {t('candidateA:profileCreation.back')}
             </button>
           ) : (
             <span />
@@ -191,8 +217,8 @@ function ProfileCreationContent() {
       <div className="flex-1 px-6 pt-6">
         <div className="mb-6 fade-in-entry opacity-0">
           <div className="mb-2 flex items-end justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-onSurface-variant">Étape {step}/5</span>
-            <span className="text-xs font-extrabold text-primary">{Math.round((step / 5) * 100)}% complété</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-onSurface-variant">{t('candidateA:profileCreation.stepIndicator', { step, total: 5 })}</span>
+            <span className="text-xs font-extrabold text-primary">{t('candidateA:profileCreation.percentComplete', { percent: Math.round((step / 5) * 100) })}</span>
           </div>
           <div className="flex gap-1.5">
             {[1, 2, 3, 4, 5].map((s) => (
@@ -223,7 +249,7 @@ function ProfileCreationContent() {
             </div>
             <h2 className="text-2xl font-extrabold text-onSurface">{title}</h2>
             <p className="mt-1 text-lg font-bold text-primary" dir="rtl">{arabic}</p>
-            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-onSurface-variant">{subtitle}</p>
+            <p className="mx-auto mt-2 max-w-md md:max-w-lg text-sm leading-relaxed text-onSurface-variant">{subtitle}</p>
           </div>
         ) : (
           <div className="fade-in-entry opacity-0 mb-6">
@@ -239,30 +265,31 @@ function ProfileCreationContent() {
         {/* Step 1 — informations personnelles */}
         {step === 1 && (
           <div className="fade-in-entry stagger-1 opacity-0 space-y-4">
-            <TextField label="Nom complet en arabe" value={arabicName} onChange={setArabicName} dir="rtl" placeholder="الاسم الكامل بالعربية" />
+            <TextField label={t('candidateA:profileCreation.step1.arabicNameLabel')} value={arabicName} onChange={setArabicName} dir="rtl" placeholder="الاسم الكامل بالعربية" />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <TextField label="Prénom en français" value={form.firstName} onChange={(v) => setForm((p) => ({ ...p, firstName: v }))} />
-              <TextField label="Nom en français" value={form.lastName} onChange={(v) => setForm((p) => ({ ...p, lastName: v }))} />
+              <TextField label={t('candidateA:profileCreation.step1.firstNameLabel')} value={form.firstName} onChange={(v) => setForm((p) => ({ ...p, firstName: v }))} />
+              <TextField label={t('candidateA:profileCreation.step1.lastNameLabel')} value={form.lastName} onChange={(v) => setForm((p) => ({ ...p, lastName: v }))} />
             </div>
-            <TextField label="Date de naissance" type="date" value={form.birthDate} onChange={(v) => setForm((p) => ({ ...p, birthDate: v }))} />
+            <TextField label={t('candidateA:profileCreation.step1.birthDateLabel')} type="date" value={form.birthDate} onChange={(v) => setForm((p) => ({ ...p, birthDate: v }))} />
             <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-onSurface">Région de résidence</label>
+              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-onSurface">{t('candidateA:profileCreation.step1.regionLabel')}</label>
               <select
                 value={form.city}
                 onChange={(e) => setForm((p) => ({ ...p, city: e.target.value }))}
                 className="w-full rounded-pillar border border-outline-variant bg-surface-container-lowest px-4 py-3.5 text-sm font-semibold text-onSurface outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
               >
-                <option value="" disabled>Sélectionnez votre région</option>
+                <option value="" disabled>{t('candidateA:profileCreation.step1.regionPlaceholder')}</option>
                 {REGIONS.map((r) => (
-                  <option key={r} value={r}>{r}</option>
+                  <option key={r} value={r}>{t(`candidateA:profileCreation.regions.${r}`)}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-onSurface">Numéro WhatsApp</label>
+              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-onSurface">{t('candidateA:profileCreation.step1.whatsappLabel')}</label>
               <div className="relative">
                 <input
                   disabled
+                  dir="ltr"
                   value={user?.phone ?? '+212 6XX-XXXXXX'}
                   className="w-full cursor-not-allowed rounded-pillar border border-outline-variant bg-surface-container-low px-4 py-3.5 text-sm font-bold text-onSurface-variant"
                 />
@@ -270,9 +297,9 @@ function ProfileCreationContent() {
                   lock
                 </span>
               </div>
-              <p className="mt-1 px-1 text-[11px] text-onSurface-variant">Vérifié lors de l&apos;inscription.</p>
+              <p className="mt-1 px-1 text-[11px] text-onSurface-variant">{t('candidateA:profileCreation.step1.whatsappVerifiedNote')}</p>
             </div>
-            <TextField label="Adresse Email (optionnel)" type="email" value={email} onChange={setEmail} placeholder="exemple@email.com" />
+            <TextField label={t('candidateA:profileCreation.step1.emailLabel')} type="email" value={email} onChange={setEmail} placeholder={t('candidateA:profileCreation.step1.emailPlaceholder')} />
           </div>
         )}
 
@@ -280,7 +307,7 @@ function ProfileCreationContent() {
         {step === 2 && (
           <div className="fade-in-entry stagger-1 opacity-0 space-y-6">
             <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-primary">Secteur d&apos;activité</label>
+              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-primary">{t('candidateA:profileCreation.step2.sectorLabel')}</label>
               <div className="grid grid-cols-2 gap-3">
                 {SECTORS.map((sector) => {
                   const isActive = form.sector === sector;
@@ -304,11 +331,47 @@ function ProfileCreationContent() {
                 })}
               </div>
             </div>
-            <TextField label="Intitulé du poste" value={form.jobTitle} onChange={(v) => setForm((p) => ({ ...p, jobTitle: v }))} placeholder="ex: Électricien industriel, Infirmier…" />
+            <div className="relative">
+              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-onSurface">{t('candidateA:profileCreation.step2.searchSectorLabel')}</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={sectorQuery}
+                  onChange={(e) => setSectorQuery(e.target.value)}
+                  onFocus={() => setIsSectorSearchFocused(true)}
+                  onBlur={() => setTimeout(() => setIsSectorSearchFocused(false), 150)}
+                  placeholder={t('candidateA:profileCreation.step2.searchSectorPlaceholder')}
+                  className="w-full rounded-pillar border border-outline-variant bg-surface-container-lowest px-4 py-3.5 pr-10 text-sm font-semibold text-onSurface outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
+                />
+                <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline" style={{ fontSize: 18 }}>
+                  search
+                </span>
+              </div>
+              {isSectorSearchFocused && sectorMatches.length > 0 && (
+                <ul className="absolute z-20 mt-1.5 w-full overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-lg">
+                  {sectorMatches.map((sector) => (
+                    <li key={sector}>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => selectSector(sector)}
+                        className="flex w-full items-center px-4 py-2.5 text-left text-sm font-semibold text-onSurface transition hover:bg-surface-container-low"
+                      >
+                        {sector}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {form.sector && !SECTORS.includes(form.sector) && (
+                <p className="mt-1.5 px-1 text-[11px] font-bold text-primary">{t('candidateA:profileCreation.step2.selectedSectorPrefix', { sector: form.sector })}</p>
+              )}
+            </div>
+            <TextField label={t('candidateA:profileCreation.step2.jobTitleLabel')} value={form.jobTitle} onChange={(v) => setForm((p) => ({ ...p, jobTitle: v }))} placeholder={t('candidateA:profileCreation.step2.jobTitlePlaceholder')} />
             <div className="flex items-center justify-between rounded-pillar border border-outline-variant bg-surface-container-lowest p-4 shadow-subtle">
               <div>
-                <h3 className="text-sm font-bold text-primary">Années d&apos;expérience</h3>
-                <p className="text-xs text-onSurface-variant">Pratique réelle du métier</p>
+                <h3 className="text-sm font-bold text-primary">{t('candidateA:profileCreation.step2.experienceTitle')}</h3>
+                <p className="text-xs text-onSurface-variant">{t('candidateA:profileCreation.step2.experienceSubtitle')}</p>
               </div>
               <div className="flex items-center gap-3">
                 <button
@@ -337,46 +400,72 @@ function ProfileCreationContent() {
             {[...LANGUAGE_NAMES, ...extraLanguages].map((langName) => {
               const current = form.languages.find((l) => l.language === langName)?.level ?? null;
               const isCore = LANGUAGE_NAMES.includes(langName);
+              const displayName = t(`candidateA:profileCreation.languageNames.${langName}`, { defaultValue: langName });
               return (
                 <div key={langName} className="flex items-start gap-2 rounded-pillar border border-outline-variant bg-surface-container-lowest p-4 shadow-subtle">
                   <div className="flex-1">
-                    <CEFRGauge label={langName} level={current} interactive onChange={(level) => setLanguageLevel(langName, level)} />
+                    <CEFRGauge label={displayName} level={current} interactive onChange={(level) => setLanguageLevel(langName, level)} />
                   </div>
-                  {!isCore && (
-                    <button
-                      type="button"
-                      onClick={() => removeLanguage(langName)}
-                      aria-label={`Retirer ${langName}`}
-                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-outline transition hover:bg-surface-container-high hover:text-error"
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeLanguage(langName)}
+                    aria-label={isCore ? t('candidateA:profileCreation.step3.resetLanguageAria', { language: displayName }) : t('candidateA:profileCreation.step3.removeLanguageAria', { language: displayName })}
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-outline transition hover:bg-surface-container-high hover:text-error"
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
+                  </button>
                 </div>
               );
             })}
 
             {availableLanguagesToAdd.length > 0 && (
-              <div className="flex items-center gap-2 rounded-pillar border border-dashed border-outline-variant bg-surface-container-lowest p-3">
-                <select
-                  value={languageToAdd}
-                  onChange={(e) => setLanguageToAdd(e.target.value)}
-                  className="flex-1 rounded-pillar border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-semibold text-onSurface outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
-                >
-                  <option value="">Ajouter une autre langue…</option>
-                  {availableLanguagesToAdd.map((name) => (
-                    <option key={name} value={name}>{name}</option>
-                  ))}
-                </select>
-                <button
-                  type="button"
-                  onClick={() => addLanguage(languageToAdd)}
-                  disabled={!languageToAdd}
-                  aria-label="Ajouter la langue"
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-onPrimary shadow-sm transition-all active:scale-95 disabled:opacity-40"
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>add</span>
-                </button>
+              <div className="space-y-2 rounded-pillar border border-dashed border-outline-variant bg-surface-container-lowest p-3">
+                <div className="flex items-center gap-2">
+                  <select
+                    value={languageToAdd}
+                    onChange={(e) => {
+                      setLanguageToAdd(e.target.value);
+                      setCustomLanguage('');
+                    }}
+                    className="flex-1 rounded-pillar border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-semibold text-onSurface outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  >
+                    <option value="">{t('candidateA:profileCreation.step3.addLanguagePlaceholder')}</option>
+                    {availableLanguagesToAdd.map((name) => (
+                      <option key={name} value={name}>{t(`candidateA:profileCreation.languageNames.${name}`, { defaultValue: name })}</option>
+                    ))}
+                  </select>
+                  {languageToAdd !== 'Autre' && (
+                    <button
+                      type="button"
+                      onClick={handleAddLanguage}
+                      disabled={!languageToAdd}
+                      aria-label={t('candidateA:profileCreation.step3.addLanguageAria')}
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-onPrimary shadow-sm transition-all active:scale-95 disabled:opacity-40"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: 20 }}>add</span>
+                    </button>
+                  )}
+                </div>
+                {languageToAdd === 'Autre' && (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={customLanguage}
+                      onChange={(e) => setCustomLanguage(e.target.value)}
+                      placeholder={t('candidateA:profileCreation.step3.customLanguagePlaceholder')}
+                      className="flex-1 rounded-pillar border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-semibold text-onSurface outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddLanguage}
+                      disabled={!customLanguage.trim()}
+                      aria-label={t('candidateA:profileCreation.step3.addLanguageAria')}
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-onPrimary shadow-sm transition-all active:scale-95 disabled:opacity-40"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: 20 }}>add</span>
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -403,9 +492,9 @@ function ProfileCreationContent() {
                       <span className="material-symbols-outlined" style={{ fontSize: 24 }}>{option.icon}</span>
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-bold text-onSurface">{option.label}</p>
+                      <p className="text-sm font-bold text-onSurface">{t(`candidateA:profileCreation.step4.availability.${option.key}.label`)}</p>
                       <span className="mt-1 inline-flex items-center rounded px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider bg-surface-container text-primary">
-                        {option.badge}
+                        {t(`candidateA:profileCreation.step4.availability.${option.key}.badge`)}
                       </span>
                     </div>
                     {isActive && (
@@ -426,15 +515,15 @@ function ProfileCreationContent() {
                 className="mt-0.5 h-5 w-5 rounded border-outline-variant text-primary focus:ring-primary/30"
               />
               <span className="text-xs leading-relaxed text-onSurface font-medium">
-                Je suis intéressé par une formation en allemand avant mon départ (cours en ligne gratuits proposés par nos partenaires).
+                {t('candidateA:profileCreation.step4.trainingOptIn')}
               </span>
             </label>
 
             <div className="flex gap-3 rounded-pillar border border-primary/20 bg-surface-container-low p-4">
               <span className="material-symbols-outlined shrink-0 text-primary" style={{ fontSize: 20 }}>info</span>
               <p className="text-xs leading-relaxed text-primary font-medium">
-                Les employeurs allemands préfèrent les candidats disponibles rapidement. Si vous êtes flexible, indiquez
-                {' '}<strong>&apos;Immédiat&apos;</strong>.
+                {t('candidateA:profileCreation.step4.infoTextPrefix')}
+                {' '}<strong>&apos;{t('candidateA:profileCreation.step4.availability.immediate.badge')}&apos;</strong>.
               </p>
             </div>
           </div>
@@ -444,24 +533,24 @@ function ProfileCreationContent() {
         {step === 5 && (
           <div className="fade-in-entry stagger-1 opacity-0 space-y-4">
             <ConsentRow
-              label="J'accepte les Conditions Générales d'Utilisation d'Amud Skills"
+              label={t('candidateA:profileCreation.step5.cgu')}
               required
               checked={consents.cgu}
               onChange={(v) => setConsents((p) => ({ ...p, cgu: v }))}
             />
             <ConsentRow
-              label="Je consens au traitement de mes données personnelles conformément à la loi marocaine (CNDP) et au règlement européen (RGPD/DSGVO)."
+              label={t('candidateA:profileCreation.step5.privacy')}
               required
               checked={consents.privacy}
               onChange={(v) => setConsents((p) => ({ ...p, privacy: v }))}
             />
             <ConsentRow
-              label="J'accepte de recevoir des offres d'emploi et des communications par WhatsApp."
+              label={t('candidateA:profileCreation.step5.whatsapp')}
               checked={consents.whatsapp}
               onChange={(v) => setConsents((p) => ({ ...p, whatsapp: v }))}
             />
             <ConsentRow
-              label="Je certifie que les informations fournies sont exactes et véridiques au mieux de ma connaissance."
+              label={t('candidateA:profileCreation.step5.certify')}
               required
               checked={consents.certify}
               onChange={(v) => setConsents((p) => ({ ...p, certify: v }))}
@@ -472,14 +561,18 @@ function ProfileCreationContent() {
         {error && <p className="mt-4 text-xs font-bold text-error animate-bounce">{error}</p>}
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-md border-t border-outline-variant bg-surface-container-lowest p-6 shadow-subtle">
+      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto w-full max-w-md md:max-w-2xl border-t border-outline-variant bg-surface-container-lowest p-6 shadow-subtle">
         <button
           type="button"
           onClick={handleContinue}
           disabled={isSubmitting}
           className="flex w-full items-center justify-center gap-2 rounded-pillar bg-primary py-4 text-sm font-bold text-onPrimary shadow-sm transition-all hover:bg-primary/90 active:scale-[0.98] disabled:opacity-40"
         >
-          {isSubmitting ? 'Enregistrement…' : isLastStep ? 'Finaliser mon inscription' : 'Continuer'}
+          {isSubmitting
+            ? t('candidateA:profileCreation.footer.saving')
+            : isLastStep
+              ? t('candidateA:profileCreation.footer.finish')
+              : t('candidateA:profileCreation.footer.continueCta')}
           {!isLastStep && (
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
           )}
@@ -530,8 +623,13 @@ function ConsentRow({
   checked: boolean;
   onChange: (value: boolean) => void;
 }) {
+  const { t } = useLanguage();
   return (
-    <label className="flex items-start gap-4 rounded-pillar border border-outline-variant bg-surface-container-lowest p-4 shadow-subtle cursor-pointer transition-all hover:border-primary/50">
+    <label
+      className={`flex items-start gap-4 rounded-pillar border p-4 shadow-subtle cursor-pointer transition-all ${
+        checked ? 'border-green-500 bg-green-500/30' : 'border-outline-variant bg-surface-container-lowest hover:border-primary/50'
+      }`}
+    >
       <input
         type="checkbox"
         checked={checked}
@@ -541,9 +639,9 @@ function ConsentRow({
       <div className="flex-1">
         <p className="text-xs font-medium text-onSurface leading-relaxed">{label}</p>
         {required ? (
-          <span className="mt-1 block text-[10px] font-extrabold uppercase tracking-wider text-tertiary">Requis</span>
+          <span className="mt-1 block text-[10px] font-extrabold uppercase tracking-wider text-tertiary">{t('candidateA:profileCreation.step5.requiredBadge')}</span>
         ) : (
-          <span className="mt-1 block text-[10px] italic text-onSurface-variant">(Optionnel)</span>
+          <span className="mt-1 block text-[10px] italic text-onSurface-variant">{t('candidateA:profileCreation.step5.optionalBadge')}</span>
         )}
       </div>
     </label>

@@ -31,7 +31,8 @@ function LanguageSelectContent() {
   };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col bg-surface shadow-subtle">
+    <div className="min-h-screen md:bg-surface-low md:flex md:items-center md:justify-center md:p-6">
+      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-surface shadow-subtle md:min-h-[auto] md:rounded-3xl md:shadow-lg md:overflow-hidden relative">
       <nav className="flex items-center gap-3 px-6 py-4 border-b border-surface-container-high">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-onPrimary shadow-sm">
           <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
@@ -44,10 +45,10 @@ function LanguageSelectContent() {
       <div className="flex-1 px-6 pt-6 pb-4">
         <div className="fade-in-entry opacity-0">
           <h2 className="mb-2 text-[11px] font-bold uppercase tracking-widest text-onSurface-variant">
-            {t('language_interface_label')}
+            {t('common:language.interfaceLabel')}
           </h2>
-          <h1 className="text-3xl font-extrabold leading-tight text-onSurface">{t('choose_language_title')}</h1>
-          <p className="mt-4 text-sm leading-relaxed text-onSurface-variant">{t('choose_language_hint')}</p>
+          <h1 className="text-3xl font-extrabold leading-tight text-onSurface">{t('common:language.chooseTitle')}</h1>
+          <p className="mt-4 text-sm leading-relaxed text-onSurface-variant">{t('common:language.chooseHint')}</p>
         </div>
 
         <div className="fade-in-entry stagger-1 opacity-0 mt-8 space-y-3">
@@ -97,13 +98,14 @@ function LanguageSelectContent() {
           onClick={handleContinue}
           className="flex w-full items-center justify-center gap-2 rounded-pillar bg-primary py-4 text-sm font-bold text-onPrimary shadow-sm transition-all hover:bg-primary/90 active:scale-[0.98]"
         >
-          {t('continue')}
-          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+          {t('common:actions.continue')}
+          <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
             arrow_forward
           </span>
         </button>
       </footer>
-    </main>
+      </main>
+    </div>
   );
 }
 

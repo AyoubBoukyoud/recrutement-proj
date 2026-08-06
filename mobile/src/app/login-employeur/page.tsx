@@ -6,10 +6,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function EmployerLoginPage() {
   const router = useRouter();
   const { loginEmployer } = useAuth();
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -24,7 +26,7 @@ export default function EmployerLoginPage() {
     const success = await loginEmployer(email, password);
     setIsSubmitting(false);
     if (!success) {
-      setError('Email ou mot de passe incorrect');
+      setError(t('auth:employerLogin.errorInvalid'));
       return;
     }
     router.replace('/employer/dashboard');
@@ -38,32 +40,33 @@ export default function EmployerLoginPage() {
             language
           </span>
         </div>
-        <p className="text-xs tracking-wide text-onSurface-variant">Recrutez les talents marocains qualifiés</p>
+        <p className="text-xs tracking-wide text-onSurface-variant">{t('auth:employerLogin.tagline')}</p>
       </header>
 
       <div className="flex flex-grow items-center justify-center px-6 py-8">
         <div className="w-full max-w-[480px] rounded-xl border border-outline-variant bg-surface-lowest p-6 shadow-[0px_4px_20px_rgba(27,94,55,0.06)]">
           <div className="mb-6 text-center">
-            <h1 className="mb-1 text-[26px] font-bold text-primary">Connexion Employeur</h1>
-            <p className="text-sm text-onSurface-variant">Accédez à votre vivier de candidats vérifiés.</p>
+            <h1 className="mb-1 text-[26px] font-bold text-primary">{t('auth:employerLogin.title')}</h1>
+            <p className="text-sm text-onSurface-variant">{t('auth:employerLogin.subtitle')}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <label htmlFor="email" className="text-sm font-medium text-primary">
-                Adresse e-mail
+                {t('auth:employerLogin.emailLabel')}
               </label>
-              <div className="flex items-center gap-2 rounded-lg border border-outline-variant bg-surface-lowest px-3 py-2.5 transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
+              <div dir="ltr" className="flex items-center gap-2 rounded-lg border border-outline-variant bg-surface-lowest px-3 py-2.5 transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
                 <span className="material-symbols-outlined text-outline" style={{ fontSize: 20 }}>
                   mail
                 </span>
                 <input
                   id="email"
                   type="email"
+                  dir="ltr"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="ihr.name@unternehmen.de"
+                  placeholder={t('auth:employerLogin.emailPlaceholder')}
                   className="w-full border-none bg-transparent p-0 text-sm outline-none focus:ring-0"
                 />
               </div>
@@ -71,9 +74,9 @@ export default function EmployerLoginPage() {
 
             <div className="space-y-1.5">
               <label htmlFor="password" className="text-sm font-medium text-primary">
-                Mot de passe
+                {t('auth:employerLogin.passwordLabel')}
               </label>
-              <div className="flex items-center gap-2 rounded-lg border border-outline-variant bg-surface-lowest px-3 py-2.5 transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
+              <div dir="ltr" className="flex items-center gap-2 rounded-lg border border-outline-variant bg-surface-lowest px-3 py-2.5 transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
                 <span className="material-symbols-outlined text-outline" style={{ fontSize: 20 }}>
                   lock
                 </span>
@@ -89,7 +92,7 @@ export default function EmployerLoginPage() {
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
                   className="shrink-0 text-outline transition-colors hover:text-primary"
-                  aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                  aria-label={showPassword ? t('auth:employerLogin.hidePassword') : t('auth:employerLogin.showPassword')}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
                     {showPassword ? 'visibility_off' : 'visibility'}
@@ -115,10 +118,10 @@ export default function EmployerLoginPage() {
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="h-4 w-4 rounded border-outline text-primary focus:ring-primary/20"
                 />
-                <span className="text-sm text-onSurface-variant">Se souvenir de moi</span>
+                <span className="text-sm text-onSurface-variant">{t('auth:employerLogin.rememberMe')}</span>
               </label>
               <Link href="#" className="text-sm font-medium text-primary hover:underline">
-                Mot de passe oublié ?
+                {t('auth:employerLogin.forgotPassword')}
               </Link>
             </div>
 
@@ -127,13 +130,15 @@ export default function EmployerLoginPage() {
               disabled={isSubmitting}
               className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-onPrimary shadow-sm transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-60"
             >
-              {isSubmitting ? 'Connexion…' : 'Se connecter'}
+              {isSubmitting ? t('auth:employerLogin.submitting') : t('auth:employerLogin.submitCta')}
             </button>
           </form>
 
           <div className="relative my-6 flex items-center">
             <div className="flex-grow border-t border-outline-variant" />
-            <span className="bg-surface-lowest px-3 text-xs font-semibold uppercase tracking-widest text-outline">ou</span>
+            <span className="bg-surface-lowest px-3 text-xs font-semibold uppercase tracking-widest text-outline">
+              {t('auth:employerLogin.or')}
+            </span>
             <div className="flex-grow border-t border-outline-variant" />
           </div>
 
@@ -145,7 +150,7 @@ export default function EmployerLoginPage() {
               <span className="material-symbols-outlined text-outline" style={{ fontSize: 18 }}>
                 account_circle
               </span>
-              Continuer avec Google
+              {t('auth:employerLogin.continueGoogle')}
             </button>
             <button
               type="button"
@@ -154,7 +159,7 @@ export default function EmployerLoginPage() {
               <span className="material-symbols-outlined text-outline" style={{ fontSize: 18 }}>
                 window
               </span>
-              Continuer avec Microsoft
+              {t('auth:employerLogin.continueMicrosoft')}
             </button>
             <button
               type="button"
@@ -163,15 +168,15 @@ export default function EmployerLoginPage() {
               <span className="material-symbols-outlined text-outline" style={{ fontSize: 18 }}>
                 work
               </span>
-              Continuer avec LinkedIn
+              {t('auth:employerLogin.continueLinkedin')}
             </button>
           </div>
 
           <div className="mt-8 text-center">
             <p className="text-sm text-onSurface-variant">
-              Pas encore de compte ?{' '}
+              {t('auth:employerLogin.noAccount')}{' '}
               <Link href="#" className="font-semibold text-primary hover:underline">
-                Demander un accès
+                {t('auth:employerLogin.requestAccess')}
               </Link>
             </p>
           </div>
@@ -180,18 +185,16 @@ export default function EmployerLoginPage() {
 
       <footer className="w-full border-t border-outline-variant bg-surface-lowest px-6 py-5">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 md:flex-row">
-          <span className="text-xs text-onSurface-variant">
-            © 2026 Amud Skills — Recrutement international conforme RGPD/DSGVO.
-          </span>
+          <span className="text-xs text-onSurface-variant">{t('auth:employerLogin.footerCopyright')}</span>
           <div className="flex gap-4">
             <Link href="#" className="text-xs text-onSurface-variant hover:text-gold-dark">
-              Mentions légales
+              {t('auth:employerLogin.legalMentions')}
             </Link>
             <Link href="#" className="text-xs text-onSurface-variant hover:text-gold-dark">
-              Confidentialité
+              {t('auth:employerLogin.privacy')}
             </Link>
             <Link href="/auth-phone" className="text-xs font-semibold text-primary hover:underline">
-              Espace candidat
+              {t('auth:employerLogin.candidateSpace')}
             </Link>
           </div>
         </div>

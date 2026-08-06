@@ -1,0 +1,152 @@
+{
+  "shared": {
+    "pageTitle": "Simulate my salary",
+    "form": {
+      "profession": "Profession",
+      "professionPlaceholder": "E.g.: Nurse",
+      "region": "Region in Germany",
+      "experience": "Years of experience",
+      "calculateButton": "Calculate"
+    },
+    "regions": {
+      "berlin": "Berlin",
+      "baviereMunich": "Bavaria (Munich)",
+      "badeWurtembergStuttgart": "Baden-Württemberg (Stuttgart)",
+      "hesseFrancfort": "Hesse (Frankfurt)",
+      "rhenanieNordWestphalie": "North Rhine-Westphalia"
+    },
+    "grossMonthlySalary": "Estimated gross monthly salary",
+    "perMonth": "/ month",
+    "results": {
+      "low": "Low ({{value}} €)",
+      "high": "High ({{value}} €)"
+    },
+    "netSalary": "Estimated net salary",
+    "resteAVivre": "Disposable income",
+    "afterRentCharges": "After rent and expenses",
+    "estimationBadge": "{{year}} estimate",
+    "expenseLabel": "Expense item",
+    "amountLabel": "Amount",
+    "totalCostLabel": "Estimated total cost",
+    "aid": {
+      "prefix": "Possible assistance:",
+      "programName": "THAMM Program"
+    },
+    "optimizeProfileTitle": "Optimize your profile",
+    "optimizeProfileDescription": "Salaries can vary by 20% depending on your certified German level (B1/B2).",
+    "viewLanguageCoursesLink": "View language courses",
+    "needHelpTitle": "Need support?",
+    "needHelpDescription": "Our advisors help you prepare your visa file and find your first accommodation.",
+    "tags": {
+      "housingSearch": "Housing search",
+      "visaAssistance": "Visa assistance",
+      "bankAccount": "Bank account opening"
+    },
+    "downloadPdfButton": "Download the estimate (PDF)"
+  },
+  "salaire": {
+    "subtitle": "Estimate your future standard of living in Germany and plan ahead for your career move.",
+    "calculatingText": "Calculating…",
+    "migrationTitle": "Migration: estimated costs",
+    "migrationCosts": {
+      "visa": "Work visa (Consulate)",
+      "flight": "Flight ticket (Casablanca → Germany)",
+      "insurance": "Travel insurance (90 days)",
+      "rent": "First rent + Deposit (estimate)",
+      "translation": "Certified document translation"
+    },
+    "aidDescription": "You may be eligible for a partial reimbursement of these costs through the Morocco–Germany bilateral agreements.",
+    "contactAdvisorLink": "Contact an advisor"
+  },
+  "simulateurSalaire": {
+    "notificationsAria": "Notifications",
+    "subtitle": "Estimate your future standard of living in Germany and plan your career move with peace of mind.",
+    "professions": {
+      "infirmier": "Nurse",
+      "ingenieurLogiciel": "Software engineer",
+      "technicienMaintenance": "Maintenance technician",
+      "chauffeurPoidsLourd": "Truck driver"
+    },
+    "calculatingText": "Calculating...",
+    "migrationTitle": "Migration: Estimated costs",
+    "migrationCosts": {
+      "visa": "Work visa (Consulate)",
+      "flight": "Flight ticket (Casablanca - Berlin)",
+      "insurance": "Travel insurance (90 days)",
+      "rent": "First rent + Deposit (Estimate)",
+      "translation": "Certified document translation"
+    },
+    "aidDescription": "You may be eligible for a partial reimbursement of these costs through the Morocco-Germany bilateral agreements."
+  },
+  "matchingPreferences": {
+    "title": "My preferences",
+    "profileAria": "My profile",
+    "heroTitle": "Personalize your opportunities",
+    "heroDescription": "Set your criteria so we can offer you the best opportunities in Germany.",
+    "regionsTitle": "Desired region in Germany",
+    "regions": {
+      "berlin": "Berlin",
+      "baviere": "Bavaria",
+      "hambourg": "Hamburg",
+      "saxe": "Saxony",
+      "badeWurtemberg": "Baden-Württemberg",
+      "hesse": "Hesse"
+    },
+    "companyTypeTitle": "Company type",
+    "companyTypes": {
+      "grandGroupe": "Large corporation",
+      "pme": "SME",
+      "startup": "Start-up",
+      "peuImporte": "No preference"
+    },
+    "sectorsTitle": "Sectors of activity",
+    "sectors": {
+      "sante": "Healthcare",
+      "logistique": "Logistics",
+      "electricite": "Electrical",
+      "hotellerie": "Hospitality",
+      "construction": "Construction"
+    },
+    "salaryTitle": "Minimum salary (Annual)",
+    "discoverCaption": "Discover your future home in Germany.",
+    "savedToast": "Your matching preferences have been saved successfully!",
+    "saveButton": "Save preferences"
+  },
+  "dashboard": {
+    "greeting": "Hello, {{name}} 👋",
+    "defaultName": "Candidate",
+    "spaceLabel": "Candidate Space",
+    "progressTitle": "Profile completion",
+    "progressDescription": "Complete your profile to appear as a priority to German recruiters.",
+    "visibleByPrefix": "Profile visible to",
+    "visibleByCount": "{{count}} recruiters",
+    "toCompleteTitle": "To complete",
+    "checklist": {
+      "personalProfile": "Personal profile completed",
+      "sectorQualification": "Sector and qualification provided",
+      "cv": "CV uploaded",
+      "diploma": "Certificates / diplomas",
+      "video": "Introduction video",
+      "languageTest": "Language test",
+      "identity": "Identity verified",
+      "addAction": "Add",
+      "recordAction": "Record",
+      "takeTestAction": "Take the test",
+      "verifyAction": "Verify"
+    },
+    "quickActionsTitle": "Quick actions",
+    "quickActions": {
+      "addDocument": "Add a document",
+      "recordVideo": "Record a video",
+      "languageTest": "Take the language test",
+      "viewPublicProfile": "View my public profile",
+      "germanLessonOfDay": "Today's German lesson",
+      "viewJobOffers": "View job offers",
+      "simulateSalary": "Simulate my salary",
+      "myVisibility": "My visibility",
+      "referFriend": "Refer a friend",
+      "verifyIdentity": "Verify my identity",
+      "matchingPreferences": "Matching preferences"
+    }
+  }
+}

@@ -1,4 +1,15 @@
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
 import type { Language } from './types';
+
+import commonFr from '@/locales/fr/common.json';
+import authFr from '@/locales/fr/auth.json';
+import candidateAFr from '@/locales/fr/candidateA.json';
+import candidateBFr from '@/locales/fr/candidateB.json';
+import candidateCFr from '@/locales/fr/candidateC.json';
+import candidateDFr from '@/locales/fr/candidateD.json';
+import employerFr from '@/locales/fr/employer.json';
+import adminFr from '@/locales/fr/admin.json';
 
 export const LANGUAGES: { code: Language; label: string; flag: string }[] = [
   { code: 'fr', label: 'Français', flag: '🇫🇷' },
@@ -7,276 +18,70 @@ export const LANGUAGES: { code: Language; label: string; flag: string }[] = [
   { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
 ];
 
-// Dictionnaire des chaînes transversales (navigation, actions, onboarding, statuts communs).
-// Le contenu spécifique à chaque écran reste rédigé directement en français dans les pages.
-const dict = {
-  fr: {
-    offline_banner: '⚠️ Mode hors-ligne – Vos modifications seront synchronisées dès la reconnexion.',
-    sync_pending: 'en attente',
-    sync_synced: 'Synchronisé',
+// Chaque écran (ou groupe d'écrans) possède son propre namespace de traduction,
+// stocké sous forme de fichier JSON par langue dans src/locales/<langue>/<namespace>.json.
+// Usage : t('namespace:cle.imbriquee').
+export const defaultNS = 'common';
 
-    install_title: 'Installer Amud Skills',
-    install_subtitle: 'Ajoutez l’application à votre écran d’accueil pour un accès rapide, même hors-ligne.',
-    install_cta: 'Installer',
-    install_dismiss: 'Plus tard',
-    install_ios_hint:
-      'Appuyez sur Partager, puis « Sur l’écran d’accueil » pour installer l’application.',
+const namespaces = [
+  'common',
+  'auth',
+  'candidateA',
+  'candidateB',
+  'candidateC',
+  'candidateD',
+  'employer',
+  'admin',
+] as const;
 
-    nav_dashboard: 'Accueil',
-    nav_offres: 'Offres',
-    nav_documents: 'Documents',
-    nav_profile: 'Profil',
-    nav_support: 'Support',
-
-    nav_employer_dashboard: 'Dashboard',
-    nav_recherche: 'Recherche',
-    nav_matchings: 'Matchings',
-    nav_messagerie: 'Messages',
-    nav_suivi: 'Suivi',
-
-    nav_admin_utilisateurs: 'Utilisateurs',
-    nav_admin_validation: 'Validation profils',
-    nav_admin_reclamations: 'Réclamations',
-    nav_admin_statistiques: 'Statistiques',
-    nav_admin_parrainage: 'Parrainage',
-
-    employer_space_label: 'Espace Employeur',
-    admin_space_label: 'Administration',
-
-    continue: 'Continuer',
-    back: 'Retour',
-    loading: 'Chargement…',
-    save: 'Enregistrer',
-    cancel: 'Annuler',
-    logout: 'Déconnexion',
-    error_generic: 'Une erreur est survenue. Veuillez réessayer.',
-    success_generic: 'Enregistré avec succès.',
-
-    language_interface_label: "Langue de l'interface",
-    choose_language_title: 'Choisissez votre langue',
-    choose_language_hint: 'Vous pourrez la modifier à tout moment depuis votre profil.',
-
-    auth_screen_label: 'Connexion',
-    phone_screen_title: 'Quel est votre numéro ?',
-    phone_screen_subtitle:
-      'Nous vous envoyons un code à 6 chiffres pour vérifier votre numéro. Pas de mot de passe à retenir.',
-    phone_field_label: 'Numéro de mobile',
-    phone_field_hint: 'Numéro marocain (+212) commençant par 6 ou 7, ou allemand (+49).',
-    phone_consent:
-      "En continuant, vous acceptez de recevoir un SMS de vérification. Des frais opérateur peuvent s'appliquer.",
-    phone_submit_cta: 'Continuer par SMS',
-    phone_sending: 'Envoi en cours…',
-    phone_whatsapp_cta: 'Recevoir le code via WhatsApp',
-    phone_error_invalid: 'Veuillez saisir un numéro de téléphone valide.',
-
-    otp_screen_label: 'Vérification',
-    otp_title: 'Entrez le code',
-    otp_subtitle_prefix: 'Nous avons envoyé un code à 6 chiffres au',
-    otp_verify_cta: 'Vérifier',
-    otp_verifying: 'Vérification du code en cours…',
-    otp_error_invalid: 'Code invalide. Veuillez réessayer.',
-    otp_resend_cta: 'Renvoyer le code',
-    otp_resend_countdown_prefix: 'Renvoyer le code dans',
-  },
-  ar: {
-    offline_banner: '⚠️ وضع عدم الاتصال – سيتم مزامنة تعديلاتك عند استعادة الاتصال.',
-    sync_pending: 'قيد الانتظار',
-    sync_synced: 'تمت المزامنة',
-
-    install_title: 'تثبيت Amud Skills',
-    install_subtitle: 'أضف التطبيق إلى شاشتك الرئيسية للوصول السريع، حتى بدون اتصال.',
-    install_cta: 'تثبيت',
-    install_dismiss: 'لاحقًا',
-    install_ios_hint: 'اضغط على مشاركة، ثم "على الشاشة الرئيسية" لتثبيت التطبيق.',
-
-    nav_dashboard: 'الرئيسية',
-    nav_offres: 'العروض',
-    nav_documents: 'الوثائق',
-    nav_profile: 'الملف الشخصي',
-    nav_support: 'الدعم',
-
-    nav_employer_dashboard: 'لوحة التحكم',
-    nav_recherche: 'البحث',
-    nav_matchings: 'التوافقات',
-    nav_messagerie: 'الرسائل',
-    nav_suivi: 'المتابعة',
-
-    nav_admin_utilisateurs: 'المستخدمون',
-    nav_admin_validation: 'التحقق من الملفات',
-    nav_admin_reclamations: 'الشكاوى',
-    nav_admin_statistiques: 'الإحصائيات',
-    nav_admin_parrainage: 'الإحالة',
-
-    employer_space_label: 'فضاء صاحب العمل',
-    admin_space_label: 'الإدارة',
-
-    continue: 'متابعة',
-    back: 'رجوع',
-    loading: 'جار التحميل…',
-    save: 'حفظ',
-    cancel: 'إلغاء',
-    logout: 'تسجيل الخروج',
-    error_generic: 'حدث خطأ. حاول مرة أخرى.',
-    success_generic: 'تم الحفظ بنجاح.',
-
-    language_interface_label: 'لغة الواجهة',
-    choose_language_title: 'اختر لغتك',
-    choose_language_hint: 'يمكنك تغييرها في أي وقت من ملفك الشخصي.',
-
-    auth_screen_label: 'تسجيل الدخول',
-    phone_screen_title: 'ما هو رقم هاتفك؟',
-    phone_screen_subtitle: 'سنرسل لك رمزًا مكونًا من 6 أرقام للتحقق من رقمك. لا حاجة لتذكر كلمة مرور.',
-    phone_field_label: 'رقم الهاتف المحمول',
-    phone_field_hint: 'رقم مغربي (+212) يبدأ بـ 6 أو 7، أو رقم ألماني (+49).',
-    phone_consent: 'بالمتابعة، أنت توافق على تلقي رسالة نصية للتحقق. قد تُطبق رسوم من مشغل الهاتف.',
-    phone_submit_cta: 'المتابعة عبر الرسائل القصيرة',
-    phone_sending: 'جارٍ الإرسال…',
-    phone_whatsapp_cta: 'استلام الرمز عبر واتساب',
-    phone_error_invalid: 'يرجى إدخال رقم هاتف صالح.',
-
-    otp_screen_label: 'التحقق',
-    otp_title: 'أدخل الرمز',
-    otp_subtitle_prefix: 'أرسلنا رمزًا مكونًا من 6 أرقام إلى',
-    otp_verify_cta: 'تحقق',
-    otp_verifying: 'جارٍ التحقق من الرمز…',
-    otp_error_invalid: 'رمز غير صالح. حاول مرة أخرى.',
-    otp_resend_cta: 'إعادة إرسال الرمز',
-    otp_resend_countdown_prefix: 'إعادة الإرسال خلال',
-  },
-  en: {
-    offline_banner: '⚠️ Offline mode – Your changes will sync once you are back online.',
-    sync_pending: 'pending',
-    sync_synced: 'Synced',
-
-    install_title: 'Install Amud Skills',
-    install_subtitle: 'Add the app to your home screen for quick access, even offline.',
-    install_cta: 'Install',
-    install_dismiss: 'Later',
-    install_ios_hint: 'Tap Share, then "Add to Home Screen" to install the app.',
-
-    nav_dashboard: 'Home',
-    nav_offres: 'Jobs',
-    nav_documents: 'Documents',
-    nav_profile: 'Profile',
-    nav_support: 'Support',
-
-    nav_employer_dashboard: 'Dashboard',
-    nav_recherche: 'Search',
-    nav_matchings: 'Matchings',
-    nav_messagerie: 'Messages',
-    nav_suivi: 'Tracking',
-
-    nav_admin_utilisateurs: 'Users',
-    nav_admin_validation: 'Profile validation',
-    nav_admin_reclamations: 'Complaints',
-    nav_admin_statistiques: 'Statistics',
-    nav_admin_parrainage: 'Referrals',
-
-    employer_space_label: 'Employer space',
-    admin_space_label: 'Administration',
-
-    continue: 'Continue',
-    back: 'Back',
-    loading: 'Loading…',
-    save: 'Save',
-    cancel: 'Cancel',
-    logout: 'Log out',
-    error_generic: 'Something went wrong. Please try again.',
-    success_generic: 'Saved successfully.',
-
-    language_interface_label: 'Interface language',
-    choose_language_title: 'Choose your language',
-    choose_language_hint: 'You can change it anytime from your profile.',
-
-    auth_screen_label: 'Sign in',
-    phone_screen_title: "What's your phone number?",
-    phone_screen_subtitle: "We'll send you a 6-digit code to verify your number. No password to remember.",
-    phone_field_label: 'Mobile number',
-    phone_field_hint: 'Moroccan number (+212) starting with 6 or 7, or German number (+49).',
-    phone_consent: 'By continuing, you agree to receive a verification SMS. Carrier charges may apply.',
-    phone_submit_cta: 'Continue by SMS',
-    phone_sending: 'Sending…',
-    phone_whatsapp_cta: 'Receive the code via WhatsApp',
-    phone_error_invalid: 'Please enter a valid phone number.',
-
-    otp_screen_label: 'Verification',
-    otp_title: 'Enter the code',
-    otp_subtitle_prefix: 'We sent a 6-digit code to',
-    otp_verify_cta: 'Verify',
-    otp_verifying: 'Verifying code…',
-    otp_error_invalid: 'Invalid code. Please try again.',
-    otp_resend_cta: 'Resend code',
-    otp_resend_countdown_prefix: 'Resend code in',
-  },
-  de: {
-    offline_banner: '⚠️ Offline-Modus – Ihre Änderungen werden nach der Wiederverbindung synchronisiert.',
-    sync_pending: 'ausstehend',
-    sync_synced: 'Synchronisiert',
-
-    install_title: 'Amud Skills installieren',
-    install_subtitle: 'Fügen Sie die App zu Ihrem Startbildschirm hinzu – auch offline verfügbar.',
-    install_cta: 'Installieren',
-    install_dismiss: 'Später',
-    install_ios_hint: 'Tippen Sie auf Teilen, dann auf „Zum Home-Bildschirm“, um die App zu installieren.',
-
-    nav_dashboard: 'Startseite',
-    nav_offres: 'Stellenangebote',
-    nav_documents: 'Dokumente',
-    nav_profile: 'Profil',
-    nav_support: 'Support',
-
-    nav_employer_dashboard: 'Dashboard',
-    nav_recherche: 'Suche',
-    nav_matchings: 'Matchings',
-    nav_messagerie: 'Nachrichten',
-    nav_suivi: 'Verfolgung',
-
-    nav_admin_utilisateurs: 'Benutzer',
-    nav_admin_validation: 'Profilvalidierung',
-    nav_admin_reclamations: 'Beschwerden',
-    nav_admin_statistiques: 'Statistiken',
-    nav_admin_parrainage: 'Empfehlungen',
-
-    employer_space_label: 'Arbeitgeberbereich',
-    admin_space_label: 'Verwaltung',
-
-    continue: 'Weiter',
-    back: 'Zurück',
-    loading: 'Lädt…',
-    save: 'Speichern',
-    cancel: 'Abbrechen',
-    logout: 'Abmelden',
-    error_generic: 'Ein Fehler ist aufgetreten. Bitte erneut versuchen.',
-    success_generic: 'Erfolgreich gespeichert.',
-
-    language_interface_label: 'Sprache der Oberfläche',
-    choose_language_title: 'Wählen Sie Ihre Sprache',
-    choose_language_hint: 'Sie können sie jederzeit in Ihrem Profil ändern.',
-
-    auth_screen_label: 'Anmeldung',
-    phone_screen_title: 'Wie lautet Ihre Telefonnummer?',
-    phone_screen_subtitle: 'Wir senden Ihnen einen 6-stelligen Code zur Bestätigung. Kein Passwort nötig.',
-    phone_field_label: 'Mobilnummer',
-    phone_field_hint: 'Marokkanische Nummer (+212), beginnend mit 6 oder 7, oder deutsche Nummer (+49).',
-    phone_consent: 'Mit der Fortsetzung stimmen Sie dem Erhalt einer Bestätigungs-SMS zu. Es können Anbietergebühren anfallen.',
-    phone_submit_cta: 'Weiter per SMS',
-    phone_sending: 'Wird gesendet…',
-    phone_whatsapp_cta: 'Code über WhatsApp erhalten',
-    phone_error_invalid: 'Bitte geben Sie eine gültige Telefonnummer ein.',
-
-    otp_screen_label: 'Überprüfung',
-    otp_title: 'Code eingeben',
-    otp_subtitle_prefix: 'Wir haben einen 6-stelligen Code gesendet an',
-    otp_verify_cta: 'Bestätigen',
-    otp_verifying: 'Code wird überprüft…',
-    otp_error_invalid: 'Ungültiger Code. Bitte erneut versuchen.',
-    otp_resend_cta: 'Code erneut senden',
-    otp_resend_countdown_prefix: 'Code erneut senden in',
-  },
-} as const;
-
-export type TranslationKey = keyof (typeof dict)['fr'];
-
-export function translate(language: Language, key: TranslationKey): string {
-  return dict[language]?.[key] ?? dict.fr[key];
+// Seul le français (langue par défaut) est chargé au démarrage : les 3 autres langues
+// représentent ~75% du poids des traductions et ne sont chargées à la demande que si
+// l'utilisateur les sélectionne (voir ensureLanguageLoaded), pour alléger le bundle initial.
+if (!i18n.isInitialized) {
+  i18n.use(initReactI18next).init({
+    resources: {
+      fr: {
+        common: commonFr,
+        auth: authFr,
+        candidateA: candidateAFr,
+        candidateB: candidateBFr,
+        candidateC: candidateCFr,
+        candidateD: candidateDFr,
+        employer: employerFr,
+        admin: adminFr,
+      },
+    },
+    lng: 'fr',
+    fallbackLng: 'fr',
+    defaultNS,
+    ns: namespaces,
+    interpolation: { escapeValue: false },
+    react: { useSuspense: false },
+  });
 }
+
+const loadedLanguages = new Set<Language>(['fr']);
+const pendingLanguages = new Map<Language, Promise<void>>();
+
+export function ensureLanguageLoaded(lang: Language): Promise<void> {
+  if (loadedLanguages.has(lang)) return Promise.resolve();
+
+  const pending = pendingLanguages.get(lang);
+  if (pending) return pending;
+
+  const promise = Promise.all(
+    namespaces.map((ns) =>
+      import(`@/locales/${lang}/${ns}.json`).then((mod) => {
+        i18n.addResourceBundle(lang, ns, mod.default);
+      })
+    )
+  ).then(() => {
+    loadedLanguages.add(lang);
+    pendingLanguages.delete(lang);
+  });
+
+  pendingLanguages.set(lang, promise);
+  return promise;
+}
+
+export default i18n;

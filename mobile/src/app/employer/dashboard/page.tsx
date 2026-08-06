@@ -1,16 +1,12 @@
+'use client';
+
 // Interface 18 — Tableau de bord employeur.
 
 import Link from 'next/link';
 import { KpiCard } from '@/components/shared/KpiCard';
 import { CandidateCard } from '@/components/shared/CandidateCard';
+import { useLanguage } from '@/context/LanguageContext';
 import { MOCK_CANDIDATES } from '@/lib/mockData';
-
-const STATUS_LABEL: Record<(typeof MOCK_CANDIDATES)[number]['status'], string> = {
-  nouveau: 'Nouveau',
-  contacte: 'Contacté',
-  entretien: 'Entretien',
-  valide: 'Offre',
-};
 
 const STATUS_CLASS: Record<(typeof MOCK_CANDIDATES)[number]['status'], string> = {
   nouveau: 'bg-primary-light text-onPrimary-container',
@@ -20,29 +16,30 @@ const STATUS_CLASS: Record<(typeof MOCK_CANDIDATES)[number]['status'], string> =
 };
 
 export default function EmployerDashboardPage() {
+  const { t } = useLanguage();
   const recentCandidates = MOCK_CANDIDATES.slice(0, 4);
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-6 md:p-8">
       <section>
-        <h1 className="text-3xl font-bold text-onSurface">Employer Dashboard</h1>
-        <p className="text-onSurface-variant">Voici ce qui se passe dans votre pipeline de recrutement aujourd&apos;hui.</p>
+        <h1 className="text-3xl font-bold text-onSurface">{t('employer:dashboard.title')}</h1>
+        <p className="text-onSurface-variant">{t('employer:dashboard.subtitle')}</p>
       </section>
 
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <KpiCard label="Nouveaux candidats" value={48} icon="person_add" trend={{ value: 12, direction: 'up' }} />
-        <KpiCard label="Intérêts mutuels" value={9} icon="handshake" trend={{ value: 5, direction: 'up' }} />
-        <KpiCard label="Conversations" value={6} icon="mail" />
-        <KpiCard label="Taux de réponse" value="82%" icon="analytics" trend={{ value: 3, direction: 'down' }} />
+        <KpiCard label={t('employer:dashboard.kpi.newCandidates')} value={48} icon="person_add" trend={{ value: 12, direction: 'up' }} />
+        <KpiCard label={t('employer:dashboard.kpi.mutualInterests')} value={9} icon="handshake" trend={{ value: 5, direction: 'up' }} />
+        <KpiCard label={t('employer:dashboard.kpi.conversations')} value={6} icon="mail" />
+        <KpiCard label={t('employer:dashboard.kpi.responseRate')} value="82%" icon="analytics" trend={{ value: 3, direction: 'down' }} />
       </section>
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-lg font-bold text-onSurface">
             <span className="material-symbols-outlined text-primary" style={{ fontSize: 20 }}>flash_on</span>
-            Derniers candidats
+            {t('employer:dashboard.recentCandidates')}
           </h3>
-          <Link href="/employer/recherche" className="text-sm font-bold text-primary hover:underline">Voir tout le vivier</Link>
+          <Link href="/employer/recherche" className="text-sm font-bold text-primary hover:underline">{t('employer:dashboard.viewAllPool')}</Link>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {recentCandidates.map((candidate) => (
@@ -53,31 +50,31 @@ export default function EmployerDashboardPage() {
 
       <section className="grid gap-4 md:grid-cols-3">
         <Link href="/employer/recherche" className="rounded-xl border border-outline-variant bg-surface-lowest p-4 shadow-soft transition-colors hover:border-primary">
-          <div className="text-sm font-bold text-primary">Rechercher des candidats</div>
-          <p className="mt-1 text-xs text-onSurface-variant">Filtrez par compétences, langue et secteur.</p>
+          <div className="text-sm font-bold text-primary">{t('employer:dashboard.quickLinks.searchTitle')}</div>
+          <p className="mt-1 text-xs text-onSurface-variant">{t('employer:dashboard.quickLinks.searchDesc')}</p>
         </Link>
         <Link href="/employer/matchings" className="rounded-xl border border-outline-variant bg-surface-lowest p-4 shadow-soft transition-colors hover:border-primary">
-          <div className="text-sm font-bold text-primary">Voir mes matchings</div>
-          <p className="mt-1 text-xs text-onSurface-variant">Mode swipe ou pipeline kanban.</p>
+          <div className="text-sm font-bold text-primary">{t('employer:dashboard.quickLinks.matchingsTitle')}</div>
+          <p className="mt-1 text-xs text-onSurface-variant">{t('employer:dashboard.quickLinks.matchingsDesc')}</p>
         </Link>
         <Link href="/employer/messagerie" className="rounded-xl border border-outline-variant bg-surface-lowest p-4 shadow-soft transition-colors hover:border-primary">
-          <div className="text-sm font-bold text-primary">Messagerie</div>
-          <p className="mt-1 text-xs text-onSurface-variant">6 conversations actives.</p>
+          <div className="text-sm font-bold text-primary">{t('employer:dashboard.quickLinks.messagerieTitle')}</div>
+          <p className="mt-1 text-xs text-onSurface-variant">{t('employer:dashboard.quickLinks.messagerieDesc')}</p>
         </Link>
       </section>
 
       <section className="overflow-hidden rounded-2xl border border-outline-variant bg-surface-lowest shadow-sm">
         <div className="flex items-center justify-between border-b border-outline-variant bg-surface-low px-6 py-4">
-          <h3 className="text-lg font-bold text-onSurface">Matchings récents</h3>
+          <h3 className="text-lg font-bold text-onSurface">{t('employer:dashboard.recentMatchings')}</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-left">
             <thead>
               <tr className="border-b border-outline-variant text-[12px] font-bold uppercase tracking-widest text-onSurface-variant">
-                <th className="px-6 py-3">Candidat</th>
-                <th className="px-6 py-3">Poste</th>
-                <th className="px-6 py-3">Statut</th>
-                <th className="px-6 py-3 text-right">Action</th>
+                <th className="px-6 py-3">{t('employer:dashboard.table.candidate')}</th>
+                <th className="px-6 py-3">{t('employer:dashboard.table.role')}</th>
+                <th className="px-6 py-3">{t('employer:dashboard.table.status')}</th>
+                <th className="px-6 py-3 text-right">{t('employer:dashboard.table.action')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant">
@@ -94,12 +91,12 @@ export default function EmployerDashboardPage() {
                   <td className="px-6 py-3 text-sm text-onSurface-variant">{c.role}</td>
                   <td className="px-6 py-3">
                     <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold ${STATUS_CLASS[c.status]}`}>
-                      {STATUS_LABEL[c.status]}
+                      {t(`employer:dashboard.status.${c.status}`)}
                     </span>
                   </td>
                   <td className="px-6 py-3 text-right">
                     <Link href={`/employer/candidat/${c.id}`} className="text-xs font-bold text-primary hover:underline">
-                      Voir détails
+                      {t('employer:dashboard.table.viewDetails')}
                     </Link>
                   </td>
                 </tr>

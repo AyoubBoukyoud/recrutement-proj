@@ -1,4 +1,5 @@
 import type { TimelineStep } from '@/lib/types';
+import { useLanguage } from '@/context/LanguageContext';
 
 const STATUS_ICON: Record<TimelineStep['status'], string> = {
   termine: 'check',
@@ -17,6 +18,7 @@ interface TimelineProps {
 }
 
 export function Timeline({ steps }: TimelineProps) {
+  const { t } = useLanguage();
   return (
     <div className="relative space-y-6 pl-9">
       <div className="absolute bottom-4 left-[15px] top-4 w-0.5 bg-outline-variant" />
@@ -37,7 +39,7 @@ export function Timeline({ steps }: TimelineProps) {
             <p className="mt-1 text-xs text-onSurface-variant">{step.description}</p>
             {step.status === 'en_cours' && (
               <span className="mt-2 inline-block rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-bold text-onPrimary">
-                En cours
+                {t('common:components.timeline.inProgress')}
               </span>
             )}
           </div>

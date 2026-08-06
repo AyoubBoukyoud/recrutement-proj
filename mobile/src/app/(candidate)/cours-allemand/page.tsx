@@ -4,8 +4,10 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function CoursAllemandPage() {
+  const { t } = useLanguage();
   const [selectedQuiz, setSelectedQuiz] = useState<string | null>(null);
 
   const handleSelectQuiz = (option: string) => {
@@ -18,19 +20,21 @@ export default function CoursAllemandPage() {
       <header className="sticky top-0 z-50 flex h-16 w-full items-center gap-4 border-b border-outline-variant bg-surface px-4">
         <Link
           href="/dashboard"
-          aria-label="Retour"
+          aria-label={t('common:actions.back')}
           className="p-2 transition-transform active:scale-95 text-primary"
         >
           <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
             arrow_back
           </span>
         </Link>
-        <h1 className="flex-1 truncate text-lg font-bold text-primary">Allemand du quotidien</h1>
+        <h1 className="flex-1 truncate text-lg font-bold text-primary">{t('candidateD:coursAllemand.title')}</h1>
         <div className="flex items-center gap-1.5 rounded-full bg-gold/20 px-3 py-1.5">
           <span className="material-symbols-outlined fill text-tertiary" style={{ fontSize: 18 }}>
             local_fire_department
           </span>
-          <span className="text-xs font-bold text-tertiary">7 jours</span>
+          <span className="text-xs font-bold text-tertiary">
+            {t('candidateD:coursAllemand.streakDays', { count: 7 })}
+          </span>
         </div>
       </header>
 
@@ -39,7 +43,7 @@ export default function CoursAllemandPage() {
         <section className="space-y-3">
           <div className="flex items-center justify-between px-1">
             <span className="text-xs font-bold uppercase tracking-wider text-onSurface-variant">
-              Progression Hebdomadaire
+              {t('candidateD:coursAllemand.weeklyProgress')}
             </span>
             <span className="text-xs font-bold text-primary">85%</span>
           </div>
@@ -79,11 +83,15 @@ export default function CoursAllemandPage() {
 
             <div className="w-full space-y-4 border-t border-outline-variant/30 pt-4">
               <div className="flex items-center justify-between rounded-lg bg-surface-container p-3">
-                <span className="text-xs font-semibold text-onSurface-variant">Français</span>
+                <span className="text-xs font-semibold text-onSurface-variant">
+                  {t('candidateD:coursAllemand.languageLabels.fr')}
+                </span>
                 <span className="text-sm font-extrabold text-onSurface">Bonjour</span>
               </div>
               <div className="flex items-center justify-between rounded-lg bg-surface-container p-3">
-                <span className="text-xs font-semibold text-onSurface-variant">Arabe</span>
+                <span className="text-xs font-semibold text-onSurface-variant">
+                  {t('candidateD:coursAllemand.languageLabels.ar')}
+                </span>
                 <span className="text-sm font-extrabold text-onSurface" dir="rtl">
                   صباح الخير
                 </span>
@@ -99,7 +107,7 @@ export default function CoursAllemandPage() {
                 <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
                   play_circle
                 </span>
-                Écouter
+                {t('candidateD:coursAllemand.listen')}
               </button>
               <button
                 type="button"
@@ -108,7 +116,7 @@ export default function CoursAllemandPage() {
                 <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
                   mic
                 </span>
-                Répéter
+                {t('candidateD:coursAllemand.repeat')}
               </button>
             </div>
           </div>
@@ -120,12 +128,12 @@ export default function CoursAllemandPage() {
             <span className="material-symbols-outlined text-secondary" style={{ fontSize: 20 }}>
               quiz
             </span>
-            <h3 className="text-lg font-bold text-onSurface">Mini Quiz</h3>
+            <h3 className="text-lg font-bold text-onSurface">{t('candidateD:coursAllemand.miniQuiz.title')}</h3>
           </div>
 
           <div className="space-y-6 rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-subtle">
             <p className="text-base font-semibold text-onSurface">
-              Comment dit-on <span className="font-extrabold text-primary">&quot;Bonjour&quot;</span> en allemand ?
+              {t('candidateD:coursAllemand.miniQuiz.question', { word: 'Bonjour' })}
             </p>
 
             <div className="grid grid-cols-1 gap-3">
@@ -189,7 +197,7 @@ export default function CoursAllemandPage() {
             href="/dashboard"
             className="flex h-14 w-full items-center justify-center rounded-xl bg-secondary text-lg font-bold text-onSecondary shadow-lg transition-all hover:opacity-95 active:scale-95"
           >
-            Terminé
+            {t('candidateD:coursAllemand.done')}
           </Link>
         </footer>
       </main>

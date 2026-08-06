@@ -6,19 +6,21 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 const NAV_ITEMS = [
-  { href: '/employer/dashboard', label: 'Dashboard', icon: 'dashboard' },
-  { href: '/employer/recherche', label: 'Recherche', icon: 'search' },
-  { href: '/employer/matchings', label: 'Matchings', icon: 'handshake' },
-  { href: '/employer/messagerie', label: 'Messages', icon: 'mail' },
-  { href: '/employer/suivi', label: 'Suivi', icon: 'fact_check' },
-];
+  { href: '/employer/dashboard', labelKey: 'common:nav.employerDashboard', icon: 'dashboard' },
+  { href: '/employer/recherche', labelKey: 'common:nav.recherche', icon: 'search' },
+  { href: '/employer/matchings', labelKey: 'common:nav.matchings', icon: 'handshake' },
+  { href: '/employer/messagerie', labelKey: 'common:nav.messagerie', icon: 'mail' },
+  { href: '/employer/suivi', labelKey: 'common:nav.suivi', icon: 'fact_check' },
+] as const;
 
 export default function EmployerLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { logout } = useAuth();
+  const { t } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
@@ -28,7 +30,7 @@ export default function EmployerLayout({ children }: { children: React.ReactNode
 
   const NavLinks = ({ onNavigate }: { onNavigate?: () => void }) => (
     <nav className="flex flex-1 flex-col gap-1">
-      {NAV_ITEMS.map(({ href, label, icon }) => {
+      {NAV_ITEMS.map(({ href, labelKey, icon }) => {
         const isActive = pathname === href || pathname.startsWith(`${href}/`);
         return (
           <Link
@@ -42,7 +44,7 @@ export default function EmployerLayout({ children }: { children: React.ReactNode
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
               {icon}
             </span>
-            {label}
+            {t(labelKey)}
           </Link>
         );
       })}
@@ -52,7 +54,7 @@ export default function EmployerLayout({ children }: { children: React.ReactNode
   return (
     <div className="min-h-screen bg-surface md:flex">
       {/* Sidebar desktop */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-outline-variant bg-surface-low p-5 md:flex">
+      <aside className="hidden w-64 shrink-0 flex-col border-l border-outline-variant bg-surface-low p-5 md:flex md:order-2">
         <div className="mb-8 flex items-center gap-3 px-1">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-onPrimary">
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
@@ -70,7 +72,7 @@ export default function EmployerLayout({ children }: { children: React.ReactNode
           <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
             logout
           </span>
-          Déconnexion
+          {t('common:actions.logout')}
         </button>
       </aside>
 
@@ -80,9 +82,9 @@ export default function EmployerLayout({ children }: { children: React.ReactNode
           <span className="material-symbols-outlined text-primary" style={{ fontSize: 22 }}>
             business_center
           </span>
-          <span className="text-sm font-bold text-primary">Espace Employeur</span>
+          <span className="text-sm font-bold text-primary">{t('common:space.employer')}</span>
         </div>
-        <button type="button" onClick={() => setIsMenuOpen(true)} aria-label="Ouvrir le menu" className="text-primary">
+        <button type="button" onClick={() => setIsMenuOpen(true)} aria-label={t('common:menu.open')} className="text-primary">
           <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
             menu
           </span>
@@ -96,7 +98,7 @@ export default function EmployerLayout({ children }: { children: React.ReactNode
             <button
               type="button"
               onClick={() => setIsMenuOpen(false)}
-              aria-label="Fermer le menu"
+              aria-label={t('common:menu.close')}
               className="mb-6 self-end text-onSurface-variant"
             >
               <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
@@ -118,7 +120,7 @@ export default function EmployerLayout({ children }: { children: React.ReactNode
         </div>
       )}
 
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 md:order-1">{children}</main>
     </div>
   );
 }

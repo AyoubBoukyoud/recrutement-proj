@@ -7,11 +7,13 @@ import Link from 'next/link';
 import { ChevronLeft, Video, Square, RotateCcw, Check } from 'lucide-react';
 import { useProfile } from '@/context/ProfileContext';
 import { useNetwork } from '@/context/NetworkContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { VideoPlayer } from '@/components/shared/VideoPlayer';
 
 export default function VideoRecordingPage() {
   const { profile, updateProfile, markStepComplete } = useProfile();
   const { isOnline, queueAction } = useNetwork();
+  const { t } = useLanguage();
 
   const liveVideoRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -56,7 +58,7 @@ export default function VideoRecordingPage() {
       setSeconds(0);
       intervalRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
     } catch {
-      setError('Impossible d\'accéder à la caméra. Vérifiez les autorisations.');
+      setError(t('candidateD:video.errorCamera'));
     }
   };
 
@@ -85,13 +87,11 @@ export default function VideoRecordingPage() {
         <Link href="/dashboard" className="text-white">
           <ChevronLeft size={22} />
         </Link>
-        <h1 className="text-lg font-bold text-white">Vidéo de présentation</h1>
+        <h1 className="text-lg font-bold text-white">{t('candidateD:video.title')}</h1>
       </header>
 
       <main className="space-y-5 p-6">
-        <p className="text-sm text-onSurface-variant">
-          Enregistrez une courte vidéo (60 secondes) pour vous présenter aux employeurs.
-        </p>
+        <p className="text-sm text-onSurface-variant">{t('candidateD:video.instructions')}</p>
 
         {recordedUrl ? (
           <VideoPlayer src={recordedUrl} />
@@ -100,19 +100,19 @@ export default function VideoRecordingPage() {
             <video ref={liveVideoRef} muted playsInline className="h-full w-full object-cover" />
             {!isRecording && (
               <div className="absolute inset-0 flex items-center justify-center text-xs font-medium text-white/70">
-                Aperçu caméra
+                {t('candidateD:video.cameraPreview')}
               </div>
             )}
             {isRecording && (
               <span className="absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-red-500 px-2.5 py-1 text-[11px] font-bold text-white">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" /> {formatTime(seconds)}
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" /> <span dir="ltr">{formatTime(seconds)}</span>
               </span>
             )}
           </div>
         )}
 
         {error && <p className="text-xs font-medium text-red-500">{error}</p>}
-        {saved && <p className="text-xs font-medium text-green-600">Vidéo enregistrée dans votre profil.</p>}
+        {saved && <p className="text-xs font-medium text-green-600">{t('candidateD:video.savedSuccess')}</p>}
 
         <div className="flex justify-center gap-3">
           {!recordedUrl && (
@@ -135,14 +135,14 @@ export default function VideoRecordingPage() {
               onClick={() => setRecordedUrl(null)}
               className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-gray-200 py-3 text-sm font-bold text-onSurface-variant"
             >
-              <RotateCcw size={16} /> Recommencer
+              <RotateCcw size={16} /> {t('candidateD:video.restart')}
             </button>
             <button
               type="button"
               onClick={handleSave}
               className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-amber-500 py-3 text-sm font-bold text-white"
             >
-              <Check size={16} /> Valider
+              <Check size={16} /> {t('candidateD:video.validate')}
             </button>
           </div>
         )}

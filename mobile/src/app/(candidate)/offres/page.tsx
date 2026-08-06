@@ -4,6 +4,8 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
+import { WithPageSkeleton } from '@/components/shared/SkeletonLoader';
 
 const JOB_OFFERS = [
   {
@@ -60,7 +62,17 @@ const JOB_OFFERS = [
   },
 ];
 
+const FILTERS = ['Santé', 'Électricité', 'Hôtellerie', 'Logistique', 'Disponibilité immédiate'];
+const FILTER_LABEL_KEYS: Record<string, string> = {
+  'Santé': 'sante',
+  'Électricité': 'electricite',
+  'Hôtellerie': 'hotellerie',
+  'Logistique': 'logistique',
+  'Disponibilité immédiate': 'disponibiliteImmediate',
+};
+
 export default function OffresPage() {
+  const { t } = useLanguage();
   const [favorites, setFavorites] = useState<number[]>([]);
   const [search, setSearch] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('Tous');
@@ -70,6 +82,7 @@ export default function OffresPage() {
   };
 
   return (
+    <WithPageSkeleton layout="list">
     <div className="min-h-screen bg-surface pb-24 text-onSurface">
       {/* TopAppBar */}
       <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-outline-variant bg-surface px-4 shadow-subtle">
@@ -77,7 +90,7 @@ export default function OffresPage() {
           <div className="h-10 w-10 overflow-hidden rounded-full border border-outline-variant">
             <img
               className="h-full w-full object-cover"
-              alt="Profil Candidat"
+              alt={t('candidateD:offres.header.profileAlt')}
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPqRi7uOfHx4qDLV3jcEYoiF5AeUAPOc9qwHNBwrI3wC8MvbITgV3g32wcLhQlFGqGBuuxUGOv12XjyPxoXY7ZZJiaFzsICmrDZN57TVLXDlqjl3_eI3sDYP_kGv3aG47XF1zb1DuuqDlgMeTYavqAUHjR15B-aeEAqM-bnUplCp6qX_HuelHwo1wJPJCEq8Jm1oZU2JOxIk1duMeR6GmVR9HUmXijT09cjIn0dUaJ5hcxHwYu9Rof"
             />
           </div>
@@ -85,7 +98,7 @@ export default function OffresPage() {
         </div>
         <button
           type="button"
-          aria-label="Notifications"
+          aria-label={t('candidateD:offres.header.notifications')}
           className="rounded-full p-2 text-onSurface-variant hover:bg-surface-container-high transition-colors"
         >
           <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
@@ -97,7 +110,7 @@ export default function OffresPage() {
       <main className="mx-auto max-w-xl px-4 py-6">
         {/* Header & Search */}
         <div className="mb-6">
-          <h2 className="mb-3 text-2xl font-extrabold text-primary">Offres pour vous</h2>
+          <h2 className="mb-3 text-2xl font-extrabold text-primary">{t('candidateD:offres.title')}</h2>
           <div className="relative w-full">
             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" style={{ fontSize: 20 }}>
               search
@@ -106,7 +119,7 @@ export default function OffresPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Rechercher un métier ou une ville..."
+              placeholder={t('candidateD:offres.searchPlaceholder')}
               className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest py-3 pl-12 pr-4 text-sm font-semibold text-onSurface outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
             />
           </div>
@@ -124,10 +137,10 @@ export default function OffresPage() {
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
               tune
             </span>
-            <span>Filtres</span>
+            <span>{t('candidateD:offres.filtersButton')}</span>
           </button>
           <div className="h-6 w-px shrink-0 bg-outline-variant" />
-          {['Santé', 'Électricité', 'Hôtellerie', 'Logistique', 'Disponibilité immédiate'].map((filter) => (
+          {FILTERS.map((filter) => (
             <button
               key={filter}
               type="button"
@@ -138,7 +151,7 @@ export default function OffresPage() {
                   : 'border-outline-variant bg-surface-container-lowest text-onSurface hover:bg-surface-container-high'
               }`}
             >
-              {filter}
+              {t(`candidateD:offres.filters.${FILTER_LABEL_KEYS[filter]}`)}
             </button>
           ))}
         </div>
@@ -217,7 +230,7 @@ export default function OffresPage() {
                   type="button"
                   className="flex w-full items-center justify-center gap-2 rounded-lg bg-gold py-3 text-xs font-extrabold uppercase tracking-wider text-onGold shadow-sm transition-all hover:brightness-95 active:scale-[0.98]"
                 >
-                  Je suis intéressé
+                  {t('candidateD:offres.interested')}
                   <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
                     arrow_forward
                   </span>
@@ -230,15 +243,15 @@ export default function OffresPage() {
         {/* Featured Banner */}
         <div className="relative mt-8 overflow-hidden rounded-2xl bg-primary p-6 text-onPrimary shadow-lg">
           <div className="relative z-10">
-            <h3 className="mb-2 text-xl font-extrabold">Booster votre visibilité</h3>
+            <h3 className="mb-2 text-xl font-extrabold">{t('candidateD:offres.banner.title')}</h3>
             <p className="mb-4 text-xs leading-relaxed text-onPrimary/90">
-              Complétez votre profil à 100% pour apparaître en priorité auprès des recruteurs allemands.
+              {t('candidateD:offres.banner.description')}
             </p>
             <Link
               href="/visibilite"
               className="inline-block rounded-lg bg-onPrimary px-5 py-2.5 text-xs font-extrabold text-primary transition-colors hover:bg-surface-container-low"
             >
-              Optimiser mon profil
+              {t('candidateD:offres.banner.cta')}
             </Link>
           </div>
           <span className="material-symbols-outlined absolute -bottom-4 -right-4 text-[120px] text-onPrimary/10 pointer-events-none">
@@ -247,5 +260,6 @@ export default function OffresPage() {
         </div>
       </main>
     </div>
+    </WithPageSkeleton>
   );
 }

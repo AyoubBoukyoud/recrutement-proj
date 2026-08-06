@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface VideoPlayerProps {
   src: string | null;
@@ -8,6 +9,7 @@ interface VideoPlayerProps {
 }
 
 export function VideoPlayer({ src, poster }: VideoPlayerProps) {
+  const { t } = useLanguage();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -15,7 +17,7 @@ export function VideoPlayer({ src, poster }: VideoPlayerProps) {
   if (!src) {
     return (
       <div className="flex aspect-video w-full items-center justify-center rounded-xl bg-primary-dark text-xs font-medium text-primary-light">
-        Aucune vidéo disponible
+        {t('common:components.videoPlayer.noVideo')}
       </div>
     );
   }
@@ -54,7 +56,7 @@ export function VideoPlayer({ src, poster }: VideoPlayerProps) {
           type="button"
           onClick={togglePlay}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-primary transition-transform hover:scale-105"
-          aria-label={isPlaying ? 'Pause' : 'Lecture'}
+          aria-label={isPlaying ? t('common:components.videoPlayer.pause') : t('common:components.videoPlayer.play')}
         >
           <span className="material-symbols-outlined fill" style={{ fontSize: 20 }}>
             {isPlaying ? 'pause' : 'play_arrow'}
@@ -64,7 +66,7 @@ export function VideoPlayer({ src, poster }: VideoPlayerProps) {
           type="button"
           onClick={toggleMute}
           className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white"
-          aria-label={isMuted ? 'Activer le son' : 'Couper le son'}
+          aria-label={isMuted ? t('common:components.videoPlayer.unmute') : t('common:components.videoPlayer.mute')}
         >
           <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
             {isMuted ? 'volume_off' : 'volume_up'}

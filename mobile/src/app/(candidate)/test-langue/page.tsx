@@ -6,10 +6,10 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useProfile } from '@/context/ProfileContext';
 import { useNetwork } from '@/context/NetworkContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { CEFR_LEVELS } from '@/lib/mockData';
 
 const PROMPT = 'Thema: Beschreiben Sie Ihren Beruf und Ihre täglichen Aufgaben im Detail.';
-const PROMPT_HINT = 'Consigne : Parlez pendant au moins 45 secondes de votre métier et de vos responsabilités quotidiennes.';
 
 type Stage = 'preparation' | 'recording' | 'analysis' | 'results';
 
@@ -21,6 +21,7 @@ function scoreToLevel(score: number): (typeof CEFR_LEVELS)[number] {
 export default function TestLanguePage() {
   const { profile, updateProfile } = useProfile();
   const { isOnline, queueAction } = useNetwork();
+  const { t } = useLanguage();
 
   const [stage, setStage] = useState<Stage>(profile.testLangueScore !== null ? 'results' : 'preparation');
   const [score, setScore] = useState<number | null>(profile.testLangueScore);
@@ -120,7 +121,7 @@ export default function TestLanguePage() {
         <Link href="/dashboard" className="text-primary-dark transition-opacity hover:opacity-80">
           <span className="material-symbols-outlined" style={{ fontSize: 24 }}>arrow_back</span>
         </Link>
-        <h1 className="text-lg font-bold text-primary-dark">Test de langue — Allemand</h1>
+        <h1 className="text-lg font-bold text-primary-dark">{t('candidateB:testLangue.headerTitle')}</h1>
         <span className="w-6" />
       </header>
 
@@ -132,18 +133,18 @@ export default function TestLanguePage() {
                 headset_mic
               </span>
             </div>
-            <h2 className="mb-1 text-2xl font-bold text-primary-dark">Prêt pour votre évaluation ?</h2>
+            <h2 className="mb-1 text-2xl font-bold text-primary-dark">{t('candidateB:testLangue.readyTitle')}</h2>
             <p className="mx-auto mb-6 max-w-md text-onSurface-variant">
-              L&apos;intelligence artificielle analysera votre fluidité, votre prononciation et votre vocabulaire en temps réel.
+              {t('candidateB:testLangue.readyDescription')}
             </p>
 
             <div className="mb-8 w-full rounded-xl border border-outline-variant bg-surface-container-lowest p-4 text-left shadow-[0px_4px_20px_rgba(0,0,0,0.03)]">
               <div className="mb-2 flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-primary-container" style={{ fontSize: 18 }}>topic</span>
-                <span className="text-xs font-bold uppercase tracking-wider text-primary-container">Sujet de l&apos;épreuve</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-primary-container">{t('candidateB:testLangue.promptLabel')}</span>
               </div>
               <p className="mb-2 text-lg font-semibold italic text-primary-dark">&quot;{PROMPT}&quot;</p>
-              <p className="border-t border-outline-variant pt-2 text-sm text-onSurface-variant">{PROMPT_HINT}</p>
+              <p className="border-t border-outline-variant pt-2 text-sm text-onSurface-variant">{t('candidateB:testLangue.promptHint')}</p>
             </div>
 
             <button
@@ -152,7 +153,7 @@ export default function TestLanguePage() {
               className="flex items-center justify-center gap-2 rounded-full bg-primary-container px-8 py-4 text-sm font-semibold text-on-primary transition-all hover:shadow-lg active:scale-95"
             >
               <span className="material-symbols-outlined" style={{ fontSize: 20 }}>mic</span>
-              Démarrer le test
+              {t('candidateB:testLangue.startCta')}
             </button>
           </section>
         )}
@@ -161,9 +162,9 @@ export default function TestLanguePage() {
           <section className="flex flex-col items-center py-8 text-center">
             <div className="mb-6 flex items-center gap-2">
               <span className="h-3 w-3 animate-pulse rounded-full bg-error" />
-              <span className="text-xs font-bold uppercase tracking-widest text-error">Enregistrement en cours…</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-error">{t('candidateB:testLangue.recording')}</span>
             </div>
-            <div className="mb-10 text-5xl font-bold tabular-nums text-primary-dark">{timerLabel}</div>
+            <div className="mb-10 text-5xl font-bold tabular-nums text-primary-dark"><span dir="ltr">{timerLabel}</span></div>
             <div className="mb-10 flex h-24 w-full max-w-xs items-end justify-center gap-1.5 px-4">
               {Array.from({ length: 12 }).map((_, i) => (
                 <div
@@ -191,8 +192,8 @@ export default function TestLanguePage() {
               <div className="absolute inset-0 animate-[concentric_2s_ease-out_infinite] rounded-full border-4 border-primary-dark/5" style={{ animationDelay: '1s' }} />
               <span className="material-symbols-outlined text-primary-dark" style={{ fontSize: 56 }}>psychology</span>
             </div>
-            <h3 className="mb-1 text-xl font-bold text-primary-dark">Analyse de votre prononciation…</h3>
-            <p className="mb-6 text-onSurface-variant">L&apos;IA compare vos phonèmes aux standards allemands.</p>
+            <h3 className="mb-1 text-xl font-bold text-primary-dark">{t('candidateB:testLangue.analyzing')}</h3>
+            <p className="mb-6 text-onSurface-variant">{t('candidateB:testLangue.analyzingDescription')}</p>
             <div className="h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-surface-container-high">
               <div className="h-full rounded-full bg-primary-dark transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
             </div>
@@ -220,26 +221,26 @@ export default function TestLanguePage() {
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span className="text-5xl font-bold text-primary-dark">{level}</span>
-                    <span className="text-xs text-onSurface-variant">Niveau {level}</span>
+                    <span className="text-xs text-onSurface-variant">{t('candidateB:testLangue.levelLabel', { level })}</span>
                   </div>
                 </div>
                 <div className="flex-1 text-center md:text-left">
                   <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-primary-dark/5 px-3 py-1 text-primary-dark">
                     <span className="material-symbols-outlined fill" style={{ fontSize: 16 }}>verified</span>
-                    <span className="text-xs font-bold uppercase tracking-wide">Vérifié par IA</span>
+                    <span className="text-xs font-bold uppercase tracking-wide">{t('candidateB:testLangue.verifiedByAi')}</span>
                   </div>
-                  <h2 className="mb-1 text-2xl font-bold text-primary-dark">Excellent travail !</h2>
+                  <h2 className="mb-1 text-2xl font-bold text-primary-dark">{t('candidateB:testLangue.excellentWork')}</h2>
                   <p className="text-sm text-onSurface-variant">
-                    Votre maîtrise de l&apos;allemand est solide. Score global : {score}/100.
+                    {t('candidateB:testLangue.globalScore', { score })}
                   </p>
                 </div>
               </div>
 
               <div className="mt-8 grid gap-4">
                 {[
-                  { label: 'Prononciation', value: stats.pronunciation },
-                  { label: 'Fluidité', value: stats.fluency },
-                  { label: 'Vocabulaire', value: stats.vocabulary },
+                  { label: t('candidateB:testLangue.stats.pronunciation'), value: stats.pronunciation },
+                  { label: t('candidateB:testLangue.stats.fluency'), value: stats.fluency },
+                  { label: t('candidateB:testLangue.stats.vocabulary'), value: stats.vocabulary },
                 ].map((stat) => (
                   <div key={stat.label} className="space-y-1.5">
                     <div className="flex justify-between text-sm font-medium">
@@ -260,7 +261,7 @@ export default function TestLanguePage() {
                 className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary-dark py-4 text-sm font-semibold text-on-primary shadow-sm transition-all hover:shadow-lg active:scale-95"
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>leaderboard</span>
-                Voir mon profil
+                {t('candidateB:testLangue.viewProfile')}
               </Link>
               <button
                 type="button"
@@ -268,7 +269,7 @@ export default function TestLanguePage() {
                 className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-outline bg-surface-container-lowest py-4 text-sm font-semibold text-primary-dark transition-all hover:bg-surface-container-low active:scale-95"
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>refresh</span>
-                Repasser le test
+                {t('candidateB:testLangue.retakeTest')}
               </button>
             </div>
           </section>

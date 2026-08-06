@@ -6,17 +6,11 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { FilterPanel } from '@/components/shared/FilterPanel';
 import { SkeletonLoader } from '@/components/shared/SkeletonLoader';
+import { useLanguage } from '@/context/LanguageContext';
 import { MOCK_CANDIDATES, SECTORS } from '@/lib/mockData';
-import type { CandidateSummary } from '@/lib/types';
-
-const STATUS_LABEL: Record<CandidateSummary['status'], string> = {
-  nouveau: 'Nouveau',
-  contacte: 'Contacté',
-  entretien: 'Entretien',
-  valide: 'Vérifié',
-};
 
 export default function EmployerSearchPage() {
+  const { t } = useLanguage();
   const [query, setQuery] = useState('');
   const [sector, setSector] = useState<string | null>(null);
   const [minExperience, setMinExperience] = useState(0);
@@ -44,7 +38,7 @@ export default function EmployerSearchPage() {
     <div className="min-h-screen bg-surface pb-8">
       <header className="flex h-16 items-center gap-4 border-b border-outline-variant bg-surface px-6 md:px-8">
         <span className="material-symbols-outlined text-primary" style={{ fontSize: 22 }}>account_balance</span>
-        <h1 className="text-xl font-bold text-primary">Rechercher des candidats</h1>
+        <h1 className="text-xl font-bold text-primary">{t('employer:recherche.title')}</h1>
       </header>
 
       <div className="sticky top-0 z-20 border-b border-outline-variant bg-surface/95 px-6 py-4 backdrop-blur-md md:px-8">
@@ -56,7 +50,7 @@ export default function EmployerSearchPage() {
             <input
               value={query}
               onChange={(e) => handleSearch(e.target.value)}
-              placeholder="Métier, compétences, mots-clés…"
+              placeholder={t('employer:recherche.placeholder')}
               className="w-full rounded-xl border border-outline-variant bg-surface-lowest py-3 pl-12 pr-4 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
           </div>
@@ -76,7 +70,7 @@ export default function EmployerSearchPage() {
               sector === null ? 'bg-primary text-onPrimary' : 'border border-outline-variant text-onSurface-variant hover:bg-surface-container'
             }`}
           >
-            Tous les secteurs
+            {t('employer:recherche.allSectors')}
           </button>
           {SECTORS.map((s) => (
             <button
@@ -96,8 +90,8 @@ export default function EmployerSearchPage() {
       <main className="mx-auto max-w-[1200px] px-6 py-6 md:px-8">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <p className="text-lg font-bold text-onSurface">{results.length} candidats trouvés</p>
-            <p className="text-xs text-outline">Mis à jour à l&apos;instant</p>
+            <p className="text-lg font-bold text-onSurface">{t('employer:recherche.resultsCount', { count: results.length })}</p>
+            <p className="text-xs text-outline">{t('employer:recherche.updatedNow')}</p>
           </div>
         </div>
 
@@ -118,7 +112,7 @@ export default function EmployerSearchPage() {
                   <div className="mb-1 flex items-start justify-between gap-2">
                     <div>
                       <h3 className="text-lg font-bold text-onSurface">{candidate.name}</h3>
-                      <p className="text-sm text-outline">{candidate.city}, Maroc</p>
+                      <p className="text-sm text-outline">{t('employer:recherche.cityMorocco', { city: candidate.city })}</p>
                     </div>
                     <span className="material-symbols-outlined shrink-0 text-outline transition-colors hover:text-secondary" style={{ fontSize: 20 }}>
                       favorite
@@ -133,18 +127,18 @@ export default function EmployerSearchPage() {
                       {candidate.sector}
                     </span>
                     <span className="rounded-full bg-gold-light px-3 py-1 text-[11px] font-bold text-gold-dark">
-                      {STATUS_LABEL[candidate.status]}
+                      {t(`employer:recherche.status.${candidate.status}`)}
                     </span>
                   </div>
                   <div className="flex flex-col items-start justify-between gap-3 md:flex-row md:items-center">
                     <div className="flex items-center gap-2">
                       <span className="material-symbols-outlined text-primary" style={{ fontSize: 18 }}>event_available</span>
                       <span className="text-xs text-onSurface-variant">
-                        {candidate.yearsExperience} ans d&apos;expérience · Match {candidate.matchScore}%
+                        {t('employer:recherche.yearsExperienceMatchPrefix', { years: candidate.yearsExperience })} <span dir="ltr">{candidate.matchScore}%</span>
                       </span>
                     </div>
                     <span className="w-full rounded-lg bg-primary px-6 py-2 text-center text-sm font-semibold text-onPrimary shadow-sm md:w-auto">
-                      Voir le profil
+                      {t('employer:recherche.viewProfile')}
                     </span>
                   </div>
                 </div>
@@ -153,14 +147,14 @@ export default function EmployerSearchPage() {
           )}
           {!isLoading && results.length === 0 && (
             <p className="rounded-xl bg-surface-container p-6 text-center text-sm text-onSurface-variant">
-              Aucun candidat ne correspond à ces critères.
+              {t('employer:recherche.noResults')}
             </p>
           )}
         </div>
       </main>
 
       <FilterPanel
-        title="Filtres avancés"
+        title={t('employer:recherche.filtersTitle')}
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
         onReset={() => {
@@ -169,7 +163,7 @@ export default function EmployerSearchPage() {
         }}
       >
         <div>
-          <label className="mb-1.5 block text-xs font-semibold text-onSurface-variant">Secteur</label>
+          <label className="mb-1.5 block text-xs font-semibold text-onSurface-variant">{t('employer:recherche.sectorLabel')}</label>
           <div className="flex flex-wrap gap-2">
             {SECTORS.map((s) => (
               <button
@@ -187,7 +181,7 @@ export default function EmployerSearchPage() {
         </div>
         <div>
           <label className="mb-1.5 block text-xs font-semibold text-onSurface-variant">
-            Expérience minimum : {minExperience} ans
+            {t('employer:recherche.minExperiencePrefix')} <span dir="ltr">{minExperience}</span> {t('employer:recherche.minExperienceSuffix')}
           </label>
           <input
             type="range"

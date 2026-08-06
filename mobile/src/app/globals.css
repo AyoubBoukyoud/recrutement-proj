@@ -1,25 +1,103 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --primary: #1B5E37;
-  --primary-container: #1B5E37;
-  --secondary: #D4AF37;
-  --tertiary: #800020;
-  --gold: #D4AF37;
+  /* Neutres — pilotent le fond, les bordures et le texte par défaut de toute l'app */
   --background: #F9F9FF;
+  --surface-lowest: #FFFFFF;
+  --surface-bright: #F9F9FF;
+  --surface-container-low: #F0F3FF;
+  --surface-container: #EDEEEF;
+  --surface-container-high: #E7E8E9;
+  --surface-container-highest: #E1E3E4;
+  --surface-dim: #CFDAF2;
   --on-surface: #191C1D;
   --on-surface-variant: #43474E;
+  --outline: #74777F;
+  --outline-variant: #C4C6CF;
+
+  /* Couleurs de marque — DEFAULT/light permutent en mode sombre pour rester lisibles sur fond sombre */
+  --primary: #1B5E37;
+  --primary-light: #C8E6C9;
+  --primary-dark: #004523;
+  --on-primary: #FFFFFF;
+
+  --secondary: #D4AF37;
+  --secondary-light: #FFDF9A;
+  --secondary-dark: #855300;
+  --on-secondary: #FFFFFF;
+
+  --tertiary: #800020;
+  --tertiary-light: #FFD9DE;
+  --tertiary-dark: #4A0012;
+  --on-tertiary: #FFFFFF;
+
+  --gold: #D4AF37;
+  --gold-light: #FFDF9A;
+  --gold-dark: #855300;
+
+  --error: #BA1A1A;
+  --error-light: #FFDAD6;
+  --on-error: #FFFFFF;
+
+  --text-base-size: 16px;
+}
+
+.dark {
+  --background: #191C1D;
+  --surface-lowest: #1F2223;
+  --surface-bright: #363A3B;
+  --surface-container-low: #232627;
+  --surface-container: #272A2B;
+  --surface-container-high: #2C2F30;
+  --surface-container-highest: #313435;
+  --surface-dim: #101314;
+  --on-surface: #E1E3E4;
+  --on-surface-variant: #C4C6CF;
+  --outline: #8E9199;
+  --outline-variant: #43474E;
+
+  --primary: #C8E6C9;
+  --primary-light: #1B5E37;
+  --on-primary: #004523;
+
+  --secondary: #FFDF9A;
+  --secondary-light: #D4AF37;
+  --on-secondary: #855300;
+
+  --tertiary: #FFD9DE;
+  --tertiary-light: #800020;
+  --on-tertiary: #4A0012;
+
+  --gold: #FFDF9A;
+  --gold-light: #D4AF37;
+
+  --error: #FFDAD6;
+  --error-light: #BA1A1A;
+  --on-error: #410002;
+}
+
+html.text-size-small {
+  --text-base-size: 14px;
+}
+
+html.text-size-medium {
+  --text-base-size: 16px;
+}
+
+html.text-size-large {
+  --text-base-size: 18px;
+}
+
+html {
+  font-size: var(--text-base-size) !important;
 }
 
 body {
   background-color: var(--background);
   color: var(--on-surface);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-tap-highlight-color: transparent;
   -webkit-font-smoothing: antialiased;
 }
@@ -51,6 +129,7 @@ body {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -81,6 +160,7 @@ body {
   from {
     transform: scaleX(0);
   }
+
   to {
     transform: scaleX(1);
   }
@@ -92,9 +172,12 @@ body {
 }
 
 @keyframes logoBounce {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-14px);
   }
@@ -110,11 +193,70 @@ body {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: #F3F4F5;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #C4C6CF;
   border-radius: 3px;
 }
 
+/* ─── Skeleton loaders ─── */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-bone {
+  background: linear-gradient(90deg,
+      #E7E8E9 0%,
+      #E7E8E9 35%,
+      #F3F4F5 50%,
+      #E7E8E9 65%,
+      #E7E8E9 100%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: 0.375rem;
+}
+
+.dark .skeleton-bone {
+  background: linear-gradient(90deg,
+      #2A2D2E 0%,
+      #2A2D2E 35%,
+      #3A3D3E 50%,
+      #2A2D2E 65%,
+      #2A2D2E 100%);
+  background-size: 200% 100%;
+}
+
+/* Prefer reduced motion: static bones, no shimmer */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-bone {
+    animation: none;
+    background: #E7E8E9;
+  }
+
+  .dark .skeleton-bone {
+    background: #2A2D2E;
+  }
+}
+
+/* Screen-reader only utility (if not already present via Tailwind) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

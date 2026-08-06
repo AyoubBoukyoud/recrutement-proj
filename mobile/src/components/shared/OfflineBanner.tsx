@@ -14,7 +14,7 @@ export function OfflineBanner() {
       <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
         cloud_off
       </span>
-      {t('offline_banner')}
+      {t('common:offlineBanner')}
     </div>
   );
 }

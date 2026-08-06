@@ -1,12 +1,6 @@
 import Link from 'next/link';
 import type { CandidateSummary } from '@/lib/types';
-
-const STATUS_LABEL: Record<CandidateSummary['status'], string> = {
-  nouveau: 'Nouveau',
-  contacte: 'Contacté',
-  entretien: 'Entretien',
-  valide: 'Validé',
-};
+import { useLanguage } from '@/context/LanguageContext';
 
 const STATUS_CLASS: Record<CandidateSummary['status'], string> = {
   nouveau: 'bg-primary text-onPrimary',
@@ -21,6 +15,7 @@ interface CandidateCardProps {
 }
 
 export function CandidateCard({ candidate, href }: CandidateCardProps) {
+  const { t } = useLanguage();
   const body = (
     <div className="flex items-center gap-4 rounded-xl border border-outline-variant bg-surface-lowest p-4 shadow-soft transition-colors hover:border-primary/50">
       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary-light text-sm font-bold text-primary">
@@ -43,7 +38,7 @@ export function CandidateCard({ candidate, href }: CandidateCardProps) {
             {candidate.languageLevel}
           </span>
           <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_CLASS[candidate.status]}`}>
-            {STATUS_LABEL[candidate.status]}
+            {t(`common:components.candidateCard.status.${candidate.status}`)}
           </span>
         </div>
       </div>

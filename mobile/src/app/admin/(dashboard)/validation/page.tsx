@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { DocumentViewer } from '@/components/shared/DocumentViewer';
 import { MOCK_ADMIN_USERS } from '@/lib/mockData';
 import type { DocumentEntry } from '@/lib/types';
+import { useLanguage } from '@/context/LanguageContext';
 
 const PENDING_DOCS: DocumentEntry[] = [
   { id: 'pd1', type: 'cv', name: 'cv_salma_bennis.pdf', uploadedAt: '2026-07-20', status: 'en_attente' },
@@ -14,6 +15,7 @@ const PENDING_DOCS: DocumentEntry[] = [
 ];
 
 export default function AdminValidationPage() {
+  const { t } = useLanguage();
   const pendingUsers = MOCK_ADMIN_USERS.filter((u) => u.status === 'en_attente');
   const [decisions, setDecisions] = useState<Record<string, 'valide' | 'rejete'>>({});
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
@@ -28,18 +30,18 @@ export default function AdminValidationPage() {
   return (
     <div className="mx-auto max-w-3xl p-6 md:p-8">
       <div className="mb-1 flex items-center gap-2">
-        <h1 className="text-2xl font-bold text-primary">Validation des profils</h1>
+        <h1 className="text-2xl font-bold text-primary">{t('admin:validation.title')}</h1>
         <span className="rounded-full bg-primary-light px-2.5 py-0.5 text-xs font-bold text-onPrimary-container">
           {pendingUsers.length}
         </span>
       </div>
       <p className="text-sm text-onSurface-variant">
-        {pendingUsers.length} profil(s) en attente de vérification des pièces justificatives.
+        {t('admin:validation.subtitle', { count: pendingUsers.length })}
       </p>
 
       <div className="mt-4 flex items-center gap-2 rounded-lg bg-surface-low px-3 py-2 text-xs font-medium text-onSurface-variant">
         <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
-        Synchronisation : mode en ligne
+        {t('admin:validation.syncStatus')}
       </div>
 
       <div className="mt-6 space-y-5">
@@ -55,7 +57,9 @@ export default function AdminValidationPage() {
                   <div>
                     <h2 className="text-sm font-bold text-onSurface">{user.name}</h2>
                     <p className="text-xs text-onSurface-variant">{user.email}</p>
-                    <p className="mt-0.5 text-[11px] italic text-outline">Soumis le {user.createdAt}</p>
+                    <p className="mt-0.5 text-[11px] italic text-outline">
+                      {t('admin:validation.submittedOnPrefix')} <span dir="ltr">{user.createdAt}</span>
+                    </p>
                   </div>
                 </div>
                 {decision ? (
@@ -64,12 +68,12 @@ export default function AdminValidationPage() {
                       decision === 'valide' ? 'bg-primary-light text-onPrimary-container' : 'bg-error-light text-error'
                     }`}
                   >
-                    {decision === 'valide' ? 'Validé' : 'Rejeté'}
+                    {decision === 'valide' ? t('admin:validation.decision.valide') : t('admin:validation.decision.rejete')}
                   </span>
                 ) : (
                   <span className="flex shrink-0 items-center gap-1 rounded bg-surface-container px-2 py-1 text-primary">
                     <span className="material-symbols-outlined fill" style={{ fontSize: 14 }}>verified_user</span>
-                    <span className="text-xs font-bold">OCR 98%</span>
+                    <span className="text-xs font-bold">{t('admin:validation.ocrBadge')}</span>
                   </span>
                 )}
               </div>
@@ -89,7 +93,7 @@ export default function AdminValidationPage() {
                     className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-error/30 py-2.5 text-xs font-bold text-error transition-colors hover:bg-error-light disabled:opacity-60"
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: 16 }}>cancel</span>
-                    Rejeter
+                    {t('admin:validation.reject')}
                   </button>
                   <button
                     type="button"
@@ -98,11 +102,11 @@ export default function AdminValidationPage() {
                     className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-primary py-2.5 text-xs font-bold text-onPrimary shadow-sm transition-opacity hover:opacity-90 disabled:opacity-60"
                   >
                     {isProcessing === user.id ? (
-                      'Traitement…'
+                      t('admin:validation.processing')
                     ) : (
                       <>
                         <span className="material-symbols-outlined" style={{ fontSize: 16 }}>check_circle</span>
-                        Valider
+                        {t('admin:validation.validate')}
                       </>
                     )}
                   </button>
@@ -114,7 +118,7 @@ export default function AdminValidationPage() {
 
         {pendingUsers.length === 0 && (
           <p className="rounded-xl bg-surface-container p-6 text-center text-sm text-onSurface-variant">
-            Aucun profil en attente.
+            {t('admin:validation.empty')}
           </p>
         )}
       </div>

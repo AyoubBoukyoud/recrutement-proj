@@ -61,7 +61,7 @@ function OtpContent() {
     const success = await verifyOtp(code);
     setIsVerifying(false);
     if (!success) {
-      setError(t('otp_error_invalid'));
+      setError(t('auth:otp.errorInvalid'));
       setShake(true);
       setTimeout(() => setShake(false), 400);
       setDigits(Array(6).fill(''));
@@ -81,19 +81,20 @@ function OtpContent() {
   };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col bg-surface shadow-subtle">
+    <div className="min-h-screen md:bg-surface-low md:flex md:items-center md:justify-center md:p-6">
+      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-surface shadow-subtle md:min-h-[auto] md:rounded-3xl md:shadow-lg md:overflow-hidden relative">
       <header className="sticky top-0 z-10 border-b border-surface-container-high bg-surface px-6 py-4">
         <div className="flex items-center gap-4">
           <Link
             href="/auth-phone"
-            aria-label="Retour"
+            aria-label={t('common:actions.back')}
             className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-surface-container-low"
           >
             <span className="material-symbols-outlined text-primary" style={{ fontSize: 22 }}>
               arrow_back
             </span>
           </Link>
-          <h1 className="text-lg font-extrabold text-primary">{t('otp_screen_label')}</h1>
+          <h1 className="text-lg font-extrabold text-primary">{t('auth:otp.screenLabel')}</h1>
         </div>
       </header>
 
@@ -105,9 +106,9 @@ function OtpContent() {
         </div>
 
         <div className="fade-in-entry opacity-0 text-center mb-8">
-          <h2 className="text-2xl font-extrabold text-onSurface mb-2">{t('otp_title')}</h2>
+          <h2 className="text-2xl font-extrabold text-onSurface mb-2">{t('auth:otp.title')}</h2>
           <p className="mx-auto max-w-[320px] text-sm leading-relaxed text-onSurface-variant">
-            {t('otp_subtitle_prefix')} <span className="font-bold text-primary">{phone || '—'}</span>
+            {t('auth:otp.subtitlePrefix')} <span dir="ltr" className="font-bold text-primary">{phone || '—'}</span>
           </p>
         </div>
 
@@ -115,7 +116,7 @@ function OtpContent() {
           className="fade-in-entry stagger-1 opacity-0 flex w-full flex-col items-center gap-6"
           onSubmit={(e) => e.preventDefault()}
         >
-          <div className={`flex items-center justify-center gap-2 ${shake ? 'animate-[shake_0.4s]' : ''}`}>
+          <div dir="ltr" className={`flex items-center justify-center gap-2 ${shake ? 'animate-[shake_0.4s]' : ''}`}>
             {digits.map((digit, index) => (
               <input
                 key={index}
@@ -123,6 +124,7 @@ function OtpContent() {
                   inputsRef.current[index] = el;
                 }}
                 type="text"
+                dir="ltr"
                 inputMode="numeric"
                 maxLength={1}
                 value={digit}
@@ -139,7 +141,7 @@ function OtpContent() {
           <div className="flex flex-col items-center gap-1.5 text-center">
             {secondsLeft > 0 ? (
               <p className="text-xs font-medium text-outline">
-                {t('otp_resend_countdown_prefix')} 0:{String(secondsLeft).padStart(2, '0')}
+                {t('auth:otp.resendCountdownPrefix')} <span dir="ltr">0:{String(secondsLeft).padStart(2, '0')}</span>
               </p>
             ) : null}
             <button
@@ -150,11 +152,11 @@ function OtpContent() {
                 secondsLeft > 0 ? 'cursor-not-allowed text-outline opacity-60' : 'text-primary hover:underline cursor-pointer'
               }`}
             >
-              {t('otp_resend_cta')}
+              {t('auth:otp.resendCta')}
             </button>
           </div>
 
-          {isVerifying && <p className="text-center text-xs font-medium text-primary animate-pulse">{t('otp_verifying')}</p>}
+          {isVerifying && <p className="text-center text-xs font-medium text-primary animate-pulse">{t('auth:otp.verifying')}</p>}
           {error && <p className="text-center text-xs font-semibold text-error">{error}</p>}
 
           <button
@@ -163,7 +165,7 @@ function OtpContent() {
             disabled={isVerifying || digits.some((d) => !d)}
             className="w-full max-w-[340px] rounded-pillar bg-primary py-4 text-sm font-bold text-onPrimary shadow-sm transition-all hover:bg-primary/90 active:scale-[0.98] disabled:opacity-60"
           >
-            {isVerifying ? t('loading') : t('otp_verify_cta')}
+            {isVerifying ? t('common:actions.loading') : t('auth:otp.verifyCta')}
           </button>
         </form>
       </div>
@@ -176,6 +178,7 @@ function OtpContent() {
         }
       `}</style>
     </main>
+    </div>
   );
 }
 

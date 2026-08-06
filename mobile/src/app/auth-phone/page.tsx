@@ -25,7 +25,7 @@ export default function AuthPhonePage() {
   const submit = async () => {
     const digits = phone.replace(/\D/g, '');
     if (digits.length < 6) {
-      setError(t('phone_error_invalid'));
+      setError(t('auth:phone.errorInvalid'));
       return;
     }
     setError(null);
@@ -38,9 +38,10 @@ export default function AuthPhonePage() {
   };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col bg-surface shadow-subtle">
+    <div className="min-h-screen md:bg-surface-low md:flex md:items-center md:justify-center md:p-6">
+      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-surface shadow-subtle md:min-h-[auto] md:rounded-3xl md:shadow-lg md:overflow-hidden relative">
       <header className="relative flex flex-col items-center px-6 py-4 border-b border-surface-container-high">
-        <Link href="/language" aria-label="Retour" className="absolute left-6 top-5 text-primary hover:opacity-80 transition-opacity">
+        <Link href="/language" aria-label={t('common:actions.back')} className="absolute left-6 top-5 text-primary hover:opacity-80 transition-opacity">
           <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
             arrow_back
           </span>
@@ -51,7 +52,7 @@ export default function AuthPhonePage() {
           </span>
         </div>
         <h1 className="text-sm font-extrabold text-primary">Amud Skills</h1>
-        <p className="text-[10px] font-bold uppercase tracking-wider text-tertiary">{t('auth_screen_label')}</p>
+        <p className="text-[10px] font-bold uppercase tracking-wider text-tertiary">{t('auth:phone.screenLabel')}</p>
       </header>
 
       <form
@@ -62,15 +63,15 @@ export default function AuthPhonePage() {
         className="flex-1 px-6 pt-6"
       >
         <div className="fade-in-entry opacity-0">
-          <h2 className="mb-2 text-2xl font-extrabold text-primary">{t('phone_screen_title')}</h2>
-          <p className="mb-6 text-sm leading-relaxed text-onSurface-variant">{t('phone_screen_subtitle')}</p>
+          <h2 className="mb-2 text-2xl font-extrabold text-primary">{t('auth:phone.screenTitle')}</h2>
+          <p className="mb-6 text-sm leading-relaxed text-onSurface-variant">{t('auth:phone.screenSubtitle')}</p>
         </div>
 
         <div className="fade-in-entry stagger-1 opacity-0 mb-2 space-y-2">
           <label className="block text-[10px] font-bold uppercase tracking-widest text-onSurface-variant">
-            {t('phone_field_label')}
+            {t('auth:phone.fieldLabel')}
           </label>
-          <div className="flex items-center gap-2 rounded-pillar border border-outline-variant bg-surface-container-lowest p-3.5 transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 shadow-sm">
+          <div dir="ltr" className="flex items-center gap-2 rounded-pillar border border-outline-variant bg-surface-container-lowest p-3.5 transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 shadow-sm">
             <span className="material-symbols-outlined text-primary" style={{ fontSize: 20 }}>
               phone
             </span>
@@ -88,16 +89,17 @@ export default function AuthPhonePage() {
             <div className="h-6 w-px bg-outline-variant" />
             <input
               type="tel"
+              dir="ltr"
               inputMode="numeric"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="6 12 34 56 78"
+              placeholder={t('auth:phone.placeholder')}
               className="flex-1 border-none bg-transparent p-0 text-sm font-semibold text-onSurface placeholder:text-outline outline-none focus:ring-0"
             />
           </div>
         </div>
         <p className="fade-in-entry stagger-1 opacity-0 mb-6 text-[11px] text-onSurface-variant">
-          {t('phone_field_hint')}
+          {t('auth:phone.fieldHint')}
         </p>
 
         {error && (
@@ -113,7 +115,7 @@ export default function AuthPhonePage() {
           <span className="material-symbols-outlined mt-0.5 shrink-0 text-primary" style={{ fontSize: 18 }}>
             verified_user
           </span>
-          <p className="text-[11px] leading-normal text-primary font-medium">{t('phone_consent')}</p>
+          <p className="text-[11px] leading-normal text-primary font-medium">{t('auth:phone.consent')}</p>
         </div>
       </form>
 
@@ -124,7 +126,7 @@ export default function AuthPhonePage() {
           disabled={isSubmitting}
           className="flex w-full items-center justify-center gap-2 rounded-pillar bg-primary py-4 text-sm font-bold text-onPrimary shadow-sm transition-all hover:bg-primary/90 active:scale-[0.98] disabled:opacity-60"
         >
-          {isSubmitting ? t('phone_sending') : t('phone_submit_cta')}
+          {isSubmitting ? t('auth:phone.sending') : t('auth:phone.submitCta')}
         </button>
         <button
           type="button"
@@ -135,10 +137,11 @@ export default function AuthPhonePage() {
           <span className="material-symbols-outlined text-primary" style={{ fontSize: 18 }}>
             chat
           </span>
-          {t('phone_whatsapp_cta')}
+          {t('auth:phone.whatsappCta')}
         </button>
       </footer>
     </main>
+    </div>
   );
 }
 

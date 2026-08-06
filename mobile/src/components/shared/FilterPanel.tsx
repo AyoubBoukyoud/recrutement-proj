@@ -1,5 +1,7 @@
 'use client';
 
+import { useLanguage } from '@/context/LanguageContext';
+
 interface FilterPanelProps {
   title: string;
   isOpen: boolean;
@@ -10,6 +12,7 @@ interface FilterPanelProps {
 }
 
 export function FilterPanel({ title, isOpen, onClose, onApply, onReset, children }: FilterPanelProps) {
+  const { t } = useLanguage();
   if (!isOpen) return null;
 
   return (
@@ -21,7 +24,7 @@ export function FilterPanel({ title, isOpen, onClose, onApply, onReset, children
           <button
             type="button"
             onClick={onClose}
-            aria-label="Fermer"
+            aria-label={t('common:components.filterPanel.close')}
             className="rounded-full p-1.5 hover:bg-surface-container"
           >
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
@@ -37,7 +40,7 @@ export function FilterPanel({ title, isOpen, onClose, onApply, onReset, children
               onClick={onReset}
               className="flex-1 rounded-xl border border-outline py-2.5 text-sm font-semibold text-onSurface-variant"
             >
-              Réinitialiser
+              {t('common:components.filterPanel.reset')}
             </button>
           )}
           <button
@@ -48,7 +51,7 @@ export function FilterPanel({ title, isOpen, onClose, onApply, onReset, children
             }}
             className="flex-1 rounded-xl bg-primary py-2.5 text-sm font-semibold text-onPrimary transition hover:bg-primary/90"
           >
-            Appliquer
+            {t('common:components.filterPanel.apply')}
           </button>
         </div>
       </div>

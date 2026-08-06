@@ -6,6 +6,7 @@ import { Suspense, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Send, ChevronLeft } from 'lucide-react';
 import { useNetwork } from '@/context/NetworkContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { MOCK_CONVERSATIONS } from '@/lib/mockData';
 import type { Conversation, Message } from '@/lib/types';
 
@@ -13,6 +14,7 @@ function MessagerieContent() {
   const searchParams = useSearchParams();
   const candidatId = searchParams.get('candidat');
   const { isOnline, queueAction } = useNetwork();
+  const { t } = useLanguage();
 
   const [conversations, setConversations] = useState<Conversation[]>(MOCK_CONVERSATIONS);
   const initialSelected = useMemo(
@@ -52,7 +54,7 @@ function MessagerieContent() {
     <div className="mx-auto flex h-[calc(100vh-3rem)] max-w-5xl overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-soft md:h-[calc(100vh-6rem)]">
       <aside className={`w-full shrink-0 overflow-y-auto border-r border-gray-100 md:block md:w-80 ${showThreadOnMobile ? 'hidden' : 'block'}`}>
         <div className="border-b border-gray-100 p-4">
-          <h1 className="text-base font-bold text-navy-900">Messagerie</h1>
+          <h1 className="text-base font-bold text-navy-900">{t('employer:messagerie.title')}</h1>
         </div>
         {conversations.map((conv) => (
           <button
@@ -111,14 +113,14 @@ function MessagerieContent() {
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                placeholder="Écrire un message…"
+                placeholder={t('employer:messagerie.placeholder')}
                 className="flex-1 rounded-full border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-navy-900"
               />
               <button
                 type="button"
                 onClick={handleSend}
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500 text-white"
-                aria-label="Envoyer"
+                aria-label={t('employer:messagerie.send')}
               >
                 <Send size={16} />
               </button>
@@ -126,7 +128,7 @@ function MessagerieContent() {
           </>
         ) : (
           <div className="flex flex-1 items-center justify-center text-sm text-onSurface-variant">
-            Sélectionnez une conversation.
+            {t('employer:messagerie.selectConversation')}
           </div>
         )}
       </section>

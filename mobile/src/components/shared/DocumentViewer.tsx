@@ -1,6 +1,7 @@
 'use client';
 
 import type { DocumentEntry } from '@/lib/types';
+import { useLanguage } from '@/context/LanguageContext';
 
 const STATUS_ICON: Record<DocumentEntry['status'], string> = {
   valide: 'check_circle',
@@ -14,10 +15,10 @@ const STATUS_CLASS: Record<DocumentEntry['status'], string> = {
   rejete: 'text-error',
 };
 
-const STATUS_LABEL: Record<DocumentEntry['status'], string> = {
-  valide: 'Validé',
-  en_attente: 'En attente',
-  rejete: 'Rejeté',
+const STATUS_KEY: Record<DocumentEntry['status'], string> = {
+  valide: 'valide',
+  en_attente: 'enAttente',
+  rejete: 'rejete',
 };
 
 interface DocumentViewerProps {
@@ -27,6 +28,7 @@ interface DocumentViewerProps {
 }
 
 export function DocumentViewer({ document, previewUrl, onRemove }: DocumentViewerProps) {
+  const { t } = useLanguage();
   const isImage = /\.(png|jpe?g|webp)$/i.test(document.name);
 
   return (
@@ -47,7 +49,7 @@ export function DocumentViewer({ document, previewUrl, onRemove }: DocumentViewe
           <span className="material-symbols-outlined" style={{ fontSize: 14 }}>
             {STATUS_ICON[document.status]}
           </span>
-          {STATUS_LABEL[document.status]}
+          {t(`common:components.documentViewer.status.${STATUS_KEY[document.status]}`)}
         </div>
       </div>
       {onRemove && (
@@ -56,7 +58,7 @@ export function DocumentViewer({ document, previewUrl, onRemove }: DocumentViewe
           onClick={onRemove}
           className="shrink-0 rounded-full px-2 py-1 text-xs font-semibold text-error hover:bg-error-light"
         >
-          Retirer
+          {t('common:components.documentViewer.remove')}
         </button>
       )}
     </div>

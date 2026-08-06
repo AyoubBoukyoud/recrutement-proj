@@ -4,6 +4,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
+import { WithPageSkeleton } from '@/components/shared/SkeletonLoader';
 
 const BASE_SALARIES: { keywords: string[]; base: number }[] = [
   { keywords: ['infirmier', 'infirmière', 'santé'], base: 3200 },
@@ -22,12 +24,20 @@ const REGIONS: { name: string; factor: number }[] = [
   { name: 'Rhénanie-du-Nord-Westphalie', factor: 1.0 },
 ];
 
+const REGION_LABEL_KEYS: Record<string, string> = {
+  'Berlin': 'shared.regions.berlin',
+  'Bavière (Munich)': 'shared.regions.baviereMunich',
+  'Bade-Wurtemberg (Stuttgart)': 'shared.regions.badeWurtembergStuttgart',
+  'Hesse (Francfort)': 'shared.regions.hesseFrancfort',
+  'Rhénanie-du-Nord-Westphalie': 'shared.regions.rhenanieNordWestphalie',
+};
+
 const MIGRATION_COSTS = [
-  { label: 'Visa de travail (Consulat)', amount: 80 },
-  { label: "Billet d'avion (Casa → Allemagne)", amount: 350 },
-  { label: 'Assurance voyage (90 jours)', amount: 120 },
-  { label: 'Premier loyer + Caution (estimation)', amount: 700 },
-  { label: 'Traduction certifiée des documents', amount: 150 },
+  { label: 'salaire.migrationCosts.visa', amount: 80 },
+  { label: 'salaire.migrationCosts.flight', amount: 350 },
+  { label: 'salaire.migrationCosts.insurance', amount: 120 },
+  { label: 'salaire.migrationCosts.rent', amount: 700 },
+  { label: 'salaire.migrationCosts.translation', amount: 150 },
 ];
 const MIGRATION_TOTAL = MIGRATION_COSTS.reduce((sum, c) => sum + c.amount, 0);
 
@@ -38,6 +48,7 @@ function estimateBase(profession: string) {
 }
 
 export default function SalairePage() {
+  const { t } = useLanguage();
   const [profession, setProfession] = useState('');
   const [region, setRegion] = useState(REGIONS[0].name);
   const [experience, setExperience] = useState(0);
@@ -62,26 +73,27 @@ export default function SalairePage() {
   };
 
   return (
+    <WithPageSkeleton layout="cards">
     <div className="min-h-screen bg-surface pb-32">
       <header className="sticky top-0 z-20 flex w-full items-center gap-4 border-b border-outline-variant/20 bg-surface px-4 py-4">
         <Link href="/dashboard" className="text-primary-dark transition-opacity hover:opacity-80">
           <span className="material-symbols-outlined">arrow_back</span>
         </Link>
-        <h1 className="text-lg font-bold text-primary-dark">Simuler mon salaire</h1>
+        <h1 className="text-lg font-bold text-primary-dark">{t('candidateC:shared.pageTitle')}</h1>
       </header>
 
       <main className="mx-auto max-w-4xl space-y-6 px-4 py-6">
         <section className="space-y-1 text-center md:text-left">
-          <h2 className="text-2xl font-bold text-primary-dark">Simuler mon salaire</h2>
+          <h2 className="text-2xl font-bold text-primary-dark">{t('candidateC:shared.pageTitle')}</h2>
           <p className="max-w-2xl text-sm text-onSurface-variant">
-            Estimez votre futur niveau de vie en Allemagne et anticipez votre transition professionnelle.
+            {t('candidateC:salaire.subtitle')}
           </p>
         </section>
 
         <section className="rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-4 shadow-[0px_4px_20px_rgba(0,0,0,0.03)] md:p-6">
           <form onSubmit={handleSubmit} className="grid grid-cols-1 items-end gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-onSurface-variant">Profession</label>
+              <label className="text-xs font-semibold text-onSurface-variant">{t('candidateC:shared.form.profession')}</label>
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" style={{ fontSize: 20 }}>
                   work
@@ -89,13 +101,13 @@ export default function SalairePage() {
                 <input
                   value={profession}
                   onChange={(e) => setProfession(e.target.value)}
-                  placeholder="Ex: Infirmier"
+                  placeholder={t('candidateC:shared.form.professionPlaceholder')}
                   className="w-full rounded-xl border border-outline-variant py-3 pl-11 pr-3 text-sm outline-none transition-all focus:border-primary-dark focus:ring-2 focus:ring-primary-dark/10"
                 />
               </div>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-onSurface-variant">Région en Allemagne</label>
+              <label className="text-xs font-semibold text-onSurface-variant">{t('candidateC:shared.form.region')}</label>
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" style={{ fontSize: 20 }}>
                   location_on
@@ -106,13 +118,13 @@ export default function SalairePage() {
                   className="w-full appearance-none rounded-xl border border-outline-variant py-3 pl-11 pr-3 text-sm outline-none transition-all focus:border-primary-dark focus:ring-2 focus:ring-primary-dark/10"
                 >
                   {REGIONS.map((r) => (
-                    <option key={r.name} value={r.name}>{r.name}</option>
+                    <option key={r.name} value={r.name}>{t(`candidateC:${REGION_LABEL_KEYS[r.name]}`)}</option>
                   ))}
                 </select>
               </div>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-onSurface-variant">Années d&apos;expérience</label>
+              <label className="text-xs font-semibold text-onSurface-variant">{t('candidateC:shared.form.experience')}</label>
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" style={{ fontSize: 20 }}>
                   work_history
@@ -135,7 +147,7 @@ export default function SalairePage() {
                 <span className={`material-symbols-outlined ${isCalculating ? 'animate-spin' : ''}`}>
                   {isCalculating ? 'sync' : 'calculate'}
                 </span>
-                {isCalculating ? 'Calcul en cours…' : 'Calculer'}
+                {isCalculating ? t('candidateC:salaire.calculatingText') : t('candidateC:shared.form.calculateButton')}
               </button>
             </div>
           </form>
@@ -146,16 +158,16 @@ export default function SalairePage() {
             <div className="space-y-6 lg:col-span-7">
               <div className="relative space-y-4 overflow-hidden rounded-2xl border border-primary-container/20 bg-surface-container-lowest p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.03)]">
                 <div className="space-y-1">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-primary-dark/70">Salaire brut mensuel estimé</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-primary-dark/70">{t('candidateC:shared.grossMonthlySalary')}</h3>
                   <div className="flex items-baseline gap-2">
                     <span className="text-4xl font-bold text-primary-dark">{result.mid.toLocaleString('fr-FR')} €</span>
-                    <span className="text-xs text-outline">/ mois</span>
+                    <span className="text-xs text-outline">{t('candidateC:shared.perMonth')}</span>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs text-onSurface-variant">
-                    <span>Bas ({result.low.toLocaleString('fr-FR')} €)</span>
-                    <span>Haut ({result.high.toLocaleString('fr-FR')} €)</span>
+                    <span>{t('candidateC:shared.results.low', { value: result.low.toLocaleString('fr-FR') })}</span>
+                    <span>{t('candidateC:shared.results.high', { value: result.high.toLocaleString('fr-FR') })}</span>
                   </div>
                   <div className="h-3 w-full overflow-hidden rounded-full bg-surface-container">
                     <div className="h-full w-2/3 rounded-full bg-primary-dark" />
@@ -163,41 +175,41 @@ export default function SalairePage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4 border-t border-outline-variant/40 pt-4">
                   <div className="space-y-1">
-                    <p className="text-xs text-onSurface-variant">Salaire net estimé</p>
+                    <p className="text-xs text-onSurface-variant">{t('candidateC:shared.netSalary')}</p>
                     <p className="text-xl font-bold text-primary-dark">{result.net.toLocaleString('fr-FR')} €</p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs text-onSurface-variant">Reste à vivre</p>
+                    <p className="text-xs text-onSurface-variant">{t('candidateC:shared.resteAVivre')}</p>
                     <p className="text-xl font-bold text-primary-dark">{result.resteAVivre.toLocaleString('fr-FR')} €</p>
-                    <span className="text-[10px] italic text-outline">Après loyer et charges</span>
+                    <span className="text-[10px] italic text-outline">{t('candidateC:shared.afterRentCharges')}</span>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-6 rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.03)]">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-primary-dark">Migration : devis estimatif</h3>
-                  <span className="rounded-full bg-primary-container/10 px-3 py-1 text-xs font-bold text-primary-dark">Estimation 2026</span>
+                  <h3 className="text-lg font-bold text-primary-dark">{t('candidateC:salaire.migrationTitle')}</h3>
+                  <span className="rounded-full bg-primary-container/10 px-3 py-1 text-xs font-bold text-primary-dark">{t('candidateC:shared.estimationBadge', { year: 2026 })}</span>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
                     <thead className="border-b border-outline-variant/40">
                       <tr>
-                        <th className="py-2 font-semibold text-onSurface-variant">Poste de dépense</th>
-                        <th className="py-2 text-right font-semibold text-onSurface-variant">Montant</th>
+                        <th className="py-2 font-semibold text-onSurface-variant">{t('candidateC:shared.expenseLabel')}</th>
+                        <th className="py-2 text-right font-semibold text-onSurface-variant">{t('candidateC:shared.amountLabel')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-outline-variant/20">
                       {MIGRATION_COSTS.map((c) => (
                         <tr key={c.label}>
-                          <td className="py-2">{c.label}</td>
+                          <td className="py-2">{t(`candidateC:${c.label}`)}</td>
                           <td className="py-2 text-right">{c.amount} €</td>
                         </tr>
                       ))}
                     </tbody>
                     <tfoot>
                       <tr className="bg-surface-container-low">
-                        <td className="rounded-l-lg px-2 py-3 font-bold text-primary-dark">Coût total estimé</td>
+                        <td className="rounded-l-lg px-2 py-3 font-bold text-primary-dark">{t('candidateC:shared.totalCostLabel')}</td>
                         <td className="rounded-r-lg px-2 py-3 text-right font-bold text-primary-dark">{MIGRATION_TOTAL} €</td>
                       </tr>
                     </tfoot>
@@ -207,10 +219,10 @@ export default function SalairePage() {
                   <span className="material-symbols-outlined text-gold-dark">info</span>
                   <div className="space-y-1 text-sm">
                     <p className="font-semibold text-onSurface">
-                      Aides possibles : <strong>Programme THAMM</strong>
+                      {t('candidateC:shared.aid.prefix')} <strong>{t('candidateC:shared.aid.programName')}</strong>
                     </p>
                     <p className="text-xs text-onSurface-variant">
-                      Vous pourriez être éligible à un remboursement partiel de ces frais via les accords bilatéraux Maroc–Allemagne.
+                      {t('candidateC:salaire.aidDescription')}
                     </p>
                   </div>
                 </div>
@@ -219,30 +231,30 @@ export default function SalairePage() {
 
             <div className="space-y-6 lg:col-span-5">
               <div className="space-y-4 rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.03)]">
-                <h4 className="text-lg font-bold text-primary-dark">Optimisez votre profil</h4>
+                <h4 className="text-lg font-bold text-primary-dark">{t('candidateC:shared.optimizeProfileTitle')}</h4>
                 <p className="text-sm text-onSurface-variant">
-                  Les salaires peuvent varier de 20% selon la certification de votre niveau d&apos;allemand (B1/B2).
+                  {t('candidateC:shared.optimizeProfileDescription')}
                 </p>
                 <Link
                   href="/lecon-jour"
                   className="flex items-center justify-center gap-2 rounded-xl border-2 border-primary-dark py-3 text-sm font-semibold text-primary-dark transition-all hover:bg-primary-dark hover:text-on-primary"
                 >
-                  Voir les cours de langue
+                  {t('candidateC:shared.viewLanguageCoursesLink')}
                   <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
                 </Link>
               </div>
               <div className="space-y-3 rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.03)]">
-                <h4 className="text-lg font-bold text-primary-dark">Besoin d&apos;accompagnement ?</h4>
+                <h4 className="text-lg font-bold text-primary-dark">{t('candidateC:shared.needHelpTitle')}</h4>
                 <p className="text-sm text-onSurface-variant">
-                  Nos conseillers vous aident à préparer votre dossier de visa et à trouver votre premier logement.
+                  {t('candidateC:shared.needHelpDescription')}
                 </p>
                 <div className="flex flex-wrap gap-2 text-xs">
-                  <span className="rounded-full bg-surface-container-high px-3 py-1">Recherche de logement</span>
-                  <span className="rounded-full bg-surface-container-high px-3 py-1">Assistance Visa</span>
-                  <span className="rounded-full bg-surface-container-high px-3 py-1">Ouverture compte bancaire</span>
+                  <span className="rounded-full bg-surface-container-high px-3 py-1">{t('candidateC:shared.tags.housingSearch')}</span>
+                  <span className="rounded-full bg-surface-container-high px-3 py-1">{t('candidateC:shared.tags.visaAssistance')}</span>
+                  <span className="rounded-full bg-surface-container-high px-3 py-1">{t('candidateC:shared.tags.bankAccount')}</span>
                 </div>
                 <Link href="/reclamation" className="block text-center text-xs font-semibold text-primary-dark hover:underline">
-                  Contacter un conseiller
+                  {t('candidateC:salaire.contactAdvisorLink')}
                 </Link>
               </div>
             </div>
@@ -257,11 +269,12 @@ export default function SalairePage() {
               className="flex items-center gap-2 rounded-xl bg-primary-dark px-8 py-3 text-sm font-semibold text-on-primary shadow-md transition-all hover:opacity-90 active:scale-95"
             >
               <span className="material-symbols-outlined">picture_as_pdf</span>
-              Télécharger l&apos;estimation (PDF)
+              {t('candidateC:shared.downloadPdfButton')}
             </button>
           </div>
         )}
       </main>
     </div>
+    </WithPageSkeleton>
   );
 }

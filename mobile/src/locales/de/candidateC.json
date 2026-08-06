@@ -1,0 +1,152 @@
+{
+  "shared": {
+    "pageTitle": "Mein Gehalt simulieren",
+    "form": {
+      "profession": "Beruf",
+      "professionPlaceholder": "Z. B.: Krankenpfleger",
+      "region": "Region in Deutschland",
+      "experience": "Jahre Berufserfahrung",
+      "calculateButton": "Berechnen"
+    },
+    "regions": {
+      "berlin": "Berlin",
+      "baviereMunich": "Bayern (München)",
+      "badeWurtembergStuttgart": "Baden-Württemberg (Stuttgart)",
+      "hesseFrancfort": "Hessen (Frankfurt)",
+      "rhenanieNordWestphalie": "Nordrhein-Westfalen"
+    },
+    "grossMonthlySalary": "Geschätztes monatliches Bruttogehalt",
+    "perMonth": "/ Monat",
+    "results": {
+      "low": "Niedrig ({{value}} €)",
+      "high": "Hoch ({{value}} €)"
+    },
+    "netSalary": "Geschätztes Nettogehalt",
+    "resteAVivre": "Verfügbares Einkommen",
+    "afterRentCharges": "Nach Miete und Nebenkosten",
+    "estimationBadge": "Schätzung {{year}}",
+    "expenseLabel": "Ausgabenposten",
+    "amountLabel": "Betrag",
+    "totalCostLabel": "Geschätzte Gesamtkosten",
+    "aid": {
+      "prefix": "Mögliche Förderungen:",
+      "programName": "THAMM-Programm"
+    },
+    "optimizeProfileTitle": "Optimieren Sie Ihr Profil",
+    "optimizeProfileDescription": "Die Gehälter können je nach zertifiziertem Deutschniveau (B1/B2) um 20 % variieren.",
+    "viewLanguageCoursesLink": "Sprachkurse ansehen",
+    "needHelpTitle": "Benötigen Sie Unterstützung?",
+    "needHelpDescription": "Unsere Berater helfen Ihnen bei der Vorbereitung Ihres Visumantrags und bei der Suche nach Ihrer ersten Unterkunft.",
+    "tags": {
+      "housingSearch": "Wohnungssuche",
+      "visaAssistance": "Visumunterstützung",
+      "bankAccount": "Eröffnung eines Bankkontos"
+    },
+    "downloadPdfButton": "Schätzung herunterladen (PDF)"
+  },
+  "salaire": {
+    "subtitle": "Schätzen Sie Ihren zukünftigen Lebensstandard in Deutschland ein und bereiten Sie Ihren beruflichen Wechsel vor.",
+    "calculatingText": "Berechnung läuft…",
+    "migrationTitle": "Migration: Kostenvoranschlag",
+    "migrationCosts": {
+      "visa": "Arbeitsvisum (Konsulat)",
+      "flight": "Flugticket (Casablanca → Deutschland)",
+      "insurance": "Reiseversicherung (90 Tage)",
+      "rent": "Erste Miete + Kaution (Schätzung)",
+      "translation": "Beglaubigte Übersetzung der Dokumente"
+    },
+    "aidDescription": "Sie könnten im Rahmen der bilateralen Abkommen zwischen Marokko und Deutschland Anspruch auf eine teilweise Erstattung dieser Kosten haben.",
+    "contactAdvisorLink": "Berater kontaktieren"
+  },
+  "simulateurSalaire": {
+    "notificationsAria": "Benachrichtigungen",
+    "subtitle": "Schätzen Sie Ihren zukünftigen Lebensstandard in Deutschland ein und planen Sie Ihren beruflichen Wechsel in aller Ruhe.",
+    "professions": {
+      "infirmier": "Krankenpfleger",
+      "ingenieurLogiciel": "Softwareingenieur",
+      "technicienMaintenance": "Wartungstechniker",
+      "chauffeurPoidsLourd": "LKW-Fahrer"
+    },
+    "calculatingText": "Berechnung läuft...",
+    "migrationTitle": "Migration: Kostenvoranschlag",
+    "migrationCosts": {
+      "visa": "Arbeitsvisum (Konsulat)",
+      "flight": "Flugticket (Casablanca - Berlin)",
+      "insurance": "Reiseversicherung (90 Tage)",
+      "rent": "Erste Miete + Kaution (Schätzung)",
+      "translation": "Beglaubigte Übersetzung der Dokumente"
+    },
+    "aidDescription": "Sie könnten im Rahmen der bilateralen Abkommen zwischen Marokko und Deutschland Anspruch auf eine teilweise Erstattung dieser Kosten haben."
+  },
+  "matchingPreferences": {
+    "title": "Meine Präferenzen",
+    "profileAria": "Mein Profil",
+    "heroTitle": "Personalisieren Sie Ihre Möglichkeiten",
+    "heroDescription": "Legen Sie Ihre Kriterien fest, damit wir Ihnen die besten Angebote in Deutschland vorschlagen können.",
+    "regionsTitle": "Gewünschte Region in Deutschland",
+    "regions": {
+      "berlin": "Berlin",
+      "baviere": "Bayern",
+      "hambourg": "Hamburg",
+      "saxe": "Sachsen",
+      "badeWurtemberg": "Baden-Württemberg",
+      "hesse": "Hessen"
+    },
+    "companyTypeTitle": "Unternehmenstyp",
+    "companyTypes": {
+      "grandGroupe": "Großkonzern",
+      "pme": "KMU",
+      "startup": "Start-up",
+      "peuImporte": "Keine Präferenz"
+    },
+    "sectorsTitle": "Tätigkeitsbereiche",
+    "sectors": {
+      "sante": "Gesundheitswesen",
+      "logistique": "Logistik",
+      "electricite": "Elektrotechnik",
+      "hotellerie": "Hotelgewerbe",
+      "construction": "Bauwesen"
+    },
+    "salaryTitle": "Mindestgehalt (Jährlich)",
+    "discoverCaption": "Entdecken Sie Ihr zukünftiges Zuhause in Deutschland.",
+    "savedToast": "Ihre Matching-Präferenzen wurden erfolgreich gespeichert!",
+    "saveButton": "Präferenzen speichern"
+  },
+  "dashboard": {
+    "greeting": "Hallo, {{name}} 👋",
+    "defaultName": "Kandidat",
+    "spaceLabel": "Kandidatenbereich",
+    "progressTitle": "Profilfortschritt",
+    "progressDescription": "Vervollständigen Sie Ihr Profil, um bei deutschen Personalvermittlern bevorzugt angezeigt zu werden.",
+    "visibleByPrefix": "Profil sichtbar für",
+    "visibleByCount": "{{count}} Personalvermittler",
+    "toCompleteTitle": "Zu vervollständigen",
+    "checklist": {
+      "personalProfile": "Persönliches Profil vervollständigt",
+      "sectorQualification": "Branche und Qualifikation angegeben",
+      "cv": "Lebenslauf hochgeladen",
+      "diploma": "Zertifikate / Diplome",
+      "video": "Vorstellungsvideo",
+      "languageTest": "Sprachtest",
+      "identity": "Identität verifiziert",
+      "addAction": "Hinzufügen",
+      "recordAction": "Aufnehmen",
+      "takeTestAction": "Test ablegen",
+      "verifyAction": "Verifizieren"
+    },
+    "quickActionsTitle": "Schnellzugriff",
+    "quickActions": {
+      "addDocument": "Dokument hinzufügen",
+      "recordVideo": "Video aufnehmen",
+      "languageTest": "Sprachtest ablegen",
+      "viewPublicProfile": "Mein öffentliches Profil ansehen",
+      "germanLessonOfDay": "Deutschlektion des Tages",
+      "viewJobOffers": "Stellenangebote ansehen",
+      "simulateSalary": "Mein Gehalt simulieren",
+      "myVisibility": "Meine Sichtbarkeit",
+      "referFriend": "Einen Freund werben",
+      "verifyIdentity": "Meine Identität verifizieren",
+      "matchingPreferences": "Matching-Präferenzen"
+    }
+  }
+}

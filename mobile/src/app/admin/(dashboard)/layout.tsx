@@ -6,19 +6,21 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 const NAV_ITEMS = [
-  { href: '/admin/utilisateurs', label: 'Utilisateurs', icon: 'group' },
-  { href: '/admin/validation', label: 'Validation profils', icon: 'fact_check' },
-  { href: '/admin/reclamations', label: 'Réclamations', icon: 'confirmation_number' },
-  { href: '/admin/statistiques', label: 'Statistiques', icon: 'bar_chart' },
-  { href: '/admin/parrainage', label: 'Parrainage', icon: 'handshake' },
-];
+  { href: '/admin/utilisateurs', labelKey: 'common:nav.adminUtilisateurs', icon: 'group' },
+  { href: '/admin/validation', labelKey: 'common:nav.adminValidation', icon: 'fact_check' },
+  { href: '/admin/reclamations', labelKey: 'common:nav.adminReclamations', icon: 'confirmation_number' },
+  { href: '/admin/statistiques', labelKey: 'common:nav.adminStatistiques', icon: 'bar_chart' },
+  { href: '/admin/parrainage', labelKey: 'common:nav.adminParrainage', icon: 'handshake' },
+] as const;
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { logout } = useAuth();
+  const { t } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
@@ -28,7 +30,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const NavLinks = ({ onNavigate }: { onNavigate?: () => void }) => (
     <nav className="flex flex-1 flex-col gap-1">
-      {NAV_ITEMS.map(({ href, label, icon }) => {
+      {NAV_ITEMS.map(({ href, labelKey, icon }) => {
         const isActive = pathname === href;
         return (
           <Link
@@ -42,7 +44,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
               {icon}
             </span>
-            {label}
+            {t(labelKey)}
           </Link>
         );
       })}
@@ -51,10 +53,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen bg-surface md:flex">
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-outline-variant bg-surface-low p-5 md:flex">
+      <aside className="hidden w-64 shrink-0 flex-col border-l border-outline-variant bg-surface-low p-5 md:flex md:order-2">
         <div className="mb-8 px-1">
           <h1 className="text-lg font-bold text-primary">Amud Pillar</h1>
-          <p className="text-xs text-onSurface-variant">Gestionnaire Principal</p>
+          <p className="text-xs text-onSurface-variant">{t('common:adminLayout.roleTitle')}</p>
         </div>
         <NavLinks />
         <button
@@ -65,13 +67,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
             logout
           </span>
-          Déconnexion
+          {t('common:actions.logout')}
         </button>
       </aside>
 
       <header className="sticky top-0 z-40 flex items-center justify-between border-b border-outline-variant bg-surface/95 p-4 backdrop-blur-md md:hidden">
-        <span className="text-sm font-bold text-primary">Administration</span>
-        <button type="button" onClick={() => setIsMenuOpen(true)} aria-label="Ouvrir le menu" className="text-primary">
+        <span className="text-sm font-bold text-primary">{t('common:space.admin')}</span>
+        <button type="button" onClick={() => setIsMenuOpen(true)} aria-label={t('common:menu.open')} className="text-primary">
           <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
             menu
           </span>
@@ -85,7 +87,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <button
               type="button"
               onClick={() => setIsMenuOpen(false)}
-              aria-label="Fermer le menu"
+              aria-label={t('common:menu.close')}
               className="mb-6 self-end text-onSurface-variant"
             >
               <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
@@ -101,13 +103,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
                 logout
               </span>
-              Déconnexion
+              {t('common:actions.logout')}
             </button>
           </div>
         </div>
       )}
 
-      <main className="flex-1 pb-20 md:pb-0">{children}</main>
+      <main className="flex-1 pb-20 md:pb-0 md:order-1">{children}</main>
     </div>
   );
 }

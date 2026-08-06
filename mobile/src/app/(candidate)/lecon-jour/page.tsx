@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 const WEEK_SLOTS = ['done', 'done', 'done', 'done', 'done', 'active', 'remaining'] as const;
 
@@ -23,6 +24,7 @@ function speak(text: string, lang: string) {
 
 export default function LeconJourPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [isRepeating, setIsRepeating] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -32,7 +34,7 @@ export default function LeconJourPage() {
     setFeedback(null);
     setTimeout(() => {
       setIsRepeating(false);
-      setFeedback('Bien prononcé ! 🎉');
+      setFeedback(t('candidateA:leconJour.pronunciationFeedback'));
       setTimeout(() => setFeedback(null), 2500);
     }, 1500);
   };
@@ -47,17 +49,17 @@ export default function LeconJourPage() {
         <Link href="/dashboard" className="p-2 transition-transform active:scale-95">
           <span className="material-symbols-outlined text-primary-dark">arrow_back</span>
         </Link>
-        <h1 className="flex-1 truncate text-lg font-bold text-primary-dark">Allemand du quotidien</h1>
+        <h1 className="flex-1 truncate text-lg font-bold text-primary-dark">{t('candidateA:leconJour.headerTitle')}</h1>
         <div className="flex items-center gap-1.5 rounded-full bg-gold/10 px-3 py-1.5">
           <span className="material-symbols-outlined fill text-gold" style={{ fontSize: 18 }}>local_fire_department</span>
-          <span className="text-sm font-bold text-gold-dark">7 jours</span>
+          <span className="text-sm font-bold text-gold-dark">{t('candidateA:leconJour.streakBadge', { count: 7 })}</span>
         </div>
       </header>
 
       <main className="mx-auto w-full max-w-[600px] space-y-8 px-4 py-6">
         <section className="space-y-3">
           <div className="flex items-center justify-between px-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-onSurface-variant">Progression hebdomadaire</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-onSurface-variant">{t('candidateA:leconJour.weeklyProgressLabel')}</span>
             <span className="text-xs font-bold text-primary-dark">85%</span>
           </div>
           <div className="flex h-2.5 gap-2">
@@ -84,7 +86,7 @@ export default function LeconJourPage() {
                 type="button"
                 onClick={() => speak('Guten Morgen', 'de-DE')}
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-container text-on-primary-container transition-all hover:opacity-90 active:scale-90"
-                aria-label="Écouter la prononciation"
+                aria-label={t('candidateA:leconJour.listenAria')}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 20 }}>volume_up</span>
               </button>
@@ -92,11 +94,11 @@ export default function LeconJourPage() {
 
             <div className="w-full space-y-3 border-t border-outline-variant/30 pt-4">
               <div className="flex items-center justify-between rounded-lg bg-surface-container p-3">
-                <span className="text-xs font-semibold text-onSurface-variant">Français</span>
+                <span className="text-xs font-semibold text-onSurface-variant">{t('candidateA:leconJour.frenchLabel')}</span>
                 <span className="text-sm font-semibold">Bonjour</span>
               </div>
               <div className="flex items-center justify-between rounded-lg bg-surface-container p-3">
-                <span className="text-xs font-semibold text-onSurface-variant">Arabe</span>
+                <span className="text-xs font-semibold text-onSurface-variant">{t('candidateA:leconJour.arabicLabel')}</span>
                 <span className="text-sm font-semibold" dir="rtl">صباح الخير</span>
               </div>
             </div>
@@ -108,7 +110,7 @@ export default function LeconJourPage() {
                 className="flex h-12 items-center justify-center gap-2 rounded-xl bg-surface-container-high text-sm font-semibold text-primary-dark transition-colors hover:bg-surface-container-highest active:scale-95"
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 20 }}>play_circle</span>
-                Écouter
+                {t('candidateA:leconJour.listenCta')}
               </button>
               <button
                 type="button"
@@ -117,7 +119,7 @@ export default function LeconJourPage() {
                 className="flex h-12 items-center justify-center gap-2 rounded-xl bg-primary-dark text-sm font-semibold text-on-primary shadow-lg shadow-primary-dark/20 transition-opacity hover:opacity-95 active:scale-95 disabled:opacity-60"
               >
                 <span className={`material-symbols-outlined ${isRepeating ? 'animate-pulse' : ''}`} style={{ fontSize: 20 }}>mic</span>
-                {isRepeating ? 'Écoute…' : 'Répéter'}
+                {isRepeating ? t('candidateA:leconJour.repeatingCta') : t('candidateA:leconJour.repeatCta')}
               </button>
             </div>
 
@@ -128,11 +130,11 @@ export default function LeconJourPage() {
         <section className="space-y-4">
           <div className="flex items-center gap-2 px-1">
             <span className="material-symbols-outlined text-tertiary" style={{ fontSize: 20 }}>quiz</span>
-            <h3 className="text-lg font-bold text-onSurface">Mini Quiz</h3>
+            <h3 className="text-lg font-bold text-onSurface">{t('candidateA:leconJour.quizTitle')}</h3>
           </div>
           <div className="space-y-6 rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
             <p className="text-onSurface">
-              Comment dit-on <span className="font-bold">« Bonjour »</span> en allemand ?
+              {t('candidateA:leconJour.quiz.questionPrefix')} <span className="font-bold">« Bonjour »</span> {t('candidateA:leconJour.quiz.questionSuffix')}
             </p>
             <div className="grid grid-cols-1 gap-3">
               {QUIZ_OPTIONS.map((option) => {
@@ -170,7 +172,7 @@ export default function LeconJourPage() {
             onClick={handleFinish}
             className="w-full rounded-xl bg-tertiary py-4 text-lg font-bold text-onTertiary shadow-lg shadow-tertiary/20 transition-all hover:opacity-95 active:scale-95"
           >
-            Terminé
+            {t('candidateA:leconJour.finishCta')}
           </button>
         </footer>
       </main>

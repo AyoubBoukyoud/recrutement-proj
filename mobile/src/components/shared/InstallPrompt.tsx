@@ -90,9 +90,9 @@ export function InstallPrompt() {
         </div>
 
         <div className="flex-1">
-          <p className="text-sm font-semibold text-onSurface">{t('install_title')}</p>
+          <p className="text-sm font-semibold text-onSurface">{t('common:install.title')}</p>
           <p className="mt-0.5 text-xs text-onSurface-variant">
-            {showIosHint ? t('install_ios_hint') : t('install_subtitle')}
+            {showIosHint ? t('common:install.iosHint') : t('common:install.subtitle')}
           </p>
 
           <div className="mt-3 flex items-center gap-3">
@@ -102,11 +102,11 @@ export function InstallPrompt() {
                 onClick={install}
                 className="rounded-pillar bg-primary px-4 py-2 text-xs font-semibold text-onPrimary shadow-soft"
               >
-                {t('install_cta')}
+                {t('common:install.cta')}
               </button>
             )}
             <button type="button" onClick={dismiss} className="text-xs font-semibold text-outline">
-              {t('install_dismiss')}
+              {t('common:install.dismiss')}
             </button>
           </div>
         </div>

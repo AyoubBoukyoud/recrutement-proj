@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface ChecklistItemProps {
   label: string;
@@ -8,7 +9,9 @@ interface ChecklistItemProps {
   actionLabel?: string;
 }
 
-export function ChecklistItem({ label, description, status, href, actionLabel = 'Ajouter' }: ChecklistItemProps) {
+export function ChecklistItem({ label, description, status, href, actionLabel }: ChecklistItemProps) {
+  const { t } = useLanguage();
+  const resolvedActionLabel = actionLabel ?? t('common:components.checklist.addDefault');
   const icon =
     status === 'done' ? (
       <span className="material-symbols-outlined fill text-primary" style={{ fontSize: 22 }}>
@@ -44,7 +47,7 @@ export function ChecklistItem({ label, description, status, href, actionLabel = 
           href={href}
           className="shrink-0 rounded-lg bg-primary px-4 py-1.5 text-xs font-semibold text-onPrimary shadow-sm transition-all hover:bg-primary/90 active:scale-95"
         >
-          {actionLabel}
+          {resolvedActionLabel}
         </Link>
       )}
     </div>
