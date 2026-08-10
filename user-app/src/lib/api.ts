@@ -1,5 +1,6 @@
 // Client HTTP minimal vers l'API Laravel. Volontairement réduit à ce dont
-// l'authentification a besoin : le reste de l'application lit encore mockData.
+// l'authentification et l'extraction de documents ont besoin : le reste de
+// l'application lit encore mockData.
 
 export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api').replace(/\/+$/, '');
 
@@ -30,21 +31,27 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiPost<T>(path: string, body: unknown, token?: string | null): Promise<T> {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-  };
+type Method = 'GET' | 'POST' | 'PATCH' | 'DELETE';
 
+/**
+ * Le corps est envoyé en JSON, sauf pour un `FormData` : l'upload de document
+ * est multipart, et fixer nous-mêmes `Content-Type` effacerait le `boundary`
+ * que le navigateur ajoute — Laravel ne verrait alors aucun fichier.
+ */
+async function request<T>(method: Method, path: string, body?: unknown, token?: string | null): Promise<T> {
+  const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
+
+  const headers: Record<string, string> = { Accept: 'application/json' };
+  if (!isForm && body !== undefined) headers['Content-Type'] = 'application/json';
   if (token) headers.Authorization = `Bearer ${token}`;
 
   let response: Response;
 
   try {
     response = await fetch(`${API_BASE_URL}${path}`, {
-      method: 'POST',
+      method,
       headers,
-      body: JSON.stringify(body),
+      body: body === undefined ? undefined : isForm ? (body as FormData) : JSON.stringify(body),
     });
   } catch (cause) {
     throw new ApiError(0, cause instanceof Error ? cause.message : 'Network request failed');
@@ -68,4 +75,24 @@ export async function apiPost<T>(path: string, body: unknown, token?: string | n
   }
 
   return payload as T;
+}
+
+export function apiGet<T>(path: string, token?: string | null): Promise<T> {
+  return request<T>('GET', path, undefined, token);
+}
+
+export function apiPost<T>(path: string, body: unknown, token?: string | null): Promise<T> {
+  return request<T>('POST', path, body, token);
+}
+
+export function apiPatch<T>(path: string, body: unknown, token?: string | null): Promise<T> {
+  return request<T>('PATCH', path, body, token);
+}
+
+/**
+ * `GET` renvoie une liste JSON là où `request` type un objet : Laravel
+ * répond ici un tableau nu (`documents()->get()`), que le parse restitue tel quel.
+ */
+export function apiGetList<T>(path: string, token?: string | null): Promise<T[]> {
+  return request<unknown>('GET', path, undefined, token).then((data) => (Array.isArray(data) ? (data as T[]) : []));
 }
