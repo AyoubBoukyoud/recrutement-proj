@@ -6,6 +6,7 @@ import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { otpFailureMessage } from '@/lib/authMessages';
 import { useProfile } from '@/context/ProfileContext';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -15,14 +16,15 @@ function OtpContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const phone = searchParams.get('phone') ?? '';
-  const { verifyOtp, requestOtp } = useAuth();
+  const { verifyOtp, requestOtp, resendAvailableIn } = useAuth();
   const { getIncompleteStep } = useProfile();
   const { t } = useLanguage();
 
   const [digits, setDigits] = useState<string[]>(Array(6).fill(''));
   const [error, setError] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
-  const [secondsLeft, setSecondsLeft] = useState(RESEND_SECONDS);
+  const [isResending, setIsResending] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(resendAvailableIn ?? RESEND_SECONDS);
   const [shake, setShake] = useState(false);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -58,10 +60,10 @@ function OtpContent() {
   const submitCode = async (code: string) => {
     setError(null);
     setIsVerifying(true);
-    const success = await verifyOtp(code);
+    const result = await verifyOtp(code, phone || undefined);
     setIsVerifying(false);
-    if (!success) {
-      setError(t('otp_error_invalid'));
+    if (!result.ok) {
+      setError(otpFailureMessage(result, t));
       setShake(true);
       setTimeout(() => setShake(false), 400);
       setDigits(Array(6).fill(''));
@@ -72,9 +74,21 @@ function OtpContent() {
     router.replace(incompleteStep ? `/profile-creation?step=${incompleteStep}` : '/dashboard');
   };
 
-  const handleResend = () => {
-    if (secondsLeft > 0) return;
-    requestOtp(phone);
+  const handleResend = async () => {
+    if (secondsLeft > 0 || isResending) return;
+    setIsResending(true);
+    setError(null);
+    const result = await requestOtp(phone);
+    setIsResending(false);
+
+    if (!result.ok) {
+      setError(otpFailureMessage(result, t));
+      // Un refus pour cause de quota porte son propre délai ; toute autre
+      // erreur laisse le bouton disponible pour réessayer tout de suite.
+      if (result.retryAfter) setSecondsLeft(result.retryAfter);
+      return;
+    }
+
     setSecondsLeft(RESEND_SECONDS);
     setDigits(Array(6).fill(''));
     inputsRef.current[0]?.focus();
@@ -145,9 +159,11 @@ function OtpContent() {
             <button
               type="button"
               onClick={handleResend}
-              disabled={secondsLeft > 0}
+              disabled={secondsLeft > 0 || isResending}
               className={`text-sm font-semibold transition-all ${
-                secondsLeft > 0 ? 'cursor-not-allowed text-outline opacity-60' : 'text-primary hover:underline cursor-pointer'
+                secondsLeft > 0 || isResending
+                  ? 'cursor-not-allowed text-outline opacity-60'
+                  : 'text-primary hover:underline cursor-pointer'
               }`}
             >
               {t('otp_resend_cta')}

@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { otpFailureMessage } from '@/lib/authMessages';
 import { useLanguage } from '@/context/LanguageContext';
 
 const COUNTRY_CODES = [
@@ -31,9 +32,16 @@ export default function AuthPhonePage() {
     setError(null);
     setIsSubmitting(true);
     const fullPhone = `${countryCode}${digits}`;
-    await new Promise((resolve) => setTimeout(resolve, 400));
-    requestOtp(fullPhone);
+    const result = await requestOtp(fullPhone);
     setIsSubmitting(false);
+
+    // On ne navigue que si le code est réellement parti : envoyer le candidat
+    // attendre un message qui n'arrivera jamais serait pire qu'une erreur ici.
+    if (!result.ok) {
+      setError(otpFailureMessage(result, t));
+      return;
+    }
+
     router.push(`/otp?phone=${encodeURIComponent(fullPhone)}`);
   };
 

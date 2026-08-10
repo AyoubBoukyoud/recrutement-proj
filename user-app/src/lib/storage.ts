@@ -31,6 +31,7 @@ export function removeStorage(key: string): void {
 
 export const STORAGE_KEYS = {
   auth: 'as_auth_user',
+  token: 'as_auth_token',
   profile: 'as_candidate_profile',
   language: 'as_language',
   syncQueue: 'as_sync_queue',
