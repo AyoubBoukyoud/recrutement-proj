@@ -18,6 +18,11 @@ const TABS = [
   { href: '/reclamation', labelKey: 'common:nav.support', icon: 'help_outline' },
 ] as const;
 
+// Profil est accessible depuis le haut du Dashboard (avatar + partage) ; Paramètres depuis l'en-tête
+// de Profil. Les deux sont donc masqués de la barre du bas pour ne garder que les onglets principaux.
+const BOTTOM_NAV_HIDDEN_HREFS: string[] = ['/profil', '/settings'];
+const BOTTOM_NAV_TABS = TABS.filter((tab) => !BOTTOM_NAV_HIDDEN_HREFS.includes(tab.href));
+
 export default function CandidateLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -39,10 +44,8 @@ export default function CandidateLayout({ children }: { children: React.ReactNod
       {/* Sidebar desktop/tablet */}
       <aside className="hidden w-64 shrink-0 flex-col border-l border-outline-variant bg-surface-low p-5 md:flex md:order-2 min-h-screen">
         <div className="mb-8 flex items-center gap-3 px-1">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-onPrimary">
-            <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
-              language
-            </span>
+          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg bg-primary">
+            <img src="/assets/images/Logo.jpg" alt="Amud Skills" className="h-full w-full object-contain" />
           </div>
           <span className="text-lg font-black tracking-tight text-primary">Amud Skills</span>
         </div>
@@ -74,7 +77,7 @@ export default function CandidateLayout({ children }: { children: React.ReactNod
 
         {/* Bottom bar mobile */}
         <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto flex items-center justify-around border-t border-surface-container-high bg-surface-container-lowest/95 px-3 py-2 shadow-subtle backdrop-blur-md md:hidden">
-          {TABS.map(({ href, labelKey, icon }) => {
+          {BOTTOM_NAV_TABS.map(({ href, labelKey, icon }) => {
             const isActive = pathname === href;
             return (
               <Link
@@ -89,7 +92,7 @@ export default function CandidateLayout({ children }: { children: React.ReactNod
                     {icon}
                   </span>
                 </div>
-                <span className="text-[10px] font-bold tracking-tight">{t(labelKey)}</span>
+                <span className="sr-only">{t(labelKey)}</span>
               </Link>
             );
           })}

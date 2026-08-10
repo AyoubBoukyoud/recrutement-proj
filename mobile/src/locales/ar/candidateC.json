@@ -59,24 +59,67 @@
     "contactAdvisorLink": "الاتصال بمستشار"
   },
   "simulateurSalaire": {
+    "pageTitle": "محاكي الراتب في ألمانيا",
     "notificationsAria": "الإشعارات",
-    "subtitle": "قدّر مستوى معيشتك المستقبلي في ألمانيا وخطط لانتقالك المهني بكل طمأنينة.",
+    "heroTitle": "قدّر دخلك ونفقاتك",
+    "subtitle": "احسب راتبك الإجمالي/الصافي الشهري ونفقات معيشتك الفعلية في ألمانيا حسب المنطقة والمهنة.",
     "professions": {
-      "infirmier": "ممرض",
-      "ingenieurLogiciel": "مهندس برمجيات",
+      "infirmier": "ممرض / مقدم رعاية",
+      "ingenieurLogiciel": "مهندس برمجيات / تقنية معلومات",
       "technicienMaintenance": "تقني صيانة",
-      "chauffeurPoidsLourd": "سائق شاحنة"
+      "chauffeurPoidsLourd": "سائق شاحنة",
+      "electricien": "كهربائي / حرفي"
+    },
+    "form": {
+      "profession": "المهنة / القطاع",
+      "region": "المنطقة (الولاية) في ألمانيا",
+      "experience": "الخبرة (بالسنوات)",
+      "steuerklasse": "الفئة الضريبية (Steuerklasse)",
+      "recalculateButton": "إعادة حساب الراتب"
+    },
+    "steuerklasse": {
+      "classe1": "الفئة 1 (أعزب)",
+      "classe3": "الفئة 3 (متزوج - الدخل الرئيسي)",
+      "classe4": "الفئة 4 (متزوج - دخل متساوٍ)",
+      "classe5": "الفئة 5 (متزوج - الدخل الثانوي)"
     },
     "calculatingText": "جارٍ الحساب...",
-    "migrationTitle": "الهجرة: تقدير التكاليف",
-    "migrationCosts": {
-      "visa": "تأشيرة العمل (القنصلية)",
-      "flight": "تذكرة الطيران (الدار البيضاء - برلين)",
-      "insurance": "تأمين السفر (90 يومًا)",
-      "rent": "الإيجار الأول + الضمان (تقدير)",
-      "translation": "الترجمة المعتمدة للوثائق"
+    "toasts": {
+      "updated": "📊 تم تحديث المحاكاة!",
+      "pdfGenerating": "📄 جارٍ إنشاء كشف الراتب التقديري (PDF)..."
     },
-    "aidDescription": "قد تكون مؤهلاً للحصول على استرداد جزئي لهذه المصاريف عبر الاتفاقيات الثنائية بين المغرب وألمانيا."
+    "results": {
+      "grossTitle": "الراتب الإجمالي الشهري المقدر",
+      "rangeLow": "الحد الأدنى: {{value}} €",
+      "rangeHigh": "الحد الأعلى: {{value}} €",
+      "netLabel": "الصافي المقدر",
+      "taxesLabel": "الضرائب والضمان الاجتماعي الألماني"
+    },
+    "costs": {
+      "title": "تكاليف الاستقرار المقدرة ({{region}})",
+      "badge": "تعرفة {{year}}",
+      "amountEstimatedLabel": "المبلغ المقدر",
+      "rentRow": "متوسط الإيجار الشهري ({{region}})",
+      "foodTransportRow": "الغذاء والنقل العام",
+      "visaRow": "تأشيرة العمل ومعادلة الشهادات",
+      "healthInsuranceRow": "التأمين الصحي الألماني (TK/AOK)",
+      "monthlyAmount": "{{amount}} € / شهريًا",
+      "oneTimeAmount": "{{amount}} € (لمرة واحدة)",
+      "includedInNet": "مشمول في الصافي",
+      "totalMonthlyLabel": "النفقات الشهرية المقدرة"
+    },
+    "aid": {
+      "title": "برنامج AMUD لدعم الانتقال",
+      "description": "تتكفل AMUD بنسبة تصل إلى 100% من رسوم التأشيرة وتذكرة الطيران والترجمة المعتمدة لشهاداتك عند تأكيد التوظيف من طرف صاحب عمل ألماني."
+    },
+    "languageCta": {
+      "title": "سرّع توظيفك في ألمانيا",
+      "description": "يرفع مستوى اللغة B1 أو B2 راتبك الأولي بنسبة +15% ويضمن معالجة أسرع لإجراءات التأشيرة من طرف أصحاب العمل.",
+      "linkText": "الوصول إلى دورات اللغة الألمانية المجانية"
+    },
+    "footer": {
+      "downloadButton": "تحميل التقدير الكامل (PDF)"
+    }
   },
   "matchingPreferences": {
     "title": "تفضيلاتي",

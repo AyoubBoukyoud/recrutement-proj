@@ -35,6 +35,11 @@ export default function EmployerLoginPage() {
   return (
     <main className="flex min-h-screen flex-col justify-between bg-surface">
       <header className="sticky top-0 z-10 flex w-full flex-col items-center gap-2 bg-surface px-6 py-6">
+        <Link href="/language" aria-label={t('common:actions.back')} className="absolute left-6 top-6 text-primary hover:opacity-80 transition-opacity">
+          <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
+            arrow_back
+          </span>
+        </Link>
         <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-onPrimary">
           <span className="material-symbols-outlined" style={{ fontSize: 28 }}>
             language

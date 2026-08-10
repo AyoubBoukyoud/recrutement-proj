@@ -59,24 +59,67 @@
     "contactAdvisorLink": "Berater kontaktieren"
   },
   "simulateurSalaire": {
+    "pageTitle": "Gehaltssimulator Deutschland",
     "notificationsAria": "Benachrichtigungen",
-    "subtitle": "Schätzen Sie Ihren zukünftigen Lebensstandard in Deutschland ein und planen Sie Ihren beruflichen Wechsel in aller Ruhe.",
+    "heroTitle": "Schätzen Sie Ihr Einkommen & Ihre Kosten",
+    "subtitle": "Berechnen Sie Ihr monatliches Brutto-/Nettogehalt und Ihre tatsächlichen Lebenshaltungskosten in Deutschland je nach Region und Beruf.",
     "professions": {
-      "infirmier": "Krankenpfleger",
-      "ingenieurLogiciel": "Softwareingenieur",
-      "technicienMaintenance": "Wartungstechniker",
-      "chauffeurPoidsLourd": "LKW-Fahrer"
+      "infirmier": "Pflegekraft",
+      "ingenieurLogiciel": "Softwareingenieur/in / IT",
+      "technicienMaintenance": "Wartungstechniker/in",
+      "chauffeurPoidsLourd": "LKW-Fahrer/in",
+      "electricien": "Elektriker/in / Handwerk"
+    },
+    "form": {
+      "profession": "Beruf / Branche",
+      "region": "Region (Bundesland) in Deutschland",
+      "experience": "Berufserfahrung (Jahre)",
+      "steuerklasse": "Steuerklasse",
+      "recalculateButton": "Gehalt neu berechnen"
+    },
+    "steuerklasse": {
+      "classe1": "Klasse 1 (Ledig)",
+      "classe3": "Klasse 3 (Verheiratet - Hauptverdiener)",
+      "classe4": "Klasse 4 (Verheiratet - Gleiches Einkommen)",
+      "classe5": "Klasse 5 (Verheiratet - Zweitverdiener)"
     },
     "calculatingText": "Berechnung läuft...",
-    "migrationTitle": "Migration: Kostenvoranschlag",
-    "migrationCosts": {
-      "visa": "Arbeitsvisum (Konsulat)",
-      "flight": "Flugticket (Casablanca - Berlin)",
-      "insurance": "Reiseversicherung (90 Tage)",
-      "rent": "Erste Miete + Kaution (Schätzung)",
-      "translation": "Beglaubigte Übersetzung der Dokumente"
+    "toasts": {
+      "updated": "📊 Simulation aktualisiert!",
+      "pdfGenerating": "📄 Erstellung der voraussichtlichen Gehaltsabrechnung (PDF)..."
     },
-    "aidDescription": "Sie könnten im Rahmen der bilateralen Abkommen zwischen Marokko und Deutschland Anspruch auf eine teilweise Erstattung dieser Kosten haben."
+    "results": {
+      "grossTitle": "Geschätztes monatliches Bruttogehalt",
+      "rangeLow": "Untere Spanne: {{value}} €",
+      "rangeHigh": "Obere Spanne: {{value}} €",
+      "netLabel": "Geschätztes Netto",
+      "taxesLabel": "Steuern & Sozialabgaben DE"
+    },
+    "costs": {
+      "title": "Geschätzte Umzugskosten ({{region}})",
+      "badge": "Tarif {{year}}",
+      "amountEstimatedLabel": "Geschätzter Betrag",
+      "rentRow": "Durchschnittliche Monatsmiete ({{region}})",
+      "foodTransportRow": "Essen & öffentlicher Nahverkehr",
+      "visaRow": "Arbeitsvisum & Anerkennung",
+      "healthInsuranceRow": "Deutsche Krankenversicherung (TK/AOK)",
+      "monthlyAmount": "{{amount}} € / Monat",
+      "oneTimeAmount": "{{amount}} € (einmalig)",
+      "includedInNet": "Im Netto enthalten",
+      "totalMonthlyLabel": "Geschätzte monatliche Ausgaben"
+    },
+    "aid": {
+      "title": "AMUD Relocation Aid Förderprogramm",
+      "description": "AMUD übernimmt bis zu 100 % der Visumkosten, des Flugtickets und der beglaubigten Übersetzung Ihrer Diplome, sobald Ihre Einstellung von einem deutschen Arbeitgeber bestätigt wurde."
+    },
+    "languageCta": {
+      "title": "Beschleunigen Sie Ihre Einstellung in Deutschland",
+      "description": "Ein Sprachniveau B1 oder B2 erhöht Ihr Einstiegsgehalt um +15 % und garantiert eine schnellere Bearbeitung der Visumformalitäten durch die Arbeitgeber.",
+      "linkText": "Zu den kostenlosen Deutschkursen"
+    },
+    "footer": {
+      "downloadButton": "Vollständige Schätzung herunterladen (PDF)"
+    }
   },
   "matchingPreferences": {
     "title": "Meine Präferenzen",

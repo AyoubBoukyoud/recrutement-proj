@@ -59,24 +59,67 @@
     "contactAdvisorLink": "Contact an advisor"
   },
   "simulateurSalaire": {
+    "pageTitle": "Germany Salary Simulator",
     "notificationsAria": "Notifications",
-    "subtitle": "Estimate your future standard of living in Germany and plan your career move with peace of mind.",
+    "heroTitle": "Estimate Your Income & Costs",
+    "subtitle": "Calculate your monthly gross/net salary and real living expenses in Germany based on region and profession.",
     "professions": {
-      "infirmier": "Nurse",
-      "ingenieurLogiciel": "Software engineer",
-      "technicienMaintenance": "Maintenance technician",
-      "chauffeurPoidsLourd": "Truck driver"
+      "infirmier": "Nurse / Caregiver",
+      "ingenieurLogiciel": "Software Engineer / IT",
+      "technicienMaintenance": "Maintenance Technician",
+      "chauffeurPoidsLourd": "Truck Driver",
+      "electricien": "Electrician / Tradesperson"
+    },
+    "form": {
+      "profession": "Occupation / Sector",
+      "region": "Region (Land) in Germany",
+      "experience": "Experience (years)",
+      "steuerklasse": "Tax Class (Steuerklasse)",
+      "recalculateButton": "Recalculate salary"
+    },
+    "steuerklasse": {
+      "classe1": "Class 1 (Single)",
+      "classe3": "Class 3 (Married - Main earner)",
+      "classe4": "Class 4 (Married - Equal earners)",
+      "classe5": "Class 5 (Married - Second earner)"
     },
     "calculatingText": "Calculating...",
-    "migrationTitle": "Migration: Estimated costs",
-    "migrationCosts": {
-      "visa": "Work visa (Consulate)",
-      "flight": "Flight ticket (Casablanca - Berlin)",
-      "insurance": "Travel insurance (90 days)",
-      "rent": "First rent + Deposit (Estimate)",
-      "translation": "Certified document translation"
+    "toasts": {
+      "updated": "📊 Simulation updated!",
+      "pdfGenerating": "📄 Generating the projected salary statement (PDF)..."
     },
-    "aidDescription": "You may be eligible for a partial reimbursement of these costs through the Morocco-Germany bilateral agreements."
+    "results": {
+      "grossTitle": "Estimated Gross Monthly Salary",
+      "rangeLow": "Low range: {{value}} €",
+      "rangeHigh": "High range: {{value}} €",
+      "netLabel": "Estimated Net",
+      "taxesLabel": "Taxes & German Social Security"
+    },
+    "costs": {
+      "title": "Estimated relocation costs ({{region}})",
+      "badge": "{{year}} rates",
+      "amountEstimatedLabel": "Estimated Amount",
+      "rentRow": "Average monthly rent ({{region}})",
+      "foodTransportRow": "Food & Public Transport",
+      "visaRow": "Work Visa & Credential Recognition",
+      "healthInsuranceRow": "German Health Insurance (TK/AOK)",
+      "monthlyAmount": "{{amount}} € / month",
+      "oneTimeAmount": "{{amount}} € (one-time)",
+      "includedInNet": "Included in Net",
+      "totalMonthlyLabel": "Estimated monthly expenses"
+    },
+    "aid": {
+      "title": "AMUD Relocation Aid support program",
+      "description": "AMUD covers up to 100% of visa fees, flight ticket, and certified translation of your diplomas once your recruitment is validated by a German employer."
+    },
+    "languageCta": {
+      "title": "Speed up your hiring in Germany",
+      "description": "A B1 or B2 language level increases your starting salary by +15% and guarantees faster visa processing support from employers.",
+      "linkText": "Access free German courses"
+    },
+    "footer": {
+      "downloadButton": "Download the full estimate (PDF)"
+    }
   },
   "matchingPreferences": {
     "title": "My preferences",

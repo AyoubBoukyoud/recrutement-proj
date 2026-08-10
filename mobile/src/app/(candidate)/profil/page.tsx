@@ -46,14 +46,23 @@ export default function ProfilPage() {
           <span className="material-symbols-outlined text-primary" style={{ fontSize: 22 }}>arrow_back</span>
         </Link>
         <h1 className="text-lg font-semibold text-primary">{t('candidateB:profil.title')}</h1>
-        <button
-          type="button"
-          onClick={() => setShowQr((v) => !v)}
-          className="rounded-full p-2 transition-colors hover:bg-surface-container"
-          aria-label={t('candidateB:profil.shareAriaLabel')}
-        >
-          <span className="material-symbols-outlined text-primary" style={{ fontSize: 22 }}>ios_share</span>
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setShowQr((v) => !v)}
+            className="rounded-full p-2 transition-colors hover:bg-surface-container"
+            aria-label={t('candidateB:profil.shareAriaLabel')}
+          >
+            <span className="material-symbols-outlined text-primary" style={{ fontSize: 22 }}>ios_share</span>
+          </button>
+          <Link
+            href="/settings"
+            className="rounded-full p-2 transition-colors hover:bg-surface-container"
+            aria-label={t('common:nav.settings')}
+          >
+            <span className="material-symbols-outlined text-primary" style={{ fontSize: 22 }}>settings</span>
+          </Link>
+        </div>
       </header>
 
       <main className="mx-auto max-w-xl space-y-6 px-6 pt-6">

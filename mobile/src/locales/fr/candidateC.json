@@ -59,24 +59,67 @@
     "contactAdvisorLink": "Contacter un conseiller"
   },
   "simulateurSalaire": {
+    "pageTitle": "Simulateur de Salaire Allemagne",
     "notificationsAria": "Notifications",
-    "subtitle": "Estimez votre futur niveau de vie en Allemagne et prévoyez votre transition professionnelle en toute sérénité.",
+    "heroTitle": "Estimez vos Revenus & Coûts",
+    "subtitle": "Calculez votre salaire brut/net mensuel et vos dépenses de vie réelles en Allemagne selon la région et votre profession.",
     "professions": {
-      "infirmier": "Infirmier",
-      "ingenieurLogiciel": "Ingénieur logiciel",
-      "technicienMaintenance": "Technicien maintenance",
-      "chauffeurPoidsLourd": "Chauffeur poids lourd"
+      "infirmier": "Infirmier / Soignant",
+      "ingenieurLogiciel": "Ingénieur Logiciel / IT",
+      "technicienMaintenance": "Technicien Maintenance",
+      "chauffeurPoidsLourd": "Chauffeur Poids Lourd",
+      "electricien": "Électricien / Artisans"
+    },
+    "form": {
+      "profession": "Métier / Secteur",
+      "region": "Région (Land) en Allemagne",
+      "experience": "Expérience (années)",
+      "steuerklasse": "Classe Fiscale (Steuerklasse)",
+      "recalculateButton": "Recalculer le salaire"
+    },
+    "steuerklasse": {
+      "classe1": "Classe 1 (Célibataire)",
+      "classe3": "Classe 3 (Marié - Revenu principal)",
+      "classe4": "Classe 4 (Marié - Revenu égal)",
+      "classe5": "Classe 5 (Marié - Revenu second)"
     },
     "calculatingText": "Calcul en cours...",
-    "migrationTitle": "Migration : Devis estimatif",
-    "migrationCosts": {
-      "visa": "Visa de travail (Consulat)",
-      "flight": "Billet d'avion (Casa - Berlin)",
-      "insurance": "Assurance voyage (90 jours)",
-      "rent": "Premier loyer + Caution (Estimation)",
-      "translation": "Traduction certifiée documents"
+    "toasts": {
+      "updated": "📊 Simulation mise à jour !",
+      "pdfGenerating": "📄 Génération de la fiche de salaire prévisionnelle (PDF)..."
     },
-    "aidDescription": "Vous pourriez être éligible à un remboursement partiel de ces frais via les accords bilatéraux Maroc-Allemagne."
+    "results": {
+      "grossTitle": "Salaire Brut Mensuel Estimé",
+      "rangeLow": "Fourchette basse: {{value}} €",
+      "rangeHigh": "Fourchette haute: {{value}} €",
+      "netLabel": "Nette Estimée",
+      "taxesLabel": "Impôts & Urssaf DE"
+    },
+    "costs": {
+      "title": "Frais d'installation estimés ({{region}})",
+      "badge": "Barème {{year}}",
+      "amountEstimatedLabel": "Montant Estimé",
+      "rentRow": "Loyer mensuel moyen ({{region}})",
+      "foodTransportRow": "Nourriture & Transport public",
+      "visaRow": "Visa de travail & Homologation",
+      "healthInsuranceRow": "Assurance Santé Allemande (TK/AOK)",
+      "monthlyAmount": "{{amount}} € / mois",
+      "oneTimeAmount": "{{amount}} € (unique)",
+      "includedInNet": "Inclus dans le Net",
+      "totalMonthlyLabel": "Dépenses mensuelles estimées"
+    },
+    "aid": {
+      "title": "Programme de prise en charge AMUD Relocation Aid",
+      "description": "AMUD prend en charge jusqu'à 100% des frais de visa, billet d'avion et traduction certifiée de vos diplômes lors du recrutement validé par un employeur allemand."
+    },
+    "languageCta": {
+      "title": "Accélérez votre embauche en Allemagne",
+      "description": "Un niveau de langue B1 ou B2 augmente votre salaire de départ de +15% et garantit une prise en charge rapide des démarches de visa par les employeurs.",
+      "linkText": "Accéder aux cours d'allemand gratuits"
+    },
+    "footer": {
+      "downloadButton": "Télécharger l'estimation complète (PDF)"
+    }
   },
   "matchingPreferences": {
     "title": "Mes préférences",

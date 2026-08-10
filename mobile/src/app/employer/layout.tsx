@@ -56,10 +56,8 @@ export default function EmployerLayout({ children }: { children: React.ReactNode
       {/* Sidebar desktop */}
       <aside className="hidden w-64 shrink-0 flex-col border-l border-outline-variant bg-surface-low p-5 md:flex md:order-2">
         <div className="mb-8 flex items-center gap-3 px-1">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-onPrimary">
-            <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
-              language
-            </span>
+          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg bg-primary">
+            <img src="/assets/images/Logo.jpg" alt="Amud Skills" className="h-full w-full object-contain" />
           </div>
           <span className="text-lg font-black tracking-tight text-primary">Amud Skills</span>
         </div>

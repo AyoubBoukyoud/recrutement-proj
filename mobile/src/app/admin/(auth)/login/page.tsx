@@ -4,6 +4,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -30,7 +31,12 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col justify-center bg-primary-dark p-6">
+    <main className="relative flex min-h-screen flex-col justify-center bg-primary-dark p-6">
+      <Link href="/language" aria-label={t('common:actions.back')} className="absolute left-6 top-6 text-white hover:opacity-80 transition-opacity">
+        <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
+          arrow_back
+        </span>
+      </Link>
       <div className="mx-auto w-full max-w-sm">
         <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold text-onGold shadow-floating">
           <span className="material-symbols-outlined" style={{ fontSize: 28 }}>shield_person</span>

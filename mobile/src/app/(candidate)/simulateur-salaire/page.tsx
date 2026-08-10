@@ -1,18 +1,95 @@
 'use client';
 
-// Page : Simulateur de salaire et migration (Stitch exact template)
+// Page : Simulateur de salaire et migration vers l'Allemagne (Calculateur Dynamique)
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import toast from 'react-hot-toast';
 import { useLanguage } from '@/context/LanguageContext';
+
+const PROFESSIONS_DATA: Record<string, { baseGross: number; icon: string }> = {
+  'Infirmier / Soignant': { baseGross: 3300, icon: 'medical_services' },
+  'Ingénieur Logiciel / IT': { baseGross: 4800, icon: 'code' },
+  'Technicien Maintenance': { baseGross: 3500, icon: 'build' },
+  'Chauffeur Poids Lourd': { baseGross: 3100, icon: 'local_shipping' },
+  'Électricien / Artisans': { baseGross: 3400, icon: 'electrical_services' },
+};
+
+const PROFESSION_LABEL_KEYS: Record<string, string> = {
+  'Infirmier / Soignant': 'simulateurSalaire.professions.infirmier',
+  'Ingénieur Logiciel / IT': 'simulateurSalaire.professions.ingenieurLogiciel',
+  'Technicien Maintenance': 'simulateurSalaire.professions.technicienMaintenance',
+  'Chauffeur Poids Lourd': 'simulateurSalaire.professions.chauffeurPoidsLourd',
+  'Électricien / Artisans': 'simulateurSalaire.professions.electricien',
+};
+
+const REGIONS_DATA: Record<string, { multiplier: number; rentEst: number }> = {
+  'Berlin': { multiplier: 1.0, rentEst: 750 },
+  'Bavière (Munich)': { multiplier: 1.22, rentEst: 1050 },
+  'Bade-Wurtemberg (Stuttgart)': { multiplier: 1.15, rentEst: 900 },
+  'Hesse (Francfort)': { multiplier: 1.18, rentEst: 950 },
+  'Rhénanie-du-Nord-Westphalie': { multiplier: 0.95, rentEst: 650 },
+};
+
+const REGION_LABEL_KEYS: Record<string, string> = {
+  'Berlin': 'shared.regions.berlin',
+  'Bavière (Munich)': 'shared.regions.baviereMunich',
+  'Bade-Wurtemberg (Stuttgart)': 'shared.regions.badeWurtembergStuttgart',
+  'Hesse (Francfort)': 'shared.regions.hesseFrancfort',
+  'Rhénanie-du-Nord-Westphalie': 'shared.regions.rhenanieNordWestphalie',
+};
+
+const STEUERKLASSE_LABEL_KEYS: Record<string, string> = {
+  '1': 'simulateurSalaire.steuerklasse.classe1',
+  '3': 'simulateurSalaire.steuerklasse.classe3',
+  '4': 'simulateurSalaire.steuerklasse.classe4',
+  '5': 'simulateurSalaire.steuerklasse.classe5',
+};
 
 export default function SimulateurSalairePage() {
   const { t } = useLanguage();
-  const [profession, setProfession] = useState('Infirmier');
+  const [profession, setProfession] = useState('Infirmier / Soignant');
   const [region, setRegion] = useState('Berlin');
   const [experience, setExperience] = useState('3');
+  const [steuerklasse, setSteuerklasse] = useState('1'); // Tax class 1 (single) by default
   const [isCalculating, setIsCalculating] = useState(false);
   const [showResults, setShowResults] = useState(true);
+
+  // Calculate gross, net, taxes and living costs dynamically
+  const calculatedSalary = useMemo(() => {
+    const profData = PROFESSIONS_DATA[profession] || { baseGross: 3200, icon: 'work' };
+    const regData = REGIONS_DATA[region] || { multiplier: 1.0, rentEst: 750 };
+    const yearsExp = Math.max(0, parseInt(experience, 10) || 0);
+
+    // Experience boost: +3% per year up to 30%
+    const expFactor = 1 + Math.min(yearsExp * 0.03, 0.3);
+    const gross = Math.round(profData.baseGross * regData.multiplier * expFactor);
+
+    // German Tax & Social Security Breakdown (Approximate ~38-42% total deductions depending on Tax Class)
+    let taxRate = 0.38;
+    if (steuerklasse === '3') taxRate = 0.30; // Married single-earner
+    if (steuerklasse === '5') taxRate = 0.45; // Second earner
+    if (steuerklasse === '6') taxRate = 0.48; // Secondary job
+
+    const net = Math.round(gross * (1 - taxRate));
+    const rent = regData.rentEst;
+    const livingExpenses = 550; // Food, transport, utilities
+    const resteAVivre = Math.max(0, net - rent - livingExpenses);
+
+    const minGross = Math.round(gross * 0.85);
+    const maxGross = Math.round(gross * 1.2);
+
+    return {
+      gross,
+      net,
+      rent,
+      livingExpenses,
+      resteAVivre,
+      minGross,
+      maxGross,
+      taxDeductions: gross - net,
+    };
+  }, [profession, region, experience, steuerklasse]);
 
   const handleCalculate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,8 +97,15 @@ export default function SimulateurSalairePage() {
     setTimeout(() => {
       setIsCalculating(false);
       setShowResults(true);
-    }, 600);
+      toast.success(t('candidateC:simulateurSalaire.toasts.updated'), { icon: '💶', position: 'top-center' });
+    }, 400);
   };
+
+  const handleDownloadPdf = () => {
+    toast.success(t('candidateC:simulateurSalaire.toasts.pdfGenerating'), { duration: 3000 });
+  };
+
+  const regionLabel = t(`candidateC:${REGION_LABEL_KEYS[region]}`);
 
   return (
     <div className="min-h-screen bg-surface text-onSurface pb-28">
@@ -37,7 +121,7 @@ export default function SimulateurSalairePage() {
               arrow_back
             </span>
           </Link>
-          <h1 className="text-lg font-extrabold text-primary">Amud Skills</h1>
+          <h1 className="text-lg font-extrabold text-primary">{t('candidateC:simulateurSalaire.pageTitle')}</h1>
         </div>
         <button type="button" aria-label={t('candidateC:simulateurSalaire.notificationsAria')} className="p-2 text-primary">
           <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
@@ -49,72 +133,86 @@ export default function SimulateurSalairePage() {
       <main className="mx-auto max-w-xl px-4 py-6 space-y-6">
         {/* Hero Section */}
         <section className="space-y-1">
-          <h2 className="text-2xl font-extrabold text-primary">{t('candidateC:shared.pageTitle')}</h2>
+          <h2 className="text-2xl font-extrabold text-primary">{t('candidateC:simulateurSalaire.heroTitle')}</h2>
           <p className="text-xs leading-relaxed text-onSurface-variant">
             {t('candidateC:simulateurSalaire.subtitle')}
           </p>
         </section>
 
         {/* Calculator Form */}
-        <section className="rounded-xl border border-outline-variant bg-surface-container-lowest p-5 shadow-subtle">
+        <section className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-subtle">
           <form onSubmit={handleCalculate} className="space-y-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold uppercase tracking-wider text-onSurface-variant">{t('candidateC:shared.form.profession')}</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-onSurface-variant">{t('candidateC:simulateurSalaire.form.profession')}</label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-3.5 top-3 text-outline" style={{ fontSize: 20 }}>
-                  medical_services
+                <span className="material-symbols-outlined absolute left-3.5 top-3.5 text-outline" style={{ fontSize: 20 }}>
+                  work
                 </span>
-                <input
-                  type="text"
+                <select
                   value={profession}
                   onChange={(e) => setProfession(e.target.value)}
-                  placeholder={t('candidateC:shared.form.professionPlaceholder')}
-                  list="professions-list"
-                  className="w-full rounded-pillar border border-outline-variant bg-surface-container-lowest py-3 pl-11 pr-4 text-sm font-semibold text-onSurface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
-                />
-                <datalist id="professions-list">
-                  <option value={t('candidateC:simulateurSalaire.professions.infirmier')} />
-                  <option value={t('candidateC:simulateurSalaire.professions.ingenieurLogiciel')} />
-                  <option value={t('candidateC:simulateurSalaire.professions.technicienMaintenance')} />
-                  <option value={t('candidateC:simulateurSalaire.professions.chauffeurPoidsLourd')} />
-                </datalist>
+                  className="w-full appearance-none rounded-xl border border-outline-variant bg-surface-container-lowest py-3 pl-11 pr-4 text-sm font-bold text-onSurface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
+                >
+                  {Object.keys(PROFESSIONS_DATA).map((p) => (
+                    <option key={p} value={p}>
+                      {t(`candidateC:${PROFESSION_LABEL_KEYS[p]}`)}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-bold uppercase tracking-wider text-onSurface-variant">{t('candidateC:shared.form.region')}</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-onSurface-variant">{t('candidateC:simulateurSalaire.form.region')}</label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-3.5 top-3 text-outline" style={{ fontSize: 20 }}>
+                <span className="material-symbols-outlined absolute left-3.5 top-3.5 text-outline" style={{ fontSize: 20 }}>
                   location_on
                 </span>
                 <select
                   value={region}
                   onChange={(e) => setRegion(e.target.value)}
-                  className="w-full appearance-none rounded-pillar border border-outline-variant bg-surface-container-lowest py-3 pl-11 pr-4 text-sm font-semibold text-onSurface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
+                  className="w-full appearance-none rounded-xl border border-outline-variant bg-surface-container-lowest py-3 pl-11 pr-4 text-sm font-bold text-onSurface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
                 >
-                  <option value="Berlin">{t('candidateC:shared.regions.berlin')}</option>
-                  <option value="Bavière (Munich)">{t('candidateC:shared.regions.baviereMunich')}</option>
-                  <option value="Bade-Wurtemberg (Stuttgart)">{t('candidateC:shared.regions.badeWurtembergStuttgart')}</option>
-                  <option value="Hesse (Francfort)">{t('candidateC:shared.regions.hesseFrancfort')}</option>
-                  <option value="Rhénanie-du-Nord-Westphalie">{t('candidateC:shared.regions.rhenanieNordWestphalie')}</option>
+                  {Object.keys(REGIONS_DATA).map((r) => (
+                    <option key={r} value={r}>
+                      {t(`candidateC:${REGION_LABEL_KEYS[r]}`)}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-bold uppercase tracking-wider text-onSurface-variant">{t('candidateC:shared.form.experience')}</label>
-              <div className="relative">
-                <span className="material-symbols-outlined absolute left-3.5 top-3 text-outline" style={{ fontSize: 20 }}>
-                  work_history
-                </span>
-                <input
-                  type="number"
-                  min="0"
-                  value={experience}
-                  onChange={(e) => setExperience(e.target.value)}
-                  placeholder="0"
-                  className="w-full rounded-pillar border border-outline-variant bg-surface-container-lowest py-3 pl-11 pr-4 text-sm font-semibold text-onSurface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
-                />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-onSurface-variant">{t('candidateC:simulateurSalaire.form.experience')}</label>
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-3 top-3.5 text-outline" style={{ fontSize: 18 }}>
+                    work_history
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    max="30"
+                    value={experience}
+                    onChange={(e) => setExperience(e.target.value)}
+                    className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest py-3 pl-9 pr-3 text-sm font-bold text-onSurface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-onSurface-variant">{t('candidateC:simulateurSalaire.form.steuerklasse')}</label>
+                <select
+                  value={steuerklasse}
+                  onChange={(e) => setSteuerklasse(e.target.value)}
+                  className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest py-3 px-3 text-xs font-bold text-onSurface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
+                >
+                  {Object.keys(STEUERKLASSE_LABEL_KEYS).map((k) => (
+                    <option key={k} value={k}>
+                      {t(`candidateC:${STEUERKLASSE_LABEL_KEYS[k]}`)}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
@@ -122,12 +220,12 @@ export default function SimulateurSalairePage() {
               <button
                 type="submit"
                 disabled={isCalculating}
-                className="flex w-full items-center justify-center gap-2 rounded-pillar bg-primary py-3.5 text-xs font-extrabold uppercase tracking-wider text-onPrimary shadow-md transition-all hover:bg-primary/90 active:scale-[0.98] disabled:opacity-60"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-xs font-extrabold uppercase tracking-wider text-onPrimary shadow-md transition-all hover:bg-primary/90 active:scale-[0.98] disabled:opacity-60"
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
                   {isCalculating ? 'sync' : 'calculate'}
                 </span>
-                {isCalculating ? t('candidateC:simulateurSalaire.calculatingText') : t('candidateC:shared.form.calculateButton')}
+                {isCalculating ? t('candidateC:simulateurSalaire.calculatingText') : t('candidateC:simulateurSalaire.form.recalculateButton')}
               </button>
             </div>
           </form>
@@ -135,52 +233,55 @@ export default function SimulateurSalairePage() {
 
         {/* Results Section */}
         {showResults && (
-          <div className="space-y-6 fade-in-entry opacity-0">
+          <div className="space-y-6 animate-fadeIn">
             {/* Salary Results Card */}
-            <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-surface-container-lowest p-6 shadow-subtle">
+            <div className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-b from-surface-container-lowest to-surface-container-low p-6 shadow-md">
               <span className="material-symbols-outlined absolute -right-3 -top-3 text-8xl text-primary/10 pointer-events-none">
                 payments
               </span>
 
               <div className="space-y-1 mb-4">
                 <h3 className="text-xs font-extrabold uppercase tracking-wider text-primary">
-                  {t('candidateC:shared.grossMonthlySalary')}
+                  {t('candidateC:simulateurSalaire.results.grossTitle')}
                 </h3>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-black text-primary">3 200 €</span>
+                  <span className="text-4xl font-black text-primary">{calculatedSalary.gross.toLocaleString('fr-FR')} €</span>
                   <span className="text-xs font-bold text-outline">{t('candidateC:shared.perMonth')}</span>
                 </div>
               </div>
 
               <div className="mb-4 space-y-1.5">
                 <div className="flex justify-between text-xs font-semibold text-onSurface-variant">
-                  <span>{t('candidateC:shared.results.low', { value: '2 800' })}</span>
-                  <span>{t('candidateC:shared.results.high', { value: '3 800' })}</span>
+                  <span>{t('candidateC:simulateurSalaire.results.rangeLow', { value: calculatedSalary.minGross.toLocaleString('fr-FR') })}</span>
+                  <span>{t('candidateC:simulateurSalaire.results.rangeHigh', { value: calculatedSalary.maxGross.toLocaleString('fr-FR') })}</span>
                 </div>
-                <div className="h-3 w-full overflow-hidden rounded-full bg-surface-container">
-                  <div className="h-full rounded-full bg-primary" style={{ width: '65%' }} />
+                <div className="h-3 w-full overflow-hidden rounded-full bg-surface-container-high">
+                  <div className="h-full rounded-full bg-primary" style={{ width: '62%' }} />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 border-t border-outline-variant/30 pt-4">
+              <div className="grid grid-cols-3 gap-3 border-t border-outline-variant/30 pt-4 text-center">
                 <div>
-                  <p className="text-xs font-semibold text-onSurface-variant">{t('candidateC:shared.netSalary')}</p>
-                  <p className="text-xl font-black text-primary">2 150 €</p>
+                  <p className="text-[11px] font-semibold text-onSurface-variant">{t('candidateC:simulateurSalaire.results.netLabel')}</p>
+                  <p className="text-lg font-black text-emerald-600 dark:text-emerald-400">{calculatedSalary.net.toLocaleString('fr-FR')} €</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-onSurface-variant">{t('candidateC:shared.resteAVivre')}</p>
-                  <p className="text-xl font-black text-primary">950 €</p>
-                  <span className="text-[10px] italic text-outline">{t('candidateC:shared.afterRentCharges')}</span>
+                  <p className="text-[11px] font-semibold text-onSurface-variant">{t('candidateC:simulateurSalaire.results.taxesLabel')}</p>
+                  <p className="text-lg font-black text-error">-{calculatedSalary.taxDeductions.toLocaleString('fr-FR')} €</p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold text-onSurface-variant">{t('candidateC:shared.resteAVivre')}</p>
+                  <p className="text-lg font-black text-primary">{calculatedSalary.resteAVivre.toLocaleString('fr-FR')} €</p>
                 </div>
               </div>
             </div>
 
             {/* Migration Costs Card */}
-            <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-subtle space-y-4">
+            <div className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-subtle space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-base font-extrabold text-primary">{t('candidateC:simulateurSalaire.migrationTitle')}</h3>
+                <h3 className="text-base font-extrabold text-primary">{t('candidateC:simulateurSalaire.costs.title', { region: regionLabel })}</h3>
                 <span className="rounded-full bg-surface-container-low px-3 py-1 text-[10px] font-extrabold text-primary">
-                  {t('candidateC:shared.estimationBadge', { year: 2024 })}
+                  {t('candidateC:simulateurSalaire.costs.badge', { year: 2026 })}
                 </span>
               </div>
 
@@ -189,35 +290,31 @@ export default function SimulateurSalairePage() {
                   <thead className="border-b border-outline-variant">
                     <tr>
                       <th className="py-2.5 font-bold text-onSurface-variant">{t('candidateC:shared.expenseLabel')}</th>
-                      <th className="py-2.5 text-right font-bold text-onSurface-variant">{t('candidateC:shared.amountLabel')}</th>
+                      <th className="py-2.5 text-right font-bold text-onSurface-variant">{t('candidateC:simulateurSalaire.costs.amountEstimatedLabel')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-outline-variant/30">
                     <tr>
-                      <td className="py-2.5 font-medium">{t('candidateC:simulateurSalaire.migrationCosts.visa')}</td>
-                      <td className="py-2.5 text-right font-bold">80 €</td>
+                      <td className="py-2.5 font-medium">{t('candidateC:simulateurSalaire.costs.rentRow', { region: regionLabel })}</td>
+                      <td className="py-2.5 text-right font-bold">{t('candidateC:simulateurSalaire.costs.monthlyAmount', { amount: calculatedSalary.rent })}</td>
                     </tr>
                     <tr>
-                      <td className="py-2.5 font-medium">{t('candidateC:simulateurSalaire.migrationCosts.flight')}</td>
-                      <td className="py-2.5 text-right font-bold">350 €</td>
+                      <td className="py-2.5 font-medium">{t('candidateC:simulateurSalaire.costs.foodTransportRow')}</td>
+                      <td className="py-2.5 text-right font-bold">{t('candidateC:simulateurSalaire.costs.monthlyAmount', { amount: calculatedSalary.livingExpenses })}</td>
                     </tr>
                     <tr>
-                      <td className="py-2.5 font-medium">{t('candidateC:simulateurSalaire.migrationCosts.insurance')}</td>
-                      <td className="py-2.5 text-right font-bold">120 €</td>
+                      <td className="py-2.5 font-medium">{t('candidateC:simulateurSalaire.costs.visaRow')}</td>
+                      <td className="py-2.5 text-right font-bold">{t('candidateC:simulateurSalaire.costs.oneTimeAmount', { amount: 150 })}</td>
                     </tr>
                     <tr>
-                      <td className="py-2.5 font-medium">{t('candidateC:simulateurSalaire.migrationCosts.rent')}</td>
-                      <td className="py-2.5 text-right font-bold">700 €</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2.5 font-medium">{t('candidateC:simulateurSalaire.migrationCosts.translation')}</td>
-                      <td className="py-2.5 text-right font-bold">150 €</td>
+                      <td className="py-2.5 font-medium">{t('candidateC:simulateurSalaire.costs.healthInsuranceRow')}</td>
+                      <td className="py-2.5 text-right font-bold">{t('candidateC:simulateurSalaire.costs.includedInNet')}</td>
                     </tr>
                   </tbody>
                   <tfoot>
                     <tr className="bg-surface-container-low font-extrabold">
-                      <td className="py-3 px-2 text-primary">{t('candidateC:shared.totalCostLabel')}</td>
-                      <td className="py-3 px-2 text-right text-primary">1 400 €</td>
+                      <td className="py-3 px-2 text-primary">{t('candidateC:simulateurSalaire.costs.totalMonthlyLabel')}</td>
+                      <td className="py-3 px-2 text-right text-primary">{t('candidateC:simulateurSalaire.costs.monthlyAmount', { amount: calculatedSalary.rent + calculatedSalary.livingExpenses })}</td>
                     </tr>
                   </tfoot>
                 </table>
@@ -229,57 +326,30 @@ export default function SimulateurSalairePage() {
                 </span>
                 <div className="space-y-0.5">
                   <p className="text-xs font-bold text-tertiary">
-                    {t('candidateC:shared.aid.prefix')} <strong>{t('candidateC:shared.aid.programName')}</strong>
+                    {t('candidateC:simulateurSalaire.aid.title')}
                   </p>
                   <p className="text-[11px] leading-relaxed text-onSurface-variant">
-                    {t('candidateC:simulateurSalaire.aidDescription')}
+                    {t('candidateC:simulateurSalaire.aid.description')}
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Side Cards / Action Center */}
-            <div className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-subtle">
-              <div
-                className="h-44 bg-cover bg-center"
-                style={{
-                  backgroundImage:
-                    "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCM6PwKPQasCEycqFfngmxOzb1W5XxqL3iuY7abb-j8XkQArdlEq9dV0rQz26l9sMPfkFAmwB8ggZjJGQghDNealc80JFGvUThbgBz1kqy09s7jUSA36Pg8KbV7GppoEm-t1v6JEhM8WFRwEvITPKmjfZoYJkB4GGYEFOP1B39uH_kCFkH11u7mLPk7U8YG9O-1-WoCFobmPL6I7Nv-fPl_XXJDPOQpctj5xw8UmfkECKDafidRcXKT')",
-                }}
-              />
-              <div className="p-5 space-y-3">
-                <h4 className="text-base font-extrabold text-primary">{t('candidateC:shared.optimizeProfileTitle')}</h4>
-                <p className="text-xs leading-relaxed text-onSurface-variant font-medium">
-                  {t('candidateC:shared.optimizeProfileDescription')}
-                </p>
-                <Link
-                  href="/cours-allemand"
-                  className="flex items-center justify-center gap-2 rounded-pillar border-2 border-primary py-3 text-xs font-bold text-primary transition-all hover:bg-primary hover:text-onPrimary"
-                >
-                  {t('candidateC:shared.viewLanguageCoursesLink')}
-                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
-                    arrow_forward
-                  </span>
-                </Link>
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-5 shadow-subtle space-y-3">
-              <h4 className="text-base font-extrabold text-primary">{t('candidateC:shared.needHelpTitle')}</h4>
+            {/* Language Course CTA */}
+            <div className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-subtle space-y-3">
+              <h4 className="text-base font-extrabold text-primary">{t('candidateC:simulateurSalaire.languageCta.title')}</h4>
               <p className="text-xs leading-relaxed text-onSurface-variant font-medium">
-                {t('candidateC:shared.needHelpDescription')}
+                {t('candidateC:simulateurSalaire.languageCta.description')}
               </p>
-              <div className="flex flex-wrap gap-2">
-                <span className="rounded-full bg-surface-container-high px-3 py-1 text-[11px] font-bold text-onSurface-variant">
-                  {t('candidateC:shared.tags.housingSearch')}
+              <Link
+                href="/cours-allemand"
+                className="flex items-center justify-center gap-2 rounded-xl border-2 border-primary py-3 text-xs font-extrabold text-primary transition-all hover:bg-primary hover:text-onPrimary"
+              >
+                {t('candidateC:simulateurSalaire.languageCta.linkText')}
+                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
+                  arrow_forward
                 </span>
-                <span className="rounded-full bg-surface-container-high px-3 py-1 text-[11px] font-bold text-onSurface-variant">
-                  {t('candidateC:shared.tags.visaAssistance')}
-                </span>
-                <span className="rounded-full bg-surface-container-high px-3 py-1 text-[11px] font-bold text-onSurface-variant">
-                  {t('candidateC:shared.tags.bankAccount')}
-                </span>
-              </div>
+              </Link>
             </div>
           </div>
         )}
@@ -289,14 +359,16 @@ export default function SimulateurSalairePage() {
       <footer className="fixed bottom-0 inset-x-0 z-40 mx-auto max-w-xl border-t border-outline-variant bg-surface-container-lowest p-4 shadow-subtle flex justify-center">
         <button
           type="button"
-          className="flex w-full items-center justify-center gap-2 rounded-pillar bg-primary py-3.5 text-xs font-bold text-onPrimary shadow-md transition-all hover:bg-primary/90 active:scale-95"
+          onClick={handleDownloadPdf}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-xs font-extrabold text-onPrimary shadow-md transition-all hover:bg-primary/90 active:scale-95"
         >
           <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
             picture_as_pdf
           </span>
-          {t('candidateC:shared.downloadPdfButton')}
+          {t('candidateC:simulateurSalaire.footer.downloadButton')}
         </button>
       </footer>
     </div>
   );
 }
+

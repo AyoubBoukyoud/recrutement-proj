@@ -29,10 +29,15 @@ export default function ParrainagePage() {
       {/* TopAppBar Section */}
       <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-surface-container-high bg-surface px-4 shadow-subtle">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard" className="flex items-center gap-2 text-primary">
+          <Link href="/dashboard" aria-label={t('common:actions.back')} className="text-primary transition-transform active:scale-95">
+            <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
+              arrow_back
+            </span>
+          </Link>
+          <span className="flex items-center gap-2 text-primary">
             <span className="material-symbols-outlined text-[28px]">handshake</span>
             <span className="text-lg font-extrabold">Amud Skills</span>
-          </Link>
+          </span>
         </div>
         <div className="h-10 w-10 overflow-hidden rounded-full border border-outline-variant">
           <img

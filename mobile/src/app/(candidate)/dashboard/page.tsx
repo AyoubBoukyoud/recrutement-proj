@@ -2,7 +2,8 @@
 
 // Interface 10 — Tableau de bord candidat.
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { AnimatedLink } from '@/components/shared/AnimatedLink';
 import { useProfile } from '@/context/ProfileContext';
@@ -10,6 +11,7 @@ import { ChecklistItem } from '@/components/shared/ChecklistItem';
 import { useLanguage } from '@/context/LanguageContext';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { PageSkeleton } from '@/components/shared/SkeletonLoader';
+import { QRCodeGenerator } from '@/components/shared/QRCodeGenerator';
 
 const QUICK_ACTIONS = [
   { href: '/documents', label: 'dashboard.quickActions.addDocument', icon: 'description' },
@@ -29,6 +31,9 @@ export default function DashboardPage() {
   const { profile } = useProfile();
   const { t } = useLanguage();
   const isLoading = usePageLoading();
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [showQr, setShowQr] = useState(false);
+  const shareUrl = `https://amudskills.app/p/${profile.avatarInitials || 'candidat'}`;
 
   useEffect(() => {
     if (isLoading) return;
@@ -39,6 +44,21 @@ export default function DashboardPage() {
       position: 'top-center',
     });
   }, [profile.firstName, isLoading]);
+
+  const speakWortDesTages = (word: string) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(word);
+      utterance.lang = 'de-DE';
+      utterance.rate = 0.85;
+      setIsPlayingAudio(true);
+      utterance.onend = () => setIsPlayingAudio(false);
+      window.speechSynthesis.speak(utterance);
+      toast.success(`🔊 Prononciation: "${word}"`, { duration: 2000, position: 'bottom-center' });
+    } else {
+      toast('🔊 Sound effect played', { duration: 1500 });
+    }
+  };
 
   const cvDone = profile.documents.some((d) => d.type === 'cv');
   const diplomaDone = profile.documents.some((d) => d.type === 'diplome' || d.type === 'autre');
@@ -58,20 +78,87 @@ export default function DashboardPage() {
           </h1>
           <p className="text-[10px] font-bold uppercase tracking-wider text-tertiary">{t('candidateC:dashboard.spaceLabel')}</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button type="button" className="relative rounded-full p-2 transition-colors hover:bg-surface-container-low active:scale-95">
             <span className="material-symbols-outlined text-onSurface-variant" style={{ fontSize: 22 }}>
               notifications
             </span>
             <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full border border-surface bg-error" />
           </button>
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-black text-onPrimary shadow-sm">
+          <button
+            type="button"
+            onClick={() => setShowQr(true)}
+            className="rounded-full p-2 transition-colors hover:bg-surface-container-low active:scale-95"
+            aria-label={t('candidateB:profil.shareAriaLabel')}
+          >
+            <span className="material-symbols-outlined text-onSurface-variant" style={{ fontSize: 22 }}>
+              ios_share
+            </span>
+          </button>
+          <Link
+            href="/profil"
+            aria-label={t('candidateB:profil.title')}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-black text-onPrimary shadow-sm"
+          >
             {profile.avatarInitials || '—'}
-          </div>
+          </Link>
         </div>
       </header>
 
+      {showQr && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-surface p-6">
+          <button
+            type="button"
+            onClick={() => setShowQr(false)}
+            aria-label={t('candidateB:profil.closeAriaLabel')}
+            className="absolute right-6 top-6 rounded-full p-2 transition-colors hover:bg-surface-container"
+          >
+            <span className="material-symbols-outlined text-primary" style={{ fontSize: 28 }}>close</span>
+          </button>
+          <h2 className="text-lg font-bold text-primary">{t('candidateB:profil.shareTitle')}</h2>
+          <div className="flex flex-col items-center gap-3 rounded-xl border border-outline-variant/20 bg-surface-lowest p-6 shadow-lg">
+            <QRCodeGenerator value={shareUrl} size={220} />
+            <span className="text-xs font-bold text-primary">{t('candidateB:profil.scanMe')}</span>
+          </div>
+        </div>
+      )}
+
       <main className="mx-auto w-full max-w-md md:max-w-4xl space-y-6 px-6 pb-8 pt-4">
+        {/* Wort des Tages Card */}
+        <section className="rounded-2xl border border-primary/25 bg-gradient-to-r from-primary/10 via-surface-container-lowest to-surface-container-low p-5 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary" style={{ fontSize: 20 }}>
+                translate
+              </span>
+              <span className="text-xs font-black uppercase tracking-wider text-primary">Wort des Tages (Mot du Jour)</span>
+            </div>
+            <span className="rounded-full bg-secondary/20 px-2.5 py-0.5 text-[10px] font-extrabold text-tertiary">
+              Niveau A1/B1
+            </span>
+          </div>
+
+          <div className="mt-3 flex items-center justify-between">
+            <div>
+              <h3 className="text-2xl font-black text-primary">die Arbeitsstelle</h3>
+              <p className="text-xs font-semibold text-onSurface-variant">Français: <span className="font-extrabold text-onSurface">L'emploi / Le poste de travail</span></p>
+              <p className="text-[11px] italic text-outline mt-0.5">"Ich habe eine gute Arbeitsstelle in Deutschland."</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => speakWortDesTages('die Arbeitsstelle')}
+              className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-onPrimary shadow-md transition-all hover:scale-105 active:scale-95 ${
+                isPlayingAudio ? 'animate-pulse' : ''
+              }`}
+              title="Écouter la prononciation"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
+                volume_up
+              </span>
+            </button>
+          </div>
+        </section>
+
         <section className="fade-in-entry opacity-0 flex flex-col items-center rounded-pillar border border-outline-variant bg-surface-container-lowest p-6 text-center shadow-subtle">
           <div className="mb-4 flex w-full items-center justify-between">
             <h2 className="text-sm font-extrabold text-onSurface">{t('candidateC:dashboard.progressTitle')}</h2>
