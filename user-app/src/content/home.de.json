@@ -1,0 +1,255 @@
+{
+  "_note": "Deutsche Startseiten-Texte. Gleiche Struktur wie home.fr.json — TypeScript bricht den Build ab, wenn ein Schlüssel fehlt. Deutsche Labels sind rund 30 % länger als die französischen: Button-Umbrüche prüfen.",
+  "nav": {
+    "links": [
+      { "label": "Berufe", "href": "#metiers" },
+      { "label": "So funktioniert es", "href": "#comment-ca-marche" },
+      { "label": "Arbeitgeber", "href": "#recruteurs" },
+      { "label": "Fragen", "href": "#questions" }
+    ],
+    "signIn": "Ich habe bereits ein Profil",
+    "cta": "Profil erstellen",
+    "menuOpen": "Menü öffnen",
+    "menuClose": "Menü schließen"
+  },
+  "hero": {
+    "eyebrow": "Marokko → Deutschland",
+    "headline": ["Arbeiten in Deutschland.", "Wir erstellen Ihr Profil gemeinsam mit Ihnen."],
+    "subheadline": "Ihr Lebenslauf, Ihre Abschlüsse und Ihr Deutschniveau in einem Profil, das deutsche Unternehmen lesen können — und direkt einsehen.",
+    "cta": "Profil erstellen",
+    "secondaryCta": "Anforderungen meines Berufs ansehen",
+    "microcopy": "Kostenlos · Ohne Passwort · Sie entscheiden, wer Ihr Profil sieht",
+    "card": {
+      "title": "Bewerberprofil",
+      "name": "Ihr Beruf",
+      "levelLabel": "Deutsch",
+      "level": "B2",
+      "availabilityLabel": "Verfügbar",
+      "availability": "in 1 Monat",
+      "documents": ["Lebenslauf", "Abschluss", "Zertifikat"],
+      "footnote": "So sieht es ein Arbeitgeber"
+    }
+  },
+  "search": {
+    "label": "Was ist Ihr Beruf?",
+    "placeholder": "Pflegefachkraft, Elektriker, Schweißer…",
+    "submit": "Suchen",
+    "advanced": "Erweiterte Suche",
+    "sectorLabel": "Branche",
+    "sectorAny": "Alle Branchen",
+    "levelLabel": "Ihr heutiges Deutschniveau",
+    "levelOptions": [
+      { "value": "", "label": "Egal" },
+      { "value": "none", "label": "Keines" },
+      { "value": "a", "label": "A1 – A2" },
+      { "value": "b1", "label": "B1" },
+      { "value": "b2", "label": "B2 oder höher" }
+    ],
+    "popularLabel": "Meistgesuchte Berufe",
+    "suggestionsLabel": "Berufsvorschläge",
+    "emptyTitle": "Für „{term}“ gibt es noch keinen Leitfaden.",
+    "emptyBody": "Ihr Beruf kann für einen deutschen Arbeitgeber trotzdem interessant sein.",
+    "emptyCta": "Trotzdem Profil erstellen",
+    "errorMessage": "Die Suche ist derzeit nicht verfügbar. Sehen Sie sich die Berufe unten an.",
+    "errorLink": "Berufe ansehen"
+  },
+  "trust": {
+    "items": [
+      { "icon": "toll", "label": "Kostenlose Anmeldung" },
+      { "icon": "shield_lock", "label": "Ihre Daten geschützt — CNDP-Meldung" },
+      { "icon": "visibility", "label": "Sie entscheiden, wer Ihr Profil sieht" }
+    ]
+  },
+  "trades": {
+    "title": "Berufe, die in Deutschland gesucht werden",
+    "subtitle": "Pflege, Industrie, Bau, Gastronomie, IT — hier steht, was jeder Beruf wirklich verlangt.",
+    "cardCta": "Weg ansehen",
+    "levelPrefix": "Deutsch",
+    "recognition": {
+      "required": "Abschluss muss anerkannt werden",
+      "recommended": "Anerkennung empfohlen",
+      "none": "Keine Anerkennung nötig"
+    }
+  },
+  "steps": {
+    "title": "Vier Schritte, in Ihrem Tempo",
+    "subtitle": "Nichts zu bezahlen, nichts zu drucken, nichts bei einer Behörde abzugeben.",
+    "items": [
+      {
+        "icon": "smartphone",
+        "title": "Konto erstellen",
+        "body": "Eine Telefonnummer, ein Code per WhatsApp. Kein Passwort zum Merken."
+      },
+      {
+        "icon": "document_scanner",
+        "title": "Lebenslauf hinzufügen",
+        "body": "Er wird automatisch gelesen und füllt Ihr Profil aus. Sie korrigieren, Sie bestätigen."
+      },
+      {
+        "icon": "graphic_eq",
+        "title": "Sprachniveau nachweisen",
+        "body": "Eine Aufnahme von einer Minute. Ihr GER-Niveau wird geschätzt — und begründet."
+      },
+      {
+        "icon": "travel_explore",
+        "title": "Profil sichtbar machen",
+        "body": "Deutsche Unternehmen finden Sie über Beruf, Sprache und Verfügbarkeit."
+      }
+    ]
+  },
+  "credible": {
+    "title": "Ein Profil, das ein deutscher Arbeitgeber überprüfen kann",
+    "subtitle": "Einen Lebenslauf liest man. Ein Profil prüft man. Das ist der Unterschied zwischen einer übergangenen Bewerbung und einem Vorstellungsgespräch.",
+    "items": [
+      {
+        "icon": "folder_supervised",
+        "title": "Ihre Abschlüsse beigefügt",
+        "body": "Jedes Dokument hängt am Profil und lässt sich direkt öffnen — ohne E-Mail-Verkehr hin und her."
+      },
+      {
+        "icon": "graphic_eq",
+        "title": "Ihr Sprachniveau begründet",
+        "body": "Das Niveau wird mit seiner Begründung gezeigt — Sprechtempo, Deutlichkeit, Dauer — statt einfach behauptet."
+      },
+      {
+        "icon": "workspace_premium",
+        "title": "Ein Zertifikat schlägt eine Schätzung",
+        "body": "Wenn Sie ein Sprachzertifikat vorlegen, zählt dieses. Die Maschine kann Sie nicht herabstufen."
+      },
+      {
+        "icon": "event_available",
+        "title": "Ihre Verfügbarkeit sichtbar",
+        "body": "Sofort, in 1 Monat oder in 2 Monaten: Arbeitgeber filtern danach und melden sich nicht zum falschen Zeitpunkt."
+      }
+    ]
+  },
+  "proof": {
+    "title": "Was wir belegen können",
+    "subtitle": "Keine unüberprüfbaren Versprechen. Drei Zusagen, an denen Sie uns messen können.",
+    "items": [
+      {
+        "icon": "gavel",
+        "title": "Gemeldete Datenverarbeitung",
+        "body": "Ihre personenbezogenen Daten werden im Rahmen der CNDP verarbeitet, und Ihre Einwilligung wird ausdrücklich eingeholt."
+      },
+      {
+        "icon": "history_toggle_off",
+        "title": "Kontaktdaten nur auf Anfrage",
+        "body": "Ihre Kontaktdaten erscheinen nie in den Suchergebnissen. Ein Arbeitgeber muss sie anfordern, und dieser Moment wird protokolliert."
+      },
+      {
+        "icon": "cancel_schedule_send",
+        "title": "Jederzeit zurückziehbar",
+        "body": "Sie können Ihr Profil jederzeit aus der Suche nehmen, ohne Begründung."
+      }
+    ]
+  },
+  "recruiter": {
+    "eyebrow": "Arbeitgeberbereich",
+    "title": "Sie stellen in Deutschland ein?",
+    "subtitle": "Suchen Sie nach Beruf, Deutschniveau, Erfahrung und Verfügbarkeit. Öffnen Sie das vollständige Profil. Kontaktieren Sie nur die Kandidaten, die Sie ausgewählt haben.",
+    "points": [
+      {
+        "icon": "filter_alt",
+        "title": "Eine Suche, die nach dem Wesentlichen filtert",
+        "body": "Beruf, Fachrichtung, Mindest-GER-Niveau je Sprache, Berufsjahre, Verfügbarkeit, Ausbildungsniveau."
+      },
+      {
+        "icon": "id_card",
+        "title": "Das vollständige Profil auf einer Seite",
+        "body": "Ausbildung, Sprachen samt Herkunft des Niveaus, Sprachbewertung mit Transkript, Vorstellungsvideo, Dokumente zum Öffnen."
+      },
+      {
+        "icon": "conversion_path",
+        "title": "Ihre Pipeline bis zur Vermittlung",
+        "body": "Gemerkt, kontaktiert, im Gespräch, vermittelt, abgelehnt — mit Ihren privaten Notizen und CSV-Export."
+      }
+    ],
+    "cta": "Zum Arbeitgeberbereich",
+    "secondaryCta": "Demo anfragen"
+  },
+  "faq": {
+    "title": "Die Fragen, die sich alle stellen",
+    "subtitle": "Kurze, ehrliche Antworten. Wenn etwas unklar bleibt, schreiben Sie uns.",
+    "items": [
+      {
+        "question": "Kostet die Anmeldung etwas?",
+        "answer": "Nein. Ihr Profil zu erstellen ist kostenlos. Für die Sichtbarkeit bei Unternehmen zahlen Sie nichts."
+      },
+      {
+        "question": "Garantieren Sie eine Stelle in Deutschland?",
+        "answer": "Nein, und das kann seriös niemand garantieren. Wir bereiten Ihr Profil auf und machen es für deutsche Arbeitgeber sichtbar; die Einstellungsentscheidung liegt bei ihnen."
+      },
+      {
+        "question": "Wer sieht mein Profil?",
+        "answer": "Die auf der Plattform registrierten Unternehmen, sobald Sie den Bedingungen und der Datenverarbeitung zugestimmt haben. Sie können Ihr Profil jederzeit zurückziehen."
+      },
+      {
+        "question": "Was passiert mit meiner Telefonnummer?",
+        "answer": "Sie dient der Anmeldung und erscheint nie in den Suchergebnissen. Ein Arbeitgeber muss Ihre Kontaktdaten ausdrücklich anfordern, und diese Anfrage wird festgehalten."
+      },
+      {
+        "question": "Muss ich schon Deutsch sprechen?",
+        "answer": "Nicht um zu beginnen. Das nötige Niveau hängt vom Beruf ab — es steht auf jeder Berufsseite — und Sie können sich während der Erstellung weiter verbessern."
+      },
+      {
+        "question": "Wie lange dauert das Profil?",
+        "answer": "Wenige Minuten für das Wesentliche, wenn Sie Ihren Lebenslauf zur Hand haben: Er wird automatisch gelesen und füllt die meisten Felder. Dokumente und Sprachbewertung können später folgen."
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "Ihr Beruf wird anderswo gebraucht.",
+    "subtitle": "Erstellen Sie Ihr Profil in wenigen Minuten. Kostenlos, und Sie entscheiden, wer es sieht.",
+    "cta": "Profil erstellen",
+    "microcopy": "Ohne Passwort · Jederzeit vollständig zurückziehbar"
+  },
+  "footer": {
+    "tagline": "Die Plattform, die marokkanische Fachkräfte auf den deutschen Arbeitsmarkt vorbereitet — und deutschen Unternehmen hilft, sie zu finden.",
+    "columns": [
+      {
+        "title": "Bewerber",
+        "links": [
+          { "label": "Profil erstellen", "href": "/auth-phone" },
+          { "label": "Gesuchte Berufe", "href": "#metiers" },
+          { "label": "So funktioniert es", "href": "#comment-ca-marche" },
+          { "label": "Häufige Fragen", "href": "#questions" }
+        ]
+      },
+      {
+        "title": "Arbeitgeber",
+        "links": [
+          { "label": "Arbeitgeberbereich", "href": "/auth-phone" },
+          { "label": "Profile suchen", "href": "#recruteurs" },
+          { "label": "Demo anfragen", "href": "#recruteurs" }
+        ]
+      },
+      {
+        "title": "Rechtliches",
+        "links": [
+          { "label": "Nutzungsbedingungen", "href": "#" },
+          { "label": "Datenschutzerklärung", "href": "#" },
+          { "label": "Datenverarbeitung — CNDP", "href": "#" },
+          { "label": "Cookies", "href": "#" }
+        ]
+      }
+    ],
+    "legalNote": "Die rechtlichen Links müssen vor dem Start auf die endgültigen Seiten zeigen.",
+    "rights": "Alle Rechte vorbehalten."
+  },
+  "tradePage": {
+    "titlePattern": "{trade} in Deutschland",
+    "levelLabel": "Erwartetes Deutschniveau",
+    "diplomaLabel": "Abschluss",
+    "salaryLabel": "Richtwert Gehalt",
+    "requirementsTitle": "Was Arbeitgeber verlangen",
+    "dossierTitle": "Für Ihr Profil zusammenstellen",
+    "disclaimer": "Diese Anforderungen sind Richtwerte: Sie variieren je nach Bundesland und Arbeitgeber. Ihr Profil bleibt auch dann sinnvoll, wenn noch ein Punkt fehlt.",
+    "ctaTitle": "Starten Sie Ihr Profil für diesen Beruf",
+    "ctaBody": "Fügen Sie Ihren Lebenslauf hinzu: Er wird automatisch gelesen und füllt die meisten Felder aus.",
+    "othersTitle": "Weitere Berufe"
+  },
+  "mobileBar": {
+    "cta": "Profil erstellen"
+  }
+}

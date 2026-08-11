@@ -1,0 +1,255 @@
+{
+  "_note": "Contenu de la page d'accueil publique. Aucune chaîne ne doit être codée en dur dans les composants (plan §6). Règle §7.3 : aucun chiffre, logo ou témoignage non vérifié.",
+  "nav": {
+    "links": [
+      { "label": "Métiers", "href": "#metiers" },
+      { "label": "Comment ça marche", "href": "#comment-ca-marche" },
+      { "label": "Recruteurs", "href": "#recruteurs" },
+      { "label": "Questions", "href": "#questions" }
+    ],
+    "signIn": "J'ai déjà un dossier",
+    "cta": "Créer mon dossier",
+    "menuOpen": "Ouvrir le menu",
+    "menuClose": "Fermer le menu"
+  },
+  "hero": {
+    "eyebrow": "Maroc → Allemagne",
+    "headline": ["Travaillez en Allemagne.", "Nous préparons votre dossier avec vous."],
+    "subheadline": "Votre CV, vos diplômes et votre niveau d'allemand réunis dans un dossier que les entreprises allemandes savent lire — et qu'elles consultent directement.",
+    "cta": "Créer mon dossier",
+    "secondaryCta": "Voir ce que mon métier demande",
+    "microcopy": "Gratuit · Aucun mot de passe · Vous choisissez qui voit votre dossier",
+    "card": {
+      "title": "Dossier candidat",
+      "name": "Votre métier",
+      "levelLabel": "Allemand",
+      "level": "B2",
+      "availabilityLabel": "Disponible",
+      "availability": "sous 1 mois",
+      "documents": ["CV", "Diplôme", "Certificat"],
+      "footnote": "Aperçu de ce que voit un recruteur"
+    }
+  },
+  "search": {
+    "label": "Quel est votre métier ?",
+    "placeholder": "Infirmier, électricien, soudeur…",
+    "submit": "Rechercher",
+    "advanced": "Recherche avancée",
+    "sectorLabel": "Secteur",
+    "sectorAny": "Tous les secteurs",
+    "levelLabel": "Votre niveau d'allemand aujourd'hui",
+    "levelOptions": [
+      { "value": "", "label": "Peu importe" },
+      { "value": "none", "label": "Aucun" },
+      { "value": "a", "label": "A1 – A2" },
+      { "value": "b1", "label": "B1" },
+      { "value": "b2", "label": "B2 ou plus" }
+    ],
+    "popularLabel": "Métiers les plus consultés",
+    "suggestionsLabel": "Suggestions de métiers",
+    "emptyTitle": "Nous n'avons pas encore de parcours pour « {term} ».",
+    "emptyBody": "Votre métier peut tout de même intéresser un employeur allemand.",
+    "emptyCta": "Créer mon dossier quand même",
+    "errorMessage": "Recherche indisponible pour le moment. Parcourez les métiers ci-dessous.",
+    "errorLink": "Voir les métiers"
+  },
+  "trust": {
+    "items": [
+      { "icon": "toll", "label": "Inscription gratuite" },
+      { "icon": "shield_lock", "label": "Vos données protégées — déclaration CNDP" },
+      { "icon": "visibility", "label": "Vous choisissez qui voit votre dossier" }
+    ]
+  },
+  "trades": {
+    "title": "Les métiers qui recrutent en Allemagne",
+    "subtitle": "Santé, industrie, bâtiment, hôtellerie, informatique — voici ce que chaque métier demande vraiment.",
+    "cardCta": "Voir le parcours",
+    "levelPrefix": "Allemand",
+    "recognition": {
+      "required": "Diplôme à faire reconnaître",
+      "recommended": "Reconnaissance conseillée",
+      "none": "Pas de reconnaissance exigée"
+    }
+  },
+  "steps": {
+    "title": "Quatre étapes, à votre rythme",
+    "subtitle": "Rien à payer, rien à imprimer, rien à déposer dans un bureau.",
+    "items": [
+      {
+        "icon": "smartphone",
+        "title": "Créez votre compte",
+        "body": "Un numéro de téléphone, un code reçu par WhatsApp. Pas de mot de passe à retenir."
+      },
+      {
+        "icon": "document_scanner",
+        "title": "Ajoutez votre CV",
+        "body": "Il est lu automatiquement et remplit votre dossier. Vous corrigez, vous validez."
+      },
+      {
+        "icon": "graphic_eq",
+        "title": "Prouvez votre niveau de langue",
+        "body": "Un enregistrement d'une minute. Votre niveau CEFR est estimé, et expliqué."
+      },
+      {
+        "icon": "travel_explore",
+        "title": "Rendez votre dossier visible",
+        "body": "Les entreprises allemandes vous trouvent par métier, langue et disponibilité."
+      }
+    ]
+  },
+  "credible": {
+    "title": "Un dossier qu'un employeur allemand peut vérifier",
+    "subtitle": "Un CV se lit. Un dossier se vérifie. C'est la différence entre une candidature ignorée et un entretien.",
+    "items": [
+      {
+        "icon": "folder_supervised",
+        "title": "Vos diplômes attachés",
+        "body": "Chaque document est joint à votre dossier et consultable directement par le recruteur, sans échange de mails."
+      },
+      {
+        "icon": "graphic_eq",
+        "title": "Votre niveau de langue argumenté",
+        "body": "Le niveau est affiché avec ce qui le justifie — débit, clarté, durée — au lieu d'être simplement affirmé."
+      },
+      {
+        "icon": "workspace_premium",
+        "title": "Un certificat prime sur une estimation",
+        "body": "Si vous fournissez un certificat de langue, c'est lui qui fait foi. La machine ne peut pas vous rétrograder."
+      },
+      {
+        "icon": "event_available",
+        "title": "Votre disponibilité affichée",
+        "body": "Immédiate, sous 1 mois ou sous 2 mois : les recruteurs filtrent dessus et ne vous contactent pas au mauvais moment."
+      }
+    ]
+  },
+  "proof": {
+    "title": "Ce que nous pouvons prouver",
+    "subtitle": "Pas de promesse invérifiable. Trois engagements que vous pouvez nous opposer.",
+    "items": [
+      {
+        "icon": "gavel",
+        "title": "Traitement des données déclaré",
+        "body": "Vos données personnelles sont traitées dans le cadre de la CNDP, et votre consentement est demandé explicitement."
+      },
+      {
+        "icon": "history_toggle_off",
+        "title": "Contact transmis uniquement sur action",
+        "body": "Vos coordonnées ne sont jamais affichées dans les résultats de recherche. Un recruteur doit les demander, et ce moment est horodaté."
+      },
+      {
+        "icon": "cancel_schedule_send",
+        "title": "Retrait possible à tout moment",
+        "body": "Vous pouvez retirer votre dossier de la recherche quand vous le voulez, sans avoir à vous justifier."
+      }
+    ]
+  },
+  "recruiter": {
+    "eyebrow": "Espace recruteur",
+    "title": "Vous recrutez en Allemagne ?",
+    "subtitle": "Cherchez par métier, niveau d'allemand, expérience et disponibilité. Ouvrez le dossier complet. Contactez uniquement les profils que vous avez retenus.",
+    "points": [
+      {
+        "icon": "filter_alt",
+        "title": "Une recherche qui filtre sur ce qui compte",
+        "body": "Profession, spécialisation, niveau CEFR minimum par langue, années d'expérience, disponibilité, niveau de formation."
+      },
+      {
+        "icon": "id_card",
+        "title": "Le dossier complet, en une page",
+        "body": "Formation, langues et leur source, évaluation orale avec sa transcription, vidéo de présentation, documents ouvrables."
+      },
+      {
+        "icon": "conversion_path",
+        "title": "Votre pipeline, jusqu'au placement",
+        "body": "Sauvegardé, contacté, entretien, placé, refusé — avec vos notes privées et un export CSV."
+      }
+    ],
+    "cta": "Accéder à l'espace recruteur",
+    "secondaryCta": "Demander une démonstration"
+  },
+  "faq": {
+    "title": "Les questions que tout le monde se pose",
+    "subtitle": "Réponses courtes et honnêtes. S'il y a un doute, écrivez-nous.",
+    "items": [
+      {
+        "question": "Est-ce que l'inscription est payante ?",
+        "answer": "Non. La création de votre dossier est gratuite. Vous n'avez rien à payer pour être visible auprès des entreprises."
+      },
+      {
+        "question": "Est-ce que vous garantissez un emploi en Allemagne ?",
+        "answer": "Non, et personne ne peut le garantir sérieusement. Nous préparons votre dossier et le rendons visible auprès d'employeurs allemands ; la décision d'embauche leur appartient."
+      },
+      {
+        "question": "Qui voit mon dossier ?",
+        "answer": "Les entreprises inscrites sur la plateforme, une fois que vous avez accepté les conditions et le traitement de vos données. Vous pouvez retirer votre dossier à tout moment."
+      },
+      {
+        "question": "Que devient mon numéro de téléphone ?",
+        "answer": "Il sert à vous connecter, et il n'apparaît jamais dans les résultats de recherche. Un recruteur doit demander vos coordonnées explicitement, et cette demande est enregistrée."
+      },
+      {
+        "question": "Faut-il déjà parler allemand ?",
+        "answer": "Pas pour commencer votre dossier. Le niveau requis dépend du métier — il est indiqué sur chaque fiche métier — et vous pouvez progresser pendant la constitution du dossier."
+      },
+      {
+        "question": "Combien de temps prend la constitution du dossier ?",
+        "answer": "Quelques minutes pour l'essentiel si vous avez votre CV sous la main : il est lu automatiquement et remplit la majorité des champs. Les documents et l'évaluation orale peuvent être ajoutés plus tard."
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "Votre métier vous attend ailleurs.",
+    "subtitle": "Créez votre dossier en quelques minutes. C'est gratuit, et vous décidez qui le voit.",
+    "cta": "Créer mon dossier",
+    "microcopy": "Aucun mot de passe · Vous pouvez tout retirer à tout moment"
+  },
+  "footer": {
+    "tagline": "La plateforme qui prépare les candidats marocains au marché du travail allemand — et permet aux entreprises allemandes de les trouver.",
+    "columns": [
+      {
+        "title": "Candidats",
+        "links": [
+          { "label": "Créer mon dossier", "href": "/auth-phone" },
+          { "label": "Les métiers qui recrutent", "href": "#metiers" },
+          { "label": "Comment ça marche", "href": "#comment-ca-marche" },
+          { "label": "Questions fréquentes", "href": "#questions" }
+        ]
+      },
+      {
+        "title": "Recruteurs",
+        "links": [
+          { "label": "Espace recruteur", "href": "/auth-phone" },
+          { "label": "Rechercher des profils", "href": "#recruteurs" },
+          { "label": "Demander une démonstration", "href": "#recruteurs" }
+        ]
+      },
+      {
+        "title": "Légal",
+        "links": [
+          { "label": "Conditions d'utilisation", "href": "#" },
+          { "label": "Politique de confidentialité", "href": "#" },
+          { "label": "Traitement des données — CNDP", "href": "#" },
+          { "label": "Cookies", "href": "#" }
+        ]
+      }
+    ],
+    "legalNote": "Les liens légaux restent à brancher sur les pages définitives avant mise en ligne.",
+    "rights": "Tous droits réservés."
+  },
+  "tradePage": {
+    "titlePattern": "{trade} en Allemagne",
+    "levelLabel": "Niveau d'allemand attendu",
+    "diplomaLabel": "Diplôme",
+    "salaryLabel": "Salaire indicatif",
+    "requirementsTitle": "Ce que demandent les employeurs",
+    "dossierTitle": "À réunir dans votre dossier",
+    "disclaimer": "Ces exigences sont indicatives : elles varient selon le Land et l'employeur. Votre dossier reste recevable même si un élément vous manque encore.",
+    "ctaTitle": "Commencez votre dossier pour ce métier",
+    "ctaBody": "Ajoutez votre CV : il est lu automatiquement et remplit la majorité des champs.",
+    "othersTitle": "Autres métiers"
+  },
+  "mobileBar": {
+    "cta": "Créer mon dossier"
+  }
+}

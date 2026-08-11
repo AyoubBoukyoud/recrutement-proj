@@ -50,6 +50,11 @@ services:
       QUEUE_CONNECTION: database
       CACHE_STORE: database
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      # `evolution` d'abord, `sms` en repli ; `log` par défaut pour qu'un
+      # checkout neuf se connecte sans passerelle (code renvoyé dans la réponse).
+      OTP_CHANNELS: ${OTP_CHANNELS:-log}
+      EVOLUTION_BASE_URL: http://evolution-go:4000
+      EVOLUTION_INSTANCE_TOKEN: ${EVOLUTION_INSTANCE_TOKEN:-}
     ports:
       - "8000:8000"
     volumes:
@@ -83,6 +88,52 @@ services:
       backend:
         condition: service_healthy
 
+  # Passerelle WhatsApp auto-hébergée pour les codes OTP. Elle pilote un vrai
+  # compte WhatsApp appairé par QR : aucun compte Business ni template validé
+  # n'est requis, mais l'appairage doit être refait si la session est révoquée.
+  # Voir SETUP.md § 6 pour l'appairage.
+  evolution-postgres:
+    image: postgres:15-alpine
+    container_name: recruitment_evolution_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: evolution
+      POSTGRES_PASSWORD: evolution
+      POSTGRES_DB: postgres
+    volumes:
+      - evolution_db_data:/var/lib/postgresql/data
+      - ./docker/evolution/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evolution -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  evolution-go:
+    image: evoapicloud/evolution-go:latest
+    container_name: recruitment_evolution_go
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: "4000"
+      CLIENT_NAME: evolution
+      GLOBAL_API_KEY: ${EVOLUTION_GLOBAL_API_KEY:-change-me-global-key}
+      POSTGRES_AUTH_DB: postgresql://evolution:evolution@evolution-postgres:5432/evogo_auth?sslmode=disable
+      POSTGRES_USERS_DB: postgresql://evolution:evolution@evolution-postgres:5432/evogo_users?sslmode=disable
+      DATABASE_SAVE_MESSAGES: "false"
+      # Reprend la session appairée au redémarrage, sinon plus aucun code ne
+      # part tant que personne n'a rappelé /instance/connect à la main.
+      CONNECT_ON_STARTUP: "true"
+      WADEBUG: INFO
+      LOGTYPE: console
+    ports:
+      - "4000:4000"
+    volumes:
+      - evolution_data:/app/dbdata
+      - evolution_logs:/app/logs
+    depends_on:
+      evolution-postgres:
+        condition: service_healthy
+
   web-admin:
     build:
       context: ./web-admin
@@ -101,6 +152,9 @@ services:
 
 volumes:
   mysql_data:
+  evolution_db_data:
+  evolution_data:
+  evolution_logs:
   backend_vendor:
   backend_node_modules:
   backend_public_build:

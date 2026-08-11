@@ -24,18 +24,6 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
-// Direct, bookmarkable routes for each dashboard. In dev builds any logged-in
-// user can open any of them (`npm run dev`), so the whole app can be clicked
-// through without needing an Admin/Company/Commercial Agent account for each
-// role. Production keeps the real role check.
-function RequireRole({ roles, children }: { roles: string[]; children: React.ReactNode }) {
-  const { user } = useAuth()
-  if (!user) return <Navigate to="/login" replace />
-  const allowed = import.meta.env.DEV || roles.some((role) => user.roles.includes(role))
-  if (!allowed) return <Navigate to="/" replace />
-  return <>{children}</>
-}
-
 function App() {
   return (
     <Routes>
@@ -48,31 +36,6 @@ function App() {
           </RequireAuth>
         }
       />
-      <Route
-        path="/admin"
-        element={
-          <RequireRole roles={['Administrator']}>
-            <AdminDashboard />
-          </RequireRole>
-        }
-      />
-      <Route
-        path="/recruiter"
-        element={
-          <RequireRole roles={['Company']}>
-            <RecruiterSearch />
-          </RequireRole>
-        }
-      />
-      <Route
-        path="/agent"
-        element={
-          <RequireRole roles={['Commercial Agent']}>
-            <AgentDashboard />
-          </RequireRole>
-        }
-      />
-      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

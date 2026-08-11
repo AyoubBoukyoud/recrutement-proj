@@ -1,0 +1,255 @@
+{
+  "_note": "English homepage copy. Same shape as home.fr.json — TypeScript fails the build if a key is missing.",
+  "nav": {
+    "links": [
+      { "label": "Trades", "href": "#metiers" },
+      { "label": "How it works", "href": "#comment-ca-marche" },
+      { "label": "Recruiters", "href": "#recruteurs" },
+      { "label": "Questions", "href": "#questions" }
+    ],
+    "signIn": "I already have a file",
+    "cta": "Create my file",
+    "menuOpen": "Open menu",
+    "menuClose": "Close menu"
+  },
+  "hero": {
+    "eyebrow": "Morocco → Germany",
+    "headline": ["Work in Germany.", "We build your file with you."],
+    "subheadline": "Your CV, your diplomas and your German level gathered into one file that German employers know how to read — and consult directly.",
+    "cta": "Create my file",
+    "secondaryCta": "See what my trade requires",
+    "microcopy": "Free · No password · You choose who sees your file",
+    "card": {
+      "title": "Candidate file",
+      "name": "Your trade",
+      "levelLabel": "German",
+      "level": "B2",
+      "availabilityLabel": "Available",
+      "availability": "within 1 month",
+      "documents": ["CV", "Diploma", "Certificate"],
+      "footnote": "What a recruiter sees"
+    }
+  },
+  "search": {
+    "label": "What is your trade?",
+    "placeholder": "Nurse, electrician, welder…",
+    "submit": "Search",
+    "advanced": "Advanced search",
+    "sectorLabel": "Sector",
+    "sectorAny": "All sectors",
+    "levelLabel": "Your German level today",
+    "levelOptions": [
+      { "value": "", "label": "Doesn't matter" },
+      { "value": "none", "label": "None" },
+      { "value": "a", "label": "A1 – A2" },
+      { "value": "b1", "label": "B1" },
+      { "value": "b2", "label": "B2 or above" }
+    ],
+    "popularLabel": "Most viewed trades",
+    "suggestionsLabel": "Trade suggestions",
+    "emptyTitle": "We don't have a guide for “{term}” yet.",
+    "emptyBody": "Your trade may still interest a German employer.",
+    "emptyCta": "Create my file anyway",
+    "errorMessage": "Search is unavailable right now. Browse the trades below.",
+    "errorLink": "See the trades"
+  },
+  "trust": {
+    "items": [
+      { "icon": "toll", "label": "Free to join" },
+      { "icon": "shield_lock", "label": "Your data protected — CNDP declaration" },
+      { "icon": "visibility", "label": "You choose who sees your file" }
+    ]
+  },
+  "trades": {
+    "title": "The trades hiring in Germany",
+    "subtitle": "Healthcare, industry, construction, hospitality, IT — here is what each trade actually requires.",
+    "cardCta": "See the path",
+    "levelPrefix": "German",
+    "recognition": {
+      "required": "Diploma must be recognised",
+      "recommended": "Recognition advisable",
+      "none": "No recognition required"
+    }
+  },
+  "steps": {
+    "title": "Four steps, at your own pace",
+    "subtitle": "Nothing to pay, nothing to print, nothing to drop off at an office.",
+    "items": [
+      {
+        "icon": "smartphone",
+        "title": "Create your account",
+        "body": "A phone number, a code sent by WhatsApp. No password to remember."
+      },
+      {
+        "icon": "document_scanner",
+        "title": "Add your CV",
+        "body": "It is read automatically and fills in your file. You correct it, you confirm it."
+      },
+      {
+        "icon": "graphic_eq",
+        "title": "Prove your language level",
+        "body": "A one-minute recording. Your CEFR level is estimated — and explained."
+      },
+      {
+        "icon": "travel_explore",
+        "title": "Make your file visible",
+        "body": "German companies find you by trade, language and availability."
+      }
+    ]
+  },
+  "credible": {
+    "title": "A file a German employer can verify",
+    "subtitle": "A CV gets read. A file gets verified. That is the difference between an ignored application and an interview.",
+    "items": [
+      {
+        "icon": "folder_supervised",
+        "title": "Your diplomas attached",
+        "body": "Every document is attached to your file and opens directly for the recruiter, with no back-and-forth by email."
+      },
+      {
+        "icon": "graphic_eq",
+        "title": "Your language level argued",
+        "body": "The level is shown with what justifies it — pace, clarity, duration — instead of simply being asserted."
+      },
+      {
+        "icon": "workspace_premium",
+        "title": "A certificate outranks an estimate",
+        "body": "If you provide a language certificate, it is the one that counts. The machine cannot downgrade you."
+      },
+      {
+        "icon": "event_available",
+        "title": "Your availability shown",
+        "body": "Immediately, within 1 month or within 2 months: recruiters filter on it and won't contact you at the wrong time."
+      }
+    ]
+  },
+  "proof": {
+    "title": "What we can prove",
+    "subtitle": "No unverifiable promises. Three commitments you can hold us to.",
+    "items": [
+      {
+        "icon": "gavel",
+        "title": "Declared data processing",
+        "body": "Your personal data is processed under the CNDP framework, and your consent is asked for explicitly."
+      },
+      {
+        "icon": "history_toggle_off",
+        "title": "Contact released only on request",
+        "body": "Your details never appear in search results. A recruiter has to ask for them, and that moment is timestamped."
+      },
+      {
+        "icon": "cancel_schedule_send",
+        "title": "Withdraw at any time",
+        "body": "You can take your file out of the search whenever you want, without having to justify it."
+      }
+    ]
+  },
+  "recruiter": {
+    "eyebrow": "Recruiter space",
+    "title": "Hiring in Germany?",
+    "subtitle": "Search by trade, German level, experience and availability. Open the full file. Contact only the profiles you have kept.",
+    "points": [
+      {
+        "icon": "filter_alt",
+        "title": "A search that filters on what matters",
+        "body": "Profession, specialisation, minimum CEFR level per language, years of experience, availability, level of education."
+      },
+      {
+        "icon": "id_card",
+        "title": "The complete file, on one page",
+        "body": "Education, languages and where each level came from, the spoken assessment with its transcript, the presentation video, openable documents."
+      },
+      {
+        "icon": "conversion_path",
+        "title": "Your pipeline, through to placement",
+        "body": "Saved, contacted, interviewing, placed, rejected — with your private notes and a CSV export."
+      }
+    ],
+    "cta": "Go to the recruiter space",
+    "secondaryCta": "Request a demo"
+  },
+  "faq": {
+    "title": "The questions everyone asks",
+    "subtitle": "Short, honest answers. If anything is unclear, write to us.",
+    "items": [
+      {
+        "question": "Does it cost anything to sign up?",
+        "answer": "No. Creating your file is free. You pay nothing to be visible to companies."
+      },
+      {
+        "question": "Do you guarantee a job in Germany?",
+        "answer": "No, and nobody can seriously guarantee that. We prepare your file and make it visible to German employers; the hiring decision is theirs."
+      },
+      {
+        "question": "Who sees my file?",
+        "answer": "Companies registered on the platform, once you have accepted the terms and the processing of your data. You can withdraw your file at any time."
+      },
+      {
+        "question": "What happens to my phone number?",
+        "answer": "It is used to sign you in, and it never appears in search results. A recruiter has to request your contact details explicitly, and that request is recorded."
+      },
+      {
+        "question": "Do I need to speak German already?",
+        "answer": "Not to start your file. The level required depends on the trade — it is stated on each trade page — and you can keep improving while you build the file."
+      },
+      {
+        "question": "How long does the file take?",
+        "answer": "A few minutes for the essentials if you have your CV to hand: it is read automatically and fills in most of the fields. Documents and the spoken assessment can come later."
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "Your trade is wanted elsewhere.",
+    "subtitle": "Create your file in a few minutes. It's free, and you decide who sees it.",
+    "cta": "Create my file",
+    "microcopy": "No password · You can withdraw everything at any time"
+  },
+  "footer": {
+    "tagline": "The platform that prepares Moroccan candidates for the German labour market — and lets German companies find them.",
+    "columns": [
+      {
+        "title": "Candidates",
+        "links": [
+          { "label": "Create my file", "href": "/auth-phone" },
+          { "label": "Trades that are hiring", "href": "#metiers" },
+          { "label": "How it works", "href": "#comment-ca-marche" },
+          { "label": "Frequently asked questions", "href": "#questions" }
+        ]
+      },
+      {
+        "title": "Recruiters",
+        "links": [
+          { "label": "Recruiter space", "href": "/auth-phone" },
+          { "label": "Search profiles", "href": "#recruteurs" },
+          { "label": "Request a demo", "href": "#recruteurs" }
+        ]
+      },
+      {
+        "title": "Legal",
+        "links": [
+          { "label": "Terms of use", "href": "#" },
+          { "label": "Privacy policy", "href": "#" },
+          { "label": "Data processing — CNDP", "href": "#" },
+          { "label": "Cookies", "href": "#" }
+        ]
+      }
+    ],
+    "legalNote": "The legal links still need pointing at the final pages before launch.",
+    "rights": "All rights reserved."
+  },
+  "tradePage": {
+    "titlePattern": "{trade} in Germany",
+    "levelLabel": "German level expected",
+    "diplomaLabel": "Diploma",
+    "salaryLabel": "Indicative salary",
+    "requirementsTitle": "What employers ask for",
+    "dossierTitle": "To gather in your file",
+    "disclaimer": "These requirements are indicative: they vary by Land and by employer. Your file is still worth submitting even if one item is still missing.",
+    "ctaTitle": "Start your file for this trade",
+    "ctaBody": "Add your CV: it is read automatically and fills in most of the fields.",
+    "othersTitle": "Other trades"
+  },
+  "mobileBar": {
+    "cta": "Create my file"
+  }
+}

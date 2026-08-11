@@ -1,0 +1,158 @@
+{
+  "_note": "English trade taxonomy. Slugs are shared across all languages so a URL keeps working when the visitor switches language. German levels and recognition rules are indicative and vary by Land and employer — the trade page says so. `salaryBand` stays null until a verifiable source is validated.",
+  "sectors": ["Healthcare", "Industry", "Construction", "Hospitality", "IT", "Transport"],
+  "trades": [
+    {
+      "slug": "infirmier",
+      "label": "Nurse",
+      "sector": "Healthcare",
+      "icon": "health_and_safety",
+      "popular": true,
+      "synonyms": ["nurse", "nursing", "krankenpfleger", "pflegefachkraft", "infirmier", "care", "rn", "ممرض"],
+      "germanLevel": "B2",
+      "recognition": "required",
+      "summary": "Germany is recruiting heavily in care. The profession is regulated: your diploma has to be recognised, and a solid level of German is required before you start.",
+      "requirements": [
+        "State nursing diploma, with training transcripts",
+        "German level usually required: B2",
+        "Diploma recognition procedure (Anerkennung) to be started",
+        "Clinical experience valued, especially in a specialist unit"
+      ],
+      "dossier": ["State diploma and transcripts", "Language certificate if you have one", "CV detailing the units and procedures"],
+      "salaryBand": null
+    },
+    {
+      "slug": "aide-soignant",
+      "label": "Care assistant",
+      "sector": "Healthcare",
+      "icon": "personal_injury",
+      "popular": true,
+      "synonyms": ["care assistant", "healthcare assistant", "pflegehelfer", "aide soignant", "carer", "nursing aide"],
+      "germanLevel": "B1",
+      "recognition": "recommended",
+      "summary": "German care homes and clinics recruit continuously. The language requirements are more accessible than for a registered nurse post.",
+      "requirements": [
+        "Care assistant training or demonstrable equivalent experience",
+        "German level usually asked for: B1",
+        "Recognition of the training advisable depending on the Land",
+        "Availability for shift work"
+      ],
+      "dossier": ["Diploma or training certificate", "Employer references", "CV listing the types of facility"],
+      "salaryBand": null
+    },
+    {
+      "slug": "electricien",
+      "label": "Electrician",
+      "sector": "Construction",
+      "icon": "electrical_services",
+      "popular": true,
+      "synonyms": ["electrician", "elektriker", "electrical", "wiring", "electricien", "كهربائي"],
+      "germanLevel": "B1",
+      "recognition": "recommended",
+      "summary": "Permanently in short supply across German construction and industry. Hands-on practice counts as much as the diploma.",
+      "requirements": [
+        "Vocational training in electrical work or equivalent experience",
+        "German level usually asked for: B1 (workplace safety)",
+        "Electrical authorisations appreciated",
+        "Able to read plans and wiring diagrams"
+      ],
+      "dossier": ["Diploma or training certificate", "Authorisations and references", "CV listing the types of site"],
+      "salaryBand": null
+    },
+    {
+      "slug": "soudeur",
+      "label": "Welder",
+      "sector": "Industry",
+      "icon": "construction",
+      "popular": true,
+      "synonyms": ["welder", "welding", "schweisser", "schweißer", "tig", "mig", "mag", "soudeur", "لحام"],
+      "germanLevel": "A2",
+      "recognition": "none",
+      "summary": "German industry recruits qualified welders. It is one of the trades where the language bar is lowest at the start.",
+      "requirements": [
+        "Command of at least one process (TIG, MIG/MAG, stick)",
+        "German often accepted from A2, to be improved afterwards",
+        "Welding certifications valued",
+        "Able to read technical drawings"
+      ],
+      "dossier": ["Welding certifications", "Employer references", "CV listing processes and materials"],
+      "salaryBand": null
+    },
+    {
+      "slug": "mecanicien-industriel",
+      "label": "Industrial mechanic",
+      "sector": "Industry",
+      "icon": "precision_manufacturing",
+      "popular": false,
+      "synonyms": ["industrial mechanic", "maintenance", "industriemechaniker", "machining", "mechanic", "mecanicien"],
+      "germanLevel": "B1",
+      "recognition": "recommended",
+      "summary": "Maintenance and production: durable positions across a dense network of German SMEs that are actively short-staffed.",
+      "requirements": [
+        "Training in mechanics, maintenance or machining",
+        "German level usually asked for: B1",
+        "Experience on machine tools or production lines",
+        "Able to read plans and technical documentation"
+      ],
+      "dossier": ["Training diploma", "Employer references", "CV listing machines and processes"],
+      "salaryBand": null
+    },
+    {
+      "slug": "cuisinier",
+      "label": "Cook",
+      "sector": "Hospitality",
+      "icon": "restaurant",
+      "popular": true,
+      "synonyms": ["cook", "chef", "koch", "kitchen", "commis", "cuisinier", "طباخ"],
+      "germanLevel": "A2",
+      "recognition": "none",
+      "summary": "German hotels and restaurants recruit all year round, with moderate language requirements on hiring.",
+      "requirements": [
+        "Culinary training or experience in an establishment",
+        "German often accepted from A2",
+        "Knowledge of hygiene standards",
+        "Availability for split shifts and weekends"
+      ],
+      "dossier": ["Diploma or training certificate", "Employer references", "CV listing venue types and covers"],
+      "salaryBand": null
+    },
+    {
+      "slug": "chauffeur-poids-lourd",
+      "label": "HGV driver",
+      "sector": "Transport",
+      "icon": "local_shipping",
+      "popular": false,
+      "synonyms": ["hgv", "lorry driver", "truck driver", "berufskraftfahrer", "lkw", "driver", "chauffeur"],
+      "germanLevel": "B1",
+      "recognition": "required",
+      "summary": "German road haulage is short of drivers. The licence and the professional qualification have to be converted.",
+      "requirements": [
+        "Valid heavy goods vehicle licence",
+        "Professional driver qualification to be recognised",
+        "German level usually asked for: B1",
+        "Long-distance experience appreciated"
+      ],
+      "dossier": ["Driving licence", "Qualification card and references", "CV listing vehicle types and routes"],
+      "salaryBand": null
+    },
+    {
+      "slug": "developpeur",
+      "label": "Software developer",
+      "sector": "IT",
+      "icon": "code",
+      "popular": false,
+      "synonyms": ["developer", "software", "entwickler", "programmer", "web", "backend", "frontend", "developpeur"],
+      "germanLevel": "B1",
+      "recognition": "none",
+      "summary": "The trade where English most often suffices to start: many German teams work in English day to day.",
+      "requirements": [
+        "Demonstrable technical skills (projects, code repositories)",
+        "German B1 appreciated; professional English is often enough",
+        "A degree is not systematically required",
+        "Team and agile experience valued"
+      ],
+      "dossier": ["Detailed technical CV", "Degree if you have one", "Links to your projects or code"],
+      "salaryBand": null
+    }
+  ]
+}

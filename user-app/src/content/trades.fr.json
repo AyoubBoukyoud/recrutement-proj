@@ -1,0 +1,158 @@
+{
+  "_note": "Taxonomie des métiers — alimente la recherche du Hero et les fiches /metiers/[slug]. Aucun back-end (plan §0, option A). Les niveaux d'allemand et les règles de reconnaissance sont indicatifs et varient selon le Land et l'employeur : la fiche métier l'affiche explicitement. `salaryBand` reste null tant qu'une source vérifiable n'a pas été validée (règle §7.3) — le composant ne l'affiche que s'il est renseigné.",
+  "sectors": ["Santé", "Industrie", "Bâtiment", "Hôtellerie-restauration", "Informatique", "Transport"],
+  "trades": [
+    {
+      "slug": "infirmier",
+      "label": "Infirmier / Infirmière",
+      "sector": "Santé",
+      "icon": "health_and_safety",
+      "popular": true,
+      "synonyms": ["infirmier", "infirmiere", "infirmière", "nurse", "krankenpfleger", "pflegefachkraft", "soins", "ide", "ممرض"],
+      "germanLevel": "B2",
+      "recognition": "required",
+      "summary": "L'Allemagne recrute massivement dans les soins. Le métier est réglementé : votre diplôme doit être reconnu, et un niveau d'allemand solide est exigé avant la prise de poste.",
+      "requirements": [
+        "Diplôme d'État d'infirmier, avec relevés de formation",
+        "Niveau d'allemand généralement exigé : B2",
+        "Procédure de reconnaissance du diplôme (Anerkennung) à engager",
+        "Expérience clinique valorisée, en particulier en service spécialisé"
+      ],
+      "dossier": ["Diplôme d'État et relevés", "Certificat de langue si vous en avez un", "CV détaillant les services et les actes pratiqués"],
+      "salaryBand": null
+    },
+    {
+      "slug": "aide-soignant",
+      "label": "Aide-soignant / Aide-soignante",
+      "sector": "Santé",
+      "icon": "personal_injury",
+      "popular": true,
+      "synonyms": ["aide soignant", "aide-soignant", "aide soignante", "pflegehelfer", "auxiliaire de vie", "as"],
+      "germanLevel": "B1",
+      "recognition": "recommended",
+      "summary": "Les structures de soins et les EHPAD allemands recrutent en continu. Les exigences de langue sont plus accessibles que pour le poste d'infirmier.",
+      "requirements": [
+        "Formation d'aide-soignant ou expérience équivalente démontrable",
+        "Niveau d'allemand généralement demandé : B1",
+        "Reconnaissance de la formation conseillée selon le Land",
+        "Disponibilité pour un travail en horaires décalés"
+      ],
+      "dossier": ["Diplôme ou attestation de formation", "Attestations d'employeurs", "CV avec les types de structures"],
+      "salaryBand": null
+    },
+    {
+      "slug": "electricien",
+      "label": "Électricien / Électricienne",
+      "sector": "Bâtiment",
+      "icon": "electrical_services",
+      "popular": true,
+      "synonyms": ["electricien", "électricien", "elektriker", "electrician", "électricité", "courant faible", "كهربائي"],
+      "germanLevel": "B1",
+      "recognition": "recommended",
+      "summary": "Métier en tension permanente dans le bâtiment et l'industrie allemande. La pratique compte autant que le diplôme.",
+      "requirements": [
+        "Formation professionnelle en électricité ou expérience équivalente",
+        "Niveau d'allemand généralement demandé : B1 (sécurité au travail)",
+        "Habilitations électriques appréciées",
+        "Lecture de plans et de schémas"
+      ],
+      "dossier": ["Diplôme ou certificat de formation", "Habilitations et attestations", "CV avec les types de chantiers"],
+      "salaryBand": null
+    },
+    {
+      "slug": "soudeur",
+      "label": "Soudeur / Soudeuse",
+      "sector": "Industrie",
+      "icon": "construction",
+      "popular": true,
+      "synonyms": ["soudeur", "soudure", "schweisser", "schweißer", "welder", "tig", "mig", "mag", "لحام"],
+      "germanLevel": "A2",
+      "recognition": "none",
+      "summary": "L'industrie allemande recrute des soudeurs qualifiés. C'est l'un des métiers où les exigences de langue sont les plus basses au démarrage.",
+      "requirements": [
+        "Maîtrise d'au moins un procédé (TIG, MIG/MAG, à l'arc)",
+        "Niveau d'allemand souvent accepté dès A2, à progresser ensuite",
+        "Certifications de soudage valorisées",
+        "Lecture de plans techniques"
+      ],
+      "dossier": ["Certifications de soudage", "Attestations d'employeurs", "CV avec procédés et matériaux maîtrisés"],
+      "salaryBand": null
+    },
+    {
+      "slug": "mecanicien-industriel",
+      "label": "Mécanicien industriel",
+      "sector": "Industrie",
+      "icon": "precision_manufacturing",
+      "popular": false,
+      "synonyms": ["mecanicien", "mécanicien", "maintenance", "industriemechaniker", "usinage", "mecanique industrielle"],
+      "germanLevel": "B1",
+      "recognition": "recommended",
+      "summary": "Maintenance et production industrielle : des postes durables dans un tissu de PME allemandes très demandeuses.",
+      "requirements": [
+        "Formation en mécanique, maintenance ou usinage",
+        "Niveau d'allemand généralement demandé : B1",
+        "Expérience sur machines-outils ou lignes de production",
+        "Lecture de plans et de documentation technique"
+      ],
+      "dossier": ["Diplôme de formation", "Attestations d'employeurs", "CV avec machines et procédés"],
+      "salaryBand": null
+    },
+    {
+      "slug": "cuisinier",
+      "label": "Cuisinier / Cuisinière",
+      "sector": "Hôtellerie-restauration",
+      "icon": "restaurant",
+      "popular": true,
+      "synonyms": ["cuisinier", "cuisine", "koch", "chef", "commis", "restauration", "طباخ"],
+      "germanLevel": "A2",
+      "recognition": "none",
+      "summary": "Hôtels et restaurants allemands recrutent toute l'année, avec des exigences de langue modérées à l'embauche.",
+      "requirements": [
+        "Formation en cuisine ou expérience en établissement",
+        "Niveau d'allemand souvent accepté dès A2",
+        "Connaissance des normes d'hygiène",
+        "Disponibilité en horaires coupés et le week-end"
+      ],
+      "dossier": ["Diplôme ou attestation de formation", "Attestations d'employeurs", "CV avec types d'établissements et volumes"],
+      "salaryBand": null
+    },
+    {
+      "slug": "chauffeur-poids-lourd",
+      "label": "Chauffeur poids lourd",
+      "sector": "Transport",
+      "icon": "local_shipping",
+      "popular": false,
+      "synonyms": ["chauffeur", "poids lourd", "routier", "camion", "berufskraftfahrer", "lkw", "permis c"],
+      "germanLevel": "B1",
+      "recognition": "required",
+      "summary": "Le transport routier allemand manque de conducteurs. Le permis et la qualification professionnelle doivent être convertis.",
+      "requirements": [
+        "Permis poids lourd en cours de validité",
+        "Qualification professionnelle de conducteur à faire reconnaître",
+        "Niveau d'allemand généralement demandé : B1",
+        "Expérience du transport longue distance appréciée"
+      ],
+      "dossier": ["Permis de conduire", "Carte de qualification et attestations", "CV avec types de véhicules et trajets"],
+      "salaryBand": null
+    },
+    {
+      "slug": "developpeur",
+      "label": "Développeur / Développeuse informatique",
+      "sector": "Informatique",
+      "icon": "code",
+      "popular": false,
+      "synonyms": ["developpeur", "développeur", "informatique", "software", "entwickler", "programmeur", "web", "backend", "frontend"],
+      "germanLevel": "B1",
+      "recognition": "none",
+      "summary": "C'est le métier où l'anglais suffit le plus souvent au démarrage : de nombreuses équipes allemandes travaillent en anglais.",
+      "requirements": [
+        "Compétences techniques démontrables (projets, dépôts de code)",
+        "Allemand B1 apprécié ; l'anglais professionnel est souvent suffisant",
+        "Diplôme non systématiquement exigé",
+        "Expérience en équipe et en méthode agile valorisée"
+      ],
+      "dossier": ["CV technique détaillé", "Diplôme si vous en avez un", "Liens vers vos projets ou votre code"],
+      "salaryBand": null
+    }
+  ]
+}
