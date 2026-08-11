@@ -3,7 +3,7 @@
 // Interface 2 — Choix de la langue : sélection FR / AR / EN / DE, sauvegarde, puis étape suivante.
 
 import { Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import { LANGUAGES } from '@/lib/i18n';
 
@@ -14,20 +14,14 @@ const LANGUAGE_META: Record<string, { native: string; english: string }> = {
   de: { native: 'Deutsch', english: 'German' },
 };
 
-const NEXT_ROUTES: Record<string, string> = {
-  employer: '/login-employeur',
-  admin: '/admin/login',
-  candidate: '/auth-phone',
-};
-
 function LanguageSelectContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { language, setLanguage, t } = useLanguage();
 
+  // Un seul écran de connexion désormais : /auth-phone porte lui-même le
+  // choix « candidat / recruteur », le rôle réel décidant de la destination.
   const handleContinue = () => {
-    const next = searchParams.get('next') ?? 'candidate';
-    router.push(NEXT_ROUTES[next] ?? NEXT_ROUTES.candidate);
+    router.push('/auth-phone');
   };
 
   return (

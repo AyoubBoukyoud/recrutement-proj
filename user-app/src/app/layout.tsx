@@ -11,6 +11,12 @@ export const metadata: Metadata = {
     statusBarStyle: 'default',
     title: 'Amud Skills',
   },
+  // `apple-mobile-web-app-capable`, seul, est déprécié et le navigateur le
+  // signale en console. iOS s'appuie toujours dessus : on ajoute la balise
+  // standard à côté plutôt que de retirer celle d'Apple.
+  other: {
+    'mobile-web-app-capable': 'yes',
+  },
   icons: {
     icon: [
       { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },

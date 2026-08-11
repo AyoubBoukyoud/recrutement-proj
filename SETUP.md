@@ -2,11 +2,15 @@
 
 Monorepo with three apps:
 
-| Folder       | What it is                        | Runs on                  |
-| ------------ | --------------------------------- | ------------------------ |
-| `backend/`   | Laravel 13 API                    | http://127.0.0.1:8000    |
-| `web-admin/` | React + Vite admin/recruiter UI   | http://localhost:5173    |
-| `mobile/`    | React Native (Expo) candidate app | Metro on port **8082**   |
+| Folder       | What it is                                          | Runs on                  |
+| ------------ | ---------------------------------------------------- | ------------------------ |
+| `backend/`   | Laravel 13 API                                       | http://127.0.0.1:8000    |
+| `user-app/`  | Next.js PWA — candidate, recruiter, admin, agent, one login | http://localhost:3000    |
+| `mobile/`    | React Native (Expo) candidate app                    | Metro on port **8082**   |
+
+`web-admin/` is retired: its recruiter search, admin console and agent referral screens now live
+inside `user-app/` (see § 4), reached through the same phone-number login as everyone else. The
+folder still exists but nothing points at it anymore — safe to `rm -rf web-admin` whenever you like.
 
 MySQL + phpMyAdmin run in Docker.
 
@@ -138,7 +142,15 @@ GEMINI_MODEL=gemini-3.6-flash
 
 `APP_ENV=local` matters: it makes the OTP endpoint return `debug_otp_code` in the response, so you can log in without any SMS provider. That only holds while `OTP_CHANNELS=log` (the default) — the code is never echoed back once a real provider delivers it.
 
-To send real codes, fill the `WHATSAPP_*` and `TWILIO_*` keys in `.env.example` and set `OTP_CHANNELS=whatsapp,sms`: WhatsApp is tried first, SMS is the fallback, and a channel with missing credentials is skipped. Delivery limits (`OTP_RESEND_COOLDOWN`, `OTP_MAX_SENDS`, `OTP_MAX_ATTEMPTS`) live in `config/otp.php`.
+To send real codes, set `OTP_CHANNELS` to a comma-separated chain. Channels are tried left to right, the first that is configured *and* succeeds wins, and a channel with missing credentials is skipped rather than counted as a failure. Delivery limits (`OTP_RESEND_COOLDOWN`, `OTP_MAX_SENDS`, `OTP_MAX_ATTEMPTS`) live in `config/otp.php`.
+
+| Chain | What it needs |
+| --- | --- |
+| `evolution,sms` | A self-hosted WhatsApp gateway paired by QR — see [§6](#6-whatsapp-otp-via-evolution-go). No Meta account. |
+| `whatsapp,sms` | A Meta Business account with an approved AUTHENTICATION template (`WHATSAPP_*`). |
+| `log` | Nothing — the default. |
+
+`sms` is Twilio (`TWILIO_*`) and exists to catch candidates without WhatsApp; keep it last.
 
 Then:
 
@@ -173,17 +185,30 @@ Sanity check: `curl http://127.0.0.1:8000/api/auth/otp/request -H 'Accept: appli
 
 ---
 
-## 4. Web admin
+## 4. Web app (candidate, recruiter, admin, agent)
 
 ```bash
-cd web-admin
+cd user-app
 npm install
 npm run dev
 ```
 
-Opens on http://localhost:5173 — Vite binds the IPv6 loopback only, so `127.0.0.1:5173` is refused. `web-admin/.env` already points at `http://127.0.0.1:8000/api`.
+Opens on http://localhost:3000. `.env.example` points at `http://localhost:8000/api`; copy it to
+`.env.local` and adjust if the backend runs elsewhere.
 
-Login: enter a seeded phone number, and the OTP code is shown on screen (local env only).
+One login for every role: `/auth-phone` has a "Job seeker / Recruiter" toggle, but it only changes
+the copy on screen — the phone number always goes through the same OTP request, and where you land
+afterwards is decided by the account's actual role, never by which button was clicked. A phone
+number with no elevated role always lands as a candidate, toggle notwithstanding.
+
+| Role (Spatie)      | Seeded phone     | Lands on           |
+| ------------------- | ---------------- | ------------------- |
+| Administrator        | `+212600000001` | `/admin/dashboard`  |
+| Company (recruiter)  | `+212600000002` | `/recruiter`        |
+| Commercial Agent     | `+212600000003` | `/agent`             |
+| User (candidate)     | any other number | `/dashboard` (or the profile wizard, if incomplete) |
+
+Login: enter a seeded phone number, and the OTP code is shown on screen (local env only, `OTP_CHANNELS=log`).
 
 ---
 
@@ -216,13 +241,79 @@ Your phone and laptop must be on the same network, and port 8000 must not be blo
 
 ---
 
+## 6. WhatsApp OTP via Evolution Go
+
+Skip this unless you want real WhatsApp codes. `OTP_CHANNELS=log` signs you in without it.
+
+[Evolution Go](https://github.com/evolution-foundation/evolution-go) drives an ordinary WhatsApp
+account you pair by QR, so the code goes out as plain text — no Business account, no template to get
+approved, no per-message fee. The trade is that delivery lives or dies with that pairing, which is
+why `sms` belongs behind it in the chain.
+
+Start the gateway (already in `docker-compose.yml`, on port 4000):
+
+```bash
+export EVOLUTION_GLOBAL_API_KEY=pick-something-long
+docker compose up -d evolution-go
+```
+
+Create an instance. `GLOBAL_API_KEY` authenticates this call; the `token` you choose here becomes
+the instance's own key, and it is that one — not the global key — that every send is made with:
+
+```bash
+curl -X POST http://localhost:4000/instance/create \
+  -H "apikey: $EVOLUTION_GLOBAL_API_KEY" \
+  -H 'Content-Type: application/json' \
+  -d '{"name": "recruitment-otp", "token": "pick-an-instance-token"}'
+```
+
+Connect it, then pair the phone that will send the codes:
+
+```bash
+curl -X POST http://localhost:4000/instance/connect -H "apikey: pick-an-instance-token"
+curl -s http://localhost:4000/instance/qr -H "apikey: pick-an-instance-token"
+```
+
+Scan that QR from WhatsApp on the sending phone (Settings → Linked devices → Link a device). The
+gateway's web manager at http://localhost:4000/manager renders it for you if you would rather not
+decode the payload by hand. Confirm before wiring it up:
+
+```bash
+curl -s http://localhost:4000/instance/status -H "apikey: pick-an-instance-token"
+```
+
+Point the backend at it in `backend/.env` and restart:
+
+```env
+OTP_CHANNELS=evolution,sms
+EVOLUTION_BASE_URL=http://localhost:4000
+EVOLUTION_INSTANCE_TOKEN=pick-an-instance-token
+```
+
+```bash
+cd backend && php artisan config:clear
+```
+
+Two things worth knowing before this reaches candidates:
+
+- **Sending to a number with no WhatsApp account looks like success.** The gateway hands the message
+  to the network and nothing bounces back. `EvolutionGoOtpChannel` therefore calls `/user/check`
+  first and treats "not on WhatsApp" as a failure, so the chain falls through to SMS. Set
+  `EVOLUTION_CHECK_NUMBER=false` to skip that round-trip, and accept that those candidates then get
+  nothing at all.
+- **This is not an official Meta channel.** The sending account is a normal WhatsApp account driven
+  by an unofficial client, and Meta can ban it for bulk or unsolicited messaging. Use a dedicated
+  number, keep the per-number limits in `config/otp.php` in place, and keep `sms` behind it.
+
+---
+
 ## Daily startup
 
 ```bash
 docker compose up -d                                       # db
 cd backend && php artisan serve --host=0.0.0.0 --port=8000 # api
 cd backend && php artisan queue:work                       # jobs
-cd web-admin && npm run dev                                # admin
+cd user-app && npm run dev                                 # candidate + recruiter + admin + agent
 cd mobile && npx expo start --port 8082                    # app
 ```
 
@@ -237,5 +328,7 @@ cd mobile && npx expo start --port 8082                    # app
 | A change "saved" on the phone never reaches the server | It is in the device's offline queue — Account → *Saved on this device* lists what is waiting and anything that needs a decision |
 | Uploads fail in the browser build with no queueing | Expected: media uploads are online-only on web, by design (G) |
 | No OTP code shown | `APP_ENV` isn't `local`, or `OTP_CHANNELS` is not `log` |
+| WhatsApp codes stop arriving | The Evolution Go pairing dropped. `curl -s localhost:4000/instance/status -H "apikey: $EVOLUTION_INSTANCE_TOKEN"`; re-scan the QR if it is disconnected |
+| Sign-in falls back to SMS every time | The gateway is unreachable or the instance is not connected — `docker compose logs evolution-go`, and check `EVOLUTION_INSTANCE_TOKEN` is the *instance* token, not `GLOBAL_API_KEY` |
 | `429` on sign-in | Resend cooldown (60s) or the per-number hourly ceiling; `retry_after` says how long |
 | Config changes ignored | `php artisan config:clear` |

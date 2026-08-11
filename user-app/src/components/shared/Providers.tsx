@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/context/AuthContext';
 import { ProfileProvider } from '@/context/ProfileContext';
 import { NetworkProvider } from '@/context/NetworkContext';
@@ -22,19 +23,25 @@ function HtmlLangSync() {
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  // Un seul client par montage : recréé à chaque rendu, il perdrait son cache
+  // et redéclencherait toutes les requêtes des écrans recruteur/admin/agent.
+  const [queryClient] = useState(() => new QueryClient());
+
   return (
-    <AuthProvider>
-      <ProfileProvider>
-        <NetworkProvider>
-          <LanguageProvider>
-            <HtmlLangSync />
-            <OfflineBanner />
-            {children}
-            <SyncBadge />
-            <InstallPrompt />
-          </LanguageProvider>
-        </NetworkProvider>
-      </ProfileProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ProfileProvider>
+          <NetworkProvider>
+            <LanguageProvider>
+              <HtmlLangSync />
+              <OfflineBanner />
+              {children}
+              <SyncBadge />
+              <InstallPrompt />
+            </LanguageProvider>
+          </NetworkProvider>
+        </ProfileProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }

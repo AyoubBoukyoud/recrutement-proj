@@ -13,7 +13,8 @@ return [
     | provider account: the code goes to storage/logs/laravel.log and, in local,
     | back in the API response.
     |
-    | Production: OTP_CHANNELS=whatsapp,sms
+    | Production: OTP_CHANNELS=evolution,sms  (self-hosted WhatsApp gateway)
+    |          or OTP_CHANNELS=whatsapp,sms   (Meta Cloud API)
     |
     */
 
@@ -93,6 +94,25 @@ return [
             'api_version' => env('WHATSAPP_API_VERSION', 'v21.0'),
             'base_url' => env('WHATSAPP_BASE_URL', 'https://graph.facebook.com'),
             'timeout' => (int) env('WHATSAPP_TIMEOUT', 10),
+        ],
+
+        // Self-hosted Evolution Go gateway (github.com/evolution-foundation/
+        // evolution-go), which sends from a WhatsApp account you pair by QR.
+        // No Business account, no approved template, no per-message fee — but
+        // delivery stops the moment the pairing drops, so keep `sms` behind it.
+        //
+        // `token` is the instance token you chose at POST /instance/create, NOT
+        // the server's GLOBAL_API_KEY; the send routes only accept the former.
+        'evolution' => [
+            'driver' => 'evolution',
+            'base_url' => env('EVOLUTION_BASE_URL', 'http://localhost:4000'),
+            'token' => env('EVOLUTION_INSTANCE_TOKEN'),
+            'timeout' => (int) env('EVOLUTION_TIMEOUT', 15),
+            // Pre-flight /user/check so a candidate with no WhatsApp account
+            // falls through to SMS instead of silently receiving nothing.
+            'check_number' => (bool) env('EVOLUTION_CHECK_NUMBER', true),
+            // :code and :minutes are substituted.
+            'message' => env('EVOLUTION_OTP_MESSAGE', 'Your verification code is :code. It expires in :minutes minutes.'),
         ],
 
         // Twilio Programmable SMS. Prefer a Messaging Service SID over a bare

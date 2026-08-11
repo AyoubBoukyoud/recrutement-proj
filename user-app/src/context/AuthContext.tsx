@@ -19,7 +19,13 @@ export type AuthFailure =
   | 'network'
   | 'unknown';
 
-export type AuthResult = { ok: true } | { ok: false; reason: AuthFailure; retryAfter?: number };
+type Failure = { ok: false; reason: AuthFailure; retryAfter?: number };
+
+export type AuthResult = { ok: true } | Failure;
+
+/** Le rôle est connu dès la vérification réussie — inutile d'attendre le
+ *  prochain rendu pour savoir où envoyer l'appelant. */
+export type VerifyResult = { ok: true; role: UserRole } | Failure;
 
 interface OtpRequestResponse {
   channel?: string;
@@ -42,9 +48,7 @@ interface AuthContextValue {
   requestOtp: (phone: string, referralToken?: string) => Promise<AuthResult>;
   /** `phone` prime sur `pendingPhone` : l'écran OTP le tient de son URL et
    *  survit donc à un rechargement de la PWA. */
-  verifyOtp: (code: string, phone?: string) => Promise<AuthResult>;
-  loginEmployer: (email: string, password: string) => Promise<boolean>;
-  loginAdmin: (email: string, password: string) => Promise<boolean>;
+  verifyOtp: (code: string, phone?: string) => Promise<VerifyResult>;
   logout: () => void;
 }
 
@@ -54,14 +58,21 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 const ROLE_BY_BACKEND_NAME: Record<string, UserRole> = {
   Administrator: 'admin',
   Company: 'employer',
+  'Commercial Agent': 'agent',
   User: 'candidate',
-  'Commercial Agent': 'candidate',
+};
+
+const DEFAULT_NAME_BY_ROLE: Record<UserRole, string> = {
+  candidate: 'Nouveau Candidat',
+  employer: 'Espace Employeur',
+  admin: 'Administrateur',
+  agent: 'Agent commercial',
 };
 
 function roleFrom(roles: string[]): UserRole {
   // Administrator l'emporte : un compte qui cumule les rôles doit atterrir sur
   // l'espace le plus large, pas sur le premier renvoyé par la base.
-  for (const name of ['Administrator', 'Company', 'User']) {
+  for (const name of ['Administrator', 'Company', 'Commercial Agent', 'User']) {
     if (roles.includes(name)) return ROLE_BY_BACKEND_NAME[name];
   }
   return 'candidate';
@@ -71,7 +82,7 @@ function roleFrom(roles: string[]): UserRole {
  * Traduit un échec HTTP en cause métier. Le `reason` renvoyé par le back est
  * la source la plus précise ; le status ne sert que lorsqu'il est absent.
  */
-function failureFrom(error: unknown): AuthResult {
+function failureFrom(error: unknown): Failure {
   if (!(error instanceof ApiError)) {
     return { ok: false, reason: 'unknown' };
   }
@@ -152,7 +163,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const verifyOtp = useCallback(
-    async (code: string, phone?: string): Promise<AuthResult> => {
+    async (code: string, phone?: string): Promise<VerifyResult> => {
       const target = phone ?? pendingPhone;
 
       if (!target) return { ok: false, reason: 'expired' };
@@ -164,13 +175,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           device_name: 'Amud Skills PWA',
         });
 
+        const role = roleFrom(data.user.roles ?? []);
+
         const authUser: AuthUser = {
           id: String(data.user.id),
-          role: roleFrom(data.user.roles ?? []),
+          role,
           // Le back ne renvoie pas de nom à ce stade : le profil candidat, qui
-          // le porte, est chargé juste après par ProfileContext.
-          name: user?.name ?? 'Nouveau Candidat',
+          // le porte, est chargé juste après par ProfileContext. Les autres
+          // rôles n'ont pas cette étape, donc un nom de repli leur suffit.
+          name: user?.name ?? DEFAULT_NAME_BY_ROLE[role],
           phone: data.user.phone,
+          roles: data.user.roles ?? [],
         };
 
         setToken(data.token);
@@ -179,38 +194,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         persistUser(authUser);
         setResendAvailableIn(null);
 
-        return { ok: true };
+        return { ok: true, role };
       } catch (error) {
         return failureFrom(error);
       }
     },
     [pendingPhone, user?.name]
-  );
-
-  const fakeLogin = useCallback((role: UserRole, email: string) => {
-    return async (emailArg: string, password: string) => {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      if (!emailArg || !password) return false;
-      const newUser: AuthUser = {
-        id: `${role}_${Date.now()}`,
-        role,
-        name: role === 'employer' ? 'Espace Employeur' : 'Administrateur',
-        email: emailArg,
-      };
-      setUser(newUser);
-      persistUser(newUser);
-      return true;
-    };
-  }, []);
-
-  const loginEmployer = useCallback(
-    (email: string, password: string) => fakeLogin('employer', email)(email, password),
-    [fakeLogin]
-  );
-
-  const loginAdmin = useCallback(
-    (email: string, password: string) => fakeLogin('admin', email)(email, password),
-    [fakeLogin]
   );
 
   const logout = useCallback(() => {
@@ -237,11 +226,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       resendAvailableIn,
       requestOtp,
       verifyOtp,
-      loginEmployer,
-      loginAdmin,
       logout,
     }),
-    [user, token, isLoading, pendingPhone, resendAvailableIn, requestOtp, verifyOtp, loginEmployer, loginAdmin, logout]
+    [user, token, isLoading, pendingPhone, resendAvailableIn, requestOtp, verifyOtp, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

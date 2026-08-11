@@ -14,10 +14,19 @@ const COUNTRY_CODES = [
   { code: '+49', label: '🇩🇪 +49' },
 ];
 
+/**
+ * Connexion candidat ou recruteur/staff : même téléphone, même code — le rôle
+ * qui décide de la destination vient toujours du back, jamais de ce choix.
+ * `intent` n'est qu'une intention affichée et transmise à /otp, qui prévient
+ * l'appelant si le numéro n'a en réalité pas d'accès recruteur.
+ */
+type Intent = 'job_seeker' | 'recruiter';
+
 export default function AuthPhonePage() {
   const router = useRouter();
   const { requestOtp } = useAuth();
   const { t } = useLanguage();
+  const [intent, setIntent] = useState<Intent>('job_seeker');
   const [countryCode, setCountryCode] = useState(COUNTRY_CODES[0].code);
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +51,7 @@ export default function AuthPhonePage() {
       return;
     }
 
-    router.push(`/otp?phone=${encodeURIComponent(fullPhone)}`);
+    router.push(`/otp?phone=${encodeURIComponent(fullPhone)}&intent=${intent}`);
   };
 
   return (
@@ -69,9 +78,33 @@ export default function AuthPhonePage() {
         }}
         className="flex-1 px-6 pt-6"
       >
+        <div className="fade-in-entry opacity-0 mb-6 flex rounded-pillar border border-outline-variant bg-surface-container-lowest p-1">
+          {(
+            [
+              ['job_seeker', t('auth_intent_job_seeker')],
+              ['recruiter', t('auth_intent_recruiter')],
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setIntent(value)}
+              className={`flex-1 rounded-pillar py-2.5 text-xs font-bold transition-all ${
+                intent === value ? 'bg-primary text-onPrimary shadow-sm' : 'text-onSurface-variant'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         <div className="fade-in-entry opacity-0">
-          <h2 className="mb-2 text-2xl font-extrabold text-primary">{t('phone_screen_title')}</h2>
-          <p className="mb-6 text-sm leading-relaxed text-onSurface-variant">{t('phone_screen_subtitle')}</p>
+          <h2 className="mb-2 text-2xl font-extrabold text-primary">
+            {intent === 'recruiter' ? t('phone_screen_title_recruiter') : t('phone_screen_title')}
+          </h2>
+          <p className="mb-6 text-sm leading-relaxed text-onSurface-variant">
+            {intent === 'recruiter' ? t('phone_screen_subtitle_recruiter') : t('phone_screen_subtitle')}
+          </p>
         </div>
 
         <div className="fade-in-entry stagger-1 opacity-0 mb-2 space-y-2">

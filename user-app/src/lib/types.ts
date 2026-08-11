@@ -1,6 +1,6 @@
 // Types partagés de l'application Amud Skills
 
-export type UserRole = 'candidate' | 'employer' | 'admin';
+export type UserRole = 'candidate' | 'employer' | 'admin' | 'agent';
 
 export type Language = 'fr' | 'ar' | 'en' | 'de';
 
@@ -10,6 +10,9 @@ export interface AuthUser {
   name: string;
   phone?: string;
   email?: string;
+  /** Rôles Spatie bruts renvoyés par l'API (ex. "Administrator", "Company") —
+   *  conservés pour les écrans portés depuis web-admin, qui les affichent tels quels. */
+  roles?: string[];
 }
 
 export type ProfileStep = 1 | 2 | 3 | 4 | 5;

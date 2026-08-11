@@ -9,6 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import { otpFailureMessage } from '@/lib/authMessages';
 import { useProfile } from '@/context/ProfileContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { destinationForRole } from '@/lib/roleDestination';
 
 const RESEND_SECONDS = 45;
 
@@ -16,6 +17,7 @@ function OtpContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const phone = searchParams.get('phone') ?? '';
+  const intent = searchParams.get('intent') === 'recruiter' ? 'recruiter' : 'job_seeker';
   const { verifyOtp, requestOtp, resendAvailableIn } = useAuth();
   const { getIncompleteStep } = useProfile();
   const { t } = useLanguage();
@@ -26,6 +28,10 @@ function OtpContent() {
   const [isResending, setIsResending] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(resendAvailableIn ?? RESEND_SECONDS);
   const [shake, setShake] = useState(false);
+  // Rempli uniquement quand quelqu'un a choisi « Je recrute » mais que le
+  // compte, une fois vérifié, s'avère être un simple candidat : la connexion
+  // a réussi, seule la redirection est mise en pause le temps de prévenir.
+  const [pendingDestination, setPendingDestination] = useState<string | null>(null);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
@@ -70,8 +76,18 @@ function OtpContent() {
       inputsRef.current[0]?.focus();
       return;
     }
-    const incompleteStep = getIncompleteStep();
-    router.replace(incompleteStep ? `/profile-creation?step=${incompleteStep}` : '/dashboard');
+
+    const destination = destinationForRole(result.role, getIncompleteStep());
+
+    // Le rôle réel décide toujours de la destination — « Je recrute » n'est
+    // qu'une intention. Si le compte n'a pas d'accès recruteur, la connexion
+    // reste valide (candidat) mais on le dit avant de rediriger.
+    if (intent === 'recruiter' && result.role === 'candidate') {
+      setPendingDestination(destination);
+      return;
+    }
+
+    router.replace(destination);
   };
 
   const handleResend = async () => {
@@ -93,6 +109,29 @@ function OtpContent() {
     setDigits(Array(6).fill(''));
     inputsRef.current[0]?.focus();
   };
+
+  if (pendingDestination) {
+    return (
+      <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center bg-surface px-6 py-10 text-center shadow-subtle">
+        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-surface-container-low text-primary shadow-subtle">
+          <span className="material-symbols-outlined" style={{ fontSize: 44 }}>
+            info
+          </span>
+        </div>
+        <h2 className="mb-2 text-2xl font-extrabold text-onSurface">{t('recruiter_access_pending_title')}</h2>
+        <p className="mx-auto mb-8 max-w-[320px] text-sm leading-relaxed text-onSurface-variant">
+          {t('recruiter_access_pending_body')}
+        </p>
+        <button
+          type="button"
+          onClick={() => router.replace(pendingDestination)}
+          className="w-full max-w-[340px] rounded-pillar bg-primary py-4 text-sm font-bold text-onPrimary shadow-sm transition-all hover:bg-primary/90 active:scale-[0.98]"
+        >
+          {t('recruiter_access_pending_cta')}
+        </button>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col bg-surface shadow-subtle">

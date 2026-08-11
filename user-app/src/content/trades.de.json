@@ -1,0 +1,158 @@
+{
+  "_note": "Deutsche Berufstaxonomie. Die Slugs sind in allen Sprachen identisch, damit eine URL beim Sprachwechsel gültig bleibt. Sprachniveaus und Anerkennungsregeln sind Richtwerte und variieren je nach Bundesland und Arbeitgeber — die Berufsseite weist darauf hin. `salaryBand` bleibt null, solange keine belegte Quelle geprüft ist.",
+  "sectors": ["Pflege", "Industrie", "Bau", "Gastronomie", "IT", "Transport"],
+  "trades": [
+    {
+      "slug": "infirmier",
+      "label": "Pflegefachkraft",
+      "sector": "Pflege",
+      "icon": "health_and_safety",
+      "popular": true,
+      "synonyms": ["pflegefachkraft", "krankenpfleger", "krankenschwester", "pflege", "nurse", "infirmier", "ممرض"],
+      "germanLevel": "B2",
+      "recognition": "required",
+      "summary": "Deutschland sucht dringend Pflegekräfte. Der Beruf ist reglementiert: Ihr Abschluss muss anerkannt werden, und vor Dienstantritt wird ein solides Deutschniveau verlangt.",
+      "requirements": [
+        "Staatlicher Pflegeabschluss mit Ausbildungsnachweisen",
+        "Üblicherweise verlangtes Deutschniveau: B2",
+        "Anerkennungsverfahren für den Abschluss muss eingeleitet werden",
+        "Klinische Erfahrung, besonders auf Fachstationen, wird geschätzt"
+      ],
+      "dossier": ["Staatlicher Abschluss und Nachweise", "Sprachzertifikat, falls vorhanden", "Lebenslauf mit Stationen und Tätigkeiten"],
+      "salaryBand": null
+    },
+    {
+      "slug": "aide-soignant",
+      "label": "Pflegehelfer/in",
+      "sector": "Pflege",
+      "icon": "personal_injury",
+      "popular": true,
+      "synonyms": ["pflegehelfer", "pflegehilfskraft", "betreuungskraft", "care assistant", "aide soignant"],
+      "germanLevel": "B1",
+      "recognition": "recommended",
+      "summary": "Pflegeheime und Kliniken stellen laufend ein. Die Sprachanforderungen sind niedriger als bei examinierten Pflegekräften.",
+      "requirements": [
+        "Ausbildung als Pflegehelfer/in oder nachweisbare gleichwertige Erfahrung",
+        "Üblicherweise verlangtes Deutschniveau: B1",
+        "Anerkennung der Ausbildung je nach Bundesland empfohlen",
+        "Bereitschaft zu Schichtdienst"
+      ],
+      "dossier": ["Abschluss oder Ausbildungsnachweis", "Arbeitszeugnisse", "Lebenslauf mit Art der Einrichtungen"],
+      "salaryBand": null
+    },
+    {
+      "slug": "electricien",
+      "label": "Elektriker/in",
+      "sector": "Bau",
+      "icon": "electrical_services",
+      "popular": true,
+      "synonyms": ["elektriker", "elektroniker", "elektrofachkraft", "electrician", "electricien", "كهربائي"],
+      "germanLevel": "B1",
+      "recognition": "recommended",
+      "summary": "Dauerhaft gesucht in Bau und Industrie. Die Praxis zählt hier ebenso viel wie der Abschluss.",
+      "requirements": [
+        "Berufsausbildung im Elektrobereich oder gleichwertige Erfahrung",
+        "Üblicherweise verlangtes Deutschniveau: B1 (Arbeitssicherheit)",
+        "Elektrofachliche Befähigungen werden geschätzt",
+        "Lesen von Plänen und Schaltbildern"
+      ],
+      "dossier": ["Abschluss oder Ausbildungsnachweis", "Befähigungen und Zeugnisse", "Lebenslauf mit Art der Baustellen"],
+      "salaryBand": null
+    },
+    {
+      "slug": "soudeur",
+      "label": "Schweißer/in",
+      "sector": "Industrie",
+      "icon": "construction",
+      "popular": true,
+      "synonyms": ["schweisser", "schweißer", "schweißen", "welder", "wig", "mig", "mag", "soudeur", "لحام"],
+      "germanLevel": "A2",
+      "recognition": "none",
+      "summary": "Die deutsche Industrie sucht qualifizierte Schweißer. Einer der Berufe mit den niedrigsten Sprachanforderungen zu Beginn.",
+      "requirements": [
+        "Beherrschung mindestens eines Verfahrens (WIG, MIG/MAG, E-Hand)",
+        "Deutsch oft schon ab A2 akzeptiert, danach auszubauen",
+        "Schweißerprüfungen werden geschätzt",
+        "Lesen technischer Zeichnungen"
+      ],
+      "dossier": ["Schweißerprüfungen", "Arbeitszeugnisse", "Lebenslauf mit Verfahren und Werkstoffen"],
+      "salaryBand": null
+    },
+    {
+      "slug": "mecanicien-industriel",
+      "label": "Industriemechaniker/in",
+      "sector": "Industrie",
+      "icon": "precision_manufacturing",
+      "popular": false,
+      "synonyms": ["industriemechaniker", "instandhaltung", "wartung", "zerspanung", "mechaniker", "maintenance"],
+      "germanLevel": "B1",
+      "recognition": "recommended",
+      "summary": "Instandhaltung und Produktion: dauerhafte Stellen in einem dichten Netz deutscher Mittelständler mit akutem Personalmangel.",
+      "requirements": [
+        "Ausbildung in Mechanik, Instandhaltung oder Zerspanung",
+        "Üblicherweise verlangtes Deutschniveau: B1",
+        "Erfahrung an Werkzeugmaschinen oder Fertigungslinien",
+        "Lesen von Plänen und technischer Dokumentation"
+      ],
+      "dossier": ["Ausbildungsabschluss", "Arbeitszeugnisse", "Lebenslauf mit Maschinen und Verfahren"],
+      "salaryBand": null
+    },
+    {
+      "slug": "cuisinier",
+      "label": "Koch / Köchin",
+      "sector": "Gastronomie",
+      "icon": "restaurant",
+      "popular": true,
+      "synonyms": ["koch", "köchin", "küche", "gastronomie", "cook", "chef", "cuisinier", "طباخ"],
+      "germanLevel": "A2",
+      "recognition": "none",
+      "summary": "Hotels und Restaurants stellen ganzjährig ein, mit moderaten Sprachanforderungen bei der Einstellung.",
+      "requirements": [
+        "Ausbildung in der Küche oder Erfahrung im Betrieb",
+        "Deutsch oft schon ab A2 akzeptiert",
+        "Kenntnis der Hygienevorschriften",
+        "Bereitschaft zu geteilten Diensten und Wochenendarbeit"
+      ],
+      "dossier": ["Abschluss oder Ausbildungsnachweis", "Arbeitszeugnisse", "Lebenslauf mit Betriebsarten und Gästezahlen"],
+      "salaryBand": null
+    },
+    {
+      "slug": "chauffeur-poids-lourd",
+      "label": "Berufskraftfahrer/in",
+      "sector": "Transport",
+      "icon": "local_shipping",
+      "popular": false,
+      "synonyms": ["berufskraftfahrer", "lkw", "lkw-fahrer", "fernfahrer", "truck driver", "chauffeur"],
+      "germanLevel": "B1",
+      "recognition": "required",
+      "summary": "Dem deutschen Güterverkehr fehlen Fahrer. Führerschein und Berufsqualifikation müssen umgeschrieben werden.",
+      "requirements": [
+        "Gültiger Lkw-Führerschein",
+        "Berufskraftfahrerqualifikation muss anerkannt werden",
+        "Üblicherweise verlangtes Deutschniveau: B1",
+        "Erfahrung im Fernverkehr wird geschätzt"
+      ],
+      "dossier": ["Führerschein", "Qualifikationsnachweis und Zeugnisse", "Lebenslauf mit Fahrzeugtypen und Strecken"],
+      "salaryBand": null
+    },
+    {
+      "slug": "developpeur",
+      "label": "Softwareentwickler/in",
+      "sector": "IT",
+      "icon": "code",
+      "popular": false,
+      "synonyms": ["entwickler", "softwareentwickler", "programmierer", "developer", "web", "backend", "frontend"],
+      "germanLevel": "B1",
+      "recognition": "none",
+      "summary": "Der Beruf, in dem Englisch am ehesten für den Einstieg reicht: viele deutsche Teams arbeiten im Alltag auf Englisch.",
+      "requirements": [
+        "Nachweisbare technische Fähigkeiten (Projekte, Code-Repositories)",
+        "Deutsch B1 erwünscht; Berufsenglisch reicht oft aus",
+        "Ein Abschluss ist nicht zwingend erforderlich",
+        "Team- und Agile-Erfahrung wird geschätzt"
+      ],
+      "dossier": ["Ausführlicher technischer Lebenslauf", "Abschluss, falls vorhanden", "Links zu Projekten oder Code"],
+      "salaryBand": null
+    }
+  ]
+}

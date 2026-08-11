@@ -3,6 +3,7 @@
 namespace App\Services\Otp;
 
 use App\Contracts\OtpChannel;
+use App\Services\Otp\Channels\EvolutionGoOtpChannel;
 use App\Services\Otp\Channels\LogOtpChannel;
 use App\Services\Otp\Channels\TwilioSmsOtpChannel;
 use App\Services\Otp\Channels\WhatsAppOtpChannel;
@@ -25,6 +26,7 @@ class OtpChannelManager
     private const DRIVERS = [
         'log' => LogOtpChannel::class,
         'whatsapp' => WhatsAppOtpChannel::class,
+        'evolution' => EvolutionGoOtpChannel::class,
         'twilio' => TwilioSmsOtpChannel::class,
     ];
 

@@ -24,11 +24,15 @@ function isCandidatePath(pathname: string) {
 }
 
 function isEmployerPath(pathname: string) {
-  return pathname.startsWith('/employer');
+  return pathname.startsWith('/recruiter');
 }
 
 function isAdminProtectedPath(pathname: string) {
-  return pathname.startsWith('/admin') && pathname !== '/admin/login';
+  return pathname.startsWith('/admin');
+}
+
+function isAgentPath(pathname: string) {
+  return pathname.startsWith('/agent');
 }
 
 function redirectTo(request: NextRequest, targetPathname: string) {
@@ -49,23 +53,33 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Routes employeur : nécessite une session employeur
+  // Routes recruteur : nécessite une session recruteur (rôle "Company")
   if (isEmployerPath(pathname)) {
     if (role === 'candidate') {
       return redirectTo(request, '/dashboard');
     }
     if (role !== 'employer') {
-      return redirectTo(request, '/login-employeur');
+      return redirectTo(request, '/auth-phone');
     }
   }
 
-  // Routes admin (hors /admin/login) : nécessite une session admin
+  // Routes admin : nécessite une session admin
   if (isAdminProtectedPath(pathname)) {
     if (role === 'candidate') {
       return redirectTo(request, '/dashboard');
     }
     if (role !== 'admin') {
-      return redirectTo(request, '/admin/login');
+      return redirectTo(request, '/auth-phone');
+    }
+  }
+
+  // Routes agent commercial : nécessite une session agent
+  if (isAgentPath(pathname)) {
+    if (role === 'candidate') {
+      return redirectTo(request, '/dashboard');
+    }
+    if (role !== 'agent') {
+      return redirectTo(request, '/auth-phone');
     }
   }
 
@@ -89,7 +103,8 @@ export const config = {
     '/salaire/:path*',
     '/parrainage/:path*',
     '/verification-identite/:path*',
-    '/employer/:path*',
+    '/recruiter/:path*',
     '/admin/:path*',
+    '/agent/:path*',
   ],
 };
