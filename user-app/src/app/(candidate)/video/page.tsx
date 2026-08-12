@@ -81,14 +81,14 @@ export default function VideoRecordingPage() {
 
   return (
     <div>
-      <header className="flex items-center gap-3 bg-navy-900 p-6 pb-8">
+      <header className="flex items-center gap-3 bg-navy-900 p-6 pb-8 lg:px-10">
         <Link href="/dashboard" className="text-white">
           <ChevronLeft size={22} />
         </Link>
         <h1 className="text-lg font-bold text-white">Vidéo de présentation</h1>
       </header>
 
-      <main className="space-y-5 p-6">
+      <main className="mx-auto max-w-2xl space-y-5 p-6 lg:max-w-3xl lg:px-10 lg:py-8">
         <p className="text-sm text-onSurface-variant">
           Enregistrez une courte vidéo (60 secondes) pour vous présenter aux employeurs.
         </p>

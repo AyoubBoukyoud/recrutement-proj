@@ -11,7 +11,6 @@ import { AccordionFAQ } from '@/components/home/AccordionFAQ';
 import { FinalCta } from '@/components/home/FinalCta';
 import { SiteFooter } from '@/components/home/SiteFooter';
 import { MobileCtaBar } from '@/components/home/MobileCtaBar';
-import { SessionRedirect } from '@/components/home/SessionRedirect';
 
 export const metadata: Metadata = {
   title: 'Travailler en Allemagne — Amud Skills',
@@ -30,7 +29,6 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
-      <SessionRedirect />
       <SiteHeader />
 
       <main>

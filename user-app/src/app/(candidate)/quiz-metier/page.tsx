@@ -61,13 +61,13 @@ export default function QuizMetierPage() {
   if (finished) {
     return (
       <div className="min-h-screen bg-surface pb-24">
-        <header className="sticky top-0 z-20 flex h-16 w-full items-center gap-4 border-b border-outline-variant bg-surface px-4">
+        <header className="sticky top-0 z-20 flex h-16 w-full items-center gap-4 border-b border-outline-variant bg-surface px-4 lg:px-10">
           <Link href="/offres" className="p-2 transition-transform active:scale-95">
             <span className="material-symbols-outlined text-primary-dark">arrow_back</span>
           </Link>
           <h1 className="text-lg font-bold text-primary-dark">Quiz Métier</h1>
         </header>
-        <main className="mx-auto flex max-w-[600px] flex-col items-center space-y-6 px-4 py-16 text-center">
+        <main className="mx-auto flex max-w-[600px] flex-col items-center space-y-6 px-4 py-16 text-center lg:max-w-[720px] lg:px-10">
           <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gold/10">
             <span className="material-symbols-outlined text-gold-dark" style={{ fontSize: 48 }}>emoji_events</span>
           </div>
@@ -105,14 +105,14 @@ export default function QuizMetierPage() {
 
   return (
     <div className="min-h-screen bg-surface pb-24">
-      <header className="sticky top-0 z-20 flex h-16 w-full items-center gap-4 border-b border-outline-variant bg-surface px-4">
+      <header className="sticky top-0 z-20 flex h-16 w-full items-center gap-4 border-b border-outline-variant bg-surface px-4 lg:px-10">
         <button type="button" onClick={() => router.back()} className="p-2 transition-transform active:scale-95">
           <span className="material-symbols-outlined text-primary-dark">arrow_back</span>
         </button>
         <h1 className="text-lg font-bold text-primary-dark">Quiz Métier</h1>
       </header>
 
-      <main className="mx-auto max-w-[800px] space-y-8 px-4 pt-6">
+      <main className="mx-auto max-w-[800px] space-y-8 px-4 pt-6 lg:px-10">
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-bold text-onSurface">Électricien Bâtiment</h2>
@@ -125,7 +125,7 @@ export default function QuizMetierPage() {
           </div>
         </section>
 
-        <article className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm" style={{ borderLeft: '4px solid #1b5e37' }}>
+        <article className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm" style={{ borderLeft: '4px solid #006266' }}>
           <p className="mb-4 text-lg font-semibold text-onSurface">{question.question}</p>
           <div className="inline-flex items-center rounded-lg border border-outline-variant bg-surface-container px-3 py-1">
             <span className="material-symbols-outlined mr-2 text-primary-dark" style={{ fontSize: 16 }}>engineering</span>

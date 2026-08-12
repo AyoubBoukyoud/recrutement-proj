@@ -16,11 +16,7 @@ export function SiteFooter() {
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-3">
             <div className="flex items-center gap-2 font-extrabold text-primary-dark">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-on-primary">
-                <span className="material-symbols-outlined" style={{ fontSize: 20 }} aria-hidden="true">
-                  travel_explore
-                </span>
-              </span>
+              <img src="/assets/images/logo-mark.png" alt="" aria-hidden="true" className="h-9 w-9 object-contain" />
               Amud Skills
             </div>
             <p className="mt-4 max-w-[42ch] text-sm leading-relaxed text-onSurface-variant">{footer.tagline}</p>

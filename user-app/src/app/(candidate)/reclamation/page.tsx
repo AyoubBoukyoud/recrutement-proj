@@ -59,24 +59,26 @@ export default function ReclamationPage() {
 
   return (
     <div className="min-h-screen bg-surface pb-24">
-      <header className="sticky top-0 z-10 flex h-16 items-center border-b border-surface-container bg-surface px-6">
+      <header className="sticky top-0 z-10 flex h-16 items-center border-b border-surface-container bg-surface px-6 lg:px-10">
         <Link href="/dashboard" className="mr-4 text-primary-dark transition-transform active:scale-95">
           <span className="material-symbols-outlined" style={{ fontSize: 22 }}>arrow_back</span>
         </Link>
         <h1 className="text-lg font-bold text-primary-dark">Réclamation</h1>
       </header>
 
-      <main className="mx-auto max-w-md space-y-8 px-6 pt-8">
-        <div className="flex flex-col items-center">
+      <main className="mx-auto max-w-md space-y-8 px-6 pt-8 lg:max-w-5xl lg:px-10 lg:pt-10">
+        <div className="flex flex-col items-center lg:items-start lg:text-left">
           <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-primary-container shadow-sm">
             <span className="material-symbols-outlined fill text-on-primary" style={{ fontSize: 44 }}>
               report_problem
             </span>
           </div>
-          <h2 className="text-center text-2xl font-bold text-primary-dark">Comment pouvons-nous vous aider ?</h2>
-          <p className="mt-2 text-center text-sm text-onSurface-variant">Votre avis nous aide à améliorer Amud Skills.</p>
+          <h2 className="text-center text-2xl font-bold text-primary-dark lg:text-left">Comment pouvons-nous vous aider ?</h2>
+          <p className="mt-2 text-center text-sm text-onSurface-variant lg:text-left">Votre avis nous aide à améliorer Amud Skills.</p>
         </div>
 
+        <div className="space-y-8 lg:grid lg:grid-cols-[1fr_340px] lg:items-start lg:gap-8 lg:space-y-0">
+        <div className="space-y-8">
         <Link
           href="/faq"
           className="flex items-center justify-between rounded-xl border border-outline-variant bg-surface-container-low p-4 shadow-soft transition-colors hover:bg-surface-container"
@@ -145,6 +147,7 @@ export default function ReclamationPage() {
           {isSubmitting ? 'Envoi en cours…' : 'Envoyer la réclamation'}
           <span className="material-symbols-outlined" style={{ fontSize: 20 }}>send</span>
         </button>
+        </div>
 
         <section className="space-y-3 pb-6">
           <h2 className="text-sm font-bold text-primary-dark">Mes réclamations ({entries.length})</h2>
@@ -170,6 +173,7 @@ export default function ReclamationPage() {
             ))}
           </div>
         </section>
+        </div>
       </main>
 
       {ticketRef && (

@@ -10,16 +10,16 @@ module.exports = {
       colors: {
         // Pillar Foundation brand system — green (primary), gold (secondary), burgundy (tertiary).
         primary: {
-          DEFAULT: '#1B5E37',
-          dark: '#004523',
-          light: '#C8E6C9',
+          DEFAULT: '#006266',
+          dark: '#004245',
+          light: '#C8E5E6',
         },
-        'primary-container': '#1B5E37',
+        'primary-container': '#006266',
         'on-primary': '#FFFFFF',
-        'on-primary-container': '#92D5A4',
+        'on-primary-container': '#92D2D5',
         onPrimary: {
           DEFAULT: '#FFFFFF',
-          container: '#00210B',
+          container: '#002021',
         },
         secondary: {
           DEFAULT: '#D4AF37',
@@ -89,10 +89,10 @@ module.exports = {
         'outline-variant': '#C4C6CF',
         // Legacy aliases kept so any existing un-migrated class still resolves cleanly.
         navy: {
-          900: '#1B5E37',
-          800: '#004523',
-          700: '#134A2B',
-          100: '#C8E6C9',
+          900: '#006266',
+          800: '#004245',
+          700: '#13484A',
+          100: '#C8E5E6',
         },
         amber: {
           500: '#D4AF37',
@@ -109,8 +109,8 @@ module.exports = {
         element: '8px',
       },
       boxShadow: {
-        soft: '0px 4px 20px rgba(27, 94, 55, 0.05)',
-        floating: '0px 8px 30px rgba(27, 94, 55, 0.12)',
+        soft: '0px 4px 20px rgba(0, 98, 102, 0.05)',
+        floating: '0px 8px 30px rgba(0, 98, 102, 0.12)',
         subtle: '0px 4px 20px rgba(0, 0, 0, 0.05)',
       },
       keyframes: {

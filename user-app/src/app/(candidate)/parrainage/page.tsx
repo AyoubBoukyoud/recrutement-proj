@@ -25,7 +25,7 @@ export default function ParrainagePage() {
   return (
     <div className="min-h-screen bg-surface pb-24 text-onSurface">
       {/* TopAppBar Section */}
-      <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-surface-container-high bg-surface px-4 shadow-subtle">
+      <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-surface-container-high bg-surface px-4 shadow-subtle lg:px-10">
         <div className="flex items-center gap-3">
           <Link href="/dashboard" className="flex items-center gap-2 text-primary">
             <span className="material-symbols-outlined text-[28px]">handshake</span>
@@ -41,17 +41,18 @@ export default function ParrainagePage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-xl px-4 py-6">
+      <main className="mx-auto max-w-xl px-4 py-6 lg:max-w-5xl lg:px-10 lg:py-8">
         {/* Welcome Header */}
-        <div className="mb-6">
+        <div className="mb-6 lg:max-w-2xl">
           <h1 className="mb-1 text-2xl font-extrabold text-primary">Invitez vos amis</h1>
           <p className="text-sm leading-relaxed text-onSurface-variant">
             Aidez vos amis à trouver leur prochaine carrière en Allemagne et gagnez des récompenses exclusives à chaque parrainage réussi.
           </p>
         </div>
 
+        <div className="lg:grid lg:grid-cols-[1fr_340px] lg:items-start lg:gap-6">
         {/* Referral Code Card */}
-        <div className="mb-6 rounded-xl border border-outline-variant bg-surface-container-lowest p-5 shadow-subtle">
+        <div className="mb-6 rounded-xl border border-outline-variant bg-surface-container-lowest p-5 shadow-subtle lg:col-start-1 lg:row-start-1 lg:mb-0">
           <span className="mb-1 block text-[10px] font-extrabold uppercase tracking-wider text-secondary">
             VOTRE CODE
           </span>
@@ -93,7 +94,7 @@ export default function ParrainagePage() {
         </div>
 
         {/* QR Code Card */}
-        <div className="mb-6 flex flex-col items-center justify-center rounded-xl border border-outline-variant bg-surface-container-lowest p-6 text-center shadow-subtle">
+        <div className="mb-6 flex flex-col items-center justify-center rounded-xl border border-outline-variant bg-surface-container-lowest p-6 text-center shadow-subtle lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:mb-0 lg:h-full lg:justify-center">
           <div className="mb-3 rounded-xl border border-outline-variant bg-white p-3 shadow-sm">
             <img
               className="h-36 w-36"
@@ -110,7 +111,7 @@ export default function ParrainagePage() {
         </div>
 
         {/* Progress & Stats Section */}
-        <div className="mb-6 space-y-3">
+        <div className="mb-6 space-y-3 lg:col-start-1 lg:row-start-2 lg:mb-0">
           <div className="flex items-center gap-4 rounded-xl bg-surface-container-low p-4 text-primary shadow-subtle border border-primary/20">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-onPrimary">
               <span className="material-symbols-outlined text-[24px]">group</span>
@@ -133,7 +134,7 @@ export default function ParrainagePage() {
         </div>
 
         {/* Filleuls List Section */}
-        <div className="mb-6 overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-subtle">
+        <div className="mb-6 overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-subtle lg:col-span-2 lg:mt-6 lg:mb-0">
           <div className="flex items-center justify-between border-b border-outline-variant px-4 py-3">
             <h3 className="text-sm font-extrabold text-onSurface">Mes parrainages récents</h3>
             <span className="material-symbols-outlined text-outline" style={{ fontSize: 18 }}>
@@ -191,6 +192,7 @@ export default function ParrainagePage() {
               </span>
             </div>
           </div>
+        </div>
         </div>
 
         {/* Primary Footer Action */}

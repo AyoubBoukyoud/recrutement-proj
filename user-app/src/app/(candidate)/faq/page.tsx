@@ -78,14 +78,14 @@ export default function FaqPage() {
 
   return (
     <div className="min-h-screen bg-surface pb-24">
-      <header className="sticky top-0 z-10 flex h-16 items-center border-b border-surface-container bg-surface px-6">
+      <header className="sticky top-0 z-10 flex h-16 items-center border-b border-surface-container bg-surface px-6 lg:px-10">
         <Link href="/reclamation" className="mr-4 text-primary-dark transition-transform active:scale-95">
           <span className="material-symbols-outlined" style={{ fontSize: 22 }}>arrow_back</span>
         </Link>
         <h1 className="text-lg font-bold text-primary-dark">Centre d&apos;aide</h1>
       </header>
 
-      <main className="mx-auto max-w-md space-y-8 px-6 pt-8">
+      <main className="mx-auto max-w-md space-y-8 px-6 pt-8 lg:max-w-4xl lg:px-10 lg:pt-10">
         <div className="flex flex-col items-center text-center">
           <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-primary-container shadow-sm">
             <span className="material-symbols-outlined fill text-on-primary" style={{ fontSize: 44 }}>
@@ -98,6 +98,7 @@ export default function FaqPage() {
           </p>
         </div>
 
+        <div className="space-y-8 lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8 lg:gap-y-8 lg:space-y-0">
         {FAQ_SECTIONS.map((section) => (
           <section key={section.title} className="space-y-3">
             <div className="flex items-center gap-2 px-1">
@@ -137,6 +138,7 @@ export default function FaqPage() {
             </div>
           </section>
         ))}
+        </div>
 
         <Link
           href="/reclamation"

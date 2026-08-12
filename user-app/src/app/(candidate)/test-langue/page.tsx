@@ -116,7 +116,7 @@ export default function TestLanguePage() {
 
   return (
     <div className="min-h-screen bg-surface pb-24">
-      <header className="flex h-16 max-w-4xl items-center justify-between px-6 mx-auto w-full">
+      <header className="flex h-16 max-w-4xl items-center justify-between px-6 mx-auto w-full lg:px-10">
         <Link href="/dashboard" className="text-primary-dark transition-opacity hover:opacity-80">
           <span className="material-symbols-outlined" style={{ fontSize: 24 }}>arrow_back</span>
         </Link>
@@ -124,7 +124,7 @@ export default function TestLanguePage() {
         <span className="w-6" />
       </header>
 
-      <main className="mx-auto max-w-2xl px-6 pb-8 pt-4">
+      <main className="mx-auto max-w-2xl px-6 pb-8 pt-4 lg:max-w-4xl lg:px-10">
         {stage === 'preparation' && (
           <section className="flex flex-col items-center text-center">
             <div className="mb-6 flex h-32 w-32 items-center justify-center rounded-full bg-surface-container">

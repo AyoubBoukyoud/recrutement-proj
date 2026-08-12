@@ -15,7 +15,7 @@ export default function CoursAllemandPage() {
   return (
     <div className="min-h-screen bg-surface pb-24 text-onSurface">
       {/* Top App Bar */}
-      <header className="sticky top-0 z-50 flex h-16 w-full items-center gap-4 border-b border-outline-variant bg-surface px-4">
+      <header className="sticky top-0 z-50 flex h-16 w-full items-center gap-4 border-b border-outline-variant bg-surface px-4 lg:px-10">
         <Link
           href="/dashboard"
           aria-label="Retour"
@@ -34,7 +34,7 @@ export default function CoursAllemandPage() {
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-[600px] flex-1 flex-col space-y-8 px-4 py-6">
+      <main className="mx-auto flex w-full max-w-[600px] flex-1 flex-col space-y-8 px-4 py-6 lg:max-w-[720px] lg:px-10 lg:py-10">
         {/* Weekly Progress */}
         <section className="space-y-3">
           <div className="flex items-center justify-between px-1">

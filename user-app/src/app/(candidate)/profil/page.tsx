@@ -36,7 +36,7 @@ export default function ProfilPage() {
 
   return (
     <div className="min-h-screen bg-surface pb-32">
-      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-outline-variant/20 bg-surface/80 px-6 py-4 backdrop-blur-md">
+      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-outline-variant/20 bg-surface/80 px-6 py-4 backdrop-blur-md lg:px-10">
         <Link href="/dashboard" aria-label="Retour au tableau de bord" className="flex items-center text-primary hover:opacity-80 transition-opacity">
           <span className="material-symbols-outlined text-primary" style={{ fontSize: 22 }}>arrow_back</span>
         </Link>
@@ -51,61 +51,65 @@ export default function ProfilPage() {
         </button>
       </header>
 
-      <main className="mx-auto max-w-xl space-y-6 px-6 pt-6">
-        <section className="flex flex-col items-center gap-3 text-center">
-          <div className="relative">
-            <div className="flex h-32 w-32 items-center justify-center rounded-full border-4 border-surface-lowest bg-primary-light text-4xl font-bold text-primary shadow-lg">
-              {profile.avatarInitials || '?'}
-            </div>
-            <div className="absolute bottom-1 right-1 h-7 w-7 rounded-full border-4 border-surface-lowest bg-primary" />
-          </div>
-          <div className="space-y-1">
-            <h2 className="text-3xl font-extrabold tracking-tight text-primary">{profile.firstName || 'Candidat'}</h2>
-            <div className="flex items-center justify-center gap-1 text-onSurface-variant">
-              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>location_on</span>
-              <span className="text-sm font-medium">{profile.city || 'Maroc'}</span>
-            </div>
-            <div className="mt-2 inline-flex items-center rounded-full bg-primary-light px-3 py-1 text-xs font-bold uppercase tracking-wider text-onPrimary-container">
-              {profile.noticePeriodWeeks === 0 ? 'Immédiat' : `Sous ${profile.noticePeriodWeeks} semaines`}
-            </div>
-          </div>
-        </section>
+      <main className="mx-auto max-w-xl space-y-6 px-6 pt-6 lg:max-w-6xl lg:px-10 lg:pt-8">
+        <div className="space-y-6 lg:grid lg:grid-cols-5 lg:items-start lg:gap-8 lg:space-y-0">
+          <div className="space-y-6 lg:col-span-2">
+            <section className="flex flex-col items-center gap-3 text-center">
+              <div className="relative">
+                <div className="flex h-32 w-32 items-center justify-center rounded-full border-4 border-surface-lowest bg-primary-light text-4xl font-bold text-primary shadow-lg">
+                  {profile.avatarInitials || '?'}
+                </div>
+                <div className="absolute bottom-1 right-1 h-7 w-7 rounded-full border-4 border-surface-lowest bg-primary" />
+              </div>
+              <div className="space-y-1">
+                <h2 className="text-3xl font-extrabold tracking-tight text-primary">{profile.firstName || 'Candidat'}</h2>
+                <div className="flex items-center justify-center gap-1 text-onSurface-variant">
+                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>location_on</span>
+                  <span className="text-sm font-medium">{profile.city || 'Maroc'}</span>
+                </div>
+                <div className="mt-2 inline-flex items-center rounded-full bg-primary-light px-3 py-1 text-xs font-bold uppercase tracking-wider text-onPrimary-container">
+                  {profile.noticePeriodWeeks === 0 ? 'Immédiat' : `Sous ${profile.noticePeriodWeeks} semaines`}
+                </div>
+              </div>
+            </section>
 
-        <section className="flex items-start gap-4 rounded-xl border border-outline-variant/30 bg-surface-lowest p-4 shadow-soft">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary-light/60 text-primary">
-            <span className="material-symbols-outlined" style={{ fontSize: 24 }}>work</span>
+            <section className="flex items-start gap-4 rounded-xl border border-outline-variant/30 bg-surface-lowest p-4 shadow-soft">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary-light/60 text-primary">
+                <span className="material-symbols-outlined" style={{ fontSize: 24 }}>work</span>
+              </div>
+              {isEditing ? (
+                <div className="flex-1 space-y-2">
+                  <input
+                    value={form.jobTitle}
+                    onChange={(e) => setForm((p) => ({ ...p, jobTitle: e.target.value }))}
+                    placeholder="Métier"
+                    className="w-full rounded-lg border border-outline-variant px-3 py-2 text-sm outline-none focus:border-primary"
+                  />
+                  <input
+                    value={form.city}
+                    onChange={(e) => setForm((p) => ({ ...p, city: e.target.value }))}
+                    placeholder="Ville"
+                    className="w-full rounded-lg border border-outline-variant px-3 py-2 text-sm outline-none focus:border-primary"
+                  />
+                </div>
+              ) : (
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-primary">{profile.jobTitle || 'Métier non renseigné'}</h3>
+                  <p className="text-sm text-onSurface-variant">{profile.sector || '—'} · {profile.yearsExperience} ans d&apos;expérience</p>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
+                className="flex shrink-0 items-center gap-1 text-xs font-semibold text-primary hover:underline"
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 14 }}>{isEditing ? 'check' : 'edit'}</span>
+                {isEditing ? 'Enregistrer' : 'Modifier'}
+              </button>
+            </section>
           </div>
-          {isEditing ? (
-            <div className="flex-1 space-y-2">
-              <input
-                value={form.jobTitle}
-                onChange={(e) => setForm((p) => ({ ...p, jobTitle: e.target.value }))}
-                placeholder="Métier"
-                className="w-full rounded-lg border border-outline-variant px-3 py-2 text-sm outline-none focus:border-primary"
-              />
-              <input
-                value={form.city}
-                onChange={(e) => setForm((p) => ({ ...p, city: e.target.value }))}
-                placeholder="Ville"
-                className="w-full rounded-lg border border-outline-variant px-3 py-2 text-sm outline-none focus:border-primary"
-              />
-            </div>
-          ) : (
-            <div className="flex-1">
-              <h3 className="text-lg font-bold text-primary">{profile.jobTitle || 'Métier non renseigné'}</h3>
-              <p className="text-sm text-onSurface-variant">{profile.sector || '—'} · {profile.yearsExperience} ans d&apos;expérience</p>
-            </div>
-          )}
-          <button
-            type="button"
-            onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
-            className="flex shrink-0 items-center gap-1 text-xs font-semibold text-primary hover:underline"
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>{isEditing ? 'check' : 'edit'}</span>
-            {isEditing ? 'Enregistrer' : 'Modifier'}
-          </button>
-        </section>
 
+          <div className="space-y-6 lg:col-span-3">
         <section className="space-y-3">
           <h3 className="px-1 text-lg font-bold text-primary">Langues</h3>
           {profile.languages.length === 0 ? (
@@ -263,9 +267,9 @@ export default function ProfilPage() {
 
         <section className="space-y-3">
           <h3 className="px-1 text-lg font-bold text-primary">Documents ({profile.documents.length})</h3>
-          <div className="space-y-2.5">
+          <div className="space-y-2.5 lg:grid lg:grid-cols-2 lg:gap-2.5 lg:space-y-0">
             {profile.documents.length === 0 ? (
-              <p className="rounded-xl bg-surface-container p-4 text-center text-sm text-onSurface-variant">
+              <p className="rounded-xl bg-surface-container p-4 text-center text-sm text-onSurface-variant lg:col-span-2">
                 Aucun document ajouté.
               </p>
             ) : (
@@ -273,12 +277,14 @@ export default function ProfilPage() {
             )}
           </div>
         </section>
+          </div>
+        </div>
 
         <section>
           <button
             type="button"
             onClick={handleLogout}
-            className="flex w-full items-center justify-center gap-2 rounded-pillar border border-error/20 bg-surface-container-lowest p-3.5 text-sm font-bold text-error shadow-subtle transition-colors hover:bg-error-container/20"
+            className="flex w-full items-center justify-center gap-2 rounded-pillar border border-error/20 bg-surface-container-lowest p-3.5 text-sm font-bold text-error shadow-subtle transition-colors hover:bg-error-container/20 lg:mx-auto lg:max-w-sm"
           >
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
               logout

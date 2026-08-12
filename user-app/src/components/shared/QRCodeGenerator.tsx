@@ -13,7 +13,7 @@ export function QRCodeGenerator({ value, size = 160 }: QRCodeGeneratorProps) {
 
   useEffect(() => {
     let isMounted = true;
-    QRCode.toDataURL(value, { width: size, margin: 1, color: { dark: '#1B5E37', light: '#FFFFFF' } })
+    QRCode.toDataURL(value, { width: size, margin: 1, color: { dark: '#006266', light: '#FFFFFF' } })
       .then((url) => {
         if (isMounted) setDataUrl(url);
       })

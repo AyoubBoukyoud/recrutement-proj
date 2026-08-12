@@ -72,7 +72,7 @@ export default function OffresPage() {
   return (
     <div className="min-h-screen bg-surface pb-24 text-onSurface">
       {/* TopAppBar */}
-      <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-outline-variant bg-surface px-4 shadow-subtle">
+      <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-outline-variant bg-surface px-4 shadow-subtle lg:px-10">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 overflow-hidden rounded-full border border-outline-variant">
             <img
@@ -94,9 +94,9 @@ export default function OffresPage() {
         </button>
       </header>
 
-      <main className="mx-auto max-w-xl px-4 py-6">
+      <main className="mx-auto max-w-xl px-4 py-6 lg:max-w-6xl lg:px-10 lg:py-8">
         {/* Header & Search */}
-        <div className="mb-6">
+        <div className="mb-6 lg:max-w-xl">
           <h2 className="mb-3 text-2xl font-extrabold text-primary">Offres pour vous</h2>
           <div className="relative w-full">
             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" style={{ fontSize: 20 }}>
@@ -113,7 +113,7 @@ export default function OffresPage() {
         </div>
 
         {/* Filters Section */}
-        <div className="mb-6 flex items-center gap-2 overflow-x-auto pb-2">
+        <div className="mb-6 flex items-center gap-2 overflow-x-auto pb-2 lg:flex-wrap lg:overflow-visible">
           <button
             type="button"
             onClick={() => setSelectedFilter('Tous')}
@@ -144,7 +144,7 @@ export default function OffresPage() {
         </div>
 
         {/* Jobs Grid/List */}
-        <div className="space-y-4">
+        <div className="space-y-4 lg:grid lg:grid-cols-2 lg:gap-5 lg:space-y-0 xl:grid-cols-3">
           {JOB_OFFERS.map((job) => {
             const isFav = favorites.includes(job.id);
             return (

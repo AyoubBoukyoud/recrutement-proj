@@ -46,11 +46,7 @@ export function SiteHeader() {
     >
       <div className="mx-auto flex w-full max-w-[1280px] items-center gap-4 px-6 py-4 lg:px-12">
         <Link href="/" className="flex items-center gap-2 font-extrabold text-primary-dark">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-on-primary">
-            <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
-              travel_explore
-            </span>
-          </span>
+          <img src="/assets/images/logo-mark.png" alt="Amud Skills" className="h-9 w-9 object-contain" />
           <span className="whitespace-nowrap text-sm sm:text-base">Amud Skills</span>
         </Link>
 

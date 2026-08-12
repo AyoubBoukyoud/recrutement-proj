@@ -8,15 +8,19 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const SOURCE = path.join(__dirname, '../public/assets/images/Logo.jpg');
+const SOURCE = path.join(__dirname, '../public/assets/images/logo-mark.png');
 const OUT_DIR = path.join(__dirname, '../public/icons');
 const WHITE = { r: 255, g: 255, b: 255, alpha: 1 };
 
 mkdirSync(OUT_DIR, { recursive: true });
 
+// Le mark source n'est pas carré et a un fond transparent : `contain` évite de
+// rogner les pointes de l'arche, et l'aplat blanc évite qu'iOS rende le
+// transparent en noir sur l'écran d'accueil.
 async function plainIcon(size, filename) {
   await sharp(SOURCE)
-    .resize(size, size, { fit: 'cover' })
+    .resize(size, size, { fit: 'contain', background: WHITE })
+    .flatten({ background: WHITE })
     .png()
     .toFile(path.join(OUT_DIR, filename));
 }
@@ -25,7 +29,7 @@ async function plainIcon(size, filename) {
 // (~25% de chaque côté) pour rester visible une fois recadré (cercle, squircle...) par l'OS.
 async function maskableIcon(size, filename) {
   const inner = Math.round(size * 0.5);
-  const logo = await sharp(SOURCE).resize(inner, inner, { fit: 'cover' }).toBuffer();
+  const logo = await sharp(SOURCE).resize(inner, inner, { fit: 'contain', background: WHITE }).toBuffer();
 
   await sharp({
     create: { width: size, height: size, channels: 4, background: WHITE },

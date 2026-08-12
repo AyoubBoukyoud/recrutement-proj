@@ -63,14 +63,14 @@ export default function SalairePage() {
 
   return (
     <div className="min-h-screen bg-surface pb-32">
-      <header className="sticky top-0 z-20 flex w-full items-center gap-4 border-b border-outline-variant/20 bg-surface px-4 py-4">
+      <header className="sticky top-0 z-20 flex w-full items-center gap-4 border-b border-outline-variant/20 bg-surface px-4 py-4 lg:px-10">
         <Link href="/dashboard" className="text-primary-dark transition-opacity hover:opacity-80">
           <span className="material-symbols-outlined">arrow_back</span>
         </Link>
         <h1 className="text-lg font-bold text-primary-dark">Simuler mon salaire</h1>
       </header>
 
-      <main className="mx-auto max-w-4xl space-y-6 px-4 py-6">
+      <main className="mx-auto max-w-4xl space-y-6 px-4 py-6 lg:max-w-6xl lg:px-10 lg:py-8">
         <section className="space-y-1 text-center md:text-left">
           <h2 className="text-2xl font-bold text-primary-dark">Simuler mon salaire</h2>
           <p className="max-w-2xl text-sm text-onSurface-variant">

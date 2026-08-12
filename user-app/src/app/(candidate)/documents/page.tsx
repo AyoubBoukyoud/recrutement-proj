@@ -337,14 +337,14 @@ export default function DocumentsPage() {
 
   return (
     <div className="min-h-screen bg-surface pb-24">
-      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-outline-variant/30 bg-surface/90 px-6 py-4 backdrop-blur-md">
+      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-outline-variant/30 bg-surface/90 px-6 py-4 backdrop-blur-md lg:px-10">
         <Link href="/dashboard" className="text-primary-dark transition-opacity hover:opacity-80">
           <span className="material-symbols-outlined" style={{ fontSize: 22 }}>arrow_back</span>
         </Link>
         <h1 className="text-lg font-bold text-primary-dark">Ajouter un document</h1>
       </header>
 
-      <main className="mx-auto max-w-xl space-y-6 px-6 pt-6">
+      <main className="mx-auto max-w-xl space-y-6 px-6 pt-6 lg:max-w-3xl lg:px-10 lg:pt-8">
         {!token && (
           <p className="rounded-xl bg-error-light p-3 text-sm font-medium text-onError-container">
             Connectez-vous pour envoyer un document et faire remplir votre profil automatiquement.
@@ -634,7 +634,7 @@ export default function DocumentsPage() {
               Aucun document pour le moment.
             </p>
           ) : (
-            <div className="space-y-2.5">
+            <div className="space-y-2.5 lg:grid lg:grid-cols-2 lg:gap-3 lg:space-y-0">
               {documents.map((document) => (
                 <div key={document.id} className="space-y-1">
                   <DocumentViewer document={toLocalEntry(document, fileNameOf(document))} previewUrl={document.url} />

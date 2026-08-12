@@ -21,7 +21,7 @@ export default function VerificationIdentitePage() {
   return (
     <div className="min-h-screen bg-background text-onSurface pb-24 flex flex-col font-sans">
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-surface-container-high bg-background px-4">
+      <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-surface-container-high bg-background px-4 lg:px-10">
         <Link
           href="/profil"
           className="flex h-10 w-10 items-center justify-center rounded-full text-primary transition-opacity hover:opacity-80 active:scale-95"
@@ -31,7 +31,7 @@ export default function VerificationIdentitePage() {
         <h1 className="flex-1 pr-10 text-center text-lg font-extrabold text-primary">Vérification d&apos;identité</h1>
       </header>
 
-      <main className="mx-auto flex flex-1 w-full max-w-md flex-col items-center px-4 pb-12">
+      <main className="mx-auto flex flex-1 w-full max-w-md flex-col items-center px-4 pb-12 lg:max-w-lg lg:pb-16 lg:pt-6">
         {/* Instructions Section */}
         <section className="w-full py-4 text-center">
           <p className="text-base font-semibold leading-relaxed text-onSurface-variant">
@@ -40,7 +40,7 @@ export default function VerificationIdentitePage() {
         </section>
 
         {/* Camera Interface */}
-        <div className="relative aspect-[3/4] w-full max-w-md overflow-hidden rounded-3xl bg-black shadow-2xl flex flex-col justify-center items-center">
+        <div className="relative aspect-[3/4] w-full max-w-md overflow-hidden rounded-3xl bg-black shadow-2xl flex flex-col justify-center items-center lg:max-w-lg">
           {/* Mock Camera Feed Background */}
           <div className="absolute inset-0 z-0">
             <img
@@ -119,7 +119,7 @@ export default function VerificationIdentitePage() {
         </div>
 
         {captured && (
-          <div className="mt-4 flex w-full max-w-md items-center gap-2 rounded-pillar bg-surface-container-low p-3 text-xs font-bold text-primary animate-pulse">
+          <div className="mt-4 flex w-full max-w-md items-center gap-2 rounded-pillar bg-surface-container-low p-3 text-xs font-bold text-primary animate-pulse lg:max-w-lg">
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
               check_circle
             </span>
@@ -128,7 +128,7 @@ export default function VerificationIdentitePage() {
         )}
 
         {/* Secondary Action */}
-        <div className="mt-6 flex w-full max-w-md flex-col gap-4">
+        <div className="mt-6 flex w-full max-w-md flex-col gap-4 lg:max-w-lg">
           <Link
             href="/profil"
             className="flex w-full items-center justify-center gap-2 rounded-pillar border border-outline-variant py-4 text-xs font-bold text-primary transition-all hover:bg-surface-container-low active:scale-[0.98]"

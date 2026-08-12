@@ -26,7 +26,7 @@ export function HeroSection() {
         <svg className="absolute inset-0 h-full w-full opacity-[0.04]" aria-hidden="true">
           <defs>
             <pattern id="hero-grid" width="56" height="56" patternUnits="userSpaceOnUse">
-              <path d="M56 0H0V56" fill="none" stroke="#1B5E37" strokeWidth="1" />
+              <path d="M56 0H0V56" fill="none" stroke="#006266" strokeWidth="1" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#hero-grid)" />

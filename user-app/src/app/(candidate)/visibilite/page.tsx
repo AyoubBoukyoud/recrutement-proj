@@ -19,7 +19,7 @@ export default function VisibilitePage() {
   return (
     <div className="min-h-screen bg-surface pb-24 text-onSurface">
       {/* TopAppBar */}
-      <header className="sticky top-0 z-40 mx-auto flex w-full max-w-xl items-center justify-between border-b border-surface-container-high bg-surface px-4 py-4">
+      <header className="sticky top-0 z-40 mx-auto flex w-full max-w-xl items-center justify-between border-b border-surface-container-high bg-surface px-4 py-4 lg:max-w-6xl lg:px-10">
         <Link
           href="/dashboard"
           aria-label="Retour"
@@ -33,7 +33,8 @@ export default function VisibilitePage() {
         <div className="text-sm font-extrabold text-primary">FR</div>
       </header>
 
-      <main className="mx-auto mt-6 max-w-xl px-4">
+      <main className="mx-auto mt-6 max-w-xl px-4 lg:max-w-6xl lg:px-10">
+        <div className="lg:grid lg:grid-cols-[320px_1fr] lg:items-start lg:gap-10">
         {/* Score de visibilité - Prominent Gauge */}
         <section className="mb-10 flex flex-col items-center">
           <div className="relative flex h-48 w-48 items-center justify-center">
@@ -73,6 +74,7 @@ export default function VisibilitePage() {
           </div>
         </section>
 
+        <div>
         {/* Secondary Stats - Progressive Pillars */}
         <section className="mb-10 space-y-4">
           <div className="rounded-pillar border border-outline-variant bg-surface-container-lowest p-4 shadow-subtle backdrop-blur-md">
@@ -179,6 +181,8 @@ export default function VisibilitePage() {
             </div>
           </div>
         </section>
+        </div>
+        </div>
       </main>
     </div>
   );

@@ -24,7 +24,7 @@ export default function SimulateurSalairePage() {
   return (
     <div className="min-h-screen bg-surface text-onSurface pb-28">
       {/* Top Navigation Anchor */}
-      <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-outline-variant bg-surface px-4 shadow-subtle">
+      <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-outline-variant bg-surface px-4 shadow-subtle lg:px-10">
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard"
@@ -44,9 +44,9 @@ export default function SimulateurSalairePage() {
         </button>
       </header>
 
-      <main className="mx-auto max-w-xl px-4 py-6 space-y-6">
+      <main className="mx-auto max-w-xl px-4 py-6 space-y-6 lg:max-w-6xl lg:px-10 lg:py-8">
         {/* Hero Section */}
-        <section className="space-y-1">
+        <section className="space-y-1 lg:max-w-2xl">
           <h2 className="text-2xl font-extrabold text-primary">Simuler mon salaire</h2>
           <p className="text-xs leading-relaxed text-onSurface-variant">
             Estimez votre futur niveau de vie en Allemagne et prévoyez votre transition professionnelle en toute sérénité.
@@ -54,8 +54,8 @@ export default function SimulateurSalairePage() {
         </section>
 
         {/* Calculator Form */}
-        <section className="rounded-xl border border-outline-variant bg-surface-container-lowest p-5 shadow-subtle">
-          <form onSubmit={handleCalculate} className="space-y-4">
+        <section className="rounded-xl border border-outline-variant bg-surface-container-lowest p-5 shadow-subtle lg:p-6">
+          <form onSubmit={handleCalculate} className="space-y-4 lg:grid lg:grid-cols-3 lg:items-end lg:gap-4 lg:space-y-0">
             <div className="space-y-1">
               <label className="text-xs font-bold uppercase tracking-wider text-onSurface-variant">Profession</label>
               <div className="relative">
@@ -116,11 +116,11 @@ export default function SimulateurSalairePage() {
               </div>
             </div>
 
-            <div className="pt-2">
+            <div className="pt-2 lg:col-span-3 lg:pt-0">
               <button
                 type="submit"
                 disabled={isCalculating}
-                className="flex w-full items-center justify-center gap-2 rounded-pillar bg-primary py-3.5 text-xs font-extrabold uppercase tracking-wider text-onPrimary shadow-md transition-all hover:bg-primary/90 active:scale-[0.98] disabled:opacity-60"
+                className="flex w-full items-center justify-center gap-2 rounded-pillar bg-primary py-3.5 text-xs font-extrabold uppercase tracking-wider text-onPrimary shadow-md transition-all hover:bg-primary/90 active:scale-[0.98] disabled:opacity-60 lg:max-w-xs lg:mx-auto"
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
                   {isCalculating ? 'sync' : 'calculate'}
@@ -133,7 +133,8 @@ export default function SimulateurSalairePage() {
 
         {/* Results Section */}
         {showResults && (
-          <div className="space-y-6 fade-in-entry opacity-0">
+          <div className="space-y-6 fade-in-entry opacity-0 lg:grid lg:grid-cols-[1fr_360px] lg:items-start lg:gap-6 lg:space-y-0">
+          <div className="space-y-6">
             {/* Salary Results Card */}
             <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-surface-container-lowest p-6 shadow-subtle">
               <span className="material-symbols-outlined absolute -right-3 -top-3 text-8xl text-primary/10 pointer-events-none">
@@ -235,7 +236,9 @@ export default function SimulateurSalairePage() {
                 </div>
               </div>
             </div>
+          </div>
 
+          <div className="mt-6 space-y-6 lg:mt-0">
             {/* Side Cards / Action Center */}
             <div className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-subtle">
               <div
@@ -279,12 +282,23 @@ export default function SimulateurSalairePage() {
                 </span>
               </div>
             </div>
+
+            <button
+              type="button"
+              className="hidden w-full items-center justify-center gap-2 rounded-pillar bg-primary py-3.5 text-xs font-bold text-onPrimary shadow-md transition-all hover:bg-primary/90 active:scale-95 lg:flex"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+                picture_as_pdf
+              </span>
+              Télécharger l&apos;estimation (PDF)
+            </button>
+          </div>
           </div>
         )}
       </main>
 
-      {/* Bottom Action Bar */}
-      <footer className="fixed bottom-0 inset-x-0 z-40 mx-auto max-w-xl border-t border-outline-variant bg-surface-container-lowest p-4 shadow-subtle flex justify-center">
+      {/* Bottom Action Bar — mobile uniquement, remplacée par le bouton inline en colonne latérale sur desktop. */}
+      <footer className="fixed bottom-0 inset-x-0 z-40 mx-auto max-w-xl border-t border-outline-variant bg-surface-container-lowest p-4 shadow-subtle flex justify-center lg:hidden">
         <button
           type="button"
           className="flex w-full items-center justify-center gap-2 rounded-pillar bg-primary py-3.5 text-xs font-bold text-onPrimary shadow-md transition-all hover:bg-primary/90 active:scale-95"

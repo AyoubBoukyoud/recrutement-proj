@@ -46,7 +46,7 @@ export default function MatchingPreferencesPage() {
     <div className="min-h-screen bg-background pb-32 text-onBackground font-sans">
       {/* TopAppBar */}
       <header className="sticky top-0 z-40 w-full border-b border-outline-variant bg-surface">
-        <div className="mx-auto flex h-16 w-full max-w-xl items-center justify-between px-4">
+        <div className="mx-auto flex h-16 w-full max-w-xl items-center justify-between px-4 lg:max-w-5xl lg:px-10">
           <div className="flex items-center gap-4">
             <Link
               href="/dashboard"
@@ -74,7 +74,7 @@ export default function MatchingPreferencesPage() {
       </header>
 
       {/* Main Content Canvas */}
-      <main className="mx-auto max-w-xl px-4 py-4 space-y-6">
+      <main className="mx-auto max-w-xl px-4 py-4 space-y-6 lg:max-w-5xl lg:px-10 lg:py-8">
         {/* Welcome Section */}
         <div className="py-2">
           <h2 className="text-2xl font-extrabold text-onSurface">Personnalisez vos opportunités</h2>
@@ -83,6 +83,7 @@ export default function MatchingPreferencesPage() {
           </p>
         </div>
 
+        <div className="space-y-6 lg:grid lg:grid-cols-2 lg:items-start lg:gap-6 lg:space-y-0">
         {/* Section 1: Regions */}
         <section className="rounded-xl border border-outline-variant border-l-4 border-l-primary bg-surface-container-lowest p-6 shadow-subtle space-y-4">
           <h3 className="flex items-center gap-2 text-base font-extrabold text-primary">
@@ -214,6 +215,7 @@ export default function MatchingPreferencesPage() {
             </div>
           </div>
         </section>
+        </div>
 
         {/* Visual Decorative Card */}
         <div className="group relative h-48 overflow-hidden rounded-xl border border-outline-variant shadow-md">
@@ -243,7 +245,7 @@ export default function MatchingPreferencesPage() {
           <button
             type="button"
             onClick={handleSave}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 text-base font-extrabold text-onPrimary shadow-lg transition-all hover:bg-primary/90 active:scale-95"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 text-base font-extrabold text-onPrimary shadow-lg transition-all hover:bg-primary/90 active:scale-95 lg:max-w-sm"
           >
             <span>Enregistrer les préférences</span>
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
