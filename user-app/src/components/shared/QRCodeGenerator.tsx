@@ -13,7 +13,13 @@ export function QRCodeGenerator({ value, size = 160 }: QRCodeGeneratorProps) {
 
   useEffect(() => {
     let isMounted = true;
-    QRCode.toDataURL(value, { width: size, margin: 1, color: { dark: '#006266', light: '#FFFFFF' } })
+    // Le vert de marque vient des tokens partagés, exposés par next.config.mjs :
+    // un canvas ne peut pas porter de classe Tailwind.
+    QRCode.toDataURL(value, {
+      width: size,
+      margin: 1,
+      color: { dark: process.env.NEXT_PUBLIC_BRAND_PRIMARY, light: '#FFFFFF' },
+    })
       .then((url) => {
         if (isMounted) setDataUrl(url);
       })

@@ -23,10 +23,10 @@ export function HeroSection() {
           clichés signalent « intermédiaire » et cassent le positionnement. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-b from-surface-lowest via-surface to-primary-light/25" />
-        <svg className="absolute inset-0 h-full w-full opacity-[0.04]" aria-hidden="true">
+        <svg className="absolute inset-0 h-full w-full text-primary opacity-[0.04]" aria-hidden="true">
           <defs>
             <pattern id="hero-grid" width="56" height="56" patternUnits="userSpaceOnUse">
-              <path d="M56 0H0V56" fill="none" stroke="#006266" strokeWidth="1" />
+              <path d="M56 0H0V56" fill="none" stroke="currentColor" strokeWidth="1" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#hero-grid)" />

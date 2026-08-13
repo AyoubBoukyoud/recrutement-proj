@@ -4,6 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useHomeContent, useTrades } from '@/lib/useLocalizedContent';
 import { searchTrades, type Trade } from '@/lib/trades';
+import { Button } from '@/components/shared/Button';
 
 /** Assez long pour ne pas recalculer à chaque frappe, assez court pour rester instantané. */
 const DEBOUNCE_MS = 150;
@@ -202,16 +203,16 @@ export function TradeSearch({ className = '' }: { className?: string }) {
       {sheet && (
         <div className="flex items-center justify-between">
           <span className="text-sm font-bold text-onSurface">{search.label}</span>
-          <button
-            type="button"
+          <Button
+            variant="link"
             onClick={() => {
               setOpen(false);
               inputRef.current?.blur();
             }}
-            className="rounded-lg px-3 py-2 text-sm font-semibold text-primary"
+            className="font-semibold"
           >
             Annuler
-          </button>
+          </Button>
         </div>
       )}
 
@@ -251,43 +252,39 @@ export function TradeSearch({ className = '' }: { className?: string }) {
           />
         </div>
 
-        <button
-          type="button"
-          onClick={submit}
-          className="flex h-14 items-center justify-center gap-2 rounded-xl bg-primary px-8 text-base font-bold text-on-primary transition-colors hover:bg-primary-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        >
+        <Button size="lg" onClick={submit} className="px-8 text-base">
           {search.submit}
           <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">
             arrow_forward
           </span>
-        </button>
+        </Button>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 px-1">
-        <button
-          type="button"
+        <Button
+          variant="link"
           onClick={() => setAdvanced((value) => !value)}
           aria-expanded={advanced}
-          className="inline-flex items-center gap-1 text-sm font-semibold text-onSurface-variant hover:text-primary"
+          className="gap-1 font-semibold text-onSurface-variant hover:enabled:text-primary hover:enabled:no-underline"
         >
           <span className="material-symbols-outlined" style={{ fontSize: 16 }} aria-hidden="true">
             tune
           </span>
           {search.advanced}
-        </button>
+        </Button>
 
         <span className="hidden text-sm text-outline sm:inline">
           {search.popularLabel} :{' '}
           {popular.slice(0, 3).map((trade, index) => (
             <span key={trade.slug}>
               {index > 0 && ' · '}
-              <button
-                type="button"
+              <Button
+                variant="link"
                 onClick={() => goToTrade(trade)}
-                className="font-semibold text-onSurface-variant underline-offset-2 hover:text-primary hover:underline"
+                className="font-semibold text-onSurface-variant underline-offset-2 hover:enabled:text-primary"
               >
                 {trade.label.split(' / ')[0]}
-              </button>
+              </Button>
             </span>
           ))}
         </span>
@@ -303,7 +300,7 @@ export function TradeSearch({ className = '' }: { className?: string }) {
               id={`${listboxId}-sector`}
               value={sector}
               onChange={(event) => setSector(event.target.value)}
-              className="h-12 w-full rounded-xl border border-outline-variant bg-surface px-3 text-sm font-medium text-onSurface"
+              className="h-12 w-full rounded-xl border border-outline bg-surface px-3 text-sm font-medium text-onSurface"
             >
               <option value="">{search.sectorAny}</option>
               {sectors.map((item) => (
@@ -321,7 +318,7 @@ export function TradeSearch({ className = '' }: { className?: string }) {
               id={`${listboxId}-level`}
               value={level}
               onChange={(event) => setLevel(event.target.value)}
-              className="h-12 w-full rounded-xl border border-outline-variant bg-surface px-3 text-sm font-medium text-onSurface"
+              className="h-12 w-full rounded-xl border border-outline bg-surface px-3 text-sm font-medium text-onSurface"
             >
               {search.levelOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -402,14 +399,16 @@ export function TradeSearch({ className = '' }: { className?: string }) {
           <p className="mt-1 text-sm text-onSurface-variant">{search.emptyBody}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {popular.slice(0, 3).map((trade) => (
-              <button
+              <Button
                 key={trade.slug}
-                type="button"
+                variant="outline"
+                size="sm"
+                pill
                 onClick={() => goToTrade(trade)}
-                className="rounded-full border border-outline-variant px-3 py-1.5 text-xs font-semibold text-onSurface hover:bg-surface-container"
+                className="border-outline-variant px-3 text-onSurface hover:enabled:bg-surface-container"
               >
                 {trade.label.split(' / ')[0]}
-              </button>
+              </Button>
             ))}
           </div>
           <a

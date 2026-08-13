@@ -5,16 +5,8 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --primary: #006266;
-  --primary-container: #006266;
-  --secondary: #D4AF37;
-  --tertiary: #800020;
-  --gold: #D4AF37;
-  --background: #F9F9FF;
-  --on-surface: #191C1D;
-  --on-surface-variant: #43474E;
-}
+/* Les variables :root proviennent de packages/design-tokens via le plugin
+   Tailwind configuré dans tailwind.config.js — ne rien redéclarer ici. */
 
 body {
   background-color: var(--background);
@@ -111,10 +103,10 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F3F4F5;
+  background: var(--surface-container);
 }
 ::-webkit-scrollbar-thumb {
-  background: #C4C6CF;
+  background: var(--outline-variant);
   border-radius: 3px;
 }
 

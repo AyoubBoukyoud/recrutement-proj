@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
 import { useHomeContent } from '@/lib/useLocalizedContent';
 import { PrimaryCta } from './Cta';
+import { IconButton } from '@/components/shared/Button';
 
 /**
  * En-tête public.
@@ -78,17 +79,17 @@ export function SiteHeader() {
             </PrimaryCta>
           )}
 
-          <button
-            type="button"
+          <IconButton
+            variant="ghost"
             onClick={() => setMenuOpen((open) => !open)}
             aria-expanded={menuOpen}
             aria-label={menuOpen ? nav.menuClose : nav.menuOpen}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-outline-variant bg-surface-lowest text-onSurface lg:hidden"
+            className="rounded-xl border border-outline-variant bg-surface-lowest text-onSurface lg:hidden"
           >
             <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
               {menuOpen ? 'close' : 'menu'}
             </span>
-          </button>
+          </IconButton>
         </div>
       </div>
 
