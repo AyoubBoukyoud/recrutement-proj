@@ -101,7 +101,7 @@ submit, retake, upload, status polling, CEFR result with the reasoning behind it
   phoneme-level scoring.
 - **Metrics surfaced.** Words per minute, filler ratio, clarity, duration, the per-component
   breakdown and the transcript are shown to the candidate (`LanguageAssessmentScreen`) and to
-  recruiters (`web-admin/src/components/AssessmentMetrics.tsx`); `web-admin/src/types/candidate.ts`
+  recruiters (`frontend/src/components/AssessmentMetrics.tsx`); `frontend/src/types/candidate.ts`
   carries the full shape.
 - **Explained results.** `language_assessments.score_breakdown` stores every component, what was
   measured and what it contributed, so the level is shown with its reasoning instead of asserted.
@@ -184,7 +184,7 @@ an OS-level install (`tesseract-langpack-*`), not something the app can provisio
 toggles and a sort control; paginated results; a dossier with grouped documents, inline previews,
 assessment metrics and video; and the actions that turn a dossier into a next step — contact
 release, shortlist, pipeline stage, private notes and CSV export.
-`web-admin/src/pages/RecruiterSearch.tsx`, `web-admin/src/components/` (`CandidateDossier`,
+`frontend/src/components/RecruiterSearch.tsx`, `frontend/src/components/` (`CandidateDossier`,
 `ShortlistPanel`, `DocumentList`, `Pagination`), `backend/app/Http/Controllers/Api/RecruiterCandidateController.php`,
 `RecruiterShortlistController.php`, `backend/app/Services/RecruiterCandidateSearch.php`
 
@@ -228,7 +228,7 @@ Covered by `backend/tests/Feature/RecruiterSearchTest.php` and `RecruiterShortli
 administrator alerts, full triage including `in_review`, and a reply that reaches the candidate.
 `mobile/src/components/ComplaintFab.tsx`, `backend/app/Http/Controllers/Api/ComplaintController.php`,
 `backend/app/Jobs/NotifyAdminsOfComplaint.php`, `backend/app/Notifications/ComplaintSubmitted.php`,
-`backend/config/complaints.php`, `web-admin/src/pages/AdminDashboard.tsx`
+`backend/config/complaints.php`, `frontend/src/components/admin/ComplaintsPanel.tsx`
 
 - **Administrators are actually told.** `NotifyAdminsOfComplaint` (queued, 3 tries) mails every
   Administrator holding an email address plus an optional ops mailbox
@@ -335,7 +335,7 @@ feedback, and one consistent way of showing waiting and failure.
 **Done** — platform metrics, the daily remote internship end to end, a paginated and filterable
 candidate list with a full dossier behind each row, verification, document approval, complaint
 triage and user/role management.
-`web-admin/src/pages/AdminDashboard.tsx`, `web-admin/src/components/admin/`,
+`frontend/src/app/admin/` (routed sections), `frontend/src/components/admin/`,
 `backend/app/Http/Controllers/Api/` (`AdminCandidateController`, `AdminTaskController`,
 `AdminUserController`, `AdminMetricsController`, `CandidateTaskController`),
 `backend/app/Services/TaskEngagement.php`, `mobile/src/screens/DailyTasksScreen.tsx`
@@ -382,7 +382,7 @@ retention) — the metrics endpoint answers "now", not "since when".
 **Done** — token generation, rotation with a grace period, QR rendering with download/print/copy, an
 in-app scanner, the full attribution loop, and a commission lifecycle from earning to payout.
 `mobile/src/screens/ScanReferralScreen.tsx`, `mobile/src/lib/referralToken.ts`,
-`web-admin/src/pages/AgentDashboard.tsx`, `web-admin/src/components/ReferralPayouts.tsx`,
+`frontend/src/components/AgentDashboard.tsx`, `frontend/src/components/ReferralPayouts.tsx`,
 `backend/app/Http/Controllers/Api/ReferralAgentController.php`, `AdminReferralController.php`,
 `backend/app/Services/ReferralCommissions.php`, `backend/config/referrals.php`
 
@@ -462,7 +462,7 @@ Flagged separately because the platform collects explicit CNDP consent, which ra
 - **Rate limiting: the auth endpoints only.** `/auth/otp/request` and `/auth/otp/verify` are now throttled per number and per IP (`AppServiceProvider::configureOtpRateLimiting`), on top of the per-number cooldown and 5-attempt cap in `OtpService`. **Every other route is still unbounded** — profile, document upload and the recruiter search have no `throttle` middleware.
 - **All uploaded media is served unauthenticated.** `storageUrl()` in `CandidateDossier.tsx` and `AdminDashboard.tsx:8`, and `Document::url`, all build direct public-disk `/storage/...` URLs. Every CV, certificate, diploma, complaint voice note and presentation video is readable by anyone who has or guesses the path. Needs signed URLs or an authenticated streaming endpoint. This directly contradicts the CNDP consent the app collects.
 - **No account deletion and no data export.** Both are standard obligations under the data-protection regime the consent flow invokes.
-- No 401 interceptor in `web-admin/src/lib/api.ts` — an expired token renders errors instead of redirecting to login.
+- No 401 interceptor in `frontend/src/lib/opsApi.ts` — an expired token renders errors instead of redirecting to login.
 - Models are serialized raw to JSON throughout; there are no API Resources, FormRequests or Policies, so response shape is whatever the model happens to hold.
 
 ---

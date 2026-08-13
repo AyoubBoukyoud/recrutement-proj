@@ -134,22 +134,6 @@ services:
       evolution-postgres:
         condition: service_healthy
 
-  web-admin:
-    build:
-      context: ./web-admin
-    container_name: recruitment_web_admin
-    restart: unless-stopped
-    environment:
-      VITE_API_URL: http://127.0.0.1:8000/api
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./web-admin:/app
-      - web_admin_node_modules:/app/node_modules
-    depends_on:
-      backend:
-        condition: service_healthy
-
 volumes:
   mysql_data:
   evolution_db_data:
@@ -158,4 +142,3 @@ volumes:
   backend_vendor:
   backend_node_modules:
   backend_public_build:
-  web_admin_node_modules:

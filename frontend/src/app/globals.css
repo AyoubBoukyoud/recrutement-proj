@@ -1,0 +1,193 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+/* IBM Plex Mono ne sert qu'aux écrans recruteur/admin/agent (portés depuis
+   web-admin) : colonnes chiffrées des tableaux, où l'alignement des chiffres
+   prime — c'est le `font-mono` du preset partagé. */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Les variables :root proviennent de packages/design-tokens via le plugin
+   Tailwind configuré dans tailwind.config.js — ne rien redéclarer ici. */
+
+:root {
+  /* Thème clair uniquement, comme le reste du produit : il n'y a qu'une
+     surface à dessiner. Repris des écrans ops, où les panneaux se séparaient
+     déjà par un filet plutôt qu'une ombre. */
+  color-scheme: light;
+  accent-color: var(--primary);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--on-surface);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Bague de focus commune à toute l'application. Les écrans candidat s'en
+   passaient — chaque bouton porte la sienne — mais les champs/menus déroulants
+   ops (Field, SelectField dans components/ui.tsx) en dépendent : sans elle,
+   le clavier n'y laisse aucune trace visible. */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--primary);
+}
+
+/* Classes utilitaires des écrans ops (Eyebrow, title/subtitle, helper-text
+   dans components/ui.tsx) — référencées par className, pas par des utilitaires
+   Tailwind directs. */
+.eyebrow {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  color: var(--on-surface-variant);
+}
+
+.eyebrow-accent {
+  color: var(--primary);
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  color: var(--on-surface);
+}
+
+.subtitle {
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.3px;
+  color: var(--on-surface);
+}
+
+.helper-text {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--on-surface-variant);
+}
+
+/* Imprimer un dossier, c'est ainsi qu'un recruteur transmet un candidat à un
+   collègue ou à un client final. Les commandes de la console n'en font pas
+   partie, et les cadres de panneaux non plus. */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .rounded-card {
+    border: none !important;
+    padding: 0 !important;
+  }
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+  font-size: 1.25rem;
+  line-height: 1;
+  vertical-align: middle;
+  display: inline-block;
+  user-select: none;
+}
+
+.material-symbols-outlined.fill {
+  font-variation-settings:
+    'FILL' 1,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+}
+
+/* Central Entry & Stagger Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-entry {
+  animation: fadeIn 800ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.stagger-1 {
+  animation-delay: 200ms;
+}
+
+.stagger-2 {
+  animation-delay: 400ms;
+}
+
+.stagger-3 {
+  animation-delay: 600ms;
+}
+
+.stagger-4 {
+  animation-delay: 800ms;
+}
+
+@keyframes fillBar {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.animate-fill-bar {
+  animation: fillBar 2.2s ease-out forwards;
+  transform-origin: left;
+}
+
+@keyframes logoBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+.animate-logo-bounce {
+  animation: logoBounce 1.6s ease-in-out infinite;
+  animation-delay: 800ms;
+}
+
+/* Custom scrollbar for mobile container previews */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface-container);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--outline-variant);
+  border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+

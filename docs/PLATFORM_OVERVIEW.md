@@ -187,7 +187,7 @@ one arrives.
 | **CV extraction** | Real, end-to-end, and the one candidate feature fully wired: upload, read, confirm, write to profile. |
 | **Language assessment** | Real but honestly labelled. Local transcription plus a *clarity* score derived from how confidently each word was recognised, combined with pace and filler ratio into a CEFR estimate. This is intelligibility to a speech model, **not** phoneme-level pronunciation scoring — closing that gap needs a scripted read-aloud task or a paid API, which is a product decision. Note the candidate-facing screen for this exists only in the older React Native app. |
 | **Money** | Candidate subscriptions and payments have **no code at all**. The only money the system models is agent commission tracking, and even that stops at "mark it paid by hand". |
-| **`web-admin/`** | The React + Vite console these recruiter/admin/agent screens were ported *from*. Superseded by the webapp; kept only until the move is finished. |
+| **`web-admin/`** | Gone. The React + Vite console these recruiter/admin/agent screens were ported *from* has been merged into `frontend/` — same tech stack, same login, routed `/admin/*` sections instead of its old single-page dashboard. |
 | **`mobile-expo/`** | The earlier React Native candidate app. It is the one where the full candidate experience actually works today, but it is not the direction of travel. |
 
 ---
@@ -197,7 +197,7 @@ one arrives.
 | Directory | What it is |
 | --- | --- |
 | `backend/` | The Laravel API — the only thing that talks to the database. Every client is a view onto this. |
-| `user-app/` | The webapp. Next.js, all four roles, one login. |
+| `frontend/` | The webapp. Next.js, all four roles, one login. |
 | `docs/` | The spec, the feature audit, and this document. |
 
 To run it, see [../README.md](../README.md). One operational note deserves repeating here because it
@@ -217,5 +217,5 @@ Three decisions this document surfaces but does not make:
 2. **The subscription model is unbuilt.** The business plan charges candidates 100 MAD a year and
    takes a commission from employers. Neither exists in code. The commission side is at least
    *measurable* today, because contact reveals are logged.
-3. **`web-admin/` needs an end date.** Its screens now exist in two places. Whichever way it goes,
-   running both means fixing everything twice.
+3. ~~**`web-admin/` needs an end date.**~~ Resolved: `web-admin/` is deleted, its screens merged into
+   `frontend/` under `/admin`, `/recruiter`, `/agent`.

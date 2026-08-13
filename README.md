@@ -9,7 +9,7 @@ code and earn commission on the ones who complete a dossier.
 | --- | --- | --- |
 | `backend/` | Laravel API — the only thing that talks to the database | `:8000` |
 | `mobile/` | React Native (Expo) candidate app | Metro `:8082` |
-| `web-admin/` | React + Vite console for admins, recruiters and agents | `:5173` |
+| `frontend/` | Next.js PWA — candidate, recruiter, admin and agent, one login | `:3000` |
 | `docs/` | Spec, MVP notes, and the feature-by-feature status report | — |
 
 This file covers **running** the project. For first-time installation — Docker, PHP extensions,
@@ -31,10 +31,10 @@ cd backend && php artisan serve --host=0.0.0.0 --port=8000
 # 3. Queue worker — not optional, see below
 cd backend && php artisan queue:work
 
-# 4a. Web console
-cd web-admin && npm run dev          # http://localhost:5173
+# 4a. Web app — candidate, recruiter, admin, agent
+cd frontend && npm run dev           # http://localhost:3000
 
-# 4b. Candidate app
+# 4b. Mobile candidate app
 cd mobile && npx expo start --port 8082
 ```
 
@@ -47,8 +47,8 @@ Expo Go on a phone.
 cd backend  && composer install && cp -n .env.example .env && php artisan key:generate
 docker compose up -d
 php artisan migrate --seed          # creates the four roles
-cd ../web-admin && npm install
-cd ../mobile    && npm install
+cd ../frontend && npm install
+cd ../mobile   && npm install
 ```
 
 ---
@@ -109,11 +109,8 @@ To send real codes instead, fill the `WHATSAPP_*` / `TWILIO_*` keys in `.env` an
 ```bash
 curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8000/up     # 200
 curl -s http://localhost:8082/status                                  # packager-status:running
-curl -s -o /dev/null -w '%{http_code}\n' http://localhost:5173        # 200
+curl -s -o /dev/null -w '%{http_code}\n' http://localhost:3000        # 200
 ```
-
-Use `localhost:5173`, not `127.0.0.1:5173` — Vite binds the IPv6 loopback only, and the IPv4
-address is refused.
 
 If the mobile app's requests hang, check the `[api] …` line Metro printed on startup: that is the
 address it is calling. A phone must reach your machine's LAN IP, so both must be on the same
@@ -124,10 +121,10 @@ network and port 8000 must be open in the firewall.
 ## Tests and checks
 
 ```bash
-cd backend   && php artisan test          # 183 tests
-cd backend   && ./vendor/bin/pint         # formatter
-cd mobile    && npx tsc --noEmit
-cd web-admin && npx tsc --noEmit -p tsconfig.app.json
+cd backend  && php artisan test          # 183 tests
+cd backend  && ./vendor/bin/pint         # formatter
+cd mobile   && npx tsc --noEmit
+cd frontend && npx tsc --noEmit && npm run lint
 ```
 
 Optional local tooling, all degrading gracefully when absent: `GEMINI_API_KEY` for reading CV PDFs,

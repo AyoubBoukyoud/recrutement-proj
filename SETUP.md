@@ -5,12 +5,12 @@ Monorepo with three apps:
 | Folder       | What it is                                          | Runs on                  |
 | ------------ | ---------------------------------------------------- | ------------------------ |
 | `backend/`   | Laravel 13 API                                       | http://127.0.0.1:8000    |
-| `user-app/`  | Next.js PWA — candidate, recruiter, admin, agent, one login | http://localhost:3000    |
+| `frontend/`  | Next.js PWA — candidate, recruiter, admin, agent, one login | http://localhost:3000    |
 | `mobile/`    | React Native (Expo) candidate app                    | Metro on port **8082**   |
 
-`web-admin/` is retired: its recruiter search, admin console and agent referral screens now live
-inside `user-app/` (see § 4), reached through the same phone-number login as everyone else. The
-folder still exists but nothing points at it anymore — safe to `rm -rf web-admin` whenever you like.
+`web-admin/` no longer exists: its recruiter search, admin console and agent referral screens were
+merged into `frontend/` (see § 4), same tech stack (Next.js/TypeScript/Tailwind) and reached through
+the same phone-number login as everyone else.
 
 MySQL + phpMyAdmin run in Docker.
 
@@ -188,13 +188,15 @@ Sanity check: `curl http://127.0.0.1:8000/api/auth/otp/request -H 'Accept: appli
 ## 4. Web app (candidate, recruiter, admin, agent)
 
 ```bash
-cd user-app
+cd frontend
 npm install
 npm run dev
 ```
 
 Opens on http://localhost:3000. `.env.example` points at `http://localhost:8000/api`; copy it to
-`.env.local` and adjust if the backend runs elsewhere.
+`.env.local` and adjust if the backend runs elsewhere. Set `NEXT_PUBLIC_USE_MOCKS=1` there instead to
+work on any of the four surfaces with no backend running at all — every screen falls back to fixture
+data behind a mock seam (`src/data/`, `src/data/mockAdapter.ts`).
 
 One login for every role: `/auth-phone` has a "Job seeker / Recruiter" toggle, but it only changes
 the copy on screen — the phone number always goes through the same OTP request, and where you land
@@ -203,12 +205,17 @@ number with no elevated role always lands as a candidate, toggle notwithstanding
 
 | Role (Spatie)      | Seeded phone     | Lands on           |
 | ------------------- | ---------------- | ------------------- |
-| Administrator        | `+212600000001` | `/admin/dashboard`  |
+| Administrator        | `+212600000001` | `/admin/apercu`    |
 | Company (recruiter)  | `+212600000002` | `/recruiter`        |
 | Commercial Agent     | `+212600000003` | `/agent`             |
 | User (candidate)     | any other number | `/dashboard` (or the profile wizard, if incomplete) |
 
 Login: enter a seeded phone number, and the OTP code is shown on screen (local env only, `OTP_CHANNELS=log`).
+
+The admin console is itself routed into sections rather than one long page: `/admin/apercu`
+(metrics), `/admin/candidats(/:id)`, `/admin/reclamations`, `/admin/stage`, `/admin/utilisateurs`,
+`/admin/parrainage` — each independently addressable, with `?status=` filters on the two screens that
+support one.
 
 ---
 
@@ -313,7 +320,7 @@ Two things worth knowing before this reaches candidates:
 docker compose up -d                                       # db
 cd backend && php artisan serve --host=0.0.0.0 --port=8000 # api
 cd backend && php artisan queue:work                       # jobs
-cd user-app && npm run dev                                 # candidate + recruiter + admin + agent
+cd frontend && npm run dev                                 # candidate + recruiter + admin + agent
 cd mobile && npx expo start --port 8082                    # app
 ```
 
