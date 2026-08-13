@@ -1,151 +1,94 @@
-@import '@fontsource/space-grotesk/500.css';
-@import '@fontsource/space-grotesk/600.css';
+/* Inter porte tout le produit — candidat comme ops. IBM Plex Mono ne sert
+   qu'aux colonnes chiffrées des tableaux, où l'alignement des chiffres prime.
+   Space Grotesk est retiré : l'espace ops partage désormais la typographie de
+   l'espace candidat. */
 @import '@fontsource/inter/400.css';
 @import '@fontsource/inter/500.css';
 @import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
 @import '@fontsource/ibm-plex-mono/500.css';
 
-/*
- * Tokens mirror mobile/src/theme.ts exactly, so the operator console and the
- * candidate app read as one product. The app is one long bureaucratic errand:
- * cool office paper, near-black ink with a green cast, and a deep seal green
- * that means "approved". Ochre is reserved strictly for things still in
- * progress, so the two accents never compete: green is done, ochre is pending.
- */
-:root {
-  --paper: #f6f7f5;
-  --card: #ffffff;
-  --ink: #141a17;
-  --ink-muted: #5b6a62;
-  --accent: #1c4a38;
-  --accent-soft: #1c4a3810;
-  --accent-dim: #4d7a68;
-  --attention: #a8721a;
-  --attention-soft: #f6ecd9;
-  /* Ochre is too light to set text on; this is the ink used inside every
-     attention-toned surface on mobile. */
-  --attention-ink: #6b4d13;
-  --line: #e2e5e0;
-  --error: #a03427;
-  --error-soft: #fdf1ef;
-  --success: #1c4a38;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
-  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  /* The official voice: step indices, reference numbers, eyebrows, phone
-     numbers. Anything the form itself would have printed on it. */
-  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+/* Les variables :root proviennent de packages/design-tokens, injectées par le
+   plugin Tailwind de tailwind.config.cjs — ne rien redéclarer ici. */
 
-  --sp-xs: 4px;
-  --sp-sm: 8px;
-  --sp-md: 16px;
-  --sp-lg: 24px;
-  --sp-xl: 32px;
-  --sp-xxl: 48px;
+@layer base {
+  /* Clair uniquement, comme l'espace candidat : il n'y a qu'une surface à
+     dessiner. Les panneaux se séparent par un filet, jamais par une ombre. */
+  :root {
+    color-scheme: light;
+    accent-color: var(--primary);
+  }
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
 
-  /* Light only — dark mode is removed deliberately, matching mobile: there is
-     one surface to design for. Surfaces separate by a hairline rule, never by
-     a shadow, which is what keeps the UI reading as paper. */
-  color-scheme: light;
-  accent-color: var(--accent);
+  body {
+    @apply bg-surface text-on-surface font-sans text-[15px] leading-[22px] antialiased;
+  }
+
+  #root {
+    min-height: 100svh;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font-family: inherit;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-surface;
+  }
 }
 
-* {
-  box-sizing: border-box;
+@layer components {
+  /* Le mono est toujours en capitales et espacé : il lui faut sa propre échelle. */
+  .eyebrow {
+    @apply font-mono text-[11px] uppercase tracking-[1.4px] text-on-surface-variant;
+  }
+
+  .eyebrow-accent {
+    @apply text-primary;
+  }
+
+  /* Chiffres de tableau : chasse fixe pour que les colonnes s'alignent. */
+  .index {
+    @apply font-mono text-xs tracking-[0.8px] tabular-nums;
+  }
+
+  .title {
+    @apply text-[26px] font-bold leading-tight tracking-[-0.5px] text-on-surface;
+  }
+
+  .subtitle {
+    @apply text-[19px] font-semibold leading-snug tracking-[-0.3px] text-on-surface;
+  }
+
+  .helper-text {
+    @apply text-[13px] leading-5 text-on-surface-variant;
+  }
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-}
+/* Imprimer un dossier, c'est ainsi qu'un recruteur transmet un candidat à un
+   collègue ou à un client final. Les commandes de la console n'en font pas
+   partie, et les cadres de panneaux non plus. */
+@media print {
+  .no-print {
+    display: none !important;
+  }
 
-body {
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--font-body);
-  font-size: 15px;
-  line-height: 22px;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-#root {
-  min-height: 100svh;
-}
-
-/* Mono is always set in caps and tracked out, so it needs its own scale. */
-.eyebrow {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 1.4px;
-  text-transform: uppercase;
-  color: var(--ink-muted);
-}
-
-.eyebrow-accent {
-  color: var(--accent);
-}
-
-.index {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.8px;
-}
-
-h1,
-.title {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 26px;
-  letter-spacing: -0.5px;
-  line-height: 1.2;
-  margin: 0;
-  color: var(--ink);
-}
-
-h2,
-h3,
-.subtitle {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 19px;
-  letter-spacing: -0.3px;
-  line-height: 1.3;
-  margin: 0;
-  color: var(--ink);
-}
-
-/* Panel headings sit below the page title, so they take the smaller display
-   size rather than competing with it. */
-h3 {
-  font-size: 15px;
-  letter-spacing: -0.1px;
-}
-
-p {
-  margin: 0;
-}
-
-a {
-  color: var(--accent);
-  text-underline-offset: 2px;
-}
-
-button,
-input,
-select,
-textarea {
-  font-family: inherit;
-}
-
-:focus-visible {
-  outline: 2px solid var(--accent-dim);
-  outline-offset: 2px;
+  .rounded-card {
+    border: none !important;
+    padding: 0 !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

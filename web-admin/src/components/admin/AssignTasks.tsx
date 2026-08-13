@@ -7,6 +7,8 @@ import type { PaginatedResponse } from '../../types/candidate'
 
 const STATUS_TONE = { completed: 'done', assigned: 'pending', skipped: 'pending' } as const
 
+const STATUS_LABELS = { completed: 'terminée', assigned: 'assignée', skipped: 'passée' } as const
+
 function AssignmentRow({ assignment, candidateId }: { assignment: TaskAssignment; candidateId: number }) {
   const queryClient = useQueryClient()
 
@@ -16,27 +18,29 @@ function AssignmentRow({ assignment, candidateId }: { assignment: TaskAssignment
   })
 
   return (
-    <div style={{ display: 'grid', gap: 2, padding: 'var(--sp-sm) 0', borderTop: '1px solid var(--line)' }}>
-      <div style={{ display: 'flex', gap: 'var(--sp-sm)', alignItems: 'center', flexWrap: 'wrap' }}>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>
+    <div className="grid gap-0.5 border-t border-outline-variant py-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="font-mono text-xs tabular-nums text-on-surface-variant">
           {assignment.assigned_for.slice(0, 10)}
         </span>
-        <span style={{ fontSize: 14, flex: 1, minWidth: 140 }}>{assignment.task?.title ?? 'Activity'}</span>
-        <Badge tone={STATUS_TONE[assignment.status]}>{assignment.status}</Badge>
-        {assignment.is_overdue && <Badge>overdue</Badge>}
+        <span className="min-w-[140px] flex-1 text-sm text-on-surface">
+          {assignment.task?.title ?? 'Activité'}
+        </span>
+        <Badge tone={STATUS_TONE[assignment.status]}>{STATUS_LABELS[assignment.status]}</Badge>
+        {assignment.is_overdue && <Badge>en retard</Badge>}
         {assignment.status === 'assigned' && (
           <Button variant="ghost" size="compact" onClick={() => remove.mutate()} disabled={remove.isPending}>
-            Remove
+            Retirer
           </Button>
         )}
       </div>
 
-      {/* What it really took, against what we estimated — the number that says
-          whether the "~1 hour a day" budget is honest. */}
+      {/* Ce que cela a réellement pris, face à notre estimation — le chiffre qui
+          dit si le budget « ~1 heure par jour » est honnête. */}
       {assignment.minutes_spent != null && (
         <span className="helper-text">
-          {`${assignment.minutes_spent} min spent${
-            assignment.task ? ` · ${assignment.task.estimated_minutes} min estimated` : ''
+          {`${assignment.minutes_spent} min passées${
+            assignment.task ? ` · ${assignment.task.estimated_minutes} min estimées` : ''
           }`}
         </span>
       )}
@@ -45,7 +49,7 @@ function AssignmentRow({ assignment, candidateId }: { assignment: TaskAssignment
   )
 }
 
-/** Hand out a day's preparation work, and read back what came of it. */
+/** Distribuer le travail de préparation d'une journée, et relire ce qu'il en est advenu. */
 export function AssignTasks({ candidate }: { candidate: AdminCandidateDetail }) {
   const queryClient = useQueryClient()
   const [selected, setSelected] = useState<number[]>([])
@@ -71,8 +75,9 @@ export function AssignTasks({ candidate }: { candidate: AdminCandidateDetail }) 
 
   const tasks = catalogue?.data ?? []
   const { engagement } = candidate
-  // The spec budgets roughly an hour a day, so the total is shown against it
-  // rather than left for the administrator to add up in their head.
+  // La spécification prévoit environ une heure par jour : le total est donc
+  // affiché face à ce budget, plutôt que laissé à l'addition mentale de
+  // l'administrateur.
   const plannedMinutes = tasks
     .filter((task) => selected.includes(task.id))
     .reduce((total, task) => total + task.estimated_minutes, 0)
@@ -82,20 +87,20 @@ export function AssignTasks({ candidate }: { candidate: AdminCandidateDetail }) 
   )
 
   return (
-    <div style={{ display: 'grid', gap: 'var(--sp-md)' }}>
+    <div className="grid gap-4">
       <p className="helper-text">
         {engagement.completion_rate === null
-          ? 'Nothing has been assigned to this candidate yet.'
-          : `${engagement.completed}/${engagement.assigned} done · ${engagement.minutes_last_7_days} min in the last 7 days · ${engagement.streak_days}-day streak`}
+          ? "Rien n'a encore été assigné à ce candidat."
+          : `${engagement.completed}/${engagement.assigned} faits · ${engagement.minutes_last_7_days} min sur les 7 derniers jours · ${engagement.streak_days} jours d'affilée`}
       </p>
 
       {tasks.length === 0 ? (
         <Notice tone="pending">
-          The activity catalogue is empty. Add activities under Daily internship before assigning any.
+          Le catalogue d&apos;activités est vide. Ajoutez-en sous « Stage quotidien » avant d&apos;en assigner.
         </Notice>
       ) : (
-        <div style={{ display: 'grid', gap: 'var(--sp-sm)' }}>
-          <div style={{ display: 'flex', gap: 'var(--sp-sm)', flexWrap: 'wrap' }}>
+        <div className="grid gap-2">
+          <div className="flex flex-wrap gap-2">
             {tasks.map((task) => {
               const active = selected.includes(task.id)
               return (
@@ -115,23 +120,19 @@ export function AssignTasks({ candidate }: { candidate: AdminCandidateDetail }) 
             })}
           </div>
 
-          <div style={{ display: 'flex', gap: 'var(--sp-sm)', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div className="flex flex-wrap items-center gap-2">
             <input
               type="date"
-              className="field-input"
               value={day}
               onChange={(e) => setDay(e.target.value)}
-              style={{ width: 'auto' }}
+              className="h-13 w-auto rounded-element border border-outline bg-surface-lowest px-3.5 text-[15px] text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
             <Button size="compact" disabled={selected.length === 0 || assign.isPending} onClick={() => assign.mutate()}>
-              {`Assign ${selected.length || ''}`.trim()}
+              {`Assigner ${selected.length || ''}`.trim()}
             </Button>
             {selected.length > 0 && (
-              <span
-                className="helper-text"
-                style={{ color: plannedMinutes > 90 ? 'var(--attention)' : undefined }}
-              >
-                {`${plannedMinutes} min planned${plannedMinutes > 90 ? ' — well over the daily hour' : ''}`}
+              <span className={`helper-text ${plannedMinutes > 90 ? 'text-attention' : ''}`}>
+                {`${plannedMinutes} min prévues${plannedMinutes > 90 ? " — bien au-delà de l'heure quotidienne" : ''}`}
               </span>
             )}
           </div>

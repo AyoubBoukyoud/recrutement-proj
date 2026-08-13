@@ -30,16 +30,24 @@ const STATUS_TONE: Record<CommissionStatus, 'pending' | 'done'> = {
   rejected: 'pending',
 }
 
+const STATUS_LABELS: Record<CommissionStatus, string> = {
+  pending: 'en attente',
+  qualified: 'acquise',
+  approved: 'approuvée',
+  paid: 'payée',
+  rejected: 'rejetée',
+}
+
 const money = (row: PayoutRow) =>
   row.commission_amount == null ? '—' : `${Number(row.commission_amount).toFixed(2)} ${row.commission_currency ?? ''}`.trim()
 
 /**
- * The payout queue.
+ * La file des versements.
  *
- * Commissions qualify by themselves when a referred candidate submits their
- * dossier; approving and paying one is a person's decision, because there is
- * no payment rail here to make it anything else. The reference field is what
- * makes a dispute traceable to a bank transfer or a cash receipt later.
+ * Une commission s'acquiert d'elle-même lorsqu'un candidat parrainé soumet son
+ * dossier ; l'approuver et la payer est la décision d'une personne, faute de
+ * circuit de paiement ici pour en faire autre chose. Le champ de référence est
+ * ce qui rend un litige traçable plus tard jusqu'à un virement ou un reçu.
  */
 export function ReferralPayouts() {
   const queryClient = useQueryClient()
@@ -63,76 +71,68 @@ export function ReferralPayouts() {
 
   return (
     <Card>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: 'var(--sp-md)', flexWrap: 'wrap' }}>
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <SectionHeader
-          eyebrow="Referrals"
-          title="Commission payouts"
-          subtitle="A referral qualifies when the candidate submits their dossier. Approving and paying is manual."
+          eyebrow="Parrainage"
+          title="Versement des commissions"
+          subtitle="Un parrainage s'acquiert quand le candidat soumet son dossier. L'approbation et le paiement sont manuels."
         />
-        <div style={{ minWidth: 180 }}>
+        <div className="min-w-[180px]">
           <SelectField
-            label="Status"
+            label="Statut"
             value={status}
             onChange={(e) => {
               setStatus(e.target.value as '' | CommissionStatus)
               setPage(1)
             }}
           >
-            <option value="">All</option>
-            <option value="pending">Pending (not submitted)</option>
-            <option value="qualified">Qualified — owed</option>
-            <option value="approved">Approved</option>
-            <option value="paid">Paid</option>
-            <option value="rejected">Rejected</option>
+            <option value="">Toutes</option>
+            <option value="pending">En attente (non soumis)</option>
+            <option value="qualified">Acquises — dues</option>
+            <option value="approved">Approuvées</option>
+            <option value="paid">Payées</option>
+            <option value="rejected">Rejetées</option>
           </SelectField>
         </div>
       </div>
 
-      {isLoading && <p className="helper-text">Loading…</p>}
-      {data && data.data.length === 0 && <p className="helper-text">Nothing here.</p>}
+      {isLoading && <p className="helper-text">Chargement…</p>}
+      {data && data.data.length === 0 && <p className="helper-text">Rien ici.</p>}
 
-      <div style={{ display: 'grid', gap: 'var(--sp-sm)' }}>
+      <div className="grid gap-2">
         {data?.data.map((row) => (
-          <div
-            key={row.id}
-            style={{
-              display: 'grid',
-              gap: 'var(--sp-sm)',
-              paddingTop: 'var(--sp-sm)',
-              borderTop: '1px solid var(--line)',
-            }}
-          >
-            <div style={{ display: 'flex', gap: 'var(--sp-sm)', alignItems: 'center', flexWrap: 'wrap' }}>
-              <Badge tone={STATUS_TONE[row.commission_status]}>{row.commission_status}</Badge>
-              <span style={{ fontSize: 14 }}>
-                {row.agent ?? 'Unknown agent'} → {row.candidate ?? 'Unnamed candidate'}
+          <div key={row.id} className="grid gap-2 border-t border-outline-variant pt-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge tone={STATUS_TONE[row.commission_status]}>{STATUS_LABELS[row.commission_status]}</Badge>
+              <span className="text-sm text-on-surface">
+                {row.agent ?? 'Agent inconnu'} → {row.candidate ?? 'Candidat sans nom'}
               </span>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, marginLeft: 'auto' }}>{money(row)}</span>
+              <span className="ml-auto font-mono text-[13px] tabular-nums text-on-surface">{money(row)}</span>
             </div>
 
             <span className="helper-text">
-              Registered {new Date(row.registered_at).toLocaleDateString()}
-              {row.qualified_at ? ` · qualified ${new Date(row.qualified_at).toLocaleDateString()}` : ''}
-              {row.paid_at ? ` · paid ${new Date(row.paid_at).toLocaleDateString()}` : ''}
-              {row.payout_reference ? ` · ref ${row.payout_reference}` : ''}
+              Inscrit le {new Date(row.registered_at).toLocaleDateString('fr-FR')}
+              {row.qualified_at ? ` · acquise le ${new Date(row.qualified_at).toLocaleDateString('fr-FR')}` : ''}
+              {row.paid_at ? ` · payée le ${new Date(row.paid_at).toLocaleDateString('fr-FR')}` : ''}
+              {row.payout_reference ? ` · réf. ${row.payout_reference}` : ''}
             </span>
 
-            {/* Nothing to act on until the candidate has actually submitted. */}
+            {/* Rien sur quoi agir tant que le candidat n'a pas réellement soumis. */}
             {(row.commission_status === 'qualified' || row.commission_status === 'approved') && (
-              <div style={{ display: 'flex', gap: 'var(--sp-sm)', alignItems: 'end', flexWrap: 'wrap' }}>
+              <div className="flex flex-wrap items-end gap-2">
                 {row.commission_status === 'qualified' && (
                   <Button
                     size="compact"
                     onClick={() => resolve.mutate({ id: row.id, commission_status: 'approved' })}
                     disabled={resolve.isPending}
                   >
-                    Approve
+                    Approuver
                   </Button>
                 )}
-                <div style={{ minWidth: 200 }}>
+                <div className="min-w-[200px]">
                   <Field
-                    label="Payout reference"
-                    placeholder="Transfer or receipt number"
+                    label="Référence de versement"
+                    placeholder="Numéro de virement ou de reçu"
                     value={reference[row.id] ?? ''}
                     onChange={(e) => setReference({ ...reference, [row.id]: e.target.value })}
                   />
@@ -148,7 +148,7 @@ export function ReferralPayouts() {
                   }
                   disabled={resolve.isPending}
                 >
-                  Mark paid
+                  Marquer payée
                 </Button>
                 <Button
                   variant="ghost"
@@ -156,7 +156,7 @@ export function ReferralPayouts() {
                   onClick={() => resolve.mutate({ id: row.id, commission_status: 'rejected' })}
                   disabled={resolve.isPending}
                 >
-                  Reject
+                  Rejeter
                 </Button>
               </div>
             )}
@@ -164,11 +164,11 @@ export function ReferralPayouts() {
         ))}
       </div>
 
-      <div style={{ marginTop: 'var(--sp-md)' }}>
+      <div className="mt-4">
         <Pagination page={page} data={data} onPage={setPage} />
       </div>
 
-      {resolve.error && <Notice>{apiErrorMessage(resolve.error, 'That did not save.')}</Notice>}
+      {resolve.error && <Notice>{apiErrorMessage(resolve.error, "L'enregistrement a échoué.")}</Notice>}
     </Card>
   )
 }

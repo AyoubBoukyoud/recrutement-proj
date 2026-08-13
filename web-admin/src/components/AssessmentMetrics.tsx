@@ -3,40 +3,37 @@ import { Badge, Eyebrow, Notice } from './ui'
 import type { LanguageAssessmentResult } from '../types/candidate'
 
 const FAILURE_COPY: Record<string, string> = {
-  too_short: 'Recording was too short to assess.',
-  unintelligible: 'Too little intelligible speech in the recording.',
-  transcription_unavailable: 'The speech engine was unavailable when this was processed.',
+  too_short: "L'enregistrement était trop court pour être évalué.",
+  unintelligible: "Trop peu de parole intelligible dans l'enregistrement.",
+  transcription_unavailable: "Le moteur de reconnaissance était indisponible au moment du traitement.",
 }
 
 function Meter({ value, max }: { value: number; max: number }) {
   const filled = Math.max(0, Math.min(1, max === 0 ? 0 : value / max))
 
   return (
-    <div style={{ height: 4, borderRadius: 2, background: 'var(--line)', overflow: 'hidden' }}>
+    <div className="h-1 overflow-hidden rounded-sm bg-outline-variant">
       <div
-        style={{
-          height: '100%',
-          width: `${filled * 100}%`,
-          background: value < 0 ? 'var(--error, #a03427)' : 'var(--accent)',
-        }}
+        className={`h-full ${value < 0 ? 'bg-error' : 'bg-primary'}`}
+        style={{ width: `${filled * 100}%` }}
       />
     </div>
   )
 }
 
 /**
- * The numbers behind a CEFR badge.
+ * Les chiffres derrière une pastille CECRL.
  *
- * Words per minute and filler ratio were being computed and stored on every
- * assessment and shown to nobody; the spec promises recruiters can review the
- * metrics, and one letter is not a metric. Clarity and the component
- * breakdown are here for the same reason — a recruiter deciding on an
- * interview should be able to see whether a B2 came from confident speech or
- * from a fast talker with a small vocabulary.
+ * Les mots par minute et le taux de mots de remplissage étaient calculés et
+ * stockés à chaque évaluation sans être montrés à personne ; la spécification
+ * promet aux recruteurs de pouvoir examiner les mesures, et une lettre n'est
+ * pas une mesure. La clarté et le détail des composantes sont là pour la même
+ * raison — un recruteur qui décide d'un entretien doit pouvoir voir si un B2
+ * vient d'une parole assurée ou d'un débit rapide au vocabulaire réduit.
  */
 export function AssessmentMetrics({ assessments }: { assessments: LanguageAssessmentResult[] }) {
   return (
-    <div style={{ display: 'grid', gap: 'var(--sp-md)' }}>
+    <div className="grid gap-4">
       {assessments.map((assessment) => (
         <AssessmentRow key={assessment.id} assessment={assessment} />
       ))}
@@ -50,7 +47,7 @@ function AssessmentRow({ assessment }: { assessment: LanguageAssessmentResult })
 
   if (assessment.status !== 'completed') {
     return (
-      <div style={{ display: 'flex', gap: 'var(--sp-sm)', alignItems: 'center', flexWrap: 'wrap' }}>
+      <div className="flex flex-wrap items-center gap-2">
         <Badge tone="pending">
           {assessment.language.toUpperCase()} {assessment.status}
         </Badge>
@@ -64,30 +61,30 @@ function AssessmentRow({ assessment }: { assessment: LanguageAssessmentResult })
   }
 
   return (
-    <div style={{ display: 'grid', gap: 'var(--sp-sm)', paddingBottom: 'var(--sp-sm)', borderBottom: '1px solid var(--line)' }}>
-      <div style={{ display: 'flex', gap: 'var(--sp-sm)', alignItems: 'center', flexWrap: 'wrap' }}>
+    <div className="grid gap-2 border-b border-outline-variant pb-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Badge tone="done">
           {assessment.language.toUpperCase()} {assessment.predicted_cefr}
         </Badge>
-        {assessment.words_per_minute !== null && <Badge>{assessment.words_per_minute} wpm</Badge>}
+        {assessment.words_per_minute !== null && <Badge>{assessment.words_per_minute} mots/min</Badge>}
         {assessment.pronunciation_score !== null && (
-          <Badge>clarity {assessment.pronunciation_score}/100</Badge>
+          <Badge>clarté {assessment.pronunciation_score}/100</Badge>
         )}
         {assessment.filler_word_ratio !== null && (
-          <Badge>fillers {(assessment.filler_word_ratio * 100).toFixed(1)}%</Badge>
+          <Badge>hésitations {(assessment.filler_word_ratio * 100).toFixed(1)} %</Badge>
         )}
         {assessment.duration_seconds !== null && (
-          <span className="helper-text">{Math.round(assessment.duration_seconds)}s recorded</span>
+          <span className="helper-text">{Math.round(assessment.duration_seconds)} s enregistrées</span>
         )}
       </div>
 
       {breakdown && (
-        <div style={{ display: 'grid', gap: 6, maxWidth: 420 }}>
+        <div className="grid max-w-[420px] gap-1.5">
           {[...breakdown.components, breakdown.penalty].map((component) => (
-            <div key={component.key} style={{ display: 'grid', gap: 3 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+            <div key={component.key} className="grid gap-[3px]">
+              <div className="flex justify-between text-[13px] text-on-surface">
                 <span>{component.label}</span>
-                <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink-muted)' }}>
+                <span className="font-mono tabular-nums text-on-surface-variant">
                   {component.contribution > 0 ? '+' : ''}
                   {component.contribution.toFixed(2)}
                 </span>
@@ -98,13 +95,14 @@ function AssessmentRow({ assessment }: { assessment: LanguageAssessmentResult })
           ))}
           {!breakdown.estimated_from_clarity && (
             <span className="helper-text">
-              Clarity could not be measured for this recording — the level rests on pace and vocabulary alone.
+              La clarté n&apos;a pas pu être mesurée sur cet enregistrement — le niveau ne repose que sur le débit
+              et le vocabulaire.
             </span>
           )}
           {breakdown.pronunciation && breakdown.pronunciation.unclear_words.length > 0 && (
-            <div style={{ display: 'grid', gap: 3 }}>
-              <Eyebrow>Words the engine could not place</Eyebrow>
-              <span style={{ fontSize: 13 }}>
+            <div className="grid gap-[3px]">
+              <Eyebrow>Mots que le moteur n&apos;a pas su situer</Eyebrow>
+              <span className="text-[13px] text-on-surface">
                 {breakdown.pronunciation.unclear_words.map((w) => w.word).join(' · ')}
               </span>
             </div>
@@ -113,36 +111,24 @@ function AssessmentRow({ assessment }: { assessment: LanguageAssessmentResult })
       )}
 
       {assessment.transcript && (
-        <div style={{ display: 'grid', gap: 4 }}>
+        <div className="grid gap-1">
           <button
             type="button"
             onClick={() => setShowTranscript((v) => !v)}
-            style={{
-              justifySelf: 'start',
-              background: 'none',
-              border: 'none',
-              padding: 0,
-              cursor: 'pointer',
-              color: 'var(--accent-dim)',
-              fontSize: 13,
-            }}
+            className="cursor-pointer justify-self-start border-none bg-transparent p-0 text-[13px] text-primary hover:underline"
           >
-            {showTranscript ? 'Hide transcript' : 'Show transcript'}
+            {showTranscript ? 'Masquer la transcription' : 'Afficher la transcription'}
           </button>
-          {showTranscript && (
-            <p className="helper-text" style={{ maxWidth: 640 }}>
-              {assessment.transcript}
-            </p>
-          )}
+          {showTranscript && <p className="helper-text max-w-[640px]">{assessment.transcript}</p>}
         </div>
       )}
 
-      {/* Stated plainly, because the metric is easy to over-read: it is an
-          intelligibility proxy, not a phonetic exam. */}
+      {/* Dit franchement, parce que la mesure est facile à surinterpréter : c'est
+          un indicateur d'intelligibilité, pas un examen de phonétique. */}
       {assessment.pronunciation_score !== null && breakdown?.estimated_from_clarity && (
         <Notice tone="pending">
-          Clarity reflects how confidently the speech engine recognised each word. Treat it as a screening signal,
-          not a certified pronunciation score.
+          La clarté reflète la confiance avec laquelle le moteur a reconnu chaque mot. À prendre comme un signal
+          de présélection, pas comme une note de prononciation certifiée.
         </Notice>
       )}
     </div>

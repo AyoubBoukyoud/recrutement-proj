@@ -14,27 +14,27 @@ import type {
 } from '../types/candidate'
 
 const LANGUAGES: { value: Language; label: string }[] = [
-  { value: 'fr', label: 'French' },
-  { value: 'ar', label: 'Arabic' },
-  { value: 'en', label: 'English' },
-  { value: 'de', label: 'German' },
+  { value: 'fr', label: 'Français' },
+  { value: 'ar', label: 'Arabe' },
+  { value: 'en', label: 'Anglais' },
+  { value: 'de', label: 'Allemand' },
 ]
 
 const EDUCATION_LEVELS = [
-  { value: 'general_school', label: 'General school' },
-  { value: 'vocational', label: 'Vocational' },
-  { value: 'professional_training', label: 'Professional training' },
-  { value: 'bachelor', label: 'Bachelor' },
+  { value: 'general_school', label: 'Enseignement général' },
+  { value: 'vocational', label: 'Formation professionnelle' },
+  { value: 'professional_training', label: 'Formation qualifiante' },
+  { value: 'bachelor', label: 'Licence' },
   { value: 'master', label: 'Master' },
-  { value: 'other', label: 'Other' },
+  { value: 'other', label: 'Autre' },
 ]
 
 const STAGE_LABELS: Record<ShortlistStage, string> = {
-  saved: 'Saved',
-  contacted: 'Contacted',
-  interviewing: 'Interviewing',
-  placed: 'Placed',
-  rejected: 'Not proceeding',
+  saved: 'Enregistré',
+  contacted: 'Contacté',
+  interviewing: 'En entretien',
+  placed: 'Placé',
+  rejected: 'Sans suite',
 }
 
 type Filters = {
@@ -67,7 +67,7 @@ const EMPTY_FILTERS: Filters = {
   submitted_only: false,
 }
 
-/** Drops empties, so the query string carries only what the recruiter chose. */
+/** Écarte les vides, pour que la requête ne porte que les choix du recruteur. */
 function toParams(filters: Filters, page: number) {
   const params: Record<string, string | number> = { page }
 
@@ -89,8 +89,13 @@ function Toggle({
   onChange: (checked: boolean) => void
 }) {
   return (
-    <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-sm)', fontSize: 14, cursor: 'pointer' }}>
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+    <label className="flex cursor-pointer items-center gap-2 text-sm text-on-surface">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="h-4 w-4 rounded border-outline-variant text-primary accent-primary focus:ring-2 focus:ring-primary/25"
+      />
       {label}
     </label>
   )
@@ -98,39 +103,40 @@ function Toggle({
 
 function CandidateCard({ candidate, onOpen }: { candidate: CandidateListItem; onOpen: () => void }) {
   return (
-    <Card style={{ padding: 0 }}>
-      {/* A button, not a clickable div — the whole card is one target and has
-          to be reachable by keyboard like every other control here. */}
-      <button className="card-button" onClick={onOpen}>
-        <h3 style={{ marginBottom: 'var(--sp-xs)' }}>
-          {candidate.first_name} {candidate.last_name}
-        </h3>
-        <p className="helper-text">
-          {candidate.profession ?? 'No profession set'}
-          {candidate.specialization ? ` · ${candidate.specialization}` : ''}
-          {candidate.years_of_experience != null ? ` · ${candidate.years_of_experience} yrs` : ''}
-        </p>
+    /* Un bouton, pas un div cliquable — la carte entière est une seule cible et
+       doit s'atteindre au clavier comme n'importe quel autre contrôle ici. */
+    <button
+      onClick={onOpen}
+      className="group h-full rounded-card border border-outline-variant bg-surface-lowest p-5 text-left transition-colors hover:border-primary focus-visible:border-primary"
+    >
+      <h3 className="mb-1 text-[15px] font-semibold text-on-surface group-hover:text-primary">
+        {candidate.first_name} {candidate.last_name}
+      </h3>
+      <p className="helper-text">
+        {candidate.profession ?? 'Métier non renseigné'}
+        {candidate.specialization ? ` · ${candidate.specialization}` : ''}
+        {candidate.years_of_experience != null ? ` · ${candidate.years_of_experience} ans` : ''}
+      </p>
 
-        <div style={{ display: 'flex', gap: 6, marginTop: 'var(--sp-sm)', flexWrap: 'wrap' }}>
-          {candidate.languages.map((l) => (
-            <Badge key={l.id} tone={l.cefr_level ? 'done' : 'pending'}>
-              {l.language.toUpperCase()} {l.cefr_level ?? '—'}
-            </Badge>
-          ))}
-        </div>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {candidate.languages.map((l) => (
+          <Badge key={l.id} tone={l.cefr_level ? 'done' : 'pending'}>
+            {l.language.toUpperCase()} {l.cefr_level ?? '—'}
+          </Badge>
+        ))}
+      </div>
 
-        {/* Where this recruiter left off, and what is worth their time. Triage
-            marks belong on the card, not two clicks into the dossier. */}
-        <div style={{ display: 'flex', gap: 6, marginTop: 'var(--sp-sm)', flexWrap: 'wrap' }}>
-          {candidate.shortlisted && candidate.shortlist_stage && (
-            <Badge tone="done">{STAGE_LABELS[candidate.shortlist_stage]}</Badge>
-          )}
-          {candidate.has_verified_assessment && <Badge>assessed</Badge>}
-          {candidate.has_video && <Badge>video</Badge>}
-          {!candidate.submitted && <Badge tone="pending">draft</Badge>}
-        </div>
-      </button>
-    </Card>
+      {/* Où ce recruteur s'était arrêté, et ce qui mérite son temps. Les marques
+          de tri appartiennent à la carte, pas à deux clics dans le dossier. */}
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {candidate.shortlisted && candidate.shortlist_stage && (
+          <Badge tone="done">{STAGE_LABELS[candidate.shortlist_stage]}</Badge>
+        )}
+        {candidate.has_verified_assessment && <Badge>évalué</Badge>}
+        {candidate.has_video && <Badge>vidéo</Badge>}
+        {!candidate.submitted && <Badge tone="pending">brouillon</Badge>}
+      </div>
+    </button>
   )
 }
 
@@ -150,80 +156,61 @@ function ShortlistView({ onOpen }: { onOpen: (id: number) => void }) {
     const url = URL.createObjectURL(response.data as Blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `shortlist-${new Date().toISOString().slice(0, 10)}.csv`
+    link.download = `selection-${new Date().toISOString().slice(0, 10)}.csv`
     link.click()
     URL.revokeObjectURL(url)
   }
 
   return (
     <Card>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'start',
-          gap: 'var(--sp-md)',
-          flexWrap: 'wrap',
-        }}
-      >
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <SectionHeader
           eyebrow="Pipeline"
-          title="My shortlist"
-          subtitle="Candidates you saved, and where each one has got to."
+          title="Ma sélection"
+          subtitle="Les candidats que vous avez retenus, et où chacun en est."
         />
         <Button variant="ghost" size="compact" onClick={downloadCsv}>
-          Export CSV
+          Exporter en CSV
         </Button>
       </div>
 
-      {isLoading && <p className="helper-text">Loading…</p>}
+      {isLoading && <p className="helper-text">Chargement…</p>}
       {data && data.data.length === 0 && (
-        <p className="helper-text">Nothing saved yet. Open a candidate and save them to start a pipeline.</p>
+        <p className="helper-text">
+          Rien d&apos;enregistré pour l&apos;instant. Ouvrez un candidat et retenez-le pour démarrer un pipeline.
+        </p>
       )}
 
-      <div style={{ display: 'grid', gap: 'var(--sp-sm)' }}>
+      <div className="grid gap-2">
         {data?.data.map((row) => (
           <div
             key={row.id}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--sp-md)',
-              flexWrap: 'wrap',
-              padding: 'var(--sp-sm) 0',
-              borderTop: '1px solid var(--line)',
-            }}
+            className="flex flex-wrap items-center gap-4 border-t border-outline-variant py-2"
           >
             <button
               onClick={() => onOpen(row.candidate_profile_id)}
-              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}
+              className="cursor-pointer border-none bg-transparent p-0 text-left"
             >
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 15 }}>
+              <span className="text-[15px] font-semibold text-on-surface hover:text-primary">
                 {row.candidate?.first_name} {row.candidate?.last_name}
               </span>
-              <span className="helper-text" style={{ display: 'block' }}>
-                {row.candidate?.profession ?? 'No profession set'}
-              </span>
+              <span className="helper-text block">{row.candidate?.profession ?? 'Métier non renseigné'}</span>
             </button>
 
             <Badge tone={row.stage === 'placed' ? 'done' : 'pending'}>{STAGE_LABELS[row.stage]}</Badge>
 
             {row.contact?.phone && (
-              <a href={`tel:${row.contact.phone}`} style={{ fontFamily: 'var(--font-mono)', fontSize: 13 }}>
+              <a href={`tel:${row.contact.phone}`} className="font-mono text-[13px] text-primary hover:underline">
                 {row.contact.phone}
               </a>
             )}
 
-            {row.notes && (
-              <span className="helper-text" style={{ flexBasis: '100%' }}>
-                {row.notes}
-              </span>
-            )}
+            {row.notes && <span className="helper-text basis-full">{row.notes}</span>}
           </div>
         ))}
       </div>
 
-      <div style={{ marginTop: 'var(--sp-md)' }}>
+      <div className="mt-4">
         <Pagination page={page} data={data} onPage={setPage} />
       </div>
     </Card>
@@ -247,37 +234,30 @@ export default function RecruiterSearch() {
 
   function applyFilters(next: Filters) {
     setAppliedFilters(next)
-    // A new search starts at the beginning; staying on page 4 of the previous
-    // result set is how a filter comes to look as though it returned nothing.
+    // Une nouvelle recherche repart du début ; rester en page 4 du jeu de
+    // résultats précédent, c'est ainsi qu'un filtre paraît n'avoir rien renvoyé.
     setPage(1)
   }
 
   return (
-    <div>
-      <TopBar title="Recruiter search" />
-      <main
-        style={{
-          maxWidth: 900,
-          margin: '0 auto',
-          padding: 'var(--sp-xl) var(--sp-lg)',
-          display: 'grid',
-          gap: 'var(--sp-lg)',
-        }}
-      >
+    <div className="min-h-screen bg-surface">
+      <TopBar title="Recherche recruteur" />
+
+      <main className="mx-auto grid max-w-5xl gap-6 px-6 py-8">
         {openId ? (
           <CandidateDossier id={openId} onBack={() => setOpenId(null)} />
         ) : (
           <>
-            <div style={{ display: 'flex', gap: 'var(--sp-sm)' }}>
+            <div className="flex gap-2">
               <Button variant={tab === 'search' ? 'primary' : 'ghost'} size="compact" onClick={() => setTab('search')}>
-                Search
+                Recherche
               </Button>
               <Button
                 variant={tab === 'shortlist' ? 'primary' : 'ghost'}
                 size="compact"
                 onClick={() => setTab('shortlist')}
               >
-                My shortlist
+                Ma sélection
               </Button>
             </div>
 
@@ -286,12 +266,12 @@ export default function RecruiterSearch() {
             ) : (
               <>
                 <Card>
-                  <SectionHeader eyebrow="Search" title="Filters" />
+                  <SectionHeader eyebrow="Recherche" title="Filtres" />
 
-                  <div style={{ display: 'grid', gap: 'var(--sp-md)' }}>
+                  <div className="grid gap-4">
                     <Field
-                      label="Search"
-                      placeholder="Name, profession or specialisation"
+                      label="Recherche"
+                      placeholder="Nom, métier ou spécialisation"
                       value={filters.q}
                       onChange={(e) => setFilters({ ...filters, q: e.target.value })}
                       onKeyDown={(e) => {
@@ -299,29 +279,23 @@ export default function RecruiterSearch() {
                       }}
                     />
 
-                    <div
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-                        gap: 'var(--sp-md)',
-                      }}
-                    >
+                    <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
                       <Field
-                        label="Profession"
+                        label="Métier"
                         value={filters.profession}
                         onChange={(e) => setFilters({ ...filters, profession: e.target.value })}
                       />
                       <Field
-                        label="Specialization"
+                        label="Spécialisation"
                         value={filters.specialization}
                         onChange={(e) => setFilters({ ...filters, specialization: e.target.value })}
                       />
                       <SelectField
-                        label="Language"
+                        label="Langue"
                         value={filters.language}
                         onChange={(e) => setFilters({ ...filters, language: e.target.value as Language | '' })}
                       >
-                        <option value="">Any</option>
+                        <option value="">Indifférent</option>
                         {LANGUAGES.map((l) => (
                           <option key={l.value} value={l.value}>
                             {l.label}
@@ -329,11 +303,11 @@ export default function RecruiterSearch() {
                         ))}
                       </SelectField>
                       <SelectField
-                        label="Min. CEFR level"
+                        label="Niveau CECRL min."
                         value={filters.cefr_level}
                         onChange={(e) => setFilters({ ...filters, cefr_level: e.target.value })}
                       >
-                        <option value="">Any</option>
+                        <option value="">Indifférent</option>
                         {['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map((l) => (
                           <option key={l} value={l}>
                             {l}
@@ -341,27 +315,27 @@ export default function RecruiterSearch() {
                         ))}
                       </SelectField>
                       <Field
-                        label="Min. years of experience"
+                        label="Années d'expérience min."
                         type="number"
                         value={filters.min_experience}
                         onChange={(e) => setFilters({ ...filters, min_experience: e.target.value })}
                       />
                       <SelectField
-                        label="Availability"
+                        label="Disponibilité"
                         value={filters.availability_status}
                         onChange={(e) => setFilters({ ...filters, availability_status: e.target.value })}
                       >
-                        <option value="">Any</option>
-                        <option value="immediate">Immediate</option>
-                        <option value="within_1_month">Within 1 month</option>
-                        <option value="within_2_months">Within 2 months</option>
+                        <option value="">Indifférent</option>
+                        <option value="immediate">Immédiate</option>
+                        <option value="within_1_month">Sous 1 mois</option>
+                        <option value="within_2_months">Sous 2 mois</option>
                       </SelectField>
                       <SelectField
-                        label="Education level"
+                        label="Niveau d'études"
                         value={filters.education_level}
                         onChange={(e) => setFilters({ ...filters, education_level: e.target.value })}
                       >
-                        <option value="">Any</option>
+                        <option value="">Indifférent</option>
                         {EDUCATION_LEVELS.map((level) => (
                           <option key={level.value} value={level.value}>
                             {level.label}
@@ -369,43 +343,43 @@ export default function RecruiterSearch() {
                         ))}
                       </SelectField>
                       <SelectField
-                        label="Sort by"
+                        label="Trier par"
                         value={filters.sort}
                         onChange={(e) => {
-                          // Sorting is not a filter you compose — it applies
-                          // to the results already on screen.
+                          // Le tri ne se compose pas comme un filtre : il
+                          // s'applique aux résultats déjà à l'écran.
                           const next = { ...filters, sort: e.target.value }
                           setFilters(next)
                           applyFilters(next)
                         }}
                       >
-                        <option value="recent">Recently updated</option>
-                        <option value="experience">Most experienced</option>
-                        <option value="name">Name (A–Z)</option>
+                        <option value="recent">Mise à jour récente</option>
+                        <option value="experience">Plus expérimenté</option>
+                        <option value="name">Nom (A–Z)</option>
                       </SelectField>
                     </div>
 
-                    <div style={{ display: 'flex', gap: 'var(--sp-lg)', flexWrap: 'wrap' }}>
+                    <div className="flex flex-wrap gap-6">
                       <Toggle
-                        label="Has presentation video"
+                        label="Vidéo de présentation"
                         checked={filters.has_video}
                         onChange={(v) => setFilters({ ...filters, has_video: v })}
                       />
                       <Toggle
-                        label="Verified language assessment"
+                        label="Évaluation de langue vérifiée"
                         checked={filters.verified_assessment}
                         onChange={(v) => setFilters({ ...filters, verified_assessment: v })}
                       />
                       <Toggle
-                        label="Dossier submitted"
+                        label="Dossier soumis"
                         checked={filters.submitted_only}
                         onChange={(v) => setFilters({ ...filters, submitted_only: v })}
                       />
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', gap: 'var(--sp-sm)', marginTop: 'var(--sp-lg)' }}>
-                    <Button onClick={() => applyFilters(filters)}>Search</Button>
+                  <div className="mt-6 flex gap-2">
+                    <Button onClick={() => applyFilters(filters)}>Rechercher</Button>
                     <Button
                       variant="ghost"
                       onClick={() => {
@@ -413,22 +387,18 @@ export default function RecruiterSearch() {
                         applyFilters(EMPTY_FILTERS)
                       }}
                     >
-                      Clear
+                      Réinitialiser
                     </Button>
                   </div>
                 </Card>
 
-                {isLoading && <p className="helper-text">Loading candidates…</p>}
-                {data && data.data.length === 0 && <p className="helper-text">No candidates match these filters.</p>}
+                {isLoading && <p className="helper-text">Chargement des candidats…</p>}
+                {data && data.data.length === 0 && (
+                  <p className="helper-text">Aucun candidat ne correspond à ces filtres.</p>
+                )}
 
-                <div style={{ display: 'grid', gap: 'var(--sp-md)' }}>
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-                      gap: 'var(--sp-md)',
-                    }}
-                  >
+                <div className="grid gap-4">
+                  <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(260px,1fr))]">
                     {data?.data.map((c) => (
                       <CandidateCard key={c.id} candidate={c} onOpen={() => setOpenId(c.id)} />
                     ))}

@@ -40,39 +40,34 @@ type ReferralRow = {
 const deepLink = (token: string) => `recruitment://register?ref=${token}`
 
 const STATUS_COPY: Record<ReferralRow['commission_status'], string> = {
-  pending: 'waiting on their dossier',
-  qualified: 'earned',
-  approved: 'approved for payout',
-  paid: 'paid',
-  rejected: 'not payable',
+  pending: 'en attente de leur dossier',
+  qualified: 'acquise',
+  approved: 'approuvée pour versement',
+  paid: 'payée',
+  rejected: 'non payable',
 }
 
 const currency = (amount: number, code: string) => `${amount.toFixed(2)} ${code}`
 
-/** The three numbers an agent opens this page for. */
+/** Les trois chiffres pour lesquels un agent ouvre cette page. */
 function Earnings({ earnings }: { earnings: Earnings }) {
   const tiles = [
-    { label: 'Owed to you', value: currency(earnings.owed, earnings.currency), accent: true },
-    { label: 'Paid out', value: currency(earnings.paid, earnings.currency), accent: false },
-    { label: 'Registrations', value: String(earnings.registrations), accent: false },
+    { label: 'Dû', value: currency(earnings.owed, earnings.currency), accent: true },
+    { label: 'Versé', value: currency(earnings.paid, earnings.currency), accent: false },
+    { label: 'Inscriptions', value: String(earnings.registrations), accent: false },
   ]
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 'var(--sp-md)' }}>
+    <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))]">
       {tiles.map((tile) => (
         <div
           key={tile.label}
-          style={{
-            display: 'grid',
-            gap: 4,
-            padding: 'var(--sp-md)',
-            border: '1px solid var(--line)',
-            borderRadius: 'var(--radius-md)',
-            background: tile.accent ? 'var(--accent-soft)' : 'transparent',
-          }}
+          className={`grid gap-1 rounded-element border border-outline-variant p-4 ${
+            tile.accent ? 'bg-primary/[0.06]' : 'bg-transparent'
+          }`}
         >
           <Eyebrow>{tile.label}</Eyebrow>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 18 }}>{tile.value}</span>
+          <span className="font-mono text-lg tabular-nums text-on-surface">{tile.value}</span>
         </div>
       ))}
     </div>
@@ -93,39 +88,32 @@ function ReferralList() {
   return (
     <Card>
       <SectionHeader
-        eyebrow="Your referrals"
-        title="Who you brought in"
-        subtitle="A referral is earned once the candidate submits their completed dossier."
+        eyebrow="Vos parrainages"
+        title="Qui vous avez amené"
+        subtitle="Un parrainage est acquis dès que le candidat soumet son dossier complété."
       />
 
-      {isLoading && <p className="helper-text">Loading…</p>}
+      {isLoading && <p className="helper-text">Chargement…</p>}
       {data && data.data.length === 0 && (
-        <p className="helper-text">Nobody has signed up with your code yet.</p>
+        <p className="helper-text">Personne ne s&apos;est encore inscrit avec votre code.</p>
       )}
 
-      <div style={{ display: 'grid', gap: 'var(--sp-sm)' }}>
+      <div className="grid gap-2">
         {data?.data.map((row) => (
-          <div
-            key={row.id}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--sp-sm)',
-              flexWrap: 'wrap',
-              paddingTop: 'var(--sp-sm)',
-              borderTop: '1px solid var(--line)',
-            }}
-          >
-            <div style={{ display: 'grid', gap: 2, flex: 1, minWidth: 160 }}>
-              <span style={{ fontSize: 14 }}>{row.candidate_name ?? 'Signed up, no name yet'}</span>
+          <div key={row.id} className="flex flex-wrap items-center gap-2 border-t border-outline-variant pt-2">
+            <div className="grid min-w-[160px] flex-1 gap-0.5">
+              <span className="text-sm text-on-surface">
+                {row.candidate_name ?? 'Inscrit, nom non renseigné'}
+              </span>
               <span className="helper-text">
-                {row.profession ?? 'No profession set'} · {new Date(row.registered_at).toLocaleDateString()}
+                {row.profession ?? 'Métier non renseigné'} ·{' '}
+                {new Date(row.registered_at).toLocaleDateString('fr-FR')}
               </span>
             </div>
             <Badge tone={row.commission_status === 'paid' ? 'done' : 'pending'}>
               {STATUS_COPY[row.commission_status]}
             </Badge>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13 }}>
+            <span className="font-mono text-[13px] tabular-nums text-on-surface">
               {row.commission_amount == null
                 ? '—'
                 : `${Number(row.commission_amount).toFixed(2)} ${row.commission_currency ?? ''}`.trim()}
@@ -134,7 +122,7 @@ function ReferralList() {
         ))}
       </div>
 
-      <div style={{ marginTop: 'var(--sp-md)' }}>
+      <div className="mt-4">
         <Pagination page={page} data={data} onPage={setPage} />
       </div>
     </Card>
@@ -162,22 +150,27 @@ export default function AgentDashboard() {
 
   useEffect(() => {
     if (data && canvasRef.current) {
+      // De l'encre plutôt que du vert : ce code est imprimé puis scanné dans
+      // la lumière où se trouve l'agent — le contraste l'emporte sur la teinte.
+      // La valeur est lue sur la variable CSS que le plugin Tailwind pose
+      // depuis packages/design-tokens, pour ne pas recopier un token ici.
+      const ink =
+        getComputedStyle(document.documentElement).getPropertyValue('--on-surface').trim() || '#191C1D'
+
       QRCode.toCanvas(canvasRef.current, deepLink(data.qr_code_token), {
         width: 240,
         margin: 1,
-        // Ink rather than seal green: this code gets printed and scanned in
-        // whatever light the agent is standing in, so contrast wins over tint.
-        color: { dark: '#141a17', light: '#ffffff' },
+        color: { dark: ink, light: '#ffffff' },
       })
     }
   }, [data])
 
-  /** A file the agent can put in a print shop's hands, not a screenshot. */
+  /** Un fichier que l'agent peut confier à un imprimeur, pas une capture d'écran. */
   function downloadPng() {
     if (!canvasRef.current || !data) return
     const link = document.createElement('a')
     link.href = canvasRef.current.toDataURL('image/png')
-    link.download = `referral-qr-${data.qr_code_token.slice(0, 8)}.png`
+    link.download = `qr-parrainage-${data.qr_code_token.slice(0, 8)}.png`
     link.click()
   }
 
@@ -189,58 +182,45 @@ export default function AgentDashboard() {
   }
 
   return (
-    <div>
-      <TopBar title="Referral QR" />
-      <main
-        style={{
-          maxWidth: 520,
-          margin: '0 auto',
-          padding: 'var(--sp-xl) var(--sp-lg)',
-          display: 'grid',
-          gap: 'var(--sp-lg)',
-        }}
-      >
+    <div className="min-h-screen bg-surface">
+      <TopBar title="QR de parrainage" />
+      <main className="mx-auto grid max-w-[520px] gap-6 px-6 py-8">
         <Card>
           <SectionHeader
-            eyebrow="Referral"
-            title="Your recruitment QR code"
-            subtitle="Candidates who scan this are attributed to you, and you earn once they submit a completed dossier."
+            eyebrow="Parrainage"
+            title="Votre QR code de recrutement"
+            subtitle="Les candidats qui le scannent vous sont attribués, et vous gagnez dès qu'ils soumettent un dossier complété."
           />
-          <canvas ref={canvasRef} style={{ margin: '0 auto', display: 'block', maxWidth: '100%' }} />
+          <canvas ref={canvasRef} className="mx-auto block max-w-full" />
 
           {data && (
-            <div style={{ display: 'grid', gap: 'var(--sp-xs)', justifyItems: 'center', marginTop: 'var(--sp-md)' }}>
-              <Eyebrow>Token</Eyebrow>
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-muted)' }}>
-                {data.qr_code_token}
-              </p>
+            <div className="mt-4 grid justify-items-center gap-1">
+              <Eyebrow>Jeton</Eyebrow>
+              <p className="font-mono text-xs text-on-surface-variant">{data.qr_code_token}</p>
               <span className="helper-text">
-                {currency(data.commission_rate, data.earnings.currency)} per qualifying referral
+                {currency(data.commission_rate, data.earnings.currency)} par parrainage acquis
               </span>
             </div>
           )}
 
-          <div
-            className="no-print"
-            style={{ display: 'flex', gap: 'var(--sp-sm)', justifyContent: 'center', marginTop: 'var(--sp-md)', flexWrap: 'wrap' }}
-          >
+          <div className="no-print mt-4 flex flex-wrap justify-center gap-2">
             <Button variant="ghost" size="compact" onClick={downloadPng}>
-              Download PNG
+              Télécharger en PNG
             </Button>
             <Button variant="ghost" size="compact" onClick={() => window.print()}>
-              Print
+              Imprimer
             </Button>
             <Button variant="ghost" size="compact" onClick={copyLink}>
-              {copied ? 'Link copied' : 'Copy link'}
+              {copied ? 'Lien copié' : 'Copier le lien'}
             </Button>
           </div>
 
           {data?.previous_token_active_until && (
-            <div style={{ marginTop: 'var(--sp-md)' }}>
+            <div className="mt-4">
               <Notice tone="pending">
-                Your previous code still works until{' '}
-                {new Date(data.previous_token_active_until).toLocaleDateString()}, so anything already
-                printed keeps counting until then.
+                Votre code précédent fonctionne encore jusqu&apos;au{' '}
+                {new Date(data.previous_token_active_until).toLocaleDateString('fr-FR')} : ce qui est déjà
+                imprimé continue donc de compter jusque-là.
               </Notice>
             </div>
           )}
@@ -248,40 +228,46 @@ export default function AgentDashboard() {
 
         {data && (
           <Card>
-            <SectionHeader eyebrow="Earnings" title="What you have earned" />
+            <SectionHeader eyebrow="Gains" title="Ce que vous avez gagné" />
             <Earnings earnings={data.earnings} />
           </Card>
         )}
 
         <ReferralList />
 
-        {/* Rotation used to silently kill every QR code an agent had already
-            handed out. It is now a decision, with the consequence spelled out. */}
+        {/* La rotation tuait silencieusement chaque QR code qu'un agent avait déjà
+            distribué. C'est désormais une décision, dont la conséquence est dite. */}
         {confirmingRotate ? (
-          <Card style={{ display: 'grid', gap: 'var(--sp-md)' }}>
-            <SectionHeader eyebrow="Careful" title="Generate a new code?" />
-            <p style={{ fontSize: 14 }}>
-              Your current code stops being handed out immediately. Codes you have already printed or
-              posted keep working for{' '}
-              <strong>{data?.grace_days ?? 30} more days</strong>, then stop attributing registrations
-              to you.
-            </p>
-            <p className="helper-text">Do this if your code has been copied or misused.</p>
-            <div style={{ display: 'flex', gap: 'var(--sp-sm)', flexWrap: 'wrap' }}>
-              <Button onClick={() => rotateMutation.mutate()} disabled={rotateMutation.isPending}>
-                {rotateMutation.isPending ? 'Generating…' : 'Yes, generate a new code'}
-              </Button>
-              <Button variant="ghost" onClick={() => setConfirmingRotate(false)} disabled={rotateMutation.isPending}>
-                Cancel
-              </Button>
+          <Card>
+            <div className="grid gap-4">
+              <SectionHeader eyebrow="Attention" title="Générer un nouveau code ?" />
+              <p className="text-sm text-on-surface">
+                Votre code actuel cesse immédiatement d&apos;être distribué. Les codes déjà imprimés ou
+                affichés continuent de fonctionner pendant{' '}
+                <strong>{data?.grace_days ?? 30} jours</strong>, puis cessent de vous attribuer les
+                inscriptions.
+              </p>
+              <p className="helper-text">À faire si votre code a été copié ou détourné.</p>
+              <div className="flex flex-wrap gap-2">
+                <Button onClick={() => rotateMutation.mutate()} disabled={rotateMutation.isPending}>
+                  {rotateMutation.isPending ? 'Génération…' : 'Oui, générer un nouveau code'}
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => setConfirmingRotate(false)}
+                  disabled={rotateMutation.isPending}
+                >
+                  Annuler
+                </Button>
+              </div>
+              {rotateMutation.error && (
+                <Notice>{apiErrorMessage(rotateMutation.error, "Cela n'a pas fonctionné. Réessayez.")}</Notice>
+              )}
             </div>
-            {rotateMutation.error && (
-              <Notice>{apiErrorMessage(rotateMutation.error, 'That did not work. Try again.')}</Notice>
-            )}
           </Card>
         ) : (
           <Button variant="ghost" className="no-print" onClick={() => setConfirmingRotate(true)}>
-            Generate a new code
+            Générer un nouveau code
           </Button>
         )}
       </main>

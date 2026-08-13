@@ -6,13 +6,20 @@ import { ShortlistPanel } from './ShortlistPanel'
 import { Badge, Button, Card, Eyebrow } from './ui'
 import type { CandidateDetail } from '../types/candidate'
 
-const storageUrl = (path: string) => `${import.meta.env.VITE_API_URL.replace(/\/api$/, '')}/storage/${path}`
+const storageUrl = (path: string) =>
+  `${(import.meta.env.VITE_API_URL ?? '').replace(/\/api$/, '')}/storage/${path}`
 
-/** Sections of a dossier are labelled by the form, so they take an eyebrow
- *  rather than a heading that would compete with the candidate's name. */
+const AVAILABILITY_LABELS: Record<string, string> = {
+  immediate: 'disponible immédiatement',
+  within_1_month: 'disponible sous 1 mois',
+  within_2_months: 'disponible sous 2 mois',
+}
+
+/** Les sections d'un dossier sont étiquetées par le formulaire : elles prennent
+ *  un surtitre plutôt qu'un titre qui concurrencerait le nom du candidat. */
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ display: 'grid', gap: 'var(--sp-sm)', borderTop: '1px solid var(--line)', paddingTop: 'var(--sp-md)' }}>
+    <div className="grid gap-2 border-t border-outline-variant pt-4">
       <Eyebrow>{title}</Eyebrow>
       <div>{children}</div>
     </div>
@@ -27,31 +34,31 @@ export function CandidateDossier({ id, onBack }: { id: number; onBack: () => voi
 
   return (
     <Card>
-      <Button variant="ghost" size="compact" onClick={onBack} className="no-print" style={{ marginBottom: 'var(--sp-lg)' }}>
-        ← Back to results
+      <Button variant="ghost" size="compact" onClick={onBack} className="no-print mb-6">
+        ← Retour aux résultats
       </Button>
 
-      {isLoading && <p className="helper-text">Loading…</p>}
+      {isLoading && <p className="helper-text">Chargement…</p>}
 
       {data && (
-        <div style={{ display: 'grid', gap: 'var(--sp-lg)' }}>
-          <div style={{ display: 'grid', gap: 'var(--sp-xs)', justifyItems: 'start' }}>
-            <h1>
+        <div className="grid gap-6">
+          <div className="grid justify-items-start gap-1">
+            <h1 className="title">
               {data.first_name} {data.last_name}
             </h1>
             <p className="helper-text">
               {data.profession} {data.specialization ? `· ${data.specialization}` : ''}
-              {data.years_of_experience != null ? ` · ${data.years_of_experience} years experience` : ''}
+              {data.years_of_experience != null ? ` · ${data.years_of_experience} ans d'expérience` : ''}
             </p>
-            <div style={{ display: 'flex', gap: 'var(--sp-sm)', flexWrap: 'wrap' }}>
+            <div className="flex flex-wrap gap-2">
               {data.availability_status && (
                 <Badge tone={data.availability_status === 'immediate' ? 'done' : 'pending'}>
-                  {data.availability_status.replace(/_/g, ' ')}
+                  {AVAILABILITY_LABELS[data.availability_status] ?? data.availability_status.replace(/_/g, ' ')}
                 </Badge>
               )}
-              {/* A draft is still discoverable, but a recruiter should know
-                  they are looking at one before they act on it. */}
-              {data.submitted_at ? <Badge tone="done">dossier submitted</Badge> : <Badge>still a draft</Badge>}
+              {/* Un brouillon reste visible, mais un recruteur doit savoir qu'il
+                  en consulte un avant d'agir dessus. */}
+              {data.submitted_at ? <Badge tone="done">dossier soumis</Badge> : <Badge>encore un brouillon</Badge>}
             </div>
           </div>
 
@@ -59,29 +66,29 @@ export function CandidateDossier({ id, onBack }: { id: number; onBack: () => voi
             <ShortlistPanel candidate={data} />
           </div>
 
-          <Section title="Languages">
-            <div style={{ display: 'grid', gap: 'var(--sp-sm)' }}>
-              {data.languages.length === 0 && <p className="helper-text">None declared.</p>}
+          <Section title="Langues">
+            <div className="grid gap-2">
+              {data.languages.length === 0 && <p className="helper-text">Aucune déclarée.</p>}
               {data.languages.map((l) => (
-                <div key={l.id} style={{ display: 'flex', gap: 'var(--sp-sm)', alignItems: 'center', flexWrap: 'wrap' }}>
+                <div key={l.id} className="flex flex-wrap items-center gap-2">
                   <Badge tone={l.cefr_level ? 'done' : 'pending'}>
                     {l.language.toUpperCase()} {l.cefr_level ?? '—'} ({l.source.replace(/_/g, ' ')})
                   </Badge>
-                  {/* Both sources, always — the effective level is the higher
-                      of the two, so a recruiter needs to see which is which
-                      rather than one number of unknown provenance. */}
-                  {l.self_declared_cefr && <span className="helper-text">declared {l.self_declared_cefr}</span>}
-                  {l.ai_cefr && <span className="helper-text">AI {l.ai_cefr}</span>}
-                  {l.level_discrepancy && <Badge tone="pending">declared and assessed levels differ</Badge>}
+                  {/* Les deux sources, toujours — le niveau retenu est le plus
+                      élevé des deux, donc un recruteur doit voir lequel est
+                      lequel plutôt qu'un chiffre de provenance inconnue. */}
+                  {l.self_declared_cefr && <span className="helper-text">déclaré {l.self_declared_cefr}</span>}
+                  {l.ai_cefr && <span className="helper-text">IA {l.ai_cefr}</span>}
+                  {l.level_discrepancy && <Badge tone="pending">niveaux déclaré et évalué divergents</Badge>}
                 </div>
               ))}
             </div>
           </Section>
 
-          <Section title="Education">
-            {data.educations.length === 0 && <p className="helper-text">None recorded.</p>}
+          <Section title="Formation">
+            {data.educations.length === 0 && <p className="helper-text">Aucune enregistrée.</p>}
             {data.educations.map((e) => (
-              <p key={e.id} style={{ fontSize: 14, marginBottom: 'var(--sp-xs)' }}>
+              <p key={e.id} className="mb-1 text-sm text-on-surface">
                 {e.level.replace(/_/g, ' ')} {e.field ? `· ${e.field}` : ''} {e.institution ? `· ${e.institution}` : ''}
               </p>
             ))}
@@ -92,14 +99,14 @@ export function CandidateDossier({ id, onBack }: { id: number; onBack: () => voi
           </Section>
 
           {data.language_assessments.length > 0 && (
-            <Section title="AI assessment metrics">
+            <Section title="Mesures de l'évaluation IA">
               <AssessmentMetrics assessments={data.language_assessments} />
             </Section>
           )}
 
           {data.presentation_video_path && (
-            <Section title="Presentation video">
-              <video controls style={{ width: '100%', maxWidth: 480, borderRadius: 'var(--radius-md)' }}>
+            <Section title="Vidéo de présentation">
+              <video controls className="w-full max-w-[480px] rounded-element">
                 <source src={storageUrl(data.presentation_video_path)} />
               </video>
             </Section>

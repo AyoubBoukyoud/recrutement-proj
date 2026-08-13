@@ -8,7 +8,7 @@ import type { AdminCandidateDetail as Detail, AdminDocument } from '../../types/
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ display: 'grid', gap: 'var(--sp-sm)', borderTop: '1px solid var(--line)', paddingTop: 'var(--sp-md)' }}>
+    <div className="grid gap-2 border-t border-outline-variant pt-4">
       <Eyebrow tone="accent">{title}</Eyebrow>
       {children}
     </div>
@@ -17,10 +17,18 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 const APPROVAL_TONE = { approved: 'done', rejected: 'pending', pending: 'pending' } as const
 
+const APPROVAL_LABELS = { approved: 'approuvé', rejected: 'rejeté', pending: 'en attente' } as const
+
+const DOCUMENT_LABELS: Record<AdminDocument['type'], string> = {
+  cv: 'CV',
+  certificate: 'certificat',
+  diploma: 'diplôme',
+}
+
 /**
- * Accept or reject one document. Distinct from `ocr_status`: a legible
- * photograph of the wrong diploma scans perfectly and is still not acceptable,
- * and the candidate needs to be told which of the two happened.
+ * Accepter ou rejeter un document. Distinct d'`ocr_status` : la photo lisible
+ * du mauvais diplôme se scanne parfaitement et reste irrecevable, et le
+ * candidat doit savoir lequel des deux s'est produit.
  */
 function DocumentRow({ document, candidateId }: { document: AdminDocument; candidateId: number }) {
   const queryClient = useQueryClient()
@@ -38,55 +46,55 @@ function DocumentRow({ document, candidateId }: { document: AdminDocument; candi
   })
 
   return (
-    <div style={{ display: 'grid', gap: 'var(--sp-sm)', padding: 'var(--sp-sm) 0' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-sm)', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 14, flex: 1, minWidth: 120 }}>{document.type}</span>
-        <Badge tone={APPROVAL_TONE[document.approval_status]}>{document.approval_status}</Badge>
-        {/* Our scanner's verdict, kept visibly separate from ours. */}
-        {document.ocr_status !== 'completed' && <Badge>scan: {document.ocr_status.replace('_', ' ')}</Badge>}
+    <div className="grid gap-2 py-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="min-w-[120px] flex-1 text-sm text-on-surface">{DOCUMENT_LABELS[document.type]}</span>
+        <Badge tone={APPROVAL_TONE[document.approval_status]}>{APPROVAL_LABELS[document.approval_status]}</Badge>
+        {/* Le verdict de notre scanner, tenu visiblement à part du nôtre. */}
+        {document.ocr_status !== 'completed' && <Badge>scan : {document.ocr_status.replace('_', ' ')}</Badge>}
         {document.url && (
-          <a href={document.url} target="_blank" rel="noreferrer" className="helper-text">
-            Open
+          <a href={document.url} target="_blank" rel="noreferrer" className="helper-text hover:text-primary">
+            Ouvrir
           </a>
         )}
       </div>
 
       {document.rejection_reason && !rejecting && (
-        <p className="helper-text">Rejected: {document.rejection_reason}</p>
+        <p className="helper-text">Rejeté : {document.rejection_reason}</p>
       )}
 
       {rejecting ? (
-        <div style={{ display: 'grid', gap: 'var(--sp-sm)' }}>
+        <div className="grid gap-2">
           <Field
-            label="Why is this being rejected?"
-            hint="the candidate sees this"
+            label="Pourquoi ce document est-il rejeté ?"
+            hint="le candidat le voit"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="This is a payslip, not a diploma."
+            placeholder="Il s'agit d'un bulletin de paie, pas d'un diplôme."
           />
-          <div style={{ display: 'flex', gap: 'var(--sp-sm)' }}>
+          <div className="flex gap-2">
             <Button
               size="compact"
               disabled={!reason.trim() || review.isPending}
               onClick={() => review.mutate({ approval_status: 'rejected', rejection_reason: reason.trim() })}
             >
-              Confirm rejection
+              Confirmer le rejet
             </Button>
             <Button variant="ghost" size="compact" onClick={() => setRejecting(false)}>
-              Cancel
+              Annuler
             </Button>
           </div>
         </div>
       ) : (
-        <div style={{ display: 'flex', gap: 'var(--sp-sm)' }}>
+        <div className="flex gap-2">
           {document.approval_status !== 'approved' && (
             <Button size="compact" variant="ghost" onClick={() => review.mutate({ approval_status: 'approved' })}>
-              Approve
+              Approuver
             </Button>
           )}
           {document.approval_status !== 'rejected' && (
             <Button size="compact" variant="ghost" onClick={() => setRejecting(true)}>
-              Reject
+              Rejeter
             </Button>
           )}
         </div>
@@ -95,8 +103,8 @@ function DocumentRow({ document, candidateId }: { document: AdminDocument; candi
   )
 }
 
-/** Verification and internal notes — the administrator's own judgement, which
- *  the completeness checklist deliberately cannot express. */
+/** Vérification et notes internes — le jugement propre de l'administrateur, que
+ *  la liste de complétude ne sait délibérément pas exprimer. */
 function VerificationPanel({ candidate }: { candidate: Detail }) {
   const queryClient = useQueryClient()
   const [notes, setNotes] = useState(candidate.admin_notes ?? '')
@@ -112,33 +120,32 @@ function VerificationPanel({ candidate }: { candidate: Detail }) {
   })
 
   return (
-    <div style={{ display: 'grid', gap: 'var(--sp-sm)' }}>
+    <div className="grid gap-2">
       {candidate.verified_at ? (
         <Notice tone="pending">
-          {`Verified by ${candidate.verified_by?.name ?? 'an administrator'}. Recruiters see this dossier as checked.`}
+          {`Vérifié par ${candidate.verified_by?.name ?? 'un administrateur'}. Les recruteurs voient ce dossier comme contrôlé.`}
         </Notice>
       ) : (
         <p className="helper-text">
-          Not yet verified. The checklist reports what exists; verifying records that a person read it.
+          Pas encore vérifié. La liste rapporte ce qui existe ; vérifier enregistre qu&apos;une personne l&apos;a lu.
         </p>
       )}
 
       <textarea
-        className="field-input"
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
-        placeholder="Internal follow-up notes — never shown to the candidate or to recruiters."
+        placeholder="Notes de suivi internes — jamais montrées au candidat ni aux recruteurs."
         rows={3}
-        style={{ width: '100%', minHeight: 72, resize: 'vertical' }}
+        className="min-h-[72px] w-full resize-y rounded-element border border-outline bg-surface-lowest px-3.5 py-2.5 text-[15px] text-on-surface transition-colors placeholder:text-outline focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
       />
 
-      <div style={{ display: 'flex', gap: 'var(--sp-sm)', flexWrap: 'wrap' }}>
+      <div className="flex flex-wrap gap-2">
         <Button
           size="compact"
           disabled={mutation.isPending || notes === (candidate.admin_notes ?? '')}
           onClick={() => mutation.mutate({ admin_notes: notes })}
         >
-          Save notes
+          Enregistrer les notes
         </Button>
         <Button
           variant="ghost"
@@ -146,7 +153,7 @@ function VerificationPanel({ candidate }: { candidate: Detail }) {
           disabled={mutation.isPending}
           onClick={() => mutation.mutate({ verified: !candidate.verified_at })}
         >
-          {candidate.verified_at ? 'Withdraw verification' : 'Mark verified'}
+          {candidate.verified_at ? 'Retirer la vérification' : 'Marquer vérifié'}
         </Button>
       </div>
     </div>
@@ -161,46 +168,48 @@ export function AdminCandidateDetail({ id, onBack }: { id: number; onBack: () =>
 
   return (
     <Card>
-      <Button variant="ghost" size="compact" onClick={onBack} style={{ marginBottom: 'var(--sp-lg)' }}>
-        ← Back to candidates
+      <Button variant="ghost" size="compact" onClick={onBack} className="mb-6">
+        ← Retour aux candidats
       </Button>
 
-      {isLoading && <p className="helper-text">Loading…</p>}
+      {isLoading && <p className="helper-text">Chargement…</p>}
 
       {data && (
-        <div style={{ display: 'grid', gap: 'var(--sp-lg)' }}>
-          <div style={{ display: 'grid', gap: 'var(--sp-xs)', justifyItems: 'start' }}>
-            <h1>{[data.first_name, data.last_name].filter(Boolean).join(' ') || data.user.phone}</h1>
+        <div className="grid gap-6">
+          <div className="grid justify-items-start gap-1">
+            <h1 className="title">
+              {[data.first_name, data.last_name].filter(Boolean).join(' ') || data.user.phone}
+            </h1>
             <p className="helper-text">
               {[
                 data.user.phone,
                 data.profession,
                 data.specialization,
-                data.years_of_experience != null ? `${data.years_of_experience} years` : null,
+                data.years_of_experience != null ? `${data.years_of_experience} ans` : null,
               ]
                 .filter(Boolean)
                 .join(' · ')}
             </p>
-            <div style={{ display: 'flex', gap: 'var(--sp-sm)', flexWrap: 'wrap' }}>
+            <div className="flex flex-wrap gap-2">
               <Badge tone={data.verified_at ? 'done' : 'pending'}>
-                {data.verified_at ? 'verified' : data.submitted_at ? 'submitted' : 'draft'}
+                {data.verified_at ? 'vérifié' : data.submitted_at ? 'soumis' : 'brouillon'}
               </Badge>
-              <Badge>{data.completeness.percent}% complete</Badge>
+              <Badge>{data.completeness.percent} % complet</Badge>
               <EngagementBadge engagement={data.engagement} />
             </div>
           </div>
 
-          <Section title="Verification">
+          <Section title="Vérification">
             <VerificationPanel candidate={data} />
           </Section>
 
-          <Section title="Daily internship">
+          <Section title="Stage quotidien">
             <AssignTasks candidate={data} />
           </Section>
 
           <Section title="Documents">
             {data.documents.length === 0 ? (
-              <p className="helper-text">Nothing uploaded yet.</p>
+              <p className="helper-text">Rien de téléversé pour l&apos;instant.</p>
             ) : (
               data.documents.map((document) => (
                 <DocumentRow key={document.id} document={document} candidateId={data.id} />
@@ -208,31 +217,31 @@ export function AdminCandidateDetail({ id, onBack }: { id: number; onBack: () =>
             )}
           </Section>
 
-          <Section title="Languages">
+          <Section title="Langues">
             {data.languages.length === 0 ? (
-              <p className="helper-text">None declared.</p>
+              <p className="helper-text">Aucune déclarée.</p>
             ) : (
-              <div style={{ display: 'grid', gap: 4 }}>
+              <div className="grid gap-1">
                 {data.languages.map((language) => (
-                  <div key={language.id} style={{ display: 'flex', gap: 'var(--sp-sm)', alignItems: 'center' }}>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, width: 32 }}>
+                  <div key={language.id} className="flex items-center gap-2">
+                    <span className="w-8 font-mono text-[13px] text-on-surface">
                       {language.language.toUpperCase()}
                     </span>
-                    <span style={{ fontSize: 14, width: 40 }}>{language.cefr_level ?? '—'}</span>
+                    <span className="w-10 text-sm text-on-surface">{language.cefr_level ?? '—'}</span>
                     <span className="helper-text">{language.source.replace(/_/g, ' ')}</span>
-                    {language.level_discrepancy && <Badge>sources disagree</Badge>}
+                    {language.level_discrepancy && <Badge>sources divergentes</Badge>}
                   </div>
                 ))}
               </div>
             )}
           </Section>
 
-          <Section title="Education">
+          <Section title="Formation">
             {data.educations.length === 0 ? (
-              <p className="helper-text">None recorded.</p>
+              <p className="helper-text">Aucune enregistrée.</p>
             ) : (
               data.educations.map((education) => (
-                <p key={education.id} style={{ fontSize: 14 }}>
+                <p key={education.id} className="text-sm text-on-surface">
                   {[education.field ?? education.level, education.institution, education.ended_at?.slice(0, 4)]
                     .filter(Boolean)
                     .join(' · ')}

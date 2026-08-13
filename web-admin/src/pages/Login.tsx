@@ -23,7 +23,7 @@ export default function Login() {
       setDebugCode(debugCode)
       setStep('code')
     } catch (e) {
-      setError(apiErrorMessage(e, 'Could not send a code — check the phone number and try again.'))
+      setError(apiErrorMessage(e, "Impossible d'envoyer un code — vérifiez le numéro et réessayez."))
     } finally {
       setBusy(false)
     }
@@ -37,41 +37,33 @@ export default function Login() {
       await verifyOtp(phone, code)
       navigate('/')
     } catch (e) {
-      setError(apiErrorMessage(e, 'That code is invalid or has expired.'))
+      setError(apiErrorMessage(e, 'Ce code est invalide ou a expiré.'))
     } finally {
       setBusy(false)
     }
   }
 
   return (
-    <main
-      style={{
-        minHeight: '100svh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 24,
-      }}
-    >
-      <div style={{ width: '100%', maxWidth: 400 }}>
-        <div style={{ marginBottom: 'var(--sp-xl)', display: 'grid', gap: 'var(--sp-sm)', justifyItems: 'center' }}>
+    <main className="flex min-h-[100svh] items-center justify-center bg-surface p-6">
+      <div className="w-full max-w-[400px]">
+        <div className="mb-8 grid justify-items-center gap-2">
           <Wordmark />
-          <p className="helper-text">Operator access for admins and recruiters</p>
+          <p className="helper-text">Accès opérateur — administrateurs et recruteurs</p>
         </div>
 
-        <div className="card" style={{ padding: 'var(--sp-lg)' }}>
-          <div style={{ marginBottom: 'var(--sp-lg)' }}>
+        <div className="rounded-card border border-outline-variant bg-surface-lowest p-6">
+          <div className="mb-6">
             <StepLedger
               step={step === 'phone' ? 0 : 1}
               total={2}
-              label={step === 'phone' ? 'Phone number' : 'Confirm code'}
+              label={step === 'phone' ? 'Numéro de téléphone' : 'Confirmer le code'}
             />
           </div>
 
           {step === 'phone' && (
-            <form onSubmit={handleRequestOtp} style={{ display: 'grid', gap: 'var(--sp-md)' }}>
+            <form onSubmit={handleRequestOtp} className="grid gap-4">
               <Field
-                label="Phone number"
+                label="Numéro de téléphone"
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
@@ -80,17 +72,17 @@ export default function Login() {
                 required
               />
               <Button type="submit" disabled={!phone || busy}>
-                {busy ? 'Sending…' : 'Send code'}
+                {busy ? 'Envoi…' : 'Envoyer le code'}
               </Button>
             </form>
           )}
 
           {step === 'code' && (
-            <form onSubmit={handleVerifyOtp} style={{ display: 'grid', gap: 'var(--sp-md)' }}>
+            <form onSubmit={handleVerifyOtp} className="grid gap-4">
               {debugCode && <Badge>DEV OTP · {debugCode}</Badge>}
               <Field
-                label="Verification code"
-                hint={`Sent to ${phone}`}
+                label="Code de vérification"
+                hint={`Envoyé au ${phone}`}
                 type="text"
                 inputMode="numeric"
                 value={code}
@@ -98,19 +90,19 @@ export default function Login() {
                 maxLength={6}
                 autoFocus
                 required
-                style={{ fontFamily: 'var(--font-mono)', letterSpacing: '0.3em', textAlign: 'center' }}
+                className="text-center font-mono tracking-[0.3em]"
               />
               <Button type="submit" disabled={code.length !== 6 || busy}>
-                {busy ? 'Verifying…' : 'Verify & sign in'}
+                {busy ? 'Vérification…' : 'Vérifier et se connecter'}
               </Button>
               <Button type="button" variant="ghost" onClick={() => setStep('phone')}>
-                Use a different number
+                Utiliser un autre numéro
               </Button>
             </form>
           )}
 
           {error && (
-            <div style={{ marginTop: 'var(--sp-md)' }}>
+            <div className="mt-4">
               <Notice>{error}</Notice>
             </div>
           )}

@@ -8,10 +8,18 @@ import type { PaginatedResponse } from '../../types/candidate'
 
 const CATEGORIES: TaskCategory[] = ['language', 'documents', 'culture', 'admin', 'other']
 
+const CATEGORY_LABELS: Record<TaskCategory, string> = {
+  language: 'langue',
+  documents: 'documents',
+  culture: 'culture',
+  admin: 'administratif',
+  other: 'autre',
+}
+
 /**
- * The catalogue of preparation activities behind the daily internship.
- * Activities are retired rather than deleted — assignments already made are
- * the only record of what a candidate was asked to do.
+ * Le catalogue des activités de préparation derrière le stage quotidien.
+ * Les activités sont retirées plutôt que supprimées — les assignations déjà
+ * faites sont le seul registre de ce qui a été demandé à un candidat.
  */
 export function TaskCataloguePanel() {
   const queryClient = useQueryClient()
@@ -58,29 +66,23 @@ export function TaskCataloguePanel() {
     <Card>
       <SectionHeader
         eyebrow="Stage à distance"
-        title="Daily internship"
-        subtitle={isLoading ? 'Loading…' : 'Activities assigned to candidates, roughly an hour a day'}
+        title="Stage quotidien"
+        subtitle={
+          isLoading ? 'Chargement…' : 'Activités assignées aux candidats, environ une heure par jour'
+        }
       />
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(180px, 2fr) minmax(120px, 1fr) minmax(90px, 1fr) auto',
-          gap: 'var(--sp-sm)',
-          alignItems: 'end',
-          marginBottom: 'var(--sp-md)',
-        }}
-      >
+      <div className="mb-4 grid items-end gap-2 [grid-template-columns:minmax(180px,2fr)_minmax(120px,1fr)_minmax(90px,1fr)_auto]">
         <Field
-          label="New activity"
+          label="Nouvelle activité"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Read one German news article aloud"
+          placeholder="Lire à voix haute un article de presse allemand"
         />
-        <SelectField label="Category" value={category} onChange={(e) => setCategory(e.target.value as TaskCategory)}>
+        <SelectField label="Catégorie" value={category} onChange={(e) => setCategory(e.target.value as TaskCategory)}>
           {CATEGORIES.map((c) => (
             <option key={c} value={c}>
-              {c}
+              {CATEGORY_LABELS[c]}
             </option>
           ))}
         </SelectField>
@@ -93,38 +95,28 @@ export function TaskCataloguePanel() {
           onChange={(e) => setMinutes(e.target.value)}
         />
         <Button disabled={!title.trim() || create.isPending} onClick={() => create.mutate()}>
-          Add
+          Ajouter
         </Button>
       </div>
 
-      <div style={{ display: 'grid', gap: 'var(--sp-sm)' }}>
+      <div className="grid gap-2">
         {(data?.data ?? []).map((task) => (
-          <div
-            key={task.id}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--sp-sm)',
-              flexWrap: 'wrap',
-              borderTop: '1px solid var(--line)',
-              paddingTop: 'var(--sp-sm)',
-            }}
-          >
-            <span style={{ fontSize: 14, flex: 1, minWidth: 160 }}>{task.title}</span>
-            <Badge>{task.category}</Badge>
+          <div key={task.id} className="flex flex-wrap items-center gap-2 border-t border-outline-variant pt-2">
+            <span className="min-w-[160px] flex-1 text-sm text-on-surface">{task.title}</span>
+            <Badge>{CATEGORY_LABELS[task.category]}</Badge>
             <span className="helper-text">{task.estimated_minutes} min</span>
             {task.assignments_count != null && (
-              <span className="helper-text">{`assigned ${task.assignments_count}×`}</span>
+              <span className="helper-text">{`assignée ${task.assignments_count}×`}</span>
             )}
             {task.is_active ? (
               <Button variant="ghost" size="compact" onClick={() => retire.mutate(task.id)}>
-                Retire
+                Retirer
               </Button>
             ) : (
               <>
-                <Badge>retired</Badge>
+                <Badge>retirée</Badge>
                 <Button variant="ghost" size="compact" onClick={() => restore.mutate(task.id)}>
-                  Restore
+                  Rétablir
                 </Button>
               </>
             )}
@@ -132,22 +124,24 @@ export function TaskCataloguePanel() {
         ))}
 
         {!isLoading && (data?.data.length ?? 0) === 0 && (
-          <p className="helper-text">No activities yet. Add one above to start assigning work.</p>
+          <p className="helper-text">
+            Aucune activité pour l&apos;instant. Ajoutez-en une ci-dessus pour commencer à assigner du travail.
+          </p>
         )}
       </div>
 
-      <div style={{ marginTop: 'var(--sp-md)', display: 'grid', gap: 'var(--sp-sm)' }}>
+      <div className="mt-4 grid gap-2">
         <Pagination page={page} data={data} onPage={setPage} />
         <Button
           variant="ghost"
           size="compact"
+          className="justify-self-start"
           onClick={() => {
             setIncludeInactive((v) => !v)
             setPage(1)
           }}
-          style={{ justifySelf: 'start' }}
         >
-          {includeInactive ? 'Hide retired' : 'Show retired'}
+          {includeInactive ? 'Masquer les retirées' : 'Afficher les retirées'}
         </Button>
       </div>
     </Card>

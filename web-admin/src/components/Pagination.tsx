@@ -2,11 +2,11 @@ import { Button } from './ui'
 import type { PaginatedResponse } from '../types/candidate'
 
 /**
- * The API has always paginated at 20 and nothing ever asked for page two, so
- * candidate #21 onward was invisible without anyone being told. Rendered
- * whenever there is more than one page — and the total is shown even when
- * there is not, because "12 candidates" is the answer to the question the
- * recruiter actually asked.
+ * L'API a toujours paginé par 20 sans que rien ne demande jamais la page deux :
+ * à partir du 21e candidat, plus personne n'était visible et personne n'en
+ * était averti. Affichée dès qu'il y a plus d'une page — et le total est
+ * montré même quand il n'y en a qu'une, parce que « 12 candidats » répond à la
+ * question que le recruteur s'est réellement posée.
  */
 export function Pagination<T>({
   page,
@@ -22,38 +22,20 @@ export function Pagination<T>({
   const { current_page, last_page, total } = data
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 'var(--sp-md)',
-        flexWrap: 'wrap',
-      }}
-    >
+    <div className="flex flex-wrap items-center justify-between gap-4">
       <span className="helper-text">
         {last_page > 1
-          ? `Page ${current_page} of ${last_page} · ${total} candidate${total === 1 ? '' : 's'}`
-          : `${total} candidate${total === 1 ? '' : 's'}`}
+          ? `Page ${current_page} sur ${last_page} · ${total} candidat${total === 1 ? '' : 's'}`
+          : `${total} candidat${total === 1 ? '' : 's'}`}
       </span>
 
       {last_page > 1 && (
-        <div style={{ display: 'flex', gap: 'var(--sp-sm)' }}>
-          <Button
-            variant="ghost"
-            size="compact"
-            disabled={current_page <= 1}
-            onClick={() => onPage(page - 1)}
-          >
-            ← Previous
+        <div className="flex gap-2">
+          <Button variant="ghost" size="compact" disabled={current_page <= 1} onClick={() => onPage(page - 1)}>
+            ← Précédent
           </Button>
-          <Button
-            variant="ghost"
-            size="compact"
-            disabled={current_page >= last_page}
-            onClick={() => onPage(page + 1)}
-          >
-            Next →
+          <Button variant="ghost" size="compact" disabled={current_page >= last_page} onClick={() => onPage(page + 1)}>
+            Suivant →
           </Button>
         </div>
       )}

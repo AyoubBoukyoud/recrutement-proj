@@ -7,12 +7,12 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "verify:no-mocks": "VITE_USE_MOCKS=0 vite build && ! grep -rlE 'Youssef Amrani|mock-token-|cv-youssef-amrani|\\[maquette\\]' dist/assets/"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.3.0",
     "@fontsource/inter": "^5.3.0",
-    "@fontsource/space-grotesk": "^5.3.0",
     "@tanstack/react-query": "^5.101.4",
     "axios": "^1.18.1",
     "qrcode": "^1.5.4",
@@ -26,7 +26,10 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
+    "autoprefixer": "^10.5.4",
     "oxlint": "^1.71.0",
+    "postcss": "^8.5.26",
+    "tailwindcss": "^3.4.19",
     "typescript": "~6.0.2",
     "vite": "^8.1.1"
   }
