@@ -56,47 +56,6 @@ export interface CandidateProfile {
   avatarInitials: string;
 }
 
-export interface JobOffer {
-  id: string;
-  company: string;
-  role: string;
-  location: string;
-  salary: string;
-  status: 'entretien' | 'envoye' | 'nouveau';
-}
-
-export interface CandidateSummary {
-  id: string;
-  name: string;
-  avatarInitials: string;
-  role: string;
-  sector: string;
-  city: string;
-  languageLevel: string;
-  yearsExperience: number;
-  status: 'nouveau' | 'contacte' | 'entretien' | 'valide';
-  matchScore: number;
-  mutualInterest: boolean;
-}
-
-export interface Message {
-  id: string;
-  authorId: string;
-  authorRole: UserRole;
-  text: string;
-  sentAt: string;
-}
-
-export interface Conversation {
-  id: string;
-  candidateId: string;
-  candidateName: string;
-  lastMessage: string;
-  lastMessageAt: string;
-  unread: number;
-  messages: Message[];
-}
-
 export interface TimelineStep {
   id: string;
   label: string;
@@ -114,36 +73,6 @@ export interface ReclamationEntry {
   createdAt: string;
   authorName: string;
   authorRole: UserRole;
-}
-
-export interface AdminUserEntry {
-  id: string;
-  name: string;
-  role: UserRole;
-  email: string;
-  status: 'actif' | 'suspendu' | 'en_attente';
-  createdAt: string;
-}
-
-export interface ReferralEntry {
-  id: string;
-  sponsorName: string;
-  refereeName: string;
-  status: 'invite' | 'inscrit' | 'recrute';
-  reward: string;
-  createdAt: string;
-}
-
-export interface JobListing {
-  id: string;
-  role: string;
-  company: string;
-  sector: string;
-  location: string;
-  salaryRange: string;
-  levelRequired: string;
-  contractType: string;
-  urgent?: boolean;
 }
 
 export type SyncActionType =

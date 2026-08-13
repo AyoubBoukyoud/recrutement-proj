@@ -2,28 +2,42 @@
 
 // Interface 14 — Formulaire de réclamation.
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useNetwork } from '@/context/NetworkContext';
 import { useProfile } from '@/context/ProfileContext';
 import { AudioRecorder } from '@/components/shared/AudioRecorder';
-import { MOCK_RECLAMATIONS } from '@/lib/mockData';
+import { candidateRepository } from '@/data/candidate';
 import type { ReclamationEntry } from '@/lib/types';
+import { Button } from '@/components/shared/Button';
 
 const CATEGORIES = ['Problème technique', 'Question sur mon dossier', 'Signaler une offre suspecte', 'Suggestion', 'Autre'];
 
 export default function ReclamationPage() {
   const { isOnline, queueAction } = useNetwork();
   const { profile } = useProfile();
-  const [entries, setEntries] = useState<ReclamationEntry[]>(
-    MOCK_RECLAMATIONS.filter((r) => r.authorRole === 'candidate')
-  );
+  const [entries, setEntries] = useState<ReclamationEntry[]>([]);
   const [category, setCategory] = useState('');
   const [message, setMessage] = useState('');
   const [voiceNoteUrl, setVoiceNoteUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [ticketRef, setTicketRef] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    candidateRepository
+      .complaints()
+      .then((list) => {
+        if (!cancelled) setEntries(list);
+      })
+      .catch(() => {
+        if (!cancelled) setEntries([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleSubmit = async () => {
     if (!category || (!message.trim() && !voiceNoteUrl)) {
@@ -32,29 +46,31 @@ export default function ReclamationPage() {
     }
     setError(null);
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 500));
 
-    const entry: ReclamationEntry = {
-      id: `rec_${Date.now()}`,
-      subject: category,
-      category,
-      message: message.trim() || 'Message vocal joint',
-      status: 'ouverte',
-      createdAt: new Date().toISOString(),
-      authorName: `${profile.firstName} ${profile.lastName}`.trim() || 'Candidat',
-      authorRole: 'candidate',
-    };
+    const authorName = `${profile.firstName} ${profile.lastName}`.trim() || 'Candidat';
 
-    if (!isOnline) {
-      queueAction('submit_reclamation', { entry });
+    try {
+      const entry = await candidateRepository.submitComplaint(
+        { category, message: message.trim() || 'Message vocal joint', voiceNoteUrl },
+        authorName
+      );
+
+      // Hors-ligne, la réclamation est rejouée à la reconnexion ; elle est tout
+      // de même affichée tout de suite, sinon l'envoi paraîtrait sans effet.
+      if (!isOnline) {
+        queueAction('submit_reclamation', { entry });
+      }
+
+      setEntries((prev) => [entry, ...prev]);
+      setCategory('');
+      setMessage('');
+      setVoiceNoteUrl(null);
+      setTicketRef(`AMU-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 9000) + 1000)}`);
+    } catch {
+      setError("L'envoi a échoué. Réessayez dans un instant.");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setEntries((prev) => [entry, ...prev]);
-    setCategory('');
-    setMessage('');
-    setVoiceNoteUrl(null);
-    setIsSubmitting(false);
-    setTicketRef(`AMU-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 9000) + 1000)}`);
   };
 
   return (
@@ -99,7 +115,7 @@ export default function ReclamationPage() {
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-4 py-3.5 text-sm outline-none transition-all focus:border-primary-dark focus:ring-2 focus:ring-primary-dark/20"
+              className="w-full rounded-xl border border-outline bg-surface-container-lowest px-4 py-3.5 text-sm outline-none transition-all focus:border-primary-dark focus:ring-2 focus:ring-primary-dark/20"
             >
               <option value="" disabled>Choisir un type…</option>
               {CATEGORIES.map((c) => (
@@ -117,7 +133,7 @@ export default function ReclamationPage() {
               value={message}
               onChange={(e) => setMessage(e.target.value.slice(0, 1000))}
               placeholder="Décrivez votre problème…"
-              className="h-36 w-full resize-none rounded-xl border border-outline-variant bg-surface-container-lowest p-4 text-sm outline-none transition-all focus:border-primary-dark focus:ring-2 focus:ring-primary-dark/20"
+              className="h-36 w-full resize-none rounded-xl border border-outline bg-surface-container-lowest p-4 text-sm outline-none transition-all focus:border-primary-dark focus:ring-2 focus:ring-primary-dark/20"
             />
           </div>
 
@@ -138,15 +154,18 @@ export default function ReclamationPage() {
 
         {error && <p className="text-sm font-medium text-error">{error}</p>}
 
-        <button
-          type="button"
+        <Button
+          size="lg"
+          fullWidth
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className="flex w-full items-center justify-center gap-3 rounded-xl bg-primary-container py-4 text-lg font-semibold text-on-primary shadow-lg transition-all hover:brightness-105 active:scale-95 disabled:opacity-60"
+          isLoading={isSubmitting}
+          loadingLabel="Envoi en cours…"
+          className="gap-3 text-lg shadow-lg"
         >
           {isSubmitting ? 'Envoi en cours…' : 'Envoyer la réclamation'}
           <span className="material-symbols-outlined" style={{ fontSize: 20 }}>send</span>
-        </button>
+        </Button>
         </div>
 
         <section className="space-y-3 pb-6">
@@ -188,13 +207,9 @@ export default function ReclamationPage() {
               <span className="block text-xs font-bold uppercase tracking-wider text-onSurface-variant">Référence Ticket</span>
               <span className="text-lg font-bold text-primary-dark">#{ticketRef}</span>
             </div>
-            <button
-              type="button"
-              onClick={() => setTicketRef(null)}
-              className="mt-8 w-full rounded-xl bg-primary-dark py-4 text-sm font-semibold text-on-primary"
-            >
+            <Button size="lg" fullWidth onClick={() => setTicketRef(null)} className="mt-8 bg-primary-dark">
               Retour à l&apos;accueil
-            </button>
+            </Button>
           </div>
         </div>
       )}

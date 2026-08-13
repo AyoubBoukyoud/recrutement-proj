@@ -1,6 +1,7 @@
 // Client HTTP minimal vers l'API Laravel. Volontairement réduit à ce dont
-// l'authentification et l'extraction de documents ont besoin : le reste de
-// l'application lit encore mockData.
+// l'authentification et l'extraction de documents ont besoin. Les écrans ne
+// l'appellent jamais directement : ils passent par les dépôts de `src/data`,
+// qui choisissent entre ce client et les maquettes.
 
 export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api').replace(/\/+$/, '');
 

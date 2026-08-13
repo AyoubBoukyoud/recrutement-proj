@@ -13,20 +13,16 @@ import { useAuth } from '@/context/AuthContext';
 import { useProfile } from '@/context/ProfileContext';
 import { useNetwork } from '@/context/NetworkContext';
 import { DocumentViewer } from '@/components/shared/DocumentViewer';
+import { Button } from '@/components/shared/Button';
 import { ApiError } from '@/lib/api';
+import { documentsRepository } from '@/data/documents';
 import {
   DOCUMENT_TYPE_LABELS,
   STATUS_LABELS,
   fieldLabel,
   fileNameOf,
-  getDocument,
   isScanning,
-  listDocuments,
-  rescanDocument,
-  retryDocument,
-  reviewDocument,
   toLocalEntry,
-  uploadDocument,
   type BackendDocumentType,
   type CandidateDocument,
   type ExtractedFields,
@@ -201,7 +197,7 @@ export default function DocumentsPage() {
   const refreshList = useCallback(async () => {
     if (!token) return;
     try {
-      setDocuments(await listDocuments(token));
+      setDocuments(await documentsRepository.list(token));
     } catch {
       // La liste est secondaire : un échec ici ne doit pas masquer l'envoi.
     }
@@ -219,7 +215,7 @@ export default function DocumentsPage() {
     let cancelled = false;
     const timer = setInterval(async () => {
       try {
-        const fresh = await getDocument(active.id, token);
+        const fresh = await documentsRepository.get(active.id, token);
         if (cancelled) return;
         setActive(fresh);
         if (!isScanning(fresh.ocr_status)) void refreshList();
@@ -256,7 +252,7 @@ export default function DocumentsPage() {
     draftFor.current = null;
 
     try {
-      const created = await uploadDocument(file, selectedType, token);
+      const created = await documentsRepository.upload(file, selectedType, token);
       setActive(created);
       updateProfile({ documents: [...profile.documents, toLocalEntry(created, file.name)] });
       void refreshList();
@@ -275,7 +271,7 @@ export default function DocumentsPage() {
     const fields = fieldsFromDraft(active.extraction?.extracted_fields, draft);
 
     try {
-      const response = await reviewDocument(active.id, fields, token, overwrite);
+      const response = await documentsRepository.review(active.id, fields, token, overwrite);
       setResult(response.profile_update);
       updateProfile(localProfilePatch(profile, fields, overwrite));
       void refreshList();
@@ -297,7 +293,7 @@ export default function DocumentsPage() {
     setError(null);
 
     try {
-      setActive(await retryDocument(active.id, token));
+      setActive(await documentsRepository.retry(active.id, token));
       draftFor.current = null;
     } catch (cause) {
       setError(messageOf(cause, 'La nouvelle analyse n\'a pas pu démarrer.'));
@@ -312,7 +308,7 @@ export default function DocumentsPage() {
     setError(null);
 
     try {
-      setActive(await rescanDocument(active.id, file, token));
+      setActive(await documentsRepository.rescan(active.id, file, token));
       draftFor.current = null;
       setDraft(null);
       void refreshList();
@@ -359,17 +355,17 @@ export default function DocumentsPage() {
         <section>
           <div className="flex justify-between gap-1 overflow-x-auto rounded-xl bg-surface-container p-1">
             {DOC_TYPES.map((type) => (
-              <button
+              <Button
                 key={type}
-                type="button"
+                variant={selectedType === type ? 'primary' : 'ghost'}
+                size="sm"
                 onClick={() => setSelectedType(type)}
                 disabled={active != null}
-                className={`flex-1 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-all disabled:opacity-50 ${
-                  selectedType === type ? 'bg-primary-container text-on-primary' : 'text-onSurface-variant hover:bg-surface-container-lowest/60'
-                }`}
+                aria-pressed={selectedType === type}
+                className="flex-1 whitespace-nowrap"
               >
                 {DOCUMENT_TYPE_LABELS[type]}
-              </button>
+              </Button>
             ))}
           </div>
         </section>
@@ -432,24 +428,30 @@ export default function DocumentsPage() {
               </div>
             </button>
             <div className="mt-4 grid grid-cols-2 gap-4">
-              <button
-                type="button"
+              <Button
+                variant="outline"
                 onClick={() => cameraInput.current?.click()}
                 disabled={uploadDisabled}
-                className="flex items-center justify-center gap-2 rounded-xl border border-outline-variant py-3 px-4 font-medium transition-colors hover:bg-surface-container disabled:opacity-50"
+                leadingIcon={
+                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
+                    photo_camera
+                  </span>
+                }
               >
-                <span className="material-symbols-outlined text-primary-container" style={{ fontSize: 20 }}>photo_camera</span>
                 Prendre une photo
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                variant="outline"
                 onClick={() => importInput.current?.click()}
                 disabled={uploadDisabled}
-                className="flex items-center justify-center gap-2 rounded-xl border border-outline-variant py-3 px-4 font-medium transition-colors hover:bg-surface-container disabled:opacity-50"
+                leadingIcon={
+                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
+                    image
+                  </span>
+                }
               >
-                <span className="material-symbols-outlined text-primary-container" style={{ fontSize: 20 }}>image</span>
                 Importer
-              </button>
+              </Button>
             </div>
           </section>
         )}
@@ -484,22 +486,12 @@ export default function DocumentsPage() {
               posez le document à plat, cadrez-le entièrement, évitez les ombres et le flash.
             </p>
             <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => void relaunch()}
-                disabled={busy !== null}
-                className="rounded-xl border border-outline-variant py-3 text-sm font-semibold text-onSurface transition-colors hover:bg-surface-container disabled:opacity-50"
-              >
+              <Button variant="outline" onClick={() => void relaunch()} disabled={busy !== null}>
                 Relancer l&apos;analyse
-              </button>
-              <button
-                type="button"
-                onClick={() => replaceInput.current?.click()}
-                disabled={busy !== null}
-                className="rounded-xl bg-primary-container py-3 text-sm font-bold text-on-primary transition-all hover:opacity-90 disabled:opacity-50"
-              >
+              </Button>
+              <Button onClick={() => replaceInput.current?.click()} disabled={busy !== null}>
                 Remplacer le fichier
-              </button>
+              </Button>
             </div>
           </section>
         )}
@@ -532,7 +524,7 @@ export default function DocumentsPage() {
                     type={type ?? 'text'}
                     placeholder={placeholder}
                     onChange={(e) => setDraft({ ...draft, [key]: e.target.value })}
-                    className="w-full rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm font-medium outline-none focus:border-primary-container"
+                    className="w-full rounded-xl border border-outline bg-surface px-3 py-2.5 text-sm font-medium outline-none focus:border-primary-container"
                   />
                 </div>
               ))}
@@ -585,33 +577,33 @@ export default function DocumentsPage() {
                       Conservé tel que vous l&apos;aviez saisi : {result.skipped.map(fieldLabel).join(', ')}. Le
                       document indique autre chose.
                     </p>
-                    <button
-                      type="button"
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="underline"
                       onClick={() => void confirm(true)}
                       disabled={busy !== null}
-                      className="text-xs font-bold text-primary underline disabled:opacity-50"
                     >
                       Utiliser plutôt les valeurs du document
-                    </button>
+                    </Button>
                   </div>
                 )}
-                <button
-                  type="button"
-                  onClick={reset}
-                  className="w-full rounded-xl border border-outline-variant py-3 text-sm font-semibold text-onSurface transition-colors hover:bg-surface-container"
-                >
+                <Button variant="outline" fullWidth onClick={reset}>
                   Ajouter un autre document
-                </button>
+                </Button>
               </div>
             ) : (
-              <button
-                type="button"
+              <Button
+                size="lg"
+                fullWidth
+                className="mt-6 shadow-sm"
                 onClick={() => void confirm(false)}
                 disabled={busy !== null}
-                className="mt-6 w-full rounded-xl bg-primary-container py-4 text-sm font-bold text-on-primary shadow-sm transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+                isLoading={busy === 'review'}
+                loadingLabel="Enregistrement…"
               >
-                {busy === 'review' ? 'Enregistrement…' : 'Confirmer et compléter mon profil'}
-              </button>
+                Confirmer et compléter mon profil
+              </Button>
             )}
           </section>
         )}
@@ -643,18 +635,17 @@ export default function DocumentsPage() {
                       {DOCUMENT_TYPE_LABELS[document.type]} — {STATUS_LABELS[document.ocr_status]}
                     </span>
                     {active?.id !== document.id && !isScanning(document.ocr_status) && document.extraction && (
-                      <button
-                        type="button"
+                      <Button
+                        variant="link"
                         onClick={() => {
                           draftFor.current = null;
                           setResult(null);
                           setError(null);
                           setActive(document);
                         }}
-                        className="font-semibold text-primary hover:underline"
                       >
                         Vérifier
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </div>

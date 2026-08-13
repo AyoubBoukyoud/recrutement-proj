@@ -1,6 +1,6 @@
 'use client';
 
-import { CEFR_LEVELS } from '@/lib/mockData';
+import { CEFR_LEVELS } from '@/lib/referenceData';
 
 interface CEFRGaugeProps {
   level: (typeof CEFR_LEVELS)[number] | null;

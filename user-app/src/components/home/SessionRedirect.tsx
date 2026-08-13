@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useProfile } from '@/context/ProfileContext';
-import { destinationForRole } from '@/lib/roleDestination';
+import { destinationForRole, navigateTo } from '@/lib/roleDestination';
 
 /**
  * `/` sert deux publics : un visiteur non connecté y trouve la page d'accueil
@@ -23,7 +23,7 @@ export function SessionRedirect() {
 
   useEffect(() => {
     if (isLoading || !isHydrated || !user) return;
-    router.replace(destinationForRole(user.role, getIncompleteStep()));
+    navigateTo(destinationForRole(user.role, getIncompleteStep()), router.replace);
   }, [user, isLoading, isHydrated, router, getIncompleteStep]);
 
   return null;

@@ -2,7 +2,6 @@
 
 import { useRef } from 'react';
 import { Camera } from 'lucide-react';
-import toast from 'react-hot-toast';
 
 const MAX_SIZE_BYTES = 5 * 1024 * 1024;
 
@@ -10,11 +9,25 @@ interface AvatarUploadProps {
   imageUrl: string | null;
   fallbackText: string;
   onChange: (dataUrl: string) => void;
+  /**
+   * Retour à l'utilisateur — succès comme échec. La page décide de son rendu :
+   * il n'y a pas de file d'alertes globale, chaque écran affiche la sienne.
+   * Sans ce rappel, un refus (mauvais format, fichier trop lourd) resterait
+   * silencieux.
+   */
+  onNotify?: (message: string, tone: 'success' | 'error') => void;
   size?: string;
   ariaLabel: string;
 }
 
-export function AvatarUpload({ imageUrl, fallbackText, onChange, size = 'h-32 w-32', ariaLabel }: AvatarUploadProps) {
+export function AvatarUpload({
+  imageUrl,
+  fallbackText,
+  onChange,
+  onNotify,
+  size = 'h-32 w-32',
+  ariaLabel,
+}: AvatarUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,21 +36,21 @@ export function AvatarUpload({ imageUrl, fallbackText, onChange, size = 'h-32 w-
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      toast.error('Veuillez sélectionner une image.');
+      onNotify?.('Veuillez sélectionner une image.', 'error');
       return;
     }
     if (file.size > MAX_SIZE_BYTES) {
-      toast.error('Image trop volumineuse (max 5 Mo).');
+      onNotify?.('Image trop volumineuse (max 5 Mo).', 'error');
       return;
     }
 
     const reader = new FileReader();
     reader.onload = () => {
       onChange(reader.result as string);
-      toast.success('Photo de profil mise à jour.');
+      onNotify?.('Photo de profil mise à jour.', 'success');
     };
     reader.onerror = () => {
-      toast.error("Impossible de lire l'image sélectionnée.");
+      onNotify?.("Impossible de lire l'image sélectionnée.", 'error');
     };
     reader.readAsDataURL(file);
   };

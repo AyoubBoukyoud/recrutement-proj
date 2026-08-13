@@ -2,8 +2,9 @@
 
 // Interface 15 — Profil public candidat (aperçu + édition).
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Button, IconButton } from '@/components/shared/Button';
 import { useRouter } from 'next/navigation';
 import { useProfile } from '@/context/ProfileContext';
 import { useAuth } from '@/context/AuthContext';
@@ -12,10 +13,31 @@ import { DocumentViewer } from '@/components/shared/DocumentViewer';
 import { VideoPlayer } from '@/components/shared/VideoPlayer';
 import { QRCodeGenerator } from '@/components/shared/QRCodeGenerator';
 import { Timeline } from '@/components/shared/Timeline';
-import { MOCK_TIMELINE } from '@/lib/mockData';
+import { SkeletonLoader } from '@/components/shared/SkeletonLoader';
+import { candidateRepository } from '@/data/candidate';
+import type { TimelineStep } from '@/lib/types';
 
 export default function ProfilPage() {
   const router = useRouter();
+  const [timeline, setTimeline] = useState<TimelineStep[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    candidateRepository
+      .timeline()
+      .then((steps) => {
+        if (!cancelled) setTimeline(steps);
+      })
+      .catch(() => {
+        // Le parcours est une section secondaire du profil : s'il manque, le
+        // reste de la page reste utile. Le squelette laisse simplement place
+        // à rien plutôt que de faire échouer l'écran entier.
+        if (!cancelled) setTimeline([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const { logout } = useAuth();
   const { profile, updateProfile } = useProfile();
   const [isEditing, setIsEditing] = useState(false);
@@ -41,14 +63,9 @@ export default function ProfilPage() {
           <span className="material-symbols-outlined text-primary" style={{ fontSize: 22 }}>arrow_back</span>
         </Link>
         <h1 className="text-lg font-semibold text-primary">Mon profil public</h1>
-        <button
-          type="button"
-          onClick={() => setShowQr((v) => !v)}
-          className="rounded-full p-2 transition-colors hover:bg-surface-container"
-          aria-label="Partager"
-        >
+        <IconButton variant="ghost" onClick={() => setShowQr((v) => !v)} aria-label="Partager" className="text-primary">
           <span className="material-symbols-outlined text-primary" style={{ fontSize: 22 }}>ios_share</span>
-        </button>
+        </IconButton>
       </header>
 
       <main className="mx-auto max-w-xl space-y-6 px-6 pt-6 lg:max-w-6xl lg:px-10 lg:pt-8">
@@ -83,13 +100,13 @@ export default function ProfilPage() {
                     value={form.jobTitle}
                     onChange={(e) => setForm((p) => ({ ...p, jobTitle: e.target.value }))}
                     placeholder="Métier"
-                    className="w-full rounded-lg border border-outline-variant px-3 py-2 text-sm outline-none focus:border-primary"
+                    className="w-full rounded-lg border border-outline px-3 py-2 text-sm outline-none focus:border-primary"
                   />
                   <input
                     value={form.city}
                     onChange={(e) => setForm((p) => ({ ...p, city: e.target.value }))}
                     placeholder="Ville"
-                    className="w-full rounded-lg border border-outline-variant px-3 py-2 text-sm outline-none focus:border-primary"
+                    className="w-full rounded-lg border border-outline px-3 py-2 text-sm outline-none focus:border-primary"
                   />
                 </div>
               ) : (
@@ -98,14 +115,15 @@ export default function ProfilPage() {
                   <p className="text-sm text-onSurface-variant">{profile.sector || '—'} · {profile.yearsExperience} ans d&apos;expérience</p>
                 </div>
               )}
-              <button
-                type="button"
+              <Button
+                variant="link"
+                size="sm"
                 onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
-                className="flex shrink-0 items-center gap-1 text-xs font-semibold text-primary hover:underline"
+                className="shrink-0 gap-1 font-semibold"
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 14 }}>{isEditing ? 'check' : 'edit'}</span>
                 {isEditing ? 'Enregistrer' : 'Modifier'}
-              </button>
+              </Button>
             </section>
           </div>
 
@@ -151,7 +169,11 @@ export default function ProfilPage() {
         <section className="space-y-3">
           <h3 className="px-1 text-lg font-bold text-primary">Parcours</h3>
           <div className="rounded-xl border border-outline-variant/30 bg-surface-lowest p-4 shadow-soft">
-            <Timeline steps={MOCK_TIMELINE.slice(0, 2)} />
+            {timeline.length > 0 ? (
+              <Timeline steps={timeline.slice(0, 2)} />
+            ) : (
+              <SkeletonLoader variant="card" />
+            )}
           </div>
         </section>
 
@@ -281,29 +303,30 @@ export default function ProfilPage() {
         </div>
 
         <section>
-          <button
-            type="button"
+          <Button
+            variant="destructive-ghost"
+            fullWidth
             onClick={handleLogout}
-            className="flex w-full items-center justify-center gap-2 rounded-pillar border border-error/20 bg-surface-container-lowest p-3.5 text-sm font-bold text-error shadow-subtle transition-colors hover:bg-error-container/20 lg:mx-auto lg:max-w-sm"
+            className="border-error/20 bg-surface-container-lowest shadow-subtle lg:mx-auto lg:max-w-sm"
           >
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
               logout
             </span>
             Se déconnecter
-          </button>
+          </Button>
         </section>
       </main>
 
       {showQr && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-surface p-6">
-          <button
-            type="button"
+          <IconButton
+            variant="ghost"
             onClick={() => setShowQr(false)}
             aria-label="Fermer"
-            className="absolute right-6 top-6 rounded-full p-2 transition-colors hover:bg-surface-container"
+            className="absolute right-6 top-6 text-primary"
           >
             <span className="material-symbols-outlined text-primary" style={{ fontSize: 28 }}>close</span>
-          </button>
+          </IconButton>
           <h2 className="text-lg font-bold text-primary">Partager mon profil</h2>
           <div className="flex flex-col items-center gap-3 rounded-xl border border-outline-variant/20 bg-surface-lowest p-6 shadow-lg">
             <QRCodeGenerator value={shareUrl} size={220} />

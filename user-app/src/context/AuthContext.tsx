@@ -3,7 +3,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { readStorage, writeStorage, removeStorage, STORAGE_KEYS } from '@/lib/storage';
 import { setCookie, deleteCookie } from '@/lib/cookies';
-import { apiPost, ApiError } from '@/lib/api';
+import { ApiError } from '@/lib/api';
+import { authRepository } from '@/data/auth';
 import type { AuthUser, UserRole } from '@/lib/types';
 
 /**
@@ -26,17 +27,6 @@ export type AuthResult = { ok: true } | Failure;
 /** Le rôle est connu dès la vérification réussie — inutile d'attendre le
  *  prochain rendu pour savoir où envoyer l'appelant. */
 export type VerifyResult = { ok: true; role: UserRole } | Failure;
-
-interface OtpRequestResponse {
-  channel?: string;
-  resend_available_in?: number;
-  debug_otp_code?: string | null;
-}
-
-interface OtpVerifyResponse {
-  token: string;
-  user: { id: number | string; phone: string; roles: string[] };
-}
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -146,10 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setPendingPhone(phone);
 
     try {
-      const data = await apiPost<OtpRequestResponse>('/auth/otp/request', {
-        phone,
-        ...(referralToken ? { referral_token: referralToken } : {}),
-      });
+      const data = await authRepository.requestOtp(phone, referralToken);
 
       setResendAvailableIn(data.resend_available_in ?? null);
 
@@ -169,11 +156,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!target) return { ok: false, reason: 'expired' };
 
       try {
-        const data = await apiPost<OtpVerifyResponse>('/auth/otp/verify', {
-          phone: target,
-          code,
-          device_name: 'Amud Skills PWA',
-        });
+        const data = await authRepository.verifyOtp(target, code);
 
         const role = roleFrom(data.user.roles ?? []);
 
@@ -206,7 +189,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Révocation au mieux : la session locale est fermée quoi qu'il arrive,
     // sinon une déconnexion hors-ligne laisserait l'appareil connecté.
     if (token) {
-      void apiPost('/auth/logout', {}, token).catch(() => undefined);
+      void authRepository.logout(token).catch(() => undefined);
     }
 
     setUser(null);
