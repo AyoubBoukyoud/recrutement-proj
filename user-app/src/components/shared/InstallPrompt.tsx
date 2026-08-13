@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { readStorage, writeStorage, STORAGE_KEYS } from '@/lib/storage';
+import { Button } from '@/components/shared/Button';
 
 // Ne relance pas l'invite avant ce délai lorsque l'utilisateur l'a explicitement écartée.
 const DISMISS_COOLDOWN_MS = 14 * 24 * 60 * 60 * 1000;
@@ -97,17 +98,13 @@ export function InstallPrompt() {
 
           <div className="mt-3 flex items-center gap-3">
             {!showIosHint && (
-              <button
-                type="button"
-                onClick={install}
-                className="rounded-pillar bg-primary px-4 py-2 text-xs font-semibold text-onPrimary shadow-soft"
-              >
+              <Button size="sm" onClick={install} className="shadow-soft">
                 {t('install_cta')}
-              </button>
+              </Button>
             )}
-            <button type="button" onClick={dismiss} className="text-xs font-semibold text-outline">
+            <Button variant="link" size="sm" onClick={dismiss} className="font-semibold text-outline">
               {t('install_dismiss')}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { Button, IconButton } from '@/components/shared/Button';
 
 export default function SimulateurSalairePage() {
   const [profession, setProfession] = useState('Infirmier');
@@ -37,11 +38,11 @@ export default function SimulateurSalairePage() {
           </Link>
           <h1 className="text-lg font-extrabold text-primary">Amud Skills</h1>
         </div>
-        <button type="button" aria-label="Notifications" className="p-2 text-primary">
+        <IconButton variant="ghost" aria-label="Notifications" className="text-primary">
           <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
             notifications
           </span>
-        </button>
+        </IconButton>
       </header>
 
       <main className="mx-auto max-w-xl px-4 py-6 space-y-6 lg:max-w-6xl lg:px-10 lg:py-8">
@@ -68,7 +69,7 @@ export default function SimulateurSalairePage() {
                   onChange={(e) => setProfession(e.target.value)}
                   placeholder="Ex: Infirmier"
                   list="professions-list"
-                  className="w-full rounded-pillar border border-outline-variant bg-surface-container-lowest py-3 pl-11 pr-4 text-sm font-semibold text-onSurface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
+                  className="w-full rounded-pillar border border-outline bg-surface-container-lowest py-3 pl-11 pr-4 text-sm font-semibold text-onSurface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
                 />
                 <datalist id="professions-list">
                   <option value="Infirmier" />
@@ -88,7 +89,7 @@ export default function SimulateurSalairePage() {
                 <select
                   value={region}
                   onChange={(e) => setRegion(e.target.value)}
-                  className="w-full appearance-none rounded-pillar border border-outline-variant bg-surface-container-lowest py-3 pl-11 pr-4 text-sm font-semibold text-onSurface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
+                  className="w-full appearance-none rounded-pillar border border-outline bg-surface-container-lowest py-3 pl-11 pr-4 text-sm font-semibold text-onSurface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
                 >
                   <option value="Berlin">Berlin</option>
                   <option value="Bavière (Munich)">Bavière (Munich)</option>
@@ -111,22 +112,23 @@ export default function SimulateurSalairePage() {
                   value={experience}
                   onChange={(e) => setExperience(e.target.value)}
                   placeholder="0"
-                  className="w-full rounded-pillar border border-outline-variant bg-surface-container-lowest py-3 pl-11 pr-4 text-sm font-semibold text-onSurface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
+                  className="w-full rounded-pillar border border-outline bg-surface-container-lowest py-3 pl-11 pr-4 text-sm font-semibold text-onSurface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
                 />
               </div>
             </div>
 
             <div className="pt-2 lg:col-span-3 lg:pt-0">
-              <button
+              <Button
                 type="submit"
+                fullWidth
                 disabled={isCalculating}
-                className="flex w-full items-center justify-center gap-2 rounded-pillar bg-primary py-3.5 text-xs font-extrabold uppercase tracking-wider text-onPrimary shadow-md transition-all hover:bg-primary/90 active:scale-[0.98] disabled:opacity-60 lg:max-w-xs lg:mx-auto"
+                className="text-xs font-extrabold uppercase tracking-wider shadow-md lg:mx-auto lg:max-w-xs"
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
                   {isCalculating ? 'sync' : 'calculate'}
                 </span>
                 {isCalculating ? 'Calcul en cours...' : 'Calculer'}
-              </button>
+              </Button>
             </div>
           </form>
         </section>
@@ -283,15 +285,12 @@ export default function SimulateurSalairePage() {
               </div>
             </div>
 
-            <button
-              type="button"
-              className="hidden w-full items-center justify-center gap-2 rounded-pillar bg-primary py-3.5 text-xs font-bold text-onPrimary shadow-md transition-all hover:bg-primary/90 active:scale-95 lg:flex"
-            >
+            <Button fullWidth className="hidden text-xs shadow-md lg:inline-flex">
               <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
                 picture_as_pdf
               </span>
               Télécharger l&apos;estimation (PDF)
-            </button>
+            </Button>
           </div>
           </div>
         )}
@@ -299,15 +298,12 @@ export default function SimulateurSalairePage() {
 
       {/* Bottom Action Bar — mobile uniquement, remplacée par le bouton inline en colonne latérale sur desktop. */}
       <footer className="fixed bottom-0 inset-x-0 z-40 mx-auto max-w-xl border-t border-outline-variant bg-surface-container-lowest p-4 shadow-subtle flex justify-center lg:hidden">
-        <button
-          type="button"
-          className="flex w-full items-center justify-center gap-2 rounded-pillar bg-primary py-3.5 text-xs font-bold text-onPrimary shadow-md transition-all hover:bg-primary/90 active:scale-95"
-        >
+        <Button fullWidth className="text-xs shadow-md">
           <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
             picture_as_pdf
           </span>
           Télécharger l&apos;estimation (PDF)
-        </button>
+        </Button>
       </footer>
     </div>
   );

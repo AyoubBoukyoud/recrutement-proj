@@ -4,6 +4,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { IconButton } from '@/components/shared/Button';
 
 export default function VerificationIdentitePage() {
   const [flashOn, setFlashOn] = useState(true);
@@ -98,23 +99,22 @@ export default function VerificationIdentitePage() {
 
           {/* Flash & Switch Toggle */}
           <div className="absolute right-5 top-5 z-30 flex flex-col gap-3">
-            <button
-              type="button"
+            <IconButton
+              variant="ghost"
               onClick={() => setFlashOn(!flashOn)}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-md transition-colors hover:bg-black/70"
+              aria-pressed={flashOn}
+              aria-label="Activer ou couper le flash"
+              className="bg-black/50 text-white backdrop-blur-md hover:enabled:bg-black/70"
             >
               <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
                 {flashOn ? 'flash_on' : 'flash_off'}
               </span>
-            </button>
-            <button
-              type="button"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-md transition-colors hover:bg-black/70"
-            >
+            </IconButton>
+            <IconButton variant="ghost" aria-label="Changer de caméra" className="bg-black/50 text-white backdrop-blur-md hover:enabled:bg-black/70">
               <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
                 flip_camera_ios
               </span>
-            </button>
+            </IconButton>
           </div>
         </div>
 

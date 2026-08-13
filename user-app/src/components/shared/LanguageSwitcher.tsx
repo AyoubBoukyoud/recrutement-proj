@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { LANGUAGES } from '@/lib/i18n';
+import { Button } from '@/components/shared/Button';
 
 export function LanguageSwitcher() {
   const { language, setLanguage } = useLanguage();
@@ -11,10 +12,13 @@ export function LanguageSwitcher() {
 
   return (
     <div className="relative">
-      <button
-        type="button"
+      <Button
+        variant="outline"
+        size="sm"
+        pill
         onClick={() => setIsOpen((v) => !v)}
-        className="flex items-center gap-1.5 rounded-full border border-outline-variant bg-surface-lowest px-3 py-1.5 text-xs font-semibold text-onSurface shadow-sm"
+        aria-expanded={isOpen}
+        className="gap-1.5 border-outline-variant bg-surface-lowest px-3 text-onSurface shadow-sm"
       >
         <span className="material-symbols-outlined" style={{ fontSize: 14 }}>
           language
@@ -26,7 +30,7 @@ export function LanguageSwitcher() {
         >
           expand_more
         </span>
-      </button>
+      </Button>
 
       {isOpen && (
         <>

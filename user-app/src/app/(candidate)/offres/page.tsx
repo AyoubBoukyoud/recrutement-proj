@@ -3,6 +3,7 @@
 // Page : Offres d'emploi - Candidat (Stitch exact template)
 
 import Link from 'next/link';
+import { Button, IconButton } from '@/components/shared/Button';
 import { useState } from 'react';
 
 const JOB_OFFERS = [
@@ -83,15 +84,11 @@ export default function OffresPage() {
           </div>
           <h1 className="text-lg font-extrabold text-primary">Amud Careers</h1>
         </div>
-        <button
-          type="button"
-          aria-label="Notifications"
-          className="rounded-full p-2 text-onSurface-variant hover:bg-surface-container-high transition-colors"
-        >
+        <IconButton variant="ghost" aria-label="Notifications">
           <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
             notifications
           </span>
-        </button>
+        </IconButton>
       </header>
 
       <main className="mx-auto max-w-xl px-4 py-6 lg:max-w-6xl lg:px-10 lg:py-8">
@@ -107,39 +104,39 @@ export default function OffresPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Rechercher un métier ou une ville..."
-              className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest py-3 pl-12 pr-4 text-sm font-semibold text-onSurface outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
+              className="w-full rounded-xl border border-outline bg-surface-container-lowest py-3 pl-12 pr-4 text-sm font-semibold text-onSurface outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
             />
           </div>
         </div>
 
         {/* Filters Section */}
         <div className="mb-6 flex items-center gap-2 overflow-x-auto pb-2 lg:flex-wrap lg:overflow-visible">
-          <button
-            type="button"
+          <Button
+            variant={selectedFilter === 'Tous' ? 'primary' : 'outline'}
+            size="sm"
+            pill
             onClick={() => setSelectedFilter('Tous')}
-            className={`flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition-all shadow-sm ${
-              selectedFilter === 'Tous' ? 'bg-primary text-onPrimary' : 'border border-outline-variant bg-surface-container-lowest text-onSurface'
-            }`}
+            aria-pressed={selectedFilter === 'Tous'}
+            className="shrink-0 gap-1.5 shadow-sm"
           >
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
               tune
             </span>
             <span>Filtres</span>
-          </button>
+          </Button>
           <div className="h-6 w-px shrink-0 bg-outline-variant" />
           {['Santé', 'Électricité', 'Hôtellerie', 'Logistique', 'Disponibilité immédiate'].map((filter) => (
-            <button
+            <Button
               key={filter}
-              type="button"
+              variant={selectedFilter === filter ? 'primary' : 'outline'}
+              size="sm"
+              pill
               onClick={() => setSelectedFilter(filter)}
-              className={`shrink-0 rounded-full border px-4 py-2 text-xs font-bold whitespace-nowrap transition-colors ${
-                selectedFilter === filter
-                  ? 'border-primary bg-surface-container-low text-primary'
-                  : 'border-outline-variant bg-surface-container-lowest text-onSurface hover:bg-surface-container-high'
-              }`}
+              aria-pressed={selectedFilter === filter}
+              className="shrink-0 whitespace-nowrap"
             >
               {filter}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -168,15 +165,18 @@ export default function OffresPage() {
                         </p>
                       </div>
                     </div>
-                    <button
-                      type="button"
+                    <IconButton
+                      variant="ghost"
+                      size="sm"
                       onClick={() => toggleFavorite(job.id)}
-                      className={`p-1 transition-colors ${isFav ? 'text-secondary' : 'text-outline hover:text-secondary'}`}
+                      aria-pressed={isFav}
+                      aria-label={isFav ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                      className={isFav ? 'text-secondary-dark' : 'text-outline hover:enabled:text-secondary-dark'}
                     >
                       <span className={`material-symbols-outlined ${isFav ? 'fill' : ''}`} style={{ fontSize: 22 }}>
                         favorite
                       </span>
-                    </button>
+                    </IconButton>
                   </div>
 
                   <div className="mb-5 space-y-2">
@@ -213,15 +213,16 @@ export default function OffresPage() {
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-gold py-3 text-xs font-extrabold uppercase tracking-wider text-onGold shadow-sm transition-all hover:brightness-95 active:scale-[0.98]"
+                <Button
+                  variant="secondary"
+                  fullWidth
+                  className="text-xs font-extrabold uppercase tracking-wider shadow-sm"
                 >
                   Je suis intéressé
                   <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
                     arrow_forward
                   </span>
-                </button>
+                </Button>
               </div>
             );
           })}

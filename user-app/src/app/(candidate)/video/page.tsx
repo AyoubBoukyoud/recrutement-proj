@@ -8,6 +8,7 @@ import { ChevronLeft, Video, Square, RotateCcw, Check } from 'lucide-react';
 import { useProfile } from '@/context/ProfileContext';
 import { useNetwork } from '@/context/NetworkContext';
 import { VideoPlayer } from '@/components/shared/VideoPlayer';
+import { Button } from '@/components/shared/Button';
 
 export default function VideoRecordingPage() {
   const { profile, updateProfile, markStepComplete } = useProfile();
@@ -81,7 +82,7 @@ export default function VideoRecordingPage() {
 
   return (
     <div>
-      <header className="flex items-center gap-3 bg-navy-900 p-6 pb-8 lg:px-10">
+      <header className="flex items-center gap-3 bg-primary p-6 pb-8 lg:px-10">
         <Link href="/dashboard" className="text-white">
           <ChevronLeft size={22} />
         </Link>
@@ -120,7 +121,7 @@ export default function VideoRecordingPage() {
               type="button"
               onClick={isRecording ? stopRecording : startRecording}
               className={`flex h-16 w-16 items-center justify-center rounded-full shadow-floating ${
-                isRecording ? 'bg-red-500 animate-pulse' : 'bg-navy-900'
+                isRecording ? 'bg-red-500 animate-pulse' : 'bg-primary'
               }`}
             >
               {isRecording ? <Square size={22} className="text-white" /> : <Video size={22} className="text-white" />}
@@ -130,20 +131,12 @@ export default function VideoRecordingPage() {
 
         {recordedUrl && !isRecording && (
           <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => setRecordedUrl(null)}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-gray-200 py-3 text-sm font-bold text-onSurface-variant"
-            >
+            <Button variant="outline" onClick={() => setRecordedUrl(null)} className="flex-1 gap-1.5 text-onSurface-variant">
               <RotateCcw size={16} /> Recommencer
-            </button>
-            <button
-              type="button"
-              onClick={handleSave}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-amber-500 py-3 text-sm font-bold text-white"
-            >
+            </Button>
+            <Button variant="secondary" onClick={handleSave} className="flex-1 gap-1.5">
               <Check size={16} /> Valider
-            </button>
+            </Button>
           </div>
         )}
       </main>

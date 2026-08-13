@@ -6,7 +6,8 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useProfile } from '@/context/ProfileContext';
 import { useNetwork } from '@/context/NetworkContext';
-import { CEFR_LEVELS } from '@/lib/mockData';
+import { CEFR_LEVELS } from '@/lib/referenceData';
+import { Button } from '@/components/shared/Button';
 
 const PROMPT = 'Thema: Beschreiben Sie Ihren Beruf und Ihre täglichen Aufgaben im Detail.';
 const PROMPT_HINT = 'Consigne : Parlez pendant au moins 45 secondes de votre métier et de vos responsabilités quotidiennes.';
@@ -146,14 +147,10 @@ export default function TestLanguePage() {
               <p className="border-t border-outline-variant pt-2 text-sm text-onSurface-variant">{PROMPT_HINT}</p>
             </div>
 
-            <button
-              type="button"
-              onClick={startTest}
-              className="flex items-center justify-center gap-2 rounded-full bg-primary-container px-8 py-4 text-sm font-semibold text-on-primary transition-all hover:shadow-lg active:scale-95"
-            >
+            <Button size="lg" pill onClick={startTest} className="px-8 hover:enabled:shadow-lg">
               <span className="material-symbols-outlined" style={{ fontSize: 20 }}>mic</span>
               Démarrer le test
-            </button>
+            </Button>
           </section>
         )}
 
@@ -262,14 +259,10 @@ export default function TestLanguePage() {
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>leaderboard</span>
                 Voir mon profil
               </Link>
-              <button
-                type="button"
-                onClick={restart}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-outline bg-surface-container-lowest py-4 text-sm font-semibold text-primary-dark transition-all hover:bg-surface-container-low active:scale-95"
-              >
+              <Button variant="outline" onClick={restart} className="flex-1 py-4 text-primary-dark">
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>refresh</span>
                 Repasser le test
-              </button>
+              </Button>
             </div>
           </section>
         )}

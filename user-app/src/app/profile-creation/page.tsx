@@ -8,7 +8,8 @@ import { useAuth } from '@/context/AuthContext';
 import { useProfile } from '@/context/ProfileContext';
 import { useNetwork } from '@/context/NetworkContext';
 import { CEFRGauge } from '@/components/shared/CEFRGauge';
-import { SECTORS } from '@/lib/mockData';
+import { SECTORS } from '@/lib/referenceData';
+import { Button, IconButton } from '@/components/shared/Button';
 import type { CEFRLevel, ProfileStep } from '@/lib/types';
 
 const STEP_TITLES: Record<ProfileStep, { title: string; arabic: string; subtitle: string }> = {
@@ -170,16 +171,16 @@ function ProfileCreationContent() {
       <header className="sticky top-0 z-10 border-b border-surface-container-high bg-surface px-6 py-4">
         <div className="flex items-center justify-between">
           {step > 1 ? (
-            <button
-              type="button"
+            <Button
+              variant="link"
               onClick={() => goToStep(step - 1)}
-              className="flex items-center gap-1 text-sm font-bold text-primary transition-opacity hover:opacity-80"
+              className="gap-1 font-bold"
             >
               <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
                 arrow_back
               </span>
               Retour
-            </button>
+            </Button>
           ) : (
             <span />
           )}
@@ -250,7 +251,7 @@ function ProfileCreationContent() {
               <select
                 value={form.city}
                 onChange={(e) => setForm((p) => ({ ...p, city: e.target.value }))}
-                className="w-full rounded-pillar border border-outline-variant bg-surface-container-lowest px-4 py-3.5 text-sm font-semibold text-onSurface outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
+                className="w-full rounded-pillar border border-outline bg-surface-container-lowest px-4 py-3.5 text-sm font-semibold text-onSurface outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
               >
                 <option value="" disabled>Sélectionnez votre région</option>
                 {REGIONS.map((r) => (
@@ -264,7 +265,7 @@ function ProfileCreationContent() {
                 <input
                   disabled
                   value={user?.phone ?? '+212 6XX-XXXXXX'}
-                  className="w-full cursor-not-allowed rounded-pillar border border-outline-variant bg-surface-container-low px-4 py-3.5 text-sm font-bold text-onSurface-variant"
+                  className="w-full cursor-not-allowed rounded-pillar border border-outline bg-surface-container-low px-4 py-3.5 text-sm font-bold text-onSurface-variant"
                 />
                 <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline" style={{ fontSize: 18 }}>
                   lock
@@ -311,21 +312,23 @@ function ProfileCreationContent() {
                 <p className="text-xs text-onSurface-variant">Pratique réelle du métier</p>
               </div>
               <div className="flex items-center gap-3">
-                <button
-                  type="button"
+                <IconButton
+                  variant="surface"
+                  aria-label="Retirer une année d'expérience"
                   onClick={() => setForm((p) => ({ ...p, yearsExperience: Math.max(0, p.yearsExperience - 1) }))}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-outline-variant text-primary transition hover:bg-surface-container-low active:scale-95 shadow-sm"
+                  className="border border-outline-variant"
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: 18 }}>remove</span>
-                </button>
+                </IconButton>
                 <span className="w-6 text-center text-lg font-extrabold text-primary">{form.yearsExperience}</span>
-                <button
-                  type="button"
+                <IconButton
+                  variant="surface"
+                  aria-label="Ajouter une année d'expérience"
                   onClick={() => setForm((p) => ({ ...p, yearsExperience: p.yearsExperience + 1 }))}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-outline-variant text-primary transition hover:bg-surface-container-low active:scale-95 shadow-sm"
+                  className="border border-outline-variant"
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: 18 }}>add</span>
-                </button>
+                </IconButton>
               </div>
             </div>
           </div>
@@ -343,14 +346,14 @@ function ProfileCreationContent() {
                     <CEFRGauge label={langName} level={current} interactive onChange={(level) => setLanguageLevel(langName, level)} />
                   </div>
                   {!isCore && (
-                    <button
-                      type="button"
+                    <IconButton
+                      variant="destructive-ghost"
+                      size="sm"
                       onClick={() => removeLanguage(langName)}
                       aria-label={`Retirer ${langName}`}
-                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-outline transition hover:bg-surface-container-high hover:text-error"
                     >
                       <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
-                    </button>
+                    </IconButton>
                   )}
                 </div>
               );
@@ -361,22 +364,22 @@ function ProfileCreationContent() {
                 <select
                   value={languageToAdd}
                   onChange={(e) => setLanguageToAdd(e.target.value)}
-                  className="flex-1 rounded-pillar border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm font-semibold text-onSurface outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="flex-1 rounded-pillar border border-outline bg-surface-container-lowest px-3 py-2.5 text-sm font-semibold text-onSurface outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
                 >
                   <option value="">Ajouter une autre langue…</option>
                   {availableLanguagesToAdd.map((name) => (
                     <option key={name} value={name}>{name}</option>
                   ))}
                 </select>
-                <button
-                  type="button"
+                <IconButton
+                  variant="primary"
                   onClick={() => addLanguage(languageToAdd)}
                   disabled={!languageToAdd}
                   aria-label="Ajouter la langue"
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-onPrimary shadow-sm transition-all active:scale-95 disabled:opacity-40"
+                  className="shadow-sm"
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: 20 }}>add</span>
-                </button>
+                </IconButton>
               </div>
             )}
           </div>
@@ -423,7 +426,7 @@ function ProfileCreationContent() {
                 type="checkbox"
                 checked={wantsTraining}
                 onChange={(e) => setWantsTraining(e.target.checked)}
-                className="mt-0.5 h-5 w-5 rounded border-outline-variant text-primary focus:ring-primary/30"
+                className="mt-0.5 h-5 w-5 rounded border-outline text-primary focus:ring-primary/30"
               />
               <span className="text-xs leading-relaxed text-onSurface font-medium">
                 Je suis intéressé par une formation en allemand avant mon départ (cours en ligne gratuits proposés par nos partenaires).
@@ -473,17 +476,24 @@ function ProfileCreationContent() {
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-md border-t border-outline-variant bg-surface-container-lowest p-6 shadow-subtle">
-        <button
-          type="button"
+        <Button
+          size="lg"
+          fullWidth
+          className="shadow-sm"
           onClick={handleContinue}
           disabled={isSubmitting}
-          className="flex w-full items-center justify-center gap-2 rounded-pillar bg-primary py-4 text-sm font-bold text-onPrimary shadow-sm transition-all hover:bg-primary/90 active:scale-[0.98] disabled:opacity-40"
+          isLoading={isSubmitting}
+          loadingLabel="Enregistrement…"
+          trailingIcon={
+            !isLastStep ? (
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+                arrow_forward
+              </span>
+            ) : undefined
+          }
         >
-          {isSubmitting ? 'Enregistrement…' : isLastStep ? 'Finaliser mon inscription' : 'Continuer'}
-          {!isLastStep && (
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
-          )}
-        </button>
+          {isLastStep ? 'Finaliser mon inscription' : 'Continuer'}
+        </Button>
       </div>
     </main>
   );
@@ -513,7 +523,7 @@ function TextField({
         dir={dir}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-pillar border border-outline-variant bg-surface-container-lowest px-4 py-3.5 text-sm font-semibold text-onSurface outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
+        className="w-full rounded-pillar border border-outline bg-surface-container-lowest px-4 py-3.5 text-sm font-semibold text-onSurface outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
       />
     </div>
   );
@@ -536,7 +546,7 @@ function ConsentRow({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="mt-0.5 h-5 w-5 shrink-0 rounded border-outline-variant accent-primary focus:ring-primary/30"
+        className="mt-0.5 h-5 w-5 shrink-0 rounded border-outline accent-primary focus:ring-primary/30"
       />
       <div className="flex-1">
         <p className="text-xs font-medium text-onSurface leading-relaxed">{label}</p>

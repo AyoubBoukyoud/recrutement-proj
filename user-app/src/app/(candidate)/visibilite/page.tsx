@@ -4,6 +4,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { Button } from '@/components/shared/Button';
 
 export default function VisibilitePage() {
   const [dashOffset, setDashOffset] = useState(263.89);
@@ -48,7 +49,7 @@ export default function VisibilitePage() {
                 strokeWidth="8"
               />
               <circle
-                className="progress-ring__circle stroke-current text-gold transition-all duration-1000 ease-in-out"
+                className="progress-ring__circle stroke-current text-gold-dark transition-all duration-1000 ease-in-out"
                 cx="50"
                 cy="50"
                 fill="transparent"
@@ -154,9 +155,9 @@ export default function VisibilitePage() {
         <section className="mb-10">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-xl font-bold text-onSurface">Derniers badges</h2>
-            <button type="button" className="text-sm font-bold text-primary">
+            <Button variant="link" className="font-bold">
               Voir tout
-            </button>
+            </Button>
           </div>
           <div className="flex gap-4 overflow-x-auto pb-4">
             <div className="flex w-32 shrink-0 flex-col items-center rounded-pillar border border-outline-variant bg-surface-container-lowest p-4 text-center shadow-subtle">

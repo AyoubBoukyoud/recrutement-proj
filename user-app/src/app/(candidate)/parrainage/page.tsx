@@ -4,6 +4,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { Button } from '@/components/shared/Button';
 
 export default function ParrainagePage() {
   const [copied, setCopied] = useState(false);
@@ -70,26 +71,21 @@ export default function ParrainagePage() {
           {copied && <p className="mt-1 text-xs font-bold text-primary">Code copié dans le presse-papier !</p>}
 
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-            <button
-              type="button"
-              onClick={copyCode}
-              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary py-3.5 text-xs font-bold text-onPrimary shadow-sm transition-transform active:scale-95"
-            >
+            <Button onClick={copyCode} className="flex-1 text-xs shadow-sm">
               <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
                 content_copy
               </span>
               Copier
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
               onClick={shareWhatsApp}
-              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[#25D366] py-3.5 text-xs font-bold text-white shadow-sm transition-transform active:scale-95 hover:bg-[#20ba5a]"
+              className="flex-1 bg-[#25D366] text-xs text-white shadow-sm hover:enabled:bg-[#20ba5a]"
             >
               <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
                 share
               </span>
               Partager via WhatsApp
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -197,12 +193,9 @@ export default function ParrainagePage() {
 
         {/* Primary Footer Action */}
         <div className="flex justify-center pt-2">
-          <button
-            type="button"
-            className="rounded-full bg-primary px-8 py-3 text-sm font-bold text-onPrimary shadow-md transition-all hover:bg-primary/90 active:scale-95"
-          >
+          <Button pill className="px-8 shadow-md">
             Voir mes récompenses
-          </button>
+          </Button>
         </div>
       </main>
     </div>

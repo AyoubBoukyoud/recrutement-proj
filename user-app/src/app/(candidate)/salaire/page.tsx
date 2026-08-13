@@ -4,6 +4,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Button } from '@/components/shared/Button';
 
 const BASE_SALARIES: { keywords: string[]; base: number }[] = [
   { keywords: ['infirmier', 'infirmière', 'santé'], base: 3200 },
@@ -90,7 +91,7 @@ export default function SalairePage() {
                   value={profession}
                   onChange={(e) => setProfession(e.target.value)}
                   placeholder="Ex: Infirmier"
-                  className="w-full rounded-xl border border-outline-variant py-3 pl-11 pr-3 text-sm outline-none transition-all focus:border-primary-dark focus:ring-2 focus:ring-primary-dark/10"
+                  className="w-full rounded-xl border border-outline py-3 pl-11 pr-3 text-sm outline-none transition-all focus:border-primary-dark focus:ring-2 focus:ring-primary-dark/10"
                 />
               </div>
             </div>
@@ -103,7 +104,7 @@ export default function SalairePage() {
                 <select
                   value={region}
                   onChange={(e) => setRegion(e.target.value)}
-                  className="w-full appearance-none rounded-xl border border-outline-variant py-3 pl-11 pr-3 text-sm outline-none transition-all focus:border-primary-dark focus:ring-2 focus:ring-primary-dark/10"
+                  className="w-full appearance-none rounded-xl border border-outline py-3 pl-11 pr-3 text-sm outline-none transition-all focus:border-primary-dark focus:ring-2 focus:ring-primary-dark/10"
                 >
                   {REGIONS.map((r) => (
                     <option key={r.name} value={r.name}>{r.name}</option>
@@ -122,21 +123,21 @@ export default function SalairePage() {
                   onChange={(e) => setExperience(Math.max(0, Number(e.target.value)))}
                   min={0}
                   type="number"
-                  className="w-full rounded-xl border border-outline-variant py-3 pl-11 pr-3 text-sm outline-none transition-all focus:border-primary-dark focus:ring-2 focus:ring-primary-dark/10"
+                  className="w-full rounded-xl border border-outline py-3 pl-11 pr-3 text-sm outline-none transition-all focus:border-primary-dark focus:ring-2 focus:ring-primary-dark/10"
                 />
               </div>
             </div>
             <div className="flex justify-center pt-2 md:col-span-2 lg:col-span-3">
-              <button
+              <Button
                 type="submit"
                 disabled={isCalculating}
-                className="flex items-center gap-2 rounded-xl bg-primary-dark px-12 py-3 text-sm font-semibold text-on-primary shadow-lg shadow-primary-dark/20 transition-transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-70"
+                className="bg-primary-dark px-12 shadow-lg shadow-primary-dark/20 hover:enabled:-translate-y-0.5"
               >
                 <span className={`material-symbols-outlined ${isCalculating ? 'animate-spin' : ''}`}>
                   {isCalculating ? 'sync' : 'calculate'}
                 </span>
                 {isCalculating ? 'Calcul en cours…' : 'Calculer'}
-              </button>
+              </Button>
             </div>
           </form>
         </section>
@@ -251,14 +252,10 @@ export default function SalairePage() {
 
         {result && (
           <div className="flex justify-center pb-4 pt-2">
-            <button
-              type="button"
-              onClick={() => window.print()}
-              className="flex items-center gap-2 rounded-xl bg-primary-dark px-8 py-3 text-sm font-semibold text-on-primary shadow-md transition-all hover:opacity-90 active:scale-95"
-            >
+            <Button onClick={() => window.print()} className="bg-primary-dark px-8 shadow-md hover:enabled:opacity-90">
               <span className="material-symbols-outlined">picture_as_pdf</span>
               Télécharger l&apos;estimation (PDF)
-            </button>
+            </Button>
           </div>
         )}
       </main>

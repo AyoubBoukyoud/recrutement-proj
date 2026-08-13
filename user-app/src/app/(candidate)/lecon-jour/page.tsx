@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Button, IconButton } from '@/components/shared/Button';
 
 const WEEK_SLOTS = ['done', 'done', 'done', 'done', 'done', 'active', 'remaining'] as const;
 
@@ -80,14 +81,13 @@ export default function LeconJourPage() {
             </div>
             <div className="flex items-center justify-center gap-3">
               <h2 className="text-2xl font-bold text-primary-dark">Guten Morgen</h2>
-              <button
-                type="button"
+              <IconButton
+                variant="primary"
                 onClick={() => speak('Guten Morgen', 'de-DE')}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-container text-on-primary-container transition-all hover:opacity-90 active:scale-90"
                 aria-label="Écouter la prononciation"
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 20 }}>volume_up</span>
-              </button>
+              </IconButton>
             </div>
 
             <div className="w-full space-y-3 border-t border-outline-variant/30 pt-4">
@@ -102,23 +102,14 @@ export default function LeconJourPage() {
             </div>
 
             <div className="grid w-full grid-cols-2 gap-4 pt-4">
-              <button
-                type="button"
-                onClick={() => speak('Guten Morgen', 'de-DE')}
-                className="flex h-12 items-center justify-center gap-2 rounded-xl bg-surface-container-high text-sm font-semibold text-primary-dark transition-colors hover:bg-surface-container-highest active:scale-95"
-              >
+              <Button variant="tonal" onClick={() => speak('Guten Morgen', 'de-DE')} className="flex-1">
                 <span className="material-symbols-outlined" style={{ fontSize: 20 }}>play_circle</span>
                 Écouter
-              </button>
-              <button
-                type="button"
-                onClick={handleRepeat}
-                disabled={isRepeating}
-                className="flex h-12 items-center justify-center gap-2 rounded-xl bg-primary-dark text-sm font-semibold text-on-primary shadow-lg shadow-primary-dark/20 transition-opacity hover:opacity-95 active:scale-95 disabled:opacity-60"
-              >
+              </Button>
+              <Button onClick={handleRepeat} disabled={isRepeating} className="flex-1 shadow-lg shadow-primary-dark/20">
                 <span className={`material-symbols-outlined ${isRepeating ? 'animate-pulse' : ''}`} style={{ fontSize: 20 }}>mic</span>
                 {isRepeating ? 'Écoute…' : 'Répéter'}
-              </button>
+              </Button>
             </div>
 
             {feedback && <p className="text-sm font-bold text-primary-dark">{feedback}</p>}
@@ -165,13 +156,14 @@ export default function LeconJourPage() {
         </section>
 
         <footer className="pb-4 pt-2">
-          <button
-            type="button"
+          <Button
+            size="lg"
+            fullWidth
             onClick={handleFinish}
-            className="w-full rounded-xl bg-tertiary py-4 text-lg font-bold text-onTertiary shadow-lg shadow-tertiary/20 transition-all hover:opacity-95 active:scale-95"
+            className="bg-tertiary text-onTertiary shadow-lg shadow-tertiary/20 hover:enabled:bg-tertiary-dark"
           >
             Terminé
-          </button>
+          </Button>
         </footer>
       </main>
     </div>

@@ -3,6 +3,7 @@
 // Page : Leçon d'allemand quotidienne (Stitch exact template)
 
 import Link from 'next/link';
+import { Button, IconButton } from '@/components/shared/Button';
 import { useState } from 'react';
 
 export default function CoursAllemandPage() {
@@ -66,14 +67,15 @@ export default function CoursAllemandPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-center gap-3">
                 <h2 className="text-3xl font-extrabold text-primary">Guten Morgen</h2>
-                <button
-                  type="button"
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-onPrimary transition-all hover:opacity-90 active:scale-90 shadow-sm"
+                <IconButton
+                  variant="primary"
+                  aria-label="Écouter la prononciation"
+                  className="shadow-sm"
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
                     volume_up
                   </span>
-                </button>
+                </IconButton>
               </div>
             </div>
 
@@ -92,24 +94,18 @@ export default function CoursAllemandPage() {
 
             {/* Interaction Buttons */}
             <div className="grid w-full grid-cols-2 gap-4 pt-4">
-              <button
-                type="button"
-                className="flex h-12 items-center justify-center gap-2 rounded-xl bg-surface-container-high text-sm font-bold text-primary transition-colors hover:bg-surface-container-highest active:scale-95"
-              >
+              <Button variant="tonal" className="flex-1">
                 <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
                   play_circle
                 </span>
                 Écouter
-              </button>
-              <button
-                type="button"
-                className="flex h-12 items-center justify-center gap-2 rounded-xl bg-primary text-sm font-bold text-onPrimary shadow-md transition-opacity hover:opacity-95 active:scale-95"
-              >
+              </Button>
+              <Button className="flex-1 shadow-md">
                 <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
                   mic
                 </span>
                 Répéter
-              </button>
+              </Button>
             </div>
           </div>
         </article>

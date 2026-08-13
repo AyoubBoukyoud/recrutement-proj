@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { IconButton } from '@/components/shared/Button';
 
 interface VideoPlayerProps {
   src: string | null;
@@ -50,26 +51,25 @@ export function VideoPlayer({ src, poster }: VideoPlayerProps) {
         playsInline
       />
       <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-black/70 to-transparent p-3">
-        <button
-          type="button"
+        <IconButton
           onClick={togglePlay}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-primary transition-transform hover:scale-105"
           aria-label={isPlaying ? 'Pause' : 'Lecture'}
+          className="bg-white/90 text-primary hover:enabled:bg-white"
         >
           <span className="material-symbols-outlined fill" style={{ fontSize: 20 }}>
             {isPlaying ? 'pause' : 'play_arrow'}
           </span>
-        </button>
-        <button
-          type="button"
+        </IconButton>
+        <IconButton
+          size="sm"
           onClick={toggleMute}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white"
           aria-label={isMuted ? 'Activer le son' : 'Couper le son'}
+          className="bg-white/20 text-white hover:enabled:bg-white/30"
         >
           <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
             {isMuted ? 'volume_off' : 'volume_up'}
           </span>
-        </button>
+        </IconButton>
       </div>
     </div>
   );

@@ -9,7 +9,8 @@ import { useAuth } from '@/context/AuthContext';
 import { otpFailureMessage } from '@/lib/authMessages';
 import { useProfile } from '@/context/ProfileContext';
 import { useLanguage } from '@/context/LanguageContext';
-import { destinationForRole } from '@/lib/roleDestination';
+import { destinationForRole, navigateTo, type Destination } from '@/lib/roleDestination';
+import { Button } from '@/components/shared/Button';
 
 const RESEND_SECONDS = 45;
 
@@ -31,7 +32,7 @@ function OtpContent() {
   // Rempli uniquement quand quelqu'un a choisi « Je recrute » mais que le
   // compte, une fois vérifié, s'avère être un simple candidat : la connexion
   // a réussi, seule la redirection est mise en pause le temps de prévenir.
-  const [pendingDestination, setPendingDestination] = useState<string | null>(null);
+  const [pendingDestination, setPendingDestination] = useState<Destination | null>(null);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
@@ -87,7 +88,7 @@ function OtpContent() {
       return;
     }
 
-    router.replace(destination);
+    navigateTo(destination, router.replace);
   };
 
   const handleResend = async () => {
@@ -122,13 +123,13 @@ function OtpContent() {
         <p className="mx-auto mb-8 max-w-[320px] text-sm leading-relaxed text-onSurface-variant">
           {t('recruiter_access_pending_body')}
         </p>
-        <button
-          type="button"
-          onClick={() => router.replace(pendingDestination)}
-          className="w-full max-w-[340px] rounded-pillar bg-primary py-4 text-sm font-bold text-onPrimary shadow-sm transition-all hover:bg-primary/90 active:scale-[0.98]"
+        <Button
+          size="lg"
+          onClick={() => navigateTo(pendingDestination, router.replace)}
+          className="w-full max-w-[340px] shadow-sm"
         >
           {t('recruiter_access_pending_cta')}
-        </button>
+        </Button>
       </main>
     );
   }
@@ -182,7 +183,7 @@ function OtpContent() {
                 disabled={isVerifying}
                 onChange={(e) => handleChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
-                className={`h-12 w-11 rounded-pillar border border-outline-variant bg-surface-container-lowest text-center text-xl font-extrabold text-primary outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:opacity-60 shadow-sm ${
+                className={`h-12 w-11 rounded-pillar border border-outline bg-surface-container-lowest text-center text-xl font-extrabold text-primary outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:opacity-60 shadow-sm ${
                   error ? 'border-error ring-2 ring-error/20' : ''
                 }`}
               />
@@ -195,31 +196,30 @@ function OtpContent() {
                 {t('otp_resend_countdown_prefix')} 0:{String(secondsLeft).padStart(2, '0')}
               </p>
             ) : null}
-            <button
-              type="button"
+            <Button
+              variant="link"
               onClick={handleResend}
               disabled={secondsLeft > 0 || isResending}
-              className={`text-sm font-semibold transition-all ${
-                secondsLeft > 0 || isResending
-                  ? 'cursor-not-allowed text-outline opacity-60'
-                  : 'text-primary hover:underline cursor-pointer'
-              }`}
+              className="font-semibold"
             >
               {t('otp_resend_cta')}
-            </button>
+            </Button>
           </div>
 
           {isVerifying && <p className="text-center text-xs font-medium text-primary animate-pulse">{t('otp_verifying')}</p>}
           {error && <p className="text-center text-xs font-semibold text-error">{error}</p>}
 
-          <button
+          <Button
             type="submit"
+            size="lg"
             onClick={() => submitCode(digits.join(''))}
             disabled={isVerifying || digits.some((d) => !d)}
-            className="w-full max-w-[340px] rounded-pillar bg-primary py-4 text-sm font-bold text-onPrimary shadow-sm transition-all hover:bg-primary/90 active:scale-[0.98] disabled:opacity-60"
+            isLoading={isVerifying}
+            loadingLabel={t('loading')}
+            className="w-full max-w-[340px] shadow-sm"
           >
             {isVerifying ? t('loading') : t('otp_verify_cta')}
-          </button>
+          </Button>
         </form>
       </div>
 

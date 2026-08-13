@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from '@/components/shared/Button';
+
 // Page affichée par le service worker (next-pwa `fallbacks.document`) quand une navigation
 // échoue hors-ligne et que la route demandée n'a pas été mise en cache au préalable.
 
@@ -19,13 +21,9 @@ export default function OfflinePage() {
         </p>
       </div>
 
-      <button
-        type="button"
-        onClick={() => window.location.reload()}
-        className="rounded-pillar bg-primary px-6 py-3 text-sm font-semibold text-onPrimary shadow-soft"
-      >
+      <Button onClick={() => window.location.reload()} className="px-6 shadow-soft">
         Réessayer
-      </button>
+      </Button>
     </main>
   );
 }

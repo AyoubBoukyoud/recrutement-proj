@@ -1,6 +1,7 @@
 'use client';
 
 import type { DocumentEntry } from '@/lib/types';
+import { Button } from '@/components/shared/Button';
 
 const STATUS_ICON: Record<DocumentEntry['status'], string> = {
   valide: 'check_circle',
@@ -51,13 +52,9 @@ export function DocumentViewer({ document, previewUrl, onRemove }: DocumentViewe
         </div>
       </div>
       {onRemove && (
-        <button
-          type="button"
-          onClick={onRemove}
-          className="shrink-0 rounded-full px-2 py-1 text-xs font-semibold text-error hover:bg-error-light"
-        >
+        <Button variant="destructive-ghost" size="sm" pill onClick={onRemove} className="h-auto shrink-0 px-2 py-1">
           Retirer
-        </button>
+        </Button>
       )}
     </div>
   );

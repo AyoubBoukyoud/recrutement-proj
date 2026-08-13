@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Button, IconButton } from '@/components/shared/Button';
 
 interface Question {
   question: string;
@@ -84,19 +85,19 @@ export default function QuizMetierPage() {
             >
               Retour aux offres
             </Link>
-            <button
-              type="button"
+            <Button
+              variant="outline"
               onClick={() => {
                 setIndex(0);
                 setSelected(null);
                 setAnswers([]);
                 setFinished(false);
               }}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-outline bg-surface-container-lowest py-4 text-sm font-semibold text-primary-dark transition-all active:scale-95"
+              className="flex-1 text-primary-dark"
             >
               <span className="material-symbols-outlined" style={{ fontSize: 18 }}>refresh</span>
               Recommencer
-            </button>
+            </Button>
           </div>
         </main>
       </div>
@@ -106,9 +107,9 @@ export default function QuizMetierPage() {
   return (
     <div className="min-h-screen bg-surface pb-24">
       <header className="sticky top-0 z-20 flex h-16 w-full items-center gap-4 border-b border-outline-variant bg-surface px-4 lg:px-10">
-        <button type="button" onClick={() => router.back()} className="p-2 transition-transform active:scale-95">
+        <IconButton variant="ghost" onClick={() => router.back()} aria-label="Retour">
           <span className="material-symbols-outlined text-primary-dark">arrow_back</span>
-        </button>
+        </IconButton>
         <h1 className="text-lg font-bold text-primary-dark">Quiz Métier</h1>
       </header>
 
@@ -125,7 +126,7 @@ export default function QuizMetierPage() {
           </div>
         </section>
 
-        <article className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm" style={{ borderLeft: '4px solid #006266' }}>
+        <article className="rounded-xl border border-outline-variant border-l-4 border-l-primary bg-surface-container-lowest p-6 shadow-sm">
           <p className="mb-4 text-lg font-semibold text-onSurface">{question.question}</p>
           <div className="inline-flex items-center rounded-lg border border-outline-variant bg-surface-container px-3 py-1">
             <span className="material-symbols-outlined mr-2 text-primary-dark" style={{ fontSize: 16 }}>engineering</span>
@@ -164,15 +165,16 @@ export default function QuizMetierPage() {
         </div>
 
         <div className="fixed bottom-0 left-0 w-full bg-surface p-4 md:relative md:bottom-auto md:bg-transparent md:p-0">
-          <button
-            type="button"
+          <Button
+            size="lg"
+            fullWidth
             onClick={handleNext}
             disabled={selected === null}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary-dark py-4 text-sm font-bold text-on-primary shadow-md transition-all hover:opacity-90 active:scale-95 disabled:opacity-40 md:shadow-none"
+            className="bg-primary-dark shadow-md hover:enabled:opacity-90 md:shadow-none"
           >
             {index + 1 >= QUESTIONS.length ? 'Voir mon résultat' : 'Question suivante'}
             <span className="material-symbols-outlined">chevron_right</span>
-          </button>
+          </Button>
         </div>
       </main>
     </div>

@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { otpFailureMessage } from '@/lib/authMessages';
 import { useLanguage } from '@/context/LanguageContext';
+import { Button } from '@/components/shared/Button';
 
 const COUNTRY_CODES = [
   { code: '+212', label: '🇲🇦 +212' },
@@ -85,16 +86,16 @@ export default function AuthPhonePage() {
               ['recruiter', t('auth_intent_recruiter')],
             ] as const
           ).map(([value, label]) => (
-            <button
+            <Button
               key={value}
-              type="button"
+              variant={intent === value ? 'primary' : 'ghost'}
+              size="sm"
               onClick={() => setIntent(value)}
-              className={`flex-1 rounded-pillar py-2.5 text-xs font-bold transition-all ${
-                intent === value ? 'bg-primary text-onPrimary shadow-sm' : 'text-onSurface-variant'
-              }`}
+              aria-pressed={intent === value}
+              className="flex-1"
             >
               {label}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -159,25 +160,24 @@ export default function AuthPhonePage() {
       </form>
 
       <footer className="fade-in-entry stagger-3 opacity-0 space-y-3 border-t border-outline-variant bg-surface-container-lowest p-6">
-        <button
+        <Button
           type="submit"
+          size="lg"
+          fullWidth
           onClick={submit}
           disabled={isSubmitting}
-          className="flex w-full items-center justify-center gap-2 rounded-pillar bg-primary py-4 text-sm font-bold text-onPrimary shadow-sm transition-all hover:bg-primary/90 active:scale-[0.98] disabled:opacity-60"
+          isLoading={isSubmitting}
+          loadingLabel={t('phone_sending')}
+          className="shadow-sm"
         >
           {isSubmitting ? t('phone_sending') : t('phone_submit_cta')}
-        </button>
-        <button
-          type="button"
-          onClick={submit}
-          disabled={isSubmitting}
-          className="flex w-full items-center justify-center gap-2 rounded-pillar border border-outline-variant bg-surface-container-lowest py-3.5 text-sm font-semibold text-primary transition-all hover:bg-surface-container-low active:scale-[0.98]"
-        >
+        </Button>
+        <Button variant="outline" fullWidth onClick={submit} disabled={isSubmitting}>
           <span className="material-symbols-outlined text-primary" style={{ fontSize: 18 }}>
             chat
           </span>
           {t('phone_whatsapp_cta')}
-        </button>
+        </Button>
       </footer>
     </main>
   );

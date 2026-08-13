@@ -5,6 +5,7 @@
 import Link from 'next/link';
 import { useProfile } from '@/context/ProfileContext';
 import { ChecklistItem } from '@/components/shared/ChecklistItem';
+import { IconButton } from '@/components/shared/Button';
 
 const QUICK_ACTIONS = [
   { href: '/documents', label: 'Ajouter un document', icon: 'description' },
@@ -38,12 +39,12 @@ export default function DashboardPage() {
           <p className="text-[10px] font-bold uppercase tracking-wider text-tertiary">Espace Candidat</p>
         </div>
         <div className="flex items-center gap-3">
-          <button type="button" className="relative rounded-full p-2 transition-colors hover:bg-surface-container-low active:scale-95">
+          <IconButton variant="ghost" aria-label="Notifications" className="relative">
             <span className="material-symbols-outlined text-onSurface-variant" style={{ fontSize: 22 }}>
               notifications
             </span>
             <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full border border-surface bg-error" />
-          </button>
+          </IconButton>
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-black text-onPrimary shadow-sm">
             {profile.avatarInitials || '—'}
           </div>

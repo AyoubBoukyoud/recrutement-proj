@@ -6,6 +6,7 @@ import { Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import { LANGUAGES } from '@/lib/i18n';
+import { Button } from '@/components/shared/Button';
 
 const LANGUAGE_META: Record<string, { native: string; english: string }> = {
   fr: { native: 'Français', english: 'French' },
@@ -86,16 +87,12 @@ function LanguageSelectContent() {
       </div>
 
       <footer className="fade-in-entry stagger-2 opacity-0 border-t border-outline-variant bg-surface-container-lowest p-6">
-        <button
-          type="button"
-          onClick={handleContinue}
-          className="flex w-full items-center justify-center gap-2 rounded-pillar bg-primary py-4 text-sm font-bold text-onPrimary shadow-sm transition-all hover:bg-primary/90 active:scale-[0.98]"
-        >
+        <Button size="lg" fullWidth onClick={handleContinue} className="shadow-sm">
           {t('continue')}
           <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
             arrow_forward
           </span>
-        </button>
+        </Button>
       </footer>
     </main>
   );

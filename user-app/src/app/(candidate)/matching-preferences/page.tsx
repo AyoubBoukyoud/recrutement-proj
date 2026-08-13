@@ -4,6 +4,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { Button } from '@/components/shared/Button';
 
 export default function MatchingPreferencesPage() {
   const [regions, setRegions] = useState<{ [key: string]: boolean }>({
@@ -120,18 +121,17 @@ export default function MatchingPreferencesPage() {
           </h3>
           <div className="flex flex-wrap gap-2 pt-1">
             {['Grand groupe', 'PME', 'Start-up', 'Peu importe'].map((type) => (
-              <button
+              <Button
                 key={type}
-                type="button"
+                variant={companyType === type ? 'primary' : 'outline'}
+                size="sm"
+                pill
                 onClick={() => setCompanyType(type)}
-                className={`rounded-full px-5 py-2.5 text-xs font-bold transition-all active:scale-95 ${
-                  companyType === type
-                    ? 'border-2 border-primary bg-primary text-onPrimary shadow-sm'
-                    : 'border-2 border-outline-variant text-onSurface-variant hover:border-primary hover:text-primary'
-                }`}
+                aria-pressed={companyType === type}
+                className="px-5"
               >
                 {type}
-              </button>
+              </Button>
             ))}
           </div>
         </section>
@@ -163,17 +163,19 @@ export default function MatchingPreferencesPage() {
             {['Électricité', 'Hôtellerie', 'Construction']
               .filter((s) => !sectors.includes(s))
               .map((sec) => (
-                <button
+                <Button
                   key={sec}
-                  type="button"
+                  variant="outline"
+                  size="sm"
+                  pill
                   onClick={() => addSector(sec)}
-                  className="flex items-center gap-1.5 rounded-full border border-outline-variant px-4 py-2 text-xs font-bold text-onSurface-variant transition-colors hover:bg-surface-container"
+                  className="gap-1.5 border-outline-variant text-onSurface-variant"
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
                     add
                   </span>
                   {sec}
-                </button>
+                </Button>
               ))}
           </div>
         </section>
@@ -196,7 +198,7 @@ export default function MatchingPreferencesPage() {
               value={salary}
               onChange={(e) => setSalary(Number(e.target.value))}
               placeholder="45,000"
-              className="w-full rounded-lg border border-outline-variant bg-surface py-3 pl-10 pr-4 text-xl font-extrabold text-onSurface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
+              className="w-full rounded-lg border border-outline bg-surface py-3 pl-10 pr-4 text-xl font-extrabold text-onSurface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
             />
           </div>
           <div className="pt-2">
@@ -242,16 +244,12 @@ export default function MatchingPreferencesPage() {
 
         {/* Action Button Container */}
         <div className="pt-4 pb-8 flex justify-center">
-          <button
-            type="button"
-            onClick={handleSave}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 text-base font-extrabold text-onPrimary shadow-lg transition-all hover:bg-primary/90 active:scale-95 lg:max-w-sm"
-          >
+          <Button size="lg" fullWidth onClick={handleSave} className="text-base font-extrabold shadow-lg lg:max-w-sm">
             <span>Enregistrer les préférences</span>
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
               save
             </span>
-          </button>
+          </Button>
         </div>
       </main>
     </div>
