@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import { LANGUAGES } from '@/lib/i18n';
 import { Button } from '@/components/shared/Button';
+import { AuthShell } from '@/components/AuthShell';
 
 const LANGUAGE_META: Record<string, { native: string; english: string }> = {
   fr: { native: 'Français', english: 'French' },
@@ -26,6 +27,7 @@ function LanguageSelectContent() {
   };
 
   return (
+    <AuthShell>
     <main className="mx-auto flex min-h-screen max-w-md flex-col bg-surface shadow-subtle">
       <nav className="flex items-center gap-3 px-6 py-4 border-b border-surface-container-high">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-onPrimary shadow-sm">
@@ -95,6 +97,7 @@ function LanguageSelectContent() {
         </Button>
       </footer>
     </main>
+    </AuthShell>
   );
 }
 

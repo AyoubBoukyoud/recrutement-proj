@@ -100,16 +100,24 @@ export function Card({ children, style }: { children: ReactNode; style?: React.C
   )
 }
 
-export function Badge({ children, tone = 'pending' }: { children: ReactNode; tone?: 'pending' | 'done' }) {
+const BADGE_TONES = {
+  done: 'bg-primary-light text-primary-dark',
+  pending: 'bg-attention-light text-on-attention-container',
+  error: 'bg-error-light text-on-error-container',
+  /* Un fait, pas une alerte : « via Agent Nord », « vocal », une catégorie —
+     l'or de `pending` leur donnait la même urgence qu'un dossier en retard. */
+  neutral: 'bg-surface-container text-on-surface-variant',
+} as const
+
+export function Badge({
+  children,
+  tone = 'pending',
+}: {
+  children: ReactNode
+  tone?: keyof typeof BADGE_TONES
+}) {
   return (
-    <span
-      className={cx(
-        'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-semibold',
-        tone === 'done'
-          ? 'bg-primary-light text-primary-dark'
-          : 'bg-attention-light text-on-attention-container'
-      )}
-    >
+    <span className={cx('inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-semibold', BADGE_TONES[tone])}>
       {children}
     </span>
   )
@@ -173,15 +181,49 @@ export function CheckMark({ size = 12 }: { size?: number }) {
 export function Wordmark({ subtitle }: { subtitle?: string }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white">
-        <CheckMark size={11} />
-      </span>
+      {/* eslint-disable-next-line @next/next/no-img-element -- même logo que
+          l'espace candidat (app/(candidate)/layout.tsx), servi depuis public/. */}
+      <img src="/assets/images/logo.png" alt="" className="h-6 w-6 object-contain" />
       <div className="grid">
-        <span className="text-[17px] font-bold tracking-[-0.3px] text-on-surface">
-          Recruitment Platform
-        </span>
+        <span className="text-[17px] font-bold tracking-[-0.3px] text-on-surface">Amud Skills</span>
         {subtitle && <span className="eyebrow">{subtitle}</span>}
       </div>
+    </div>
+  )
+}
+
+const AVATAR_TONES = ['bg-primary text-white', 'bg-secondary text-white', 'bg-tertiary text-white', 'bg-primary-dark text-white']
+
+/** Deux lettres, une teinte stable par nom — pas une photo qu'on n'a pas. */
+export function Avatar({ name, size = 36 }: { name: string; size?: number }) {
+  const initials =
+    name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((w) => w[0])
+      .join('')
+      .toUpperCase() || '?'
+  const hash = name.split('').reduce((sum, ch) => sum + ch.charCodeAt(0), 0)
+  const tone = AVATAR_TONES[hash % AVATAR_TONES.length]
+  return (
+    <span
+      className={cx('inline-flex shrink-0 items-center justify-center rounded-full font-bold', tone)}
+      style={{ width: size, height: size, fontSize: size * 0.38 }}
+    >
+      {initials}
+    </span>
+  )
+}
+
+/** La complétude d'un dossier, en trait plutôt qu'en seul chiffre. */
+export function ProgressBar({ percent, className }: { percent: number; className?: string }) {
+  return (
+    <div className={cx('h-1.5 w-full overflow-hidden rounded-full bg-surface-container', className)}>
+      <div
+        className={cx('h-full rounded-full transition-[width]', percent >= 100 ? 'bg-primary' : 'bg-attention')}
+        style={{ width: `${Math.min(100, Math.max(0, percent))}%` }}
+      />
     </div>
   )
 }

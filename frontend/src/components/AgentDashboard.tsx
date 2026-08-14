@@ -125,7 +125,7 @@ function ReferralList() {
       </div>
 
       <div className="mt-4">
-        <Pagination page={page} data={data} onPage={setPage} />
+        <Pagination page={page} data={data} onPage={setPage} noun="parrainage" />
       </div>
     </Card>
   )

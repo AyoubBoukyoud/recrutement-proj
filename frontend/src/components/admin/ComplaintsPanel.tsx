@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { api } from '@/lib/opsApi';
-import { Card, Button, Badge, SectionHeader } from '@/components/ui';
+import { Avatar, Card, Button, Badge, SectionHeader } from '@/components/ui';
 import type { Complaint, ComplaintStatus } from '@/types/complaint';
 import type { PaginatedResponse } from '@/types/candidate';
 
@@ -42,9 +42,12 @@ function ComplaintRow({ complaint }: { complaint: Complaint }) {
   return (
     <div className="border-t border-outline-variant pt-4">
       <div className="flex items-center justify-between gap-2">
-        <span className="font-mono text-[13px] tracking-[0.5px] text-on-surface">
-          {complaint.user.name ?? complaint.user.phone}
-        </span>
+        <div className="flex items-center gap-2.5">
+          <Avatar name={complaint.user.name ?? complaint.user.phone} size={28} />
+          <span className="text-[14px] font-semibold text-on-surface">
+            {complaint.user.name ?? complaint.user.phone}
+          </span>
+        </div>
         <div className="flex items-center gap-2">
           {/* Une réclamation dont personne n'a été averti est la panne qui mérite
               d'être vue : elle signifie qu'aucun admin n'a d'e-mail et qu'aucun
@@ -53,7 +56,7 @@ function ComplaintRow({ complaint }: { complaint: Complaint }) {
           <Badge tone={complaint.status === 'resolved' ? 'done' : 'pending'}>
             {STATUS_LABELS[complaint.status]}
           </Badge>
-          <Badge>{complaint.type === 'voice' ? 'vocal' : 'texte'}</Badge>
+          <Badge tone="neutral">{complaint.type === 'voice' ? 'vocal' : 'texte'}</Badge>
         </div>
       </div>
 

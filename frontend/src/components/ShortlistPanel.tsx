@@ -81,7 +81,7 @@ export function ShortlistPanel({ candidate }: { candidate: CandidateDetail }) {
     <div className="grid gap-4 rounded-element border border-outline-variant bg-primary/[0.04] p-4">
       <div className="flex flex-wrap items-center gap-2">
         <Eyebrow tone="accent">Votre pipeline</Eyebrow>
-        {entry ? <Badge tone="done">dans votre sélection</Badge> : <Badge>non enregistré</Badge>}
+        {entry ? <Badge tone="done">dans votre sélection</Badge> : <Badge tone="neutral">non enregistré</Badge>}
       </div>
 
       {contact ? (

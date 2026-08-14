@@ -10,16 +10,16 @@ import type { Engagement } from '@/types/admin'
  */
 export function EngagementBadge({ engagement }: { engagement: Engagement }) {
   if (engagement.completion_rate === null) {
-    return <Badge>non inscrit</Badge>
+    return <Badge tone="neutral">non inscrit</Badge>
   }
 
   if (engagement.overdue > 0) {
-    return <Badge>{`${engagement.overdue} en retard`}</Badge>
+    return <Badge tone="pending">{`${engagement.overdue} en retard`}</Badge>
   }
 
   if (engagement.streak_days > 0) {
     return <Badge tone="done">{`${engagement.streak_days} jours d'affilée`}</Badge>
   }
 
-  return <Badge>{`${engagement.completion_rate} % faits`}</Badge>
+  return <Badge tone="neutral">{`${engagement.completion_rate} % faits`}</Badge>
 }

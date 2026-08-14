@@ -9,6 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import { otpFailureMessage } from '@/lib/authMessages';
 import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/shared/Button';
+import { AuthShell } from '@/components/AuthShell';
 
 const COUNTRY_CODES = [
   { code: '+212', label: '🇲🇦 +212' },
@@ -56,6 +57,7 @@ export default function AuthPhonePage() {
   };
 
   return (
+    <AuthShell>
     <main className="mx-auto flex min-h-screen max-w-md flex-col bg-surface shadow-subtle">
       <header className="relative flex flex-col items-center px-6 py-4 border-b border-surface-container-high">
         <Link href="/language" aria-label="Retour" className="absolute left-6 top-5 text-primary hover:opacity-80 transition-opacity">
@@ -180,6 +182,7 @@ export default function AuthPhonePage() {
         </Button>
       </footer>
     </main>
+    </AuthShell>
   );
 }
 

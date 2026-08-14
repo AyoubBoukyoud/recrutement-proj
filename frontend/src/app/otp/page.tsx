@@ -11,6 +11,7 @@ import { useProfile } from '@/context/ProfileContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { destinationForRole } from '@/lib/roleDestination';
 import { Button } from '@/components/shared/Button';
+import { AuthShell } from '@/components/AuthShell';
 
 const RESEND_SECONDS = 45;
 
@@ -113,6 +114,7 @@ function OtpContent() {
 
   if (pendingDestination) {
     return (
+      <AuthShell>
       <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center bg-surface px-6 py-10 text-center shadow-subtle">
         <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-surface-container-low text-primary shadow-subtle">
           <span className="material-symbols-outlined" style={{ fontSize: 44 }}>
@@ -131,10 +133,12 @@ function OtpContent() {
           {t('recruiter_access_pending_cta')}
         </Button>
       </main>
+      </AuthShell>
     );
   }
 
   return (
+    <AuthShell>
     <main className="mx-auto flex min-h-screen max-w-md flex-col bg-surface shadow-subtle">
       <header className="sticky top-0 z-10 border-b border-surface-container-high bg-surface px-6 py-4">
         <div className="flex items-center gap-4">
@@ -231,6 +235,7 @@ function OtpContent() {
         }
       `}</style>
     </main>
+    </AuthShell>
   );
 }
 

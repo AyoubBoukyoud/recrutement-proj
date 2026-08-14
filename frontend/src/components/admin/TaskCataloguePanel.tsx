@@ -105,7 +105,7 @@ export function TaskCataloguePanel() {
         {(data?.data ?? []).map((task) => (
           <div key={task.id} className="flex flex-wrap items-center gap-2 border-t border-outline-variant pt-2">
             <span className="min-w-[160px] flex-1 text-sm text-on-surface">{task.title}</span>
-            <Badge>{CATEGORY_LABELS[task.category]}</Badge>
+            <Badge tone="neutral">{CATEGORY_LABELS[task.category]}</Badge>
             <span className="helper-text">{task.estimated_minutes} min</span>
             {task.assignments_count != null && (
               <span className="helper-text">{`assignée ${task.assignments_count}×`}</span>
@@ -116,7 +116,7 @@ export function TaskCataloguePanel() {
               </Button>
             ) : (
               <>
-                <Badge>retirée</Badge>
+                <Badge tone="neutral">retirée</Badge>
                 <Button variant="ghost" size="compact" onClick={() => restore.mutate(task.id)}>
                   Rétablir
                 </Button>
@@ -133,7 +133,7 @@ export function TaskCataloguePanel() {
       </div>
 
       <div className="mt-4 grid gap-2">
-        <Pagination page={page} data={data} onPage={setPage} />
+        <Pagination page={page} data={data} onPage={setPage} noun="activité" />
         <Button
           variant="ghost"
           size="compact"

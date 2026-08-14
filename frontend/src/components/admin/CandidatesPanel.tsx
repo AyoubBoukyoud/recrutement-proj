@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { Eye, Trash2, Check, X } from 'lucide-react';
 import { api } from '@/lib/opsApi';
-import { Badge, Button, Card, CheckMark, Field, Notice, SectionHeader, SelectField } from '@/components/ui';
+import { Avatar, Badge, Card, Field, Notice, ProgressBar, SectionHeader, SelectField } from '@/components/ui';
 import { Pagination } from '@/components/Pagination';
 import { EngagementBadge } from '@/components/admin/EngagementBadge';
 import { apiErrorMessage } from '@/lib/apiError';
@@ -18,20 +19,123 @@ const CHECKLIST_LABELS: [keyof AdminChecklist, string][] = [
   ['video_recorded', 'Vidéo de présentation enregistrée'],
 ];
 
-function ChecklistMark({ done, label }: { done: boolean; label: string }) {
+const cx = (...parts: (string | false | undefined)[]) => parts.filter(Boolean).join(' ');
+
+const ICON_BUTTON =
+  'inline-flex h-8 w-8 items-center justify-center rounded-element border border-outline-variant bg-surface-lowest text-on-surface-variant transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60';
+
+function CandidateRow({
+  candidate,
+  onOpen,
+  confirming,
+  onAskDelete,
+  onCancelDelete,
+  onConfirmDelete,
+  deletePending,
+  deleteError,
+}: {
+  candidate: AdminCandidateRow;
+  onOpen: () => void;
+  confirming: boolean;
+  onAskDelete: () => void;
+  onCancelDelete: () => void;
+  onConfirmDelete: () => void;
+  deletePending: boolean;
+  deleteError: unknown;
+}) {
+  const done = CHECKLIST_LABELS.filter(([key]) => candidate.checklist[key]).length;
+  const name = candidate.name ?? candidate.phone;
+
   return (
-    <span
-      className={`flex items-center gap-1.5 text-[13px] ${done ? 'text-on-surface' : 'text-on-surface-variant'}`}
-    >
-      <span
-        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-sm text-white ${
-          done ? 'bg-primary' : 'border border-outline-variant bg-transparent'
-        }`}
-      >
-        {done && <CheckMark size={9} />}
-      </span>
-      {label}
-    </span>
+    <tr className={confirming ? 'bg-error-light/30' : 'hover:bg-surface-container/40'}>
+      <td className="py-3 pr-3">
+        <button onClick={onOpen} className="flex items-center gap-3 border-none bg-transparent p-0 text-left">
+          <Avatar name={name} />
+          <span className="grid">
+            <span className="text-[14px] font-semibold text-on-surface hover:text-primary hover:underline">
+              {name}
+            </span>
+            <span className="font-mono text-[12px] text-on-surface-variant">{candidate.phone}</span>
+          </span>
+        </button>
+      </td>
+
+      <td className="py-3 pr-3">
+        <div className="flex items-center gap-2">
+          <ProgressBar percent={candidate.completion_percent} className="w-24" />
+          <span className="font-mono text-[12px] tabular-nums text-on-surface-variant">
+            {candidate.completion_percent}%
+          </span>
+        </div>
+      </td>
+
+      <td className="py-3 pr-3">
+        <Badge tone={done === CHECKLIST_LABELS.length ? 'done' : 'pending'}>
+          {done}/{CHECKLIST_LABELS.length}
+        </Badge>
+      </td>
+
+      <td className="py-3 pr-3">
+        <Badge tone={candidate.verified_at ? 'done' : 'pending'}>
+          {candidate.verified_at ? 'vérifié' : candidate.submitted_at ? 'soumis' : 'brouillon'}
+        </Badge>
+      </td>
+
+      <td className="py-3 pr-3">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {candidate.referred_by && <Badge tone="neutral">via {candidate.referred_by}</Badge>}
+          {candidate.documents_awaiting_approval > 0 && (
+            <Badge>{`${candidate.documents_awaiting_approval} à approuver`}</Badge>
+          )}
+          <EngagementBadge engagement={candidate.engagement} />
+        </div>
+      </td>
+
+      <td className="py-3">
+        {confirming ? (
+          <div className="flex items-center justify-end gap-2">
+            <span className="whitespace-nowrap text-[12px] font-medium text-on-error-container">Supprimer ?</span>
+            <button
+              className={cx(ICON_BUTTON, 'hover:border-primary hover:text-primary')}
+              onClick={onConfirmDelete}
+              disabled={deletePending}
+              aria-label="Confirmer la suppression"
+              title="Confirmer la suppression"
+            >
+              <Check size={16} />
+            </button>
+            <button
+              className={ICON_BUTTON}
+              onClick={onCancelDelete}
+              disabled={deletePending}
+              aria-label="Annuler"
+              title="Annuler"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center justify-end gap-2">
+            <button className={ICON_BUTTON} onClick={onOpen} aria-label="Ouvrir le dossier" title="Ouvrir le dossier">
+              <Eye size={16} />
+            </button>
+            <button
+              className={cx(ICON_BUTTON, 'hover:border-error hover:text-error')}
+              onClick={onAskDelete}
+              aria-label="Supprimer"
+              title="Supprimer"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+        )}
+        {confirming && !!deleteError && (
+          <div className="mt-2 flex justify-end">
+            <Notice>{apiErrorMessage(deleteError, "Cela n'a pas fonctionné. Réessayez.")}</Notice>
+          </div>
+        )}
+      </td>
+    </tr>
   );
 }
 
@@ -117,93 +221,37 @@ export function CandidatesPanel() {
         </SelectField>
       </div>
 
-      <div className="grid gap-6">
-        {(data?.data ?? []).map((candidate) => {
-          const done = CHECKLIST_LABELS.filter(([key]) => candidate.checklist[key]).length;
-          return (
-            <div key={candidate.id} className="border-t border-outline-variant pt-4">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <button
-                  onClick={() => router.push(`/admin/candidats/${candidate.id}`)}
-                  className="cursor-pointer border-none bg-transparent p-0 text-left font-mono text-[13px] tracking-[0.5px] text-primary hover:underline"
-                >
-                  {candidate.name ?? candidate.phone}
-                </button>
-                <div className="flex flex-wrap items-center gap-2">
-                  {candidate.referred_by && <Badge>via {candidate.referred_by}</Badge>}
-                  {candidate.documents_awaiting_approval > 0 && (
-                    <Badge>{`${candidate.documents_awaiting_approval} à approuver`}</Badge>
-                  )}
-                  <EngagementBadge engagement={candidate.engagement} />
-                  <Badge tone={candidate.verified_at ? 'done' : 'pending'}>
-                    {candidate.verified_at ? 'vérifié' : candidate.submitted_at ? 'soumis' : 'brouillon'}
-                  </Badge>
-                  <Badge tone={candidate.completion_percent >= 100 ? 'done' : 'pending'}>
-                    {candidate.completion_percent} % complété
-                  </Badge>
-                  <Badge tone={done === CHECKLIST_LABELS.length ? 'done' : 'pending'}>
-                    {done}/{CHECKLIST_LABELS.length}
-                  </Badge>
-                </div>
-              </div>
-
-              {/* Les sections d'un dossier se signent : une section terminée est
-                  donc tamponnée plutôt que cochée dans une case que l'opérateur
-                  ne peut de toute façon pas basculer. */}
-              <div className="mt-2 flex flex-wrap gap-4">
-                {CHECKLIST_LABELS.map(([key, label]) => (
-                  <ChecklistMark key={key} done={candidate.checklist[key]} label={label} />
-                ))}
-              </div>
-
-              {confirmingId === candidate.id ? (
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <span className="text-[13px] text-on-surface">
-                    Supprimer définitivement ce dossier ?
-                  </span>
-                  <Button
-                    variant="danger"
-                    size="compact"
-                    onClick={() => deleteMutation.mutate(candidate.id)}
-                    disabled={deleteMutation.isPending}
-                  >
-                    {deleteMutation.isPending ? 'Suppression…' : 'Oui, supprimer'}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="compact"
-                    onClick={() => setConfirmingId(null)}
-                    disabled={deleteMutation.isPending}
-                  >
-                    Annuler
-                  </Button>
-                </div>
-              ) : (
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <Button
-                    variant="ghost"
-                    size="compact"
-                    onClick={() => router.push(`/admin/candidats/${candidate.id}`)}
-                  >
-                    Ouvrir le dossier
-                  </Button>
-                  <Button variant="danger" size="compact" onClick={() => setConfirmingId(candidate.id)}>
-                    Supprimer
-                  </Button>
-                </div>
-              )}
-
-              {confirmingId === candidate.id && deleteMutation.isError && (
-                <div className="mt-2">
-                  <Notice>{apiErrorMessage(deleteMutation.error, "Cela n'a pas fonctionné. Réessayez.")}</Notice>
-                </div>
-              )}
-            </div>
-          );
-        })}
+      <div className="-mx-6 overflow-x-auto px-6">
+        <table className="w-full min-w-[760px] border-collapse text-left">
+          <thead>
+            <tr className="border-b border-outline-variant text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">
+              <th className="pb-2 pr-3 font-bold">Candidat</th>
+              <th className="pb-2 pr-3 font-bold">Complétude</th>
+              <th className="pb-2 pr-3 font-bold">Checklist</th>
+              <th className="pb-2 pr-3 font-bold">Statut</th>
+              <th className="pb-2 pr-3 font-bold">Signaux</th>
+              <th className="pb-2 text-right font-bold">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-outline-variant">
+            {(data?.data ?? []).map((candidate) => (
+              <CandidateRow
+                key={candidate.id}
+                candidate={candidate}
+                onOpen={() => router.push(`/admin/candidats/${candidate.id}`)}
+                confirming={confirmingId === candidate.id}
+                onAskDelete={() => setConfirmingId(candidate.id)}
+                onCancelDelete={() => setConfirmingId(null)}
+                onConfirmDelete={() => deleteMutation.mutate(candidate.id)}
+                deletePending={deleteMutation.isPending}
+                deleteError={confirmingId === candidate.id ? deleteMutation.error : null}
+              />
+            ))}
+          </tbody>
+        </table>
 
         {!isLoading && (data?.data.length ?? 0) === 0 && (
-          <p className="helper-text">Aucun candidat ne correspond.</p>
+          <p className="helper-text py-4">Aucun candidat ne correspond.</p>
         )}
       </div>
 

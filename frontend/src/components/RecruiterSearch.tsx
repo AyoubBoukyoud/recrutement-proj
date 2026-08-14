@@ -134,8 +134,8 @@ function CandidateCard({ candidate, onOpen }: { candidate: CandidateListItem; on
         {candidate.shortlisted && candidate.shortlist_stage && (
           <Badge tone="done">{STAGE_LABELS[candidate.shortlist_stage]}</Badge>
         )}
-        {candidate.has_verified_assessment && <Badge>évalué</Badge>}
-        {candidate.has_video && <Badge>vidéo</Badge>}
+        {candidate.has_verified_assessment && <Badge tone="done">évalué</Badge>}
+        {candidate.has_video && <Badge tone="done">vidéo</Badge>}
         {!candidate.submitted && <Badge tone="pending">brouillon</Badge>}
       </div>
     </button>

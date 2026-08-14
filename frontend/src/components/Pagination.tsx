@@ -12,21 +12,23 @@ export function Pagination<T>({
   page,
   data,
   onPage,
+  noun = 'candidat',
 }: {
   page: number
   data: PaginatedResponse<T> | undefined
   onPage: (page: number) => void
+  /** Le nom au singulier — un « s » suffit à tout ce qui est compté ici. */
+  noun?: string
 }) {
   if (!data || data.total === 0) return null
 
   const { current_page, last_page, total } = data
+  const count = `${total} ${noun}${total === 1 ? '' : 's'}`
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <span className="helper-text">
-        {last_page > 1
-          ? `Page ${current_page} sur ${last_page} · ${total} candidat${total === 1 ? '' : 's'}`
-          : `${total} candidat${total === 1 ? '' : 's'}`}
+        {last_page > 1 ? `Page ${current_page} sur ${last_page} · ${count}` : count}
       </span>
 
       {last_page > 1 && (

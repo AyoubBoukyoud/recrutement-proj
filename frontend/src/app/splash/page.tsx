@@ -4,6 +4,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { AuthShell } from '@/components/AuthShell';
 
 export default function SplashPage() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function SplashPage() {
   }, [router]);
 
   return (
+    <AuthShell>
     <main className="relative mx-auto flex min-h-screen max-w-md flex-col items-center justify-between overflow-hidden bg-surface px-6 py-12 text-center shadow-subtle">
       <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-40" />
 
@@ -54,6 +56,7 @@ export default function SplashPage() {
         </div>
       </footer>
     </main>
+    </AuthShell>
   );
 }
 

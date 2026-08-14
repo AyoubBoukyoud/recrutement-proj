@@ -68,12 +68,14 @@ function AssessmentRow({ assessment }: { assessment: LanguageAssessmentResult })
         <Badge tone="done">
           {assessment.language.toUpperCase()} {assessment.predicted_cefr}
         </Badge>
-        {assessment.words_per_minute !== null && <Badge>{assessment.words_per_minute} mots/min</Badge>}
+        {assessment.words_per_minute !== null && (
+          <Badge tone="neutral">{assessment.words_per_minute} mots/min</Badge>
+        )}
         {assessment.pronunciation_score !== null && (
-          <Badge>clarté {assessment.pronunciation_score}/100</Badge>
+          <Badge tone="neutral">clarté {assessment.pronunciation_score}/100</Badge>
         )}
         {assessment.filler_word_ratio !== null && (
-          <Badge>hésitations {(assessment.filler_word_ratio * 100).toFixed(1)} %</Badge>
+          <Badge tone="neutral">hésitations {(assessment.filler_word_ratio * 100).toFixed(1)} %</Badge>
         )}
         {assessment.duration_seconds !== null && (
           <span className="helper-text">{Math.round(assessment.duration_seconds)} s enregistrées</span>

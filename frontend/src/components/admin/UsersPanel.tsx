@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Pencil } from 'lucide-react'
 import { api } from '@/lib/opsApi'
-import { Badge, Button, Card, Field, Notice, SectionHeader, SelectField } from '@/components/ui'
+import { Avatar, Badge, Button, Card, Field, Notice, SectionHeader, SelectField } from '@/components/ui'
 import { Pagination } from '@/components/Pagination'
 import type { AdminUser } from '@/types/admin'
 import type { PaginatedResponse } from '@/types/candidate'
@@ -17,6 +18,9 @@ const ROLE_LABELS: Record<string, string> = {
 }
 
 const roleLabel = (role: string) => ROLE_LABELS[role] ?? role
+
+const ICON_BUTTON =
+  'inline-flex h-8 w-8 items-center justify-center rounded-element border border-outline-variant bg-surface-lowest text-on-surface-variant transition-colors hover:border-primary hover:text-primary'
 
 /**
  * Les rôles d'un utilisateur, sous forme de bascules.
@@ -42,63 +46,84 @@ function UserRow({ user, roles }: { user: AdminUser; roles: string[] }) {
 
   const error = save.error as { response?: { data?: { errors?: Record<string, string[]> } } } | null
   const message = error?.response?.data?.errors?.roles?.[0]
+  const name = user.name ?? user.phone
 
   return (
-    <div className="grid gap-2 border-t border-outline-variant pt-2">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="min-w-[140px] font-mono text-[13px] text-on-surface">{user.phone}</span>
-        <span className="min-w-[120px] flex-1 text-sm text-on-surface">{user.name ?? '—'}</span>
-        {user.roles.length === 0 && <Badge>aucun rôle</Badge>}
-        {user.roles.map((role) => (
-          <Badge key={role} tone={role === 'Administrator' ? 'done' : 'pending'}>
-            {roleLabel(role)}
-          </Badge>
-        ))}
-        <Button
-          variant="ghost"
-          size="compact"
-          onClick={() => {
-            setSelected(user.roles)
-            setEditing((v) => !v)
-          }}
-        >
-          {editing ? 'Annuler' : 'Rôles'}
-        </Button>
-      </div>
+    <>
+      <tr className="hover:bg-surface-container/40">
+        <td className="py-3 pr-3">
+          <div className="flex items-center gap-3">
+            <Avatar name={name} />
+            <span className="grid">
+              <span className="text-[14px] font-semibold text-on-surface">{user.name ?? '—'}</span>
+              <span className="font-mono text-[12px] text-on-surface-variant">{user.phone}</span>
+            </span>
+          </div>
+        </td>
+        <td className="py-3 pr-3">
+          <div className="flex flex-wrap items-center gap-1.5">
+            {user.roles.length === 0 && <Badge tone="pending">aucun rôle</Badge>}
+            {user.roles.map((role) => (
+              <Badge key={role} tone={role === 'Administrator' ? 'done' : 'neutral'}>
+                {roleLabel(role)}
+              </Badge>
+            ))}
+          </div>
+        </td>
+        <td className="py-3">
+          <div className="flex justify-end">
+            <button
+              className={ICON_BUTTON}
+              onClick={() => {
+                setSelected(user.roles)
+                setEditing((v) => !v)
+              }}
+              aria-label="Modifier les rôles"
+              title="Modifier les rôles"
+            >
+              <Pencil size={16} />
+            </button>
+          </div>
+        </td>
+      </tr>
 
       {editing && (
-        <div className="grid gap-2">
-          <div className="flex flex-wrap gap-2">
-            {roles.map((role) => {
-              const active = selected.includes(role)
-              return (
-                <Button
-                  key={role}
-                  size="compact"
-                  variant={active ? 'primary' : 'ghost'}
-                  onClick={() =>
-                    setSelected((current) =>
-                      active ? current.filter((r) => r !== role) : [...current, role],
-                    )
-                  }
-                >
-                  {roleLabel(role)}
+        <tr>
+          <td colSpan={3} className="pb-3">
+            <div className="grid gap-2 rounded-element border border-outline-variant bg-surface-container/40 p-3">
+              <div className="flex flex-wrap gap-2">
+                {roles.map((role) => {
+                  const active = selected.includes(role)
+                  return (
+                    <Button
+                      key={role}
+                      size="compact"
+                      variant={active ? 'primary' : 'ghost'}
+                      onClick={() =>
+                        setSelected((current) =>
+                          active ? current.filter((r) => r !== role) : [...current, role],
+                        )
+                      }
+                    >
+                      {roleLabel(role)}
+                    </Button>
+                  )
+                })}
+              </div>
+              {message && <Notice>{message}</Notice>}
+              <div className="flex gap-2">
+                <Button size="compact" disabled={save.isPending} onClick={() => save.mutate()}>
+                  Enregistrer les rôles
                 </Button>
-              )
-            })}
-          </div>
-          {message && <Notice>{message}</Notice>}
-          <Button
-            size="compact"
-            disabled={save.isPending}
-            onClick={() => save.mutate()}
-            className="justify-self-start"
-          >
-            Enregistrer les rôles
-          </Button>
-        </div>
+                <Button size="compact" variant="ghost" disabled={save.isPending} onClick={() => setEditing(false)}>
+                  Annuler
+                </Button>
+              </div>
+            </div>
+          </td>
+        </tr>
       )}
-    </div>
+    </>
   )
 }
 
@@ -159,17 +184,29 @@ export function UsersPanel() {
         </SelectField>
       </div>
 
-      <div className="grid gap-2">
-        {(data?.data ?? []).map((user) => (
-          <UserRow key={user.id} user={user} roles={roles} />
-        ))}
+      <div className="-mx-6 overflow-x-auto px-6">
+        <table className="w-full min-w-[520px] border-collapse text-left">
+          <thead>
+            <tr className="border-b border-outline-variant text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">
+              <th className="pb-2 pr-3 font-bold">Utilisateur</th>
+              <th className="pb-2 pr-3 font-bold">Rôles</th>
+              <th className="pb-2 text-right font-bold">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-outline-variant">
+            {(data?.data ?? []).map((user) => (
+              <UserRow key={user.id} user={user} roles={roles} />
+            ))}
+          </tbody>
+        </table>
+
         {!isLoading && (data?.data.length ?? 0) === 0 && (
-          <p className="helper-text">Aucun utilisateur ne correspond.</p>
+          <p className="helper-text py-4">Aucun utilisateur ne correspond.</p>
         )}
       </div>
 
       <div className="mt-4">
-        <Pagination page={page} data={data} onPage={setPage} />
+        <Pagination page={page} data={data} onPage={setPage} noun="utilisateur" />
       </div>
     </Card>
   )

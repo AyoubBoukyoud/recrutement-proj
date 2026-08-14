@@ -196,7 +196,9 @@ export function AdminCandidateDetail({ id, onBack }: { id: number; onBack: () =>
               <Badge tone={data.verified_at ? 'done' : 'pending'}>
                 {data.verified_at ? 'vérifié' : data.submitted_at ? 'soumis' : 'brouillon'}
               </Badge>
-              <Badge>{data.completeness.percent} % complet</Badge>
+              <Badge tone={data.completeness.percent >= 100 ? 'done' : 'pending'}>
+                {data.completeness.percent} % complet
+              </Badge>
               <EngagementBadge engagement={data.engagement} />
             </div>
           </div>

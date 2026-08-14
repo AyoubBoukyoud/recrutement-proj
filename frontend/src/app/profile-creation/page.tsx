@@ -10,6 +10,7 @@ import { useNetwork } from '@/context/NetworkContext';
 import { CEFRGauge } from '@/components/shared/CEFRGauge';
 import { SECTORS } from '@/lib/referenceData';
 import { Button, IconButton } from '@/components/shared/Button';
+import { AuthShell } from '@/components/AuthShell';
 import type { CEFRLevel, ProfileStep } from '@/lib/types';
 
 const STEP_TITLES: Record<ProfileStep, { title: string; arabic: string; subtitle: string }> = {
@@ -167,6 +168,7 @@ function ProfileCreationContent() {
   const isLastStep = step === 5;
 
   return (
+    <AuthShell flush>
     <main className="mx-auto min-h-screen max-w-md bg-surface pb-32 shadow-subtle flex flex-col">
       <header className="sticky top-0 z-10 border-b border-surface-container-high bg-surface px-6 py-4">
         <div className="flex items-center justify-between">
@@ -496,6 +498,7 @@ function ProfileCreationContent() {
         </Button>
       </div>
     </main>
+    </AuthShell>
   );
 }
 

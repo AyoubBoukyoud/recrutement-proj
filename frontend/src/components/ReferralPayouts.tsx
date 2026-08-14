@@ -24,12 +24,12 @@ type PayoutRow = {
   payout_reference: string | null
 }
 
-const STATUS_TONE: Record<CommissionStatus, 'pending' | 'done'> = {
+const STATUS_TONE: Record<CommissionStatus, 'pending' | 'done' | 'error'> = {
   pending: 'pending',
   qualified: 'pending',
   approved: 'pending',
   paid: 'done',
-  rejected: 'pending',
+  rejected: 'error',
 }
 
 const STATUS_LABELS: Record<CommissionStatus, string> = {
@@ -167,7 +167,7 @@ export function ReferralPayouts() {
       </div>
 
       <div className="mt-4">
-        <Pagination page={page} data={data} onPage={setPage} />
+        <Pagination page={page} data={data} onPage={setPage} noun="parrainage" />
       </div>
 
       {resolve.error && <Notice>{apiErrorMessage(resolve.error, "L'enregistrement a échoué.")}</Notice>}
