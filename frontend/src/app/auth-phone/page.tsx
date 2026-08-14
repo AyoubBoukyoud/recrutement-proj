@@ -8,12 +8,25 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { otpFailureMessage } from '@/lib/authMessages';
 import { useLanguage } from '@/context/LanguageContext';
+import { useProfile } from '@/context/ProfileContext';
 import { Button } from '@/components/shared/Button';
 import { AuthShell } from '@/components/AuthShell';
+import { destinationForRole } from '@/lib/roleDestination';
+import { USE_MOCKS } from '@/data/config';
+import { MOCK_ACCOUNTS, MOCK_OTP_CODE } from '@/data/fixtures/auth';
+import type { UserRole } from '@/lib/types';
 
 const COUNTRY_CODES = [
   { code: '+212', label: '🇲🇦 +212' },
   { code: '+49', label: '🇩🇪 +49' },
+];
+
+/** Un compte de démo par rôle, pour le raccourci de connexion en développement. */
+const DEV_LOGIN_ROLES: { role: UserRole; label: string }[] = [
+  { role: 'candidate', label: 'Candidat' },
+  { role: 'employer', label: 'Recruteur' },
+  { role: 'admin', label: 'Admin' },
+  { role: 'agent', label: 'Agent' },
 ];
 
 /**
@@ -26,13 +39,31 @@ type Intent = 'job_seeker' | 'recruiter';
 
 export default function AuthPhonePage() {
   const router = useRouter();
-  const { requestOtp } = useAuth();
+  const { requestOtp, verifyOtp } = useAuth();
   const { t } = useLanguage();
+  const { getIncompleteStep } = useProfile();
   const [intent, setIntent] = useState<Intent>('job_seeker');
   const [countryCode, setCountryCode] = useState(COUNTRY_CODES[0].code);
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [devRoleLoading, setDevRoleLoading] = useState<UserRole | null>(null);
+
+  // Raccourci dev : ouvre directement un compte de démo, sans numéro ni code —
+  // n'existe qu'en maquette (jamais compilé contre l'API réelle en production).
+  const devSignInAs = async (role: UserRole) => {
+    const account = MOCK_ACCOUNTS.find((a) => a.role === role);
+    if (!account) return;
+    setError(null);
+    setDevRoleLoading(role);
+    const result = await verifyOtp(MOCK_OTP_CODE, account.phone);
+    setDevRoleLoading(null);
+    if (!result.ok) {
+      setError(otpFailureMessage(result, t));
+      return;
+    }
+    router.push(destinationForRole(result.role, getIncompleteStep()));
+  };
 
   const submit = async () => {
     const digits = phone.replace(/\D/g, '');
@@ -160,6 +191,28 @@ export default function AuthPhonePage() {
           <p className="text-[11px] leading-normal text-primary font-medium">{t('phone_consent')}</p>
         </div>
       </form>
+
+      {USE_MOCKS && (
+        <div className="fade-in-entry opacity-0 mx-6 mb-4 rounded-pillar border border-dashed border-outline-variant bg-surface-container-low p-3">
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-onSurface-variant">
+            Dev — connexion rapide
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            {DEV_LOGIN_ROLES.map(({ role, label }) => (
+              <Button
+                key={role}
+                variant="outline"
+                size="sm"
+                onClick={() => devSignInAs(role)}
+                disabled={devRoleLoading !== null}
+                isLoading={devRoleLoading === role}
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <footer className="fade-in-entry stagger-3 opacity-0 space-y-3 border-t border-outline-variant bg-surface-container-lowest p-6">
         <Button
