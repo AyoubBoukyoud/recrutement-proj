@@ -161,6 +161,17 @@ const routes: Array<[string, string, Handler]> = [
     },
   ],
   [
+    'DELETE',
+    '/admin/candidates/:id',
+    (ctx) => {
+      const id = numberParam(ctx)
+      const state = getState()
+      if (!state.adminCandidates.some((c) => c.id === id)) throw new MockHttpError(404)
+      state.adminCandidates = state.adminCandidates.filter((c) => c.id !== id)
+      return {}
+    },
+  ],
+  [
     'PATCH',
     '/admin/documents/:id/approval',
     (ctx) => ({

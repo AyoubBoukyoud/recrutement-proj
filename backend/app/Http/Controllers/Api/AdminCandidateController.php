@@ -144,4 +144,18 @@ class AdminCandidateController extends Controller
 
         return response()->json($document->fresh(['extraction', 'reviewedBy:id,name,phone']));
     }
+
+    /**
+     * Removes the dossier, not the account: `candidateProfile->user` keeps
+     * their login, they'd just build a fresh profile if they came back.
+     * Documents, educations, languages, assessments, task assignments and
+     * shortlist entries all cascade at the database level (see the
+     * `cascadeOnDelete` migrations), so nothing here needs to walk them by hand.
+     */
+    public function destroy(CandidateProfile $candidateProfile): JsonResponse
+    {
+        $candidateProfile->delete();
+
+        return response()->json(status: 204);
+    }
 }

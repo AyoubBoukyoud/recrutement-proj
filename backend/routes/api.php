@@ -94,6 +94,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // The administrator's own judgement on a dossier, and on the documents
         // in it — neither of which the completeness checklist can express.
         Route::patch('/admin/candidates/{candidateProfile}', [AdminCandidateController::class, 'update']);
+        Route::delete('/admin/candidates/{candidateProfile}', [AdminCandidateController::class, 'destroy']);
         Route::patch('/admin/documents/{document}/approval', [AdminCandidateController::class, 'reviewDocument']);
 
         // The daily remote internship (spec §4): the catalogue, and what each

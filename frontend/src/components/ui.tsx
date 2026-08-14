@@ -24,6 +24,8 @@ const BUTTON_VARIANTS = {
   primary: 'bg-primary text-white hover:enabled:bg-primary-dark disabled:bg-surface-highest disabled:text-outline',
   ghost:
     'border-outline-variant bg-surface-lowest text-on-surface hover:enabled:border-primary hover:enabled:text-primary',
+  danger:
+    'border-error/40 bg-surface-lowest text-error hover:enabled:border-error hover:enabled:bg-error hover:enabled:text-on-error',
 } as const
 
 export function Button({
@@ -32,7 +34,7 @@ export function Button({
   className = '',
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: 'primary' | 'ghost'
+  variant?: 'primary' | 'ghost' | 'danger'
   size?: 'default' | 'compact'
 }) {
   return (

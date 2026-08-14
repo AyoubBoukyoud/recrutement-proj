@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { api } from '@/lib/opsApi';
-import { Badge, Button, Card, CheckMark, Field, SectionHeader, SelectField } from '@/components/ui';
+import { Badge, Button, Card, CheckMark, Field, Notice, SectionHeader, SelectField } from '@/components/ui';
 import { Pagination } from '@/components/Pagination';
 import { EngagementBadge } from '@/components/admin/EngagementBadge';
+import { apiErrorMessage } from '@/lib/apiError';
 import type { AdminCandidateRow, AdminChecklist } from '@/types/admin';
 import type { PaginatedResponse } from '@/types/candidate';
 
@@ -52,9 +53,19 @@ export function CandidatesPanel() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const status = searchParams.get('status') ?? '';
+  const queryClient = useQueryClient();
 
   const [page, setPage] = useState(1);
   const [q, setQ] = useState('');
+  const [confirmingId, setConfirmingId] = useState<number | null>(null);
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => api.delete(`/admin/candidates/${id}`),
+    onSuccess: () => {
+      setConfirmingId(null);
+      queryClient.invalidateQueries({ queryKey: ['admin-candidates'] });
+    },
+  });
 
   const setStatus = (value: string) => {
     const next = new URLSearchParams(searchParams.toString());
@@ -125,11 +136,10 @@ export function CandidatesPanel() {
                   )}
                   <EngagementBadge engagement={candidate.engagement} />
                   <Badge tone={candidate.verified_at ? 'done' : 'pending'}>
-                    {candidate.verified_at
-                      ? 'vérifié'
-                      : candidate.submitted_at
-                        ? 'soumis'
-                        : `brouillon · ${candidate.completion_percent} %`}
+                    {candidate.verified_at ? 'vérifié' : candidate.submitted_at ? 'soumis' : 'brouillon'}
+                  </Badge>
+                  <Badge tone={candidate.completion_percent >= 100 ? 'done' : 'pending'}>
+                    {candidate.completion_percent} % complété
                   </Badge>
                   <Badge tone={done === CHECKLIST_LABELS.length ? 'done' : 'pending'}>
                     {done}/{CHECKLIST_LABELS.length}
@@ -146,14 +156,48 @@ export function CandidatesPanel() {
                 ))}
               </div>
 
-              <Button
-                variant="ghost"
-                size="compact"
-                onClick={() => router.push(`/admin/candidats/${candidate.id}`)}
-                className="mt-2"
-              >
-                Ouvrir le dossier
-              </Button>
+              {confirmingId === candidate.id ? (
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span className="text-[13px] text-on-surface">
+                    Supprimer définitivement ce dossier ?
+                  </span>
+                  <Button
+                    variant="danger"
+                    size="compact"
+                    onClick={() => deleteMutation.mutate(candidate.id)}
+                    disabled={deleteMutation.isPending}
+                  >
+                    {deleteMutation.isPending ? 'Suppression…' : 'Oui, supprimer'}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="compact"
+                    onClick={() => setConfirmingId(null)}
+                    disabled={deleteMutation.isPending}
+                  >
+                    Annuler
+                  </Button>
+                </div>
+              ) : (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <Button
+                    variant="ghost"
+                    size="compact"
+                    onClick={() => router.push(`/admin/candidats/${candidate.id}`)}
+                  >
+                    Ouvrir le dossier
+                  </Button>
+                  <Button variant="danger" size="compact" onClick={() => setConfirmingId(candidate.id)}>
+                    Supprimer
+                  </Button>
+                </div>
+              )}
+
+              {confirmingId === candidate.id && deleteMutation.isError && (
+                <div className="mt-2">
+                  <Notice>{apiErrorMessage(deleteMutation.error, "Cela n'a pas fonctionné. Réessayez.")}</Notice>
+                </div>
+              )}
             </div>
           );
         })}
