@@ -2,10 +2,9 @@
   "_note": "English homepage copy. Same shape as home.fr.json — TypeScript fails the build if a key is missing.",
   "nav": {
     "links": [
-      { "label": "Trades", "href": "#metiers" },
-      { "label": "How it works", "href": "#comment-ca-marche" },
-      { "label": "Recruiters", "href": "#recruteurs" },
-      { "label": "Questions", "href": "#questions" }
+      { "label": "Trades", "href": "/#sectors" },
+      { "label": "How it works", "href": "/#methodology" },
+      { "label": "Recruiters", "href": "/employeurs" }
     ],
     "signIn": "I already have a file",
     "cta": "Create my file",
@@ -211,17 +210,16 @@
         "title": "Candidates",
         "links": [
           { "label": "Create my file", "href": "/auth-phone" },
-          { "label": "Trades that are hiring", "href": "#metiers" },
-          { "label": "How it works", "href": "#comment-ca-marche" },
-          { "label": "Frequently asked questions", "href": "#questions" }
+          { "label": "Trades that are hiring", "href": "/#sectors" },
+          { "label": "How it works", "href": "/#methodology" }
         ]
       },
       {
         "title": "Recruiters",
         "links": [
           { "label": "Recruiter space", "href": "/auth-phone" },
-          { "label": "Search profiles", "href": "#recruteurs" },
-          { "label": "Request a demo", "href": "#recruteurs" }
+          { "label": "Search profiles", "href": "/employeurs" },
+          { "label": "Request a demo", "href": "/employeurs#roi" }
         ]
       },
       {

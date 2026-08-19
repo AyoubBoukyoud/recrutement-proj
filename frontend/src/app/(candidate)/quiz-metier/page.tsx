@@ -164,7 +164,7 @@ export default function QuizMetierPage() {
           })}
         </div>
 
-        <div className="fixed bottom-0 left-0 w-full bg-surface p-4 md:relative md:bottom-auto md:bg-transparent md:p-0">
+        <div className="fixed inset-x-0 bottom-0 z-40 w-full bg-surface p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-subtle md:relative md:bottom-auto md:z-auto md:bg-transparent md:p-0 md:shadow-none">
           <Button
             size="lg"
             fullWidth

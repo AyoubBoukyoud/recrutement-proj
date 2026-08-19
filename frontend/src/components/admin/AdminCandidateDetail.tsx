@@ -137,6 +137,7 @@ function VerificationPanel({ candidate }: { candidate: Detail }) {
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         placeholder="Notes de suivi internes — jamais montrées au candidat ni aux recruteurs."
+        aria-label="Notes de suivi internes"
         rows={3}
         className="min-h-[72px] w-full resize-y rounded-element border border-outline bg-surface-lowest px-3.5 py-2.5 text-[15px] text-on-surface transition-colors placeholder:text-outline focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
       />
@@ -227,7 +228,7 @@ export function AdminCandidateDetail({ id, onBack }: { id: number; onBack: () =>
             ) : (
               <div className="grid gap-1">
                 {data.languages.map((language) => (
-                  <div key={language.id} className="flex items-center gap-2">
+                  <div key={language.id} className="flex flex-wrap items-center gap-2">
                     <span className="w-8 font-mono text-[13px] text-on-surface">
                       {language.language.toUpperCase()}
                     </span>

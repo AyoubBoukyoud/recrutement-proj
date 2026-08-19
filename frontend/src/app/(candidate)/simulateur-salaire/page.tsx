@@ -297,7 +297,7 @@ export default function SimulateurSalairePage() {
       </main>
 
       {/* Bottom Action Bar — mobile uniquement, remplacée par le bouton inline en colonne latérale sur desktop. */}
-      <footer className="fixed bottom-0 inset-x-0 z-40 mx-auto max-w-xl border-t border-outline-variant bg-surface-container-lowest p-4 shadow-subtle flex justify-center lg:hidden">
+      <footer className="fixed bottom-0 inset-x-0 z-40 mx-auto max-w-xl border-t border-outline-variant bg-surface-container-lowest p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-subtle flex justify-center lg:hidden">
         <Button fullWidth className="text-xs shadow-md">
           <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
             picture_as_pdf

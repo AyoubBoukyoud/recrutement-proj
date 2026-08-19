@@ -96,10 +96,12 @@ export default function OffresPage() {
         <div className="mb-6 lg:max-w-xl">
           <h2 className="mb-3 text-2xl font-extrabold text-primary">Offres pour vous</h2>
           <div className="relative w-full">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" style={{ fontSize: 20 }}>
+            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" aria-hidden="true" style={{ fontSize: 20 }}>
               search
             </span>
+            <label htmlFor="offres-search" className="sr-only">Rechercher un métier ou une ville</label>
             <input
+              id="offres-search"
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}

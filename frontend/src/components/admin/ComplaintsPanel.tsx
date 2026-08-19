@@ -41,14 +41,14 @@ function ComplaintRow({ complaint }: { complaint: Complaint }) {
 
   return (
     <div className="border-t border-outline-variant pt-4">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-2.5">
           <Avatar name={complaint.user.name ?? complaint.user.phone} size={28} />
-          <span className="text-[14px] font-semibold text-on-surface">
+          <span className="truncate text-[14px] font-semibold text-on-surface">
             {complaint.user.name ?? complaint.user.phone}
           </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Une réclamation dont personne n'a été averti est la panne qui mérite
               d'être vue : elle signifie qu'aucun admin n'a d'e-mail et qu'aucun
               webhook n'est configuré. */}
@@ -76,6 +76,7 @@ function ComplaintRow({ complaint }: { complaint: Complaint }) {
         value={reply}
         onChange={(e) => setReply(e.target.value)}
         placeholder="Répondre au candidat…"
+        aria-label="Répondre au candidat"
         rows={2}
         className="mt-2 min-h-16 w-full resize-y rounded-element border border-outline bg-surface-lowest px-3.5 py-2.5 text-[15px] text-on-surface transition-colors placeholder:text-outline focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
       />

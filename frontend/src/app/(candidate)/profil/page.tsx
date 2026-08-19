@@ -96,13 +96,17 @@ export default function ProfilPage() {
               </div>
               {isEditing ? (
                 <div className="flex-1 space-y-2">
+                  <label htmlFor="profil-job-title" className="sr-only">Métier</label>
                   <input
+                    id="profil-job-title"
                     value={form.jobTitle}
                     onChange={(e) => setForm((p) => ({ ...p, jobTitle: e.target.value }))}
                     placeholder="Métier"
                     className="w-full rounded-lg border border-outline px-3 py-2 text-sm outline-none focus:border-primary"
                   />
+                  <label htmlFor="profil-city" className="sr-only">Ville</label>
                   <input
+                    id="profil-city"
                     value={form.city}
                     onChange={(e) => setForm((p) => ({ ...p, city: e.target.value }))}
                     placeholder="Ville"

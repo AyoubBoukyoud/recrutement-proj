@@ -2,10 +2,9 @@
   "_note": "النسخة العربية من الصفحة الرئيسية. نفس بنية home.fr.json — TypeScript يوقف البناء إذا نقص مفتاح. العربية تعرض الصفحة من اليمين إلى اليسار: تحقق من التخطيط بعد كل تعديل.",
   "nav": {
     "links": [
-      { "label": "المهن", "href": "#metiers" },
-      { "label": "كيف تعمل المنصة", "href": "#comment-ca-marche" },
-      { "label": "أرباب العمل", "href": "#recruteurs" },
-      { "label": "أسئلة", "href": "#questions" }
+      { "label": "المهن", "href": "/#sectors" },
+      { "label": "كيف تعمل المنصة", "href": "/#methodology" },
+      { "label": "أرباب العمل", "href": "/employeurs" }
     ],
     "signIn": "لدي ملف بالفعل",
     "cta": "أنشئ ملفي",
@@ -211,17 +210,16 @@
         "title": "المترشحون",
         "links": [
           { "label": "أنشئ ملفي", "href": "/auth-phone" },
-          { "label": "المهن المطلوبة", "href": "#metiers" },
-          { "label": "كيف تعمل المنصة", "href": "#comment-ca-marche" },
-          { "label": "الأسئلة الشائعة", "href": "#questions" }
+          { "label": "المهن المطلوبة", "href": "/#sectors" },
+          { "label": "كيف تعمل المنصة", "href": "/#methodology" }
         ]
       },
       {
         "title": "أرباب العمل",
         "links": [
           { "label": "فضاء أرباب العمل", "href": "/auth-phone" },
-          { "label": "البحث عن الملفات", "href": "#recruteurs" },
-          { "label": "اطلب عرضاً توضيحياً", "href": "#recruteurs" }
+          { "label": "البحث عن الملفات", "href": "/employeurs" },
+          { "label": "اطلب عرضاً توضيحياً", "href": "/employeurs#roi" }
         ]
       },
       {

@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "npx next dev",
+    "build": "npx next build",
+    "start": "npx next start",
     "lint": "eslint src --ext .ts,.tsx",
     "verify:no-mocks": "rm -rf .next && NEXT_PUBLIC_USE_MOCKS=0 next build && ! grep -rlE 'Youssef Amrani|mock-token-|cv-youssef-amrani|\\[maquette\\]' .next/static/chunks/"
   },

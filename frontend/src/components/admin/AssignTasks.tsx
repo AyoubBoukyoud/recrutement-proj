@@ -127,6 +127,7 @@ export function AssignTasks({ candidate }: { candidate: AdminCandidateDetail }) 
               type="date"
               value={day}
               onChange={(e) => setDay(e.target.value)}
+              aria-label="Date d'assignation"
               className="h-13 w-auto rounded-element border border-outline bg-surface-lowest px-3.5 text-[15px] text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
             <Button size="compact" disabled={selected.length === 0 || assign.isPending} onClick={() => assign.mutate()}>

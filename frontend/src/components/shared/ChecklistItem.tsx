@@ -42,7 +42,7 @@ export function ChecklistItem({ label, description, status, href, actionLabel = 
       {status === 'pending' && href && (
         <Link
           href={href}
-          className="shrink-0 rounded-lg bg-primary px-4 py-1.5 text-xs font-semibold text-onPrimary shadow-sm transition-all hover:bg-primary/90 active:scale-95"
+          className="flex min-h-[44px] shrink-0 items-center rounded-lg bg-primary px-4 text-xs font-semibold text-onPrimary shadow-sm transition-all hover:bg-primary/90 active:scale-95"
         >
           {actionLabel}
         </Link>

@@ -52,7 +52,7 @@ export function DocumentViewer({ document, previewUrl, onRemove }: DocumentViewe
         </div>
       </div>
       {onRemove && (
-        <Button variant="destructive-ghost" size="sm" pill onClick={onRemove} className="h-auto shrink-0 px-2 py-1">
+        <Button variant="destructive-ghost" size="sm" pill onClick={onRemove} className="shrink-0">
           Retirer
         </Button>
       )}

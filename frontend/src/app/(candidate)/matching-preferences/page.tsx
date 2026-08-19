@@ -151,13 +151,16 @@ export default function MatchingPreferencesPage() {
                 className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-surface-container-high px-4 py-2 text-xs font-bold text-primary shadow-xs"
               >
                 <span>{sec}</span>
-                <span
+                <button
+                  type="button"
                   onClick={() => removeSector(sec)}
-                  className="material-symbols-outlined cursor-pointer hover:opacity-75"
-                  style={{ fontSize: 16 }}
+                  aria-label={`Retirer ${sec}`}
+                  className="-m-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full hover:opacity-75"
                 >
-                  close
-                </span>
+                  <span className="material-symbols-outlined" style={{ fontSize: 16 }} aria-hidden="true">
+                    close
+                  </span>
+                </button>
               </div>
             ))}
             {['Électricité', 'Hôtellerie', 'Construction']

@@ -474,10 +474,10 @@ function ProfileCreationContent() {
           </div>
         )}
 
-        {error && <p className="mt-4 text-xs font-bold text-error animate-bounce">{error}</p>}
+        {error && <p className="fade-in-entry opacity-0 mt-4 text-xs font-bold text-error">{error}</p>}
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-md border-t border-outline-variant bg-surface-container-lowest p-6 shadow-subtle">
+      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-md border-t border-outline-variant bg-surface-container-lowest px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-6 shadow-subtle">
         <Button
           size="lg"
           fullWidth

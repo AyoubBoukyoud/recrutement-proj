@@ -74,7 +74,7 @@ export function TaskCataloguePanel() {
         }
       />
 
-      <div className="mb-4 grid items-end gap-2 [grid-template-columns:minmax(180px,2fr)_minmax(120px,1fr)_minmax(90px,1fr)_auto]">
+      <div className="mb-4 grid grid-cols-1 items-end gap-2 sm:[grid-template-columns:minmax(180px,2fr)_minmax(120px,1fr)_minmax(90px,1fr)_auto]">
         <Field
           label="Nouvelle activité"
           value={title}

@@ -67,7 +67,7 @@ export default function CandidateLayout({ children }: { children: React.ReactNod
         <div className="flex-1">{children}</div>
 
         {/* Tab bar mobile — masquée dès lg, remplacée par la sidebar. */}
-        <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto flex max-w-md items-center justify-around border-t border-surface-container-high bg-surface-container-lowest/95 px-3 py-2 shadow-subtle backdrop-blur-md lg:hidden">
+        <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto flex max-w-md items-center justify-around border-t border-surface-container-high bg-surface-container-lowest/95 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-subtle backdrop-blur-md lg:hidden">
           {TABS.map(({ href, label, icon }) => {
             const isActive = pathname === href;
             return (

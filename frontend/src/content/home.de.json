@@ -2,10 +2,9 @@
   "_note": "Deutsche Startseiten-Texte. Gleiche Struktur wie home.fr.json — TypeScript bricht den Build ab, wenn ein Schlüssel fehlt. Deutsche Labels sind rund 30 % länger als die französischen: Button-Umbrüche prüfen.",
   "nav": {
     "links": [
-      { "label": "Berufe", "href": "#metiers" },
-      { "label": "So funktioniert es", "href": "#comment-ca-marche" },
-      { "label": "Arbeitgeber", "href": "#recruteurs" },
-      { "label": "Fragen", "href": "#questions" }
+      { "label": "Berufe", "href": "/#sectors" },
+      { "label": "So funktioniert es", "href": "/#methodology" },
+      { "label": "Arbeitgeber", "href": "/employeurs" }
     ],
     "signIn": "Ich habe bereits ein Profil",
     "cta": "Profil erstellen",
@@ -211,17 +210,16 @@
         "title": "Bewerber",
         "links": [
           { "label": "Profil erstellen", "href": "/auth-phone" },
-          { "label": "Gesuchte Berufe", "href": "#metiers" },
-          { "label": "So funktioniert es", "href": "#comment-ca-marche" },
-          { "label": "Häufige Fragen", "href": "#questions" }
+          { "label": "Gesuchte Berufe", "href": "/#sectors" },
+          { "label": "So funktioniert es", "href": "/#methodology" }
         ]
       },
       {
         "title": "Arbeitgeber",
         "links": [
           { "label": "Arbeitgeberbereich", "href": "/auth-phone" },
-          { "label": "Profile suchen", "href": "#recruteurs" },
-          { "label": "Demo anfragen", "href": "#recruteurs" }
+          { "label": "Profile suchen", "href": "/employeurs" },
+          { "label": "Demo anfragen", "href": "/employeurs#roi" }
         ]
       },
       {

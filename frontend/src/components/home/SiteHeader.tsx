@@ -41,7 +41,7 @@ export function SiteHeader() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-40 transition-colors duration-200 ${
+      className={`fixed inset-x-0 top-0 z-40 pt-[env(safe-area-inset-top)] transition-colors duration-200 ${
         scrolled ? 'border-b border-outline-variant/40 bg-surface/95 shadow-soft backdrop-blur-md' : 'bg-transparent'
       }`}
     >
@@ -94,7 +94,7 @@ export function SiteHeader() {
       </div>
 
       {menuOpen && (
-        <div className="fixed inset-0 top-[72px] z-40 overflow-y-auto bg-surface px-6 py-8 lg:hidden">
+        <div className="fixed inset-0 top-[calc(72px+env(safe-area-inset-top))] z-40 overflow-y-auto bg-surface px-6 py-8 lg:hidden">
           <nav className="flex flex-col gap-1" aria-label="Navigation mobile">
             {nav.links.map((link) => (
               <a

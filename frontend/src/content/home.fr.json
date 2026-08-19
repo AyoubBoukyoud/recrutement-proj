@@ -2,10 +2,9 @@
   "_note": "Contenu de la page d'accueil publique. Aucune chaîne ne doit être codée en dur dans les composants (plan §6). Règle §7.3 : aucun chiffre, logo ou témoignage non vérifié.",
   "nav": {
     "links": [
-      { "label": "Métiers", "href": "#metiers" },
-      { "label": "Comment ça marche", "href": "#comment-ca-marche" },
-      { "label": "Recruteurs", "href": "#recruteurs" },
-      { "label": "Questions", "href": "#questions" }
+      { "label": "Métiers", "href": "/#sectors" },
+      { "label": "Comment ça marche", "href": "/#methodology" },
+      { "label": "Recruteurs", "href": "/employeurs" }
     ],
     "signIn": "J'ai déjà un dossier",
     "cta": "Créer mon dossier",
@@ -211,17 +210,16 @@
         "title": "Candidats",
         "links": [
           { "label": "Créer mon dossier", "href": "/auth-phone" },
-          { "label": "Les métiers qui recrutent", "href": "#metiers" },
-          { "label": "Comment ça marche", "href": "#comment-ca-marche" },
-          { "label": "Questions fréquentes", "href": "#questions" }
+          { "label": "Les métiers qui recrutent", "href": "/#sectors" },
+          { "label": "Comment ça marche", "href": "/#methodology" }
         ]
       },
       {
         "title": "Recruteurs",
         "links": [
           { "label": "Espace recruteur", "href": "/auth-phone" },
-          { "label": "Rechercher des profils", "href": "#recruteurs" },
-          { "label": "Demander une démonstration", "href": "#recruteurs" }
+          { "label": "Rechercher des profils", "href": "/employeurs" },
+          { "label": "Demander une démonstration", "href": "/employeurs#roi" }
         ]
       },
       {
