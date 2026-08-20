@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from 'react';
 import { Drawer } from '@/components/amud/ui';
+import { useToast } from '@/components/amud/Toast';
+import { exportCsv } from '@/lib/amud/csv';
 
 type Resultat = 'Positif' | 'Négatif' | 'En cours';
 type TypeActivite = 'Appel sortant' | 'Rendez-vous' | 'Email' | 'Note';
@@ -87,6 +89,7 @@ const RESULTAT_CLASS: Record<Resultat, string> = {
 };
 
 export default function AmudAdminActivitesPage() {
+  const notify = useToast();
   const [search, setSearch] = useState('');
   const [commercial, setCommercial] = useState('');
   const [type, setType] = useState('');
@@ -120,7 +123,16 @@ export default function AmudAdminActivitesPage() {
           <h2 className="text-headline-lg text-amud-on-surface">Activités commerciales</h2>
           <p className="mt-1 text-body-lg text-amud-on-surface-variant">Suivez en temps réel les interactions de votre équipe.</p>
         </div>
-        <button className="flex items-center gap-2 rounded-lg border border-amud-outline bg-amud-surface px-4 py-2 text-label-md text-amud-primary shadow-sm transition-colors hover:bg-amud-surface-container-low">
+        <button
+          onClick={() => {
+            exportCsv(
+              'activites-commerciales',
+              filtered.map((a) => ({ Date: a.date, Heure: a.heure, Commercial: a.commercial, Contact: a.contact, Type: a.type, Résultat: a.resultat, Statut: a.statut })),
+            );
+            notify('Rapport exporté.');
+          }}
+          className="flex items-center gap-2 rounded-lg border border-amud-outline bg-amud-surface px-4 py-2 text-label-md text-amud-primary shadow-sm transition-colors hover:bg-amud-surface-container-low"
+        >
           <span className="material-symbols-outlined text-[20px]">ios_share</span>
           Exporter le rapport
         </button>

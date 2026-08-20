@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Tabs } from '@/components/amud/ui';
+import { useToast } from '@/components/amud/Toast';
+import { exportCsv } from '@/lib/amud/csv';
 import { STATUT_LABEL, type Commercial, getCommercial } from '@/data/amud/commerciaux';
 import { loadLocalCommerciaux } from '@/lib/amud/localCommerciaux';
 
@@ -21,11 +23,11 @@ const TABS = [
 ];
 
 export default function AmudAdminCommercialProfilePage() {
+  const notify = useToast();
   const params = useParams<{ id: string }>();
   const [commercial, setCommercial] = useState<Commercial | null | undefined>(undefined);
   const [tab, setTab] = useState('overview');
   const [actif, setActif] = useState(true);
-  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
     const fromSeed = getCommercial(params.id);
@@ -36,12 +38,6 @@ export default function AmudAdminCommercialProfilePage() {
     const fromLocal = loadLocalCommerciaux().find((c) => c.id === params.id);
     setCommercial(fromLocal ?? null);
   }, [params.id]);
-
-  useEffect(() => {
-    if (!notice) return;
-    const t = setTimeout(() => setNotice(null), 2500);
-    return () => clearTimeout(t);
-  }, [notice]);
 
   if (commercial === undefined) return null;
 
@@ -65,13 +61,6 @@ export default function AmudAdminCommercialProfilePage() {
 
   return (
     <div className="mx-auto max-w-[1200px]">
-      {notice ? (
-        <div className="mb-md flex items-center gap-2 rounded-lg border border-amud-primary-fixed-dim bg-amud-primary-fixed p-md text-body-md text-amud-on-primary-fixed">
-          <span className="material-symbols-outlined">check_circle</span>
-          {notice}
-        </div>
-      ) : null}
-
       <section className="relative mb-lg overflow-hidden rounded-xl border border-amud-outline-variant/30 bg-amud-surface-container-lowest p-lg shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
         <div className="absolute bottom-0 left-0 top-0 w-2 bg-amud-primary" />
         <div className="flex flex-col items-start justify-between gap-lg md:flex-row md:items-center">
@@ -113,7 +102,7 @@ export default function AmudAdminCommercialProfilePage() {
           </div>
           <div className="flex flex-wrap gap-sm">
             <button
-              onClick={() => setNotice('Ouverture du formulaire de modification (à venir).')}
+              onClick={() => notify('Ouverture du formulaire de modification (à venir).', 'info')}
               className="flex items-center gap-xs rounded-lg bg-amud-primary px-md py-sm text-label-md text-white transition-opacity hover:opacity-90"
             >
               <span className="material-symbols-outlined text-sm">edit</span> Modifier
@@ -121,20 +110,25 @@ export default function AmudAdminCommercialProfilePage() {
             <button
               onClick={() => {
                 setActif((v) => !v);
-                setNotice(actif ? `${c.prenom} ${c.nom} a été désactivé.` : `${c.prenom} ${c.nom} a été réactivé.`);
+                notify(actif ? `${c.prenom} ${c.nom} a été désactivé.` : `${c.prenom} ${c.nom} a été réactivé.`);
               }}
               className="flex items-center gap-xs rounded-lg border border-amud-outline-variant px-md py-sm text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low"
             >
               <span className="material-symbols-outlined text-sm">block</span> {actif ? 'Désactiver' : 'Réactiver'}
             </button>
             <button
-              onClick={() => setNotice('Un email de réinitialisation a été envoyé.')}
+              onClick={() => notify('Un email de réinitialisation a été envoyé.')}
               className="flex items-center gap-xs rounded-lg border border-amud-outline-variant px-md py-sm text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low"
             >
               <span className="material-symbols-outlined text-sm">lock_reset</span> Réinitialiser mot de passe
             </button>
             <button
-              onClick={() => setNotice('Export du dossier en préparation.')}
+              onClick={() => {
+                exportCsv(`commercial-${c.id}`, [
+                  { Prénom: c.prenom, Nom: c.nom, Fonction: c.fonction, Ville: c.ville, Email: c.email, Téléphone: c.telephone, 'Appels/jour': c.appelsJour, 'Taux réponse': `${c.tauxReponse}%`, 'Réalisé mensuel': c.realiseMensuel },
+                ]);
+                notify('Dossier exporté.');
+              }}
               className="flex items-center justify-center rounded-lg border border-amud-outline-variant p-sm text-amud-on-surface transition-colors hover:bg-amud-surface-container-low"
             >
               <span className="material-symbols-outlined">download</span>

@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { Modal } from '@/components/amud/ui';
+import { useToast } from '@/components/amud/Toast';
 
 type ActionKey = 'voir' | 'creer' | 'modifier' | 'supprimer' | 'valider' | 'export';
 type ModuleKey = 'dashboard' | 'candidats' | 'offres';
@@ -21,13 +23,14 @@ const MODULES: { key: ModuleKey; label: string; icon: string; na: ActionKey[] }[
 ];
 
 type Matrix = Record<ModuleKey, Record<ActionKey, boolean>>;
+type RoleDef = { id: string; nom: string; desc: string; users: number };
 
-const ROLES = [
+const INITIAL_ROLES: RoleDef[] = [
   { id: 'super-admin', nom: 'Super Administrateur', desc: 'Accès total', users: 2 },
   { id: 'admin', nom: 'Administrateur', desc: 'Gestion globale', users: 5 },
   { id: 'commercial', nom: 'Commercial', desc: 'Gestion des ventes', users: 45 },
   { id: 'recruteur', nom: 'Recruteur', desc: 'Gestion talents', users: 12 },
-] as const;
+];
 
 function defaultMatrix(roleId: string): Matrix {
   const all = (v: boolean): Record<ActionKey, boolean> => ({ voir: v, creer: v, modifier: v, supprimer: v, valider: v, export: v });
@@ -56,16 +59,31 @@ function defaultMatrix(roleId: string): Matrix {
   }
 }
 
+function slugify(s: string) {
+  return s
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
 export default function AmudAdminRolesPermissionsPage() {
+  const notify = useToast();
+  const [roles, setRoles] = useState<RoleDef[]>(INITIAL_ROLES);
   const [roleId, setRoleId] = useState<string>('commercial');
   const [visibilite, setVisibilite] = useState("Enregistrements de l'équipe");
   const [zone, setZone] = useState('Aucune restriction');
   const [matrices, setMatrices] = useState<Record<string, Matrix>>(() =>
-    Object.fromEntries(ROLES.map((r) => [r.id, defaultMatrix(r.id)])),
+    Object.fromEntries(INITIAL_ROLES.map((r) => [r.id, defaultMatrix(r.id)])),
   );
-  const [notice, setNotice] = useState<string | null>(null);
 
-  const role = ROLES.find((r) => r.id === roleId)!;
+  const [createOpen, setCreateOpen] = useState(false);
+  const [newNom, setNewNom] = useState('');
+  const [newDesc, setNewDesc] = useState('');
+  const [copyFrom, setCopyFrom] = useState(INITIAL_ROLES[1].id);
+
+  const role = roles.find((r) => r.id === roleId)!;
   const matrix = matrices[roleId];
 
   function setCell(mod: ModuleKey, action: ActionKey, value: boolean) {
@@ -74,18 +92,32 @@ export default function AmudAdminRolesPermissionsPage() {
 
   function resetRole() {
     setMatrices((prev) => ({ ...prev, [roleId]: defaultMatrix(roleId) }));
-    setNotice(`Permissions de « ${role.nom} » réinitialisées.`);
+    notify(`Permissions de « ${role.nom} » réinitialisées.`);
+  }
+
+  function resetCreateForm() {
+    setNewNom('');
+    setNewDesc('');
+    setCopyFrom(roles[1]?.id ?? roles[0].id);
+  }
+
+  function handleCreateRole(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newNom.trim()) return;
+    let id = slugify(newNom) || `role-${Date.now()}`;
+    if (roles.some((r) => r.id === id)) id = `${id}-${Date.now()}`;
+    const source = matrices[copyFrom] ?? defaultMatrix(copyFrom);
+    const clonedMatrix: Matrix = { dashboard: { ...source.dashboard }, candidats: { ...source.candidats }, offres: { ...source.offres } };
+    setRoles((prev) => [...prev, { id, nom: newNom.trim(), desc: newDesc.trim() || 'Rôle personnalisé', users: 0 }]);
+    setMatrices((prev) => ({ ...prev, [id]: clonedMatrix }));
+    setRoleId(id);
+    setCreateOpen(false);
+    resetCreateForm();
+    notify(`Rôle « ${newNom.trim()} » créé.`);
   }
 
   return (
     <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-xl">
-      {notice ? (
-        <div className="flex items-center gap-2 rounded-lg border border-amud-primary-fixed-dim bg-amud-primary-fixed p-md text-body-md text-amud-on-primary-fixed">
-          <span className="material-symbols-outlined">check_circle</span>
-          {notice}
-        </div>
-      ) : null}
-
       <div className="flex flex-col justify-between gap-md border-b border-amud-outline-variant pb-md md:flex-row md:items-end">
         <div>
           <h2 className="text-headline-lg font-bold text-amud-primary">Rôles &amp; permissions</h2>
@@ -96,13 +128,13 @@ export default function AmudAdminRolesPermissionsPage() {
             Réinitialiser
           </button>
           <button
-            onClick={() => setNotice('La création de rôles personnalisés arrive bientôt.')}
+            onClick={() => setCreateOpen(true)}
             className="rounded-lg bg-amud-primary px-md py-sm text-label-md text-white shadow-sm transition-colors hover:bg-amud-primary-dark"
           >
             Créer un rôle
           </button>
           <button
-            onClick={() => setNotice(`Permissions de « ${role.nom} » enregistrées.`)}
+            onClick={() => notify(`Permissions de « ${role.nom} » enregistrées.`)}
             className="rounded-lg bg-amud-primary px-md py-sm text-label-md text-white shadow-sm transition-colors hover:bg-amud-primary-dark"
           >
             Enregistrer
@@ -114,7 +146,7 @@ export default function AmudAdminRolesPermissionsPage() {
         <div className="flex flex-col gap-md lg:col-span-1">
           <h3 className="border-l-4 border-amud-primary pl-sm text-title-lg text-amud-on-surface">Sélectionner un rôle</h3>
           <div className="flex flex-col gap-xs rounded-lg border border-amud-outline-variant bg-amud-surface-container-lowest p-sm shadow-sm">
-            {ROLES.map((r) => (
+            {roles.map((r) => (
               <button
                 key={r.id}
                 onClick={() => setRoleId(r.id)}
@@ -204,6 +236,58 @@ export default function AmudAdminRolesPermissionsPage() {
           </div>
         </div>
       </div>
+
+      <Modal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        title="Créer un rôle"
+        subtitle="Les permissions du rôle copié sont reprises comme point de départ, modifiables ensuite."
+        footer={
+          <div className="flex justify-end gap-sm">
+            <button type="button" onClick={() => setCreateOpen(false)} className="rounded-lg border border-amud-outline-variant px-lg py-2 text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
+              Annuler
+            </button>
+            <button type="submit" form="create-role-form" className="rounded-lg bg-amud-primary px-lg py-2 text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark">
+              Créer le rôle
+            </button>
+          </div>
+        }
+      >
+        <form id="create-role-form" onSubmit={handleCreateRole} className="flex flex-col gap-md">
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Nom du rôle</label>
+            <input
+              autoFocus
+              value={newNom}
+              onChange={(e) => setNewNom(e.target.value)}
+              required
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+              placeholder="Responsable Régional"
+              type="text"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Description</label>
+            <input
+              value={newDesc}
+              onChange={(e) => setNewDesc(e.target.value)}
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+              placeholder="Gestion d'une zone géographique"
+              type="text"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Copier les permissions depuis</label>
+            <select value={copyFrom} onChange={(e) => setCopyFrom(e.target.value)} className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary">
+              {roles.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.nom}
+                </option>
+              ))}
+            </select>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

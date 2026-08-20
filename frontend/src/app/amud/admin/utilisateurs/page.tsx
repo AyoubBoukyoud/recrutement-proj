@@ -1,52 +1,32 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-
-type Role = 'Candidat' | 'Recruteur' | 'Commercial' | 'Administrateur';
-type Statut = 'Actif' | 'Bloqué' | 'Inactif';
-
-type Utilisateur = {
-  id: string;
-  nom: string;
-  email: string;
-  role: Role;
-  ville: string;
-  statut: Statut;
-  dernierAcces: string;
-  creeLe: string;
-};
-
-const ROLES: Role[] = ['Candidat', 'Recruteur', 'Commercial', 'Administrateur'];
-
-const SEED: Utilisateur[] = [
-  { id: '1', nom: 'Sophie Martin', email: 's.martin@email.com', role: 'Recruteur', ville: 'Casablanca', statut: 'Actif', dernierAcces: "Aujourd'hui", creeLe: '12/10/2023' },
-  { id: '2', nom: 'Lucas Renard', email: 'l.renard@email.com', role: 'Commercial', ville: 'Paris', statut: 'Actif', dernierAcces: 'Hier', creeLe: '05/09/2023' },
-  { id: '3', nom: 'Emma Leroy', email: 'e.leroy@email.com', role: 'Administrateur', ville: 'Lyon', statut: 'Bloqué', dernierAcces: '--', creeLe: '10/08/2023' },
-  { id: '4', nom: 'Youssef Amrani', email: 'y.amrani@email.com', role: 'Candidat', ville: 'Casablanca', statut: 'Actif', dernierAcces: "Aujourd'hui", creeLe: '02/02/2024' },
-  { id: '5', nom: 'Nadia Mansouri', email: 'n.mansouri@email.com', role: 'Candidat', ville: 'Marrakech', statut: 'Actif', dernierAcces: 'Il y a 3 jours', creeLe: '14/01/2024' },
-  { id: '6', nom: 'Marie Lambert', email: 'marie.lambert@amudskills.com', role: 'Commercial', ville: 'Lyon', statut: 'Actif', dernierAcces: "Aujourd'hui", creeLe: '05/09/2023' },
-  { id: '7', nom: 'Karim Bennani', email: 'k.bennani@email.com', role: 'Recruteur', ville: 'Berlin', statut: 'Inactif', dernierAcces: 'Il y a 2 semaines', creeLe: '20/06/2023' },
-  { id: '8', nom: 'Jean Dupont', email: 'jean.dupont@amudskills.com', role: 'Commercial', ville: 'Paris', statut: 'Actif', dernierAcces: "Aujourd'hui", creeLe: '12/03/2023' },
-];
-
-const STATUT_DOT: Record<Statut, string> = {
-  Actif: 'bg-amud-primary-container',
-  Bloqué: 'bg-amud-error',
-  Inactif: 'bg-amud-outline',
-};
-const STATUT_TEXT: Record<Statut, string> = {
-  Actif: 'text-amud-primary-container',
-  Bloqué: 'text-amud-error',
-  Inactif: 'text-amud-outline',
-};
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Modal } from '@/components/amud/ui';
+import { useToast } from '@/components/amud/Toast';
+import { ROLES, STATUT_DOT, STATUT_TEXT, utilisateursSeed, type Role, type Statut, type Utilisateur } from '@/data/amud/utilisateurs';
+import { addLocalUtilisateur, loadLocalUtilisateurs } from '@/lib/amud/localUtilisateurs';
 
 export default function AmudAdminUtilisateursPage() {
-  const [users, setUsers] = useState(SEED);
-  const [search, setSearch] = useState('');
+  const notify = useToast();
+  const searchParams = useSearchParams();
+  const [users, setUsers] = useState<Utilisateur[]>(utilisateursSeed);
+  const [search, setSearch] = useState(() => searchParams.get('q') ?? '');
   const [roleFilter, setRoleFilter] = useState('Rôle');
   const [statutFilter, setStatutFilter] = useState('Statut');
   const [selected, setSelected] = useState<string[]>([]);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+
+  const [addOpen, setAddOpen] = useState(false);
+  const [nom, setNom] = useState('');
+  const [email, setEmail] = useState('');
+  const [addRole, setAddRole] = useState<Role>('Candidat');
+  const [ville, setVille] = useState('');
+
+  useEffect(() => {
+    const extra = loadLocalUtilisateurs();
+    if (extra.length) setUsers([...utilisateursSeed, ...extra]);
+  }, []);
 
   const filtered = useMemo(() => {
     return users.filter((u) => {
@@ -68,6 +48,7 @@ export default function AmudAdminUtilisateursPage() {
   }
   function bulkSetStatut(statut: Statut) {
     setUsers((prev) => prev.map((u) => (selected.includes(u.id) ? { ...u, statut } : u)));
+    notify(`${selected.length} utilisateur(s) mis à jour.`);
   }
   function toggleStatut(id: string) {
     setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, statut: u.statut === 'Actif' ? 'Bloqué' : 'Actif' } : u)));
@@ -76,6 +57,33 @@ export default function AmudAdminUtilisateursPage() {
     setUsers((prev) =>
       prev.map((u) => (u.id === id ? { ...u, role: ROLES[(ROLES.indexOf(u.role) + 1) % ROLES.length] } : u)),
     );
+  }
+
+  function resetAddForm() {
+    setNom('');
+    setEmail('');
+    setAddRole('Candidat');
+    setVille('');
+  }
+
+  function handleAddUser(e: React.FormEvent) {
+    e.preventDefault();
+    if (!nom.trim() || !email.trim()) return;
+    const user: Utilisateur = {
+      id: `utilisateur-${Date.now()}`,
+      nom: nom.trim(),
+      email: email.trim(),
+      role: addRole,
+      ville: ville.trim() || '—',
+      statut: 'Actif',
+      dernierAcces: 'À l’instant',
+      creeLe: new Date().toLocaleDateString('fr-FR'),
+    };
+    setUsers((prev) => [user, ...prev]);
+    addLocalUtilisateur(user);
+    notify(`« ${user.nom} » ajouté en tant que ${user.role}.`);
+    setAddOpen(false);
+    resetAddForm();
   }
 
   const counts = {
@@ -90,11 +98,18 @@ export default function AmudAdminUtilisateursPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl">
-      <div className="mb-xl flex items-end justify-between gap-4 border-l-4 border-amud-primary pl-4">
+      <div className="mb-xl flex flex-wrap items-end justify-between gap-4 border-l-4 border-amud-primary pl-4">
         <div>
           <h2 className="text-headline-lg text-amud-on-surface">Gestion des utilisateurs</h2>
           <p className="mt-1 text-body-md text-amud-on-surface-variant">Gérez les comptes, les rôles et les accès de la plateforme.</p>
         </div>
+        <button
+          onClick={() => setAddOpen(true)}
+          className="flex items-center gap-2 whitespace-nowrap rounded-lg bg-amud-primary px-6 py-3 text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark"
+        >
+          <span className="material-symbols-outlined">add</span>
+          Ajouter un utilisateur
+        </button>
       </div>
 
       <div className="mb-xl grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-7">
@@ -212,7 +227,7 @@ export default function AmudAdminUtilisateursPage() {
             </thead>
             <tbody className="text-body-md text-amud-on-surface">
               {filtered.map((u) => (
-                <tr key={u.id} className="border-b border-amud-outline-variant transition-colors last:border-0 hover:bg-amud-surface-container-low">
+                <tr key={u.id} className="animate-amud-rise-in border-b border-amud-outline-variant transition-colors last:border-0 hover:bg-amud-surface-container-low">
                   <td className="px-6 py-4">
                     <input
                       type="checkbox"
@@ -260,7 +275,7 @@ export default function AmudAdminUtilisateursPage() {
                       <span className="material-symbols-outlined">more_vert</span>
                     </button>
                     {openMenu === u.id ? (
-                      <div className="absolute right-6 top-12 z-10 w-44 rounded-lg border border-amud-outline-variant bg-amud-surface-container-lowest py-1 text-left shadow-lg">
+                      <div className="absolute right-6 top-12 z-10 w-44 rounded-lg border border-amud-outline-variant bg-amud-surface-container-lowest py-1 text-left shadow-lg animate-amud-fade-in">
                         <button
                           onClick={() => {
                             toggleStatut(u.id);
@@ -300,6 +315,66 @@ export default function AmudAdminUtilisateursPage() {
           </span>
         </div>
       </div>
+
+      <Modal
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        title="Ajouter un utilisateur"
+        footer={
+          <div className="flex justify-end gap-sm">
+            <button type="button" onClick={() => setAddOpen(false)} className="rounded-lg border border-amud-outline-variant px-lg py-2 text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
+              Annuler
+            </button>
+            <button type="submit" form="add-user-form" className="rounded-lg bg-amud-primary px-lg py-2 text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark">
+              Ajouter
+            </button>
+          </div>
+        }
+      >
+        <form id="add-user-form" onSubmit={handleAddUser} className="grid grid-cols-1 gap-md sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Nom complet</label>
+            <input
+              autoFocus
+              value={nom}
+              onChange={(e) => setNom(e.target.value)}
+              required
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+              placeholder="Sophie Martin"
+              type="text"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Email</label>
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+              placeholder="s.martin@email.com"
+              type="email"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Rôle</label>
+            <select value={addRole} onChange={(e) => setAddRole(e.target.value as Role)} className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary">
+              {ROLES.map((r) => (
+                <option key={r}>{r}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Ville</label>
+            <input
+              value={ville}
+              onChange={(e) => setVille(e.target.value)}
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+              placeholder="Casablanca"
+              type="text"
+            />
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

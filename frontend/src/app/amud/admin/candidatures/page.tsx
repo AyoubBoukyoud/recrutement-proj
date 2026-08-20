@@ -1,48 +1,39 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-
-type ColonneId = 'nouvelle' | 'preselection' | 'entretien' | 'shortlist';
-
-type Candidat = {
-  id: string;
-  nom: string;
-  poste: string;
-  tags: string[];
-  score: number;
-  date: string;
-  depuis: string;
-  initiales: string;
-};
-
-const COLONNES: { id: ColonneId; label: string; dot: string }[] = [
-  { id: 'nouvelle', label: 'Nouvelle', dot: 'bg-amud-surface-tint' },
-  { id: 'preselection', label: 'Présélection', dot: 'bg-amud-secondary-container' },
-  { id: 'entretien', label: 'Entretien', dot: 'bg-amud-tertiary-fixed-dim' },
-  { id: 'shortlist', label: 'Shortlist', dot: 'bg-amud-primary-fixed-dim' },
-];
-
-const SEED: Record<ColonneId, Candidat[]> = {
-  nouvelle: [
-    { id: 'c1', nom: 'Sophie Martin', poste: 'Infirmier D.E.', tags: ['Soins Intensifs', 'Bloc Opératoire'], score: 95, date: '12/10/2023', depuis: 'Il y a 2h', initiales: 'SM' },
-    { id: 'c2', nom: 'Lucas Moreau', poste: 'Électricien Ind.', tags: ['Haute Tension', 'Maintenance'], score: 82, date: '12/10/2023', depuis: 'Il y a 4h', initiales: 'LM' },
-  ],
-  preselection: [
-    { id: 'c3', nom: 'Karim Bennani', poste: 'Chef de Chantier', tags: ['BTP', 'Management'], score: 98, date: '10/10/2023', depuis: '11/10/2023', initiales: 'KB' },
-  ],
-  entretien: [
-    { id: 'c4', nom: 'Nadia Mansouri', poste: 'Data Scientist', tags: ['Python', 'AWS'], score: 91, date: '09/10/2023', depuis: 'Il y a 1j', initiales: 'NM' },
-  ],
-  shortlist: [
-    { id: 'c5', nom: 'Youssef Amrani', poste: 'Full-Stack Developer', tags: ['Node.js', 'React'], score: 96, date: '05/10/2023', depuis: 'Il y a 3j', initiales: 'YA' },
-  ],
-};
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Modal } from '@/components/amud/ui';
+import { useToast } from '@/components/amud/Toast';
+import { COLONNES, candidaturesSeed, type Candidat, type ColonneId } from '@/data/amud/candidatures';
+import { addLocalCandidat, loadLocalCandidats } from '@/lib/amud/localCandidatures';
 
 export default function AmudAdminCandidaturesPage() {
-  const [colonnes, setColonnes] = useState(SEED);
-  const [search, setSearch] = useState('');
+  const notify = useToast();
+  const searchParams = useSearchParams();
+  const [colonnes, setColonnes] = useState(candidaturesSeed);
+  const [search, setSearch] = useState(() => searchParams.get('q') ?? '');
   const [vue, setVue] = useState<'kanban' | 'table'>('kanban');
   const [dragCard, setDragCard] = useState<{ id: string; from: ColonneId } | null>(null);
+
+  const [addOpen, setAddOpen] = useState(false);
+  const [nom, setNom] = useState('');
+  const [poste, setPoste] = useState('');
+  const [tagsInput, setTagsInput] = useState('');
+  const [score, setScore] = useState(80);
+  const [colonneChoisie, setColonneChoisie] = useState<ColonneId>('nouvelle');
+
+  useEffect(() => {
+    const extra = loadLocalCandidats();
+    if (!extra.length) return;
+    // Recalculé à partir de `candidaturesSeed` (pas de `prev`) pour rester
+    // idempotent sous StrictMode, qui double-invoque les effets en dev.
+    const next = (Object.keys(candidaturesSeed) as ColonneId[]).reduce((acc, k) => {
+      acc[k] = [...candidaturesSeed[k]];
+      return acc;
+    }, {} as Record<ColonneId, Candidat[]>);
+    for (const c of extra) next[c.colonne] = [...next[c.colonne], c];
+    setColonnes(next);
+  }, []);
 
   function moveCard(id: string, from: ColonneId, to: ColonneId) {
     if (from === to) return;
@@ -51,6 +42,44 @@ export default function AmudAdminCandidaturesPage() {
       if (!card) return prev;
       return { ...prev, [from]: prev[from].filter((c) => c.id !== id), [to]: [...prev[to], card] };
     });
+  }
+
+  function resetAddForm() {
+    setNom('');
+    setPoste('');
+    setTagsInput('');
+    setScore(80);
+    setColonneChoisie('nouvelle');
+  }
+
+  function handleAddCandidat(e: React.FormEvent) {
+    e.preventDefault();
+    if (!nom.trim() || !poste.trim()) return;
+    const initiales = nom
+      .trim()
+      .split(/\s+/)
+      .map((w) => w[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
+    const candidat: Candidat = {
+      id: `candidat-${Date.now()}`,
+      nom: nom.trim(),
+      poste: poste.trim(),
+      tags: tagsInput
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean),
+      score: Math.min(100, Math.max(0, score)),
+      date: new Date().toLocaleDateString('fr-FR'),
+      depuis: 'À l’instant',
+      initiales,
+    };
+    setColonnes((prev) => ({ ...prev, [colonneChoisie]: [...prev[colonneChoisie], candidat] }));
+    addLocalCandidat({ ...candidat, colonne: colonneChoisie });
+    notify(`« ${candidat.nom} » ajouté à ${COLONNES.find((c) => c.id === colonneChoisie)?.label}.`);
+    setAddOpen(false);
+    resetAddForm();
   }
 
   const filtered = useMemo(() => {
@@ -72,7 +101,7 @@ export default function AmudAdminCandidaturesPage() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-96px)] flex-col md:h-[calc(100vh-160px)]">
+    <div className="flex min-h-[calc(100vh-96px)] flex-col md:min-h-[calc(100vh-160px)]">
       <header className="mb-md flex shrink-0 flex-col gap-md">
         <div className="flex flex-col gap-md sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -96,6 +125,13 @@ export default function AmudAdminCandidaturesPage() {
                 <span className="hidden sm:inline">Vue </span>Tableau
               </button>
             </div>
+            <button
+              onClick={() => setAddOpen(true)}
+              className="flex items-center gap-xs whitespace-nowrap rounded-lg bg-amud-primary px-md py-sm text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark"
+            >
+              <span className="material-symbols-outlined text-[18px]">add</span>
+              Ajouter un candidat
+            </button>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-sm md:grid-cols-5">
@@ -128,8 +164,8 @@ export default function AmudAdminCandidaturesPage() {
       </header>
 
       {vue === 'kanban' ? (
-        <div className="min-h-0 flex-1 snap-x snap-mandatory overflow-x-auto rounded-lg bg-amud-surface-container-low">
-          <div className="flex h-full w-max gap-md p-md">
+        <div className="snap-x snap-mandatory overflow-x-auto rounded-lg bg-amud-surface-container-low">
+          <div className="flex w-max gap-md p-md">
             {COLONNES.map((col) => (
               <div
                 key={col.id}
@@ -147,13 +183,13 @@ export default function AmudAdminCandidaturesPage() {
                   </h3>
                   <span className="rounded bg-amud-surface px-xs py-[2px] text-label-sm text-amud-outline">{filtered[col.id].length}</span>
                 </div>
-                <div className="flex flex-1 flex-col gap-sm overflow-y-auto p-sm">
+                <div className="flex flex-1 flex-col gap-sm p-sm">
                   {filtered[col.id].map((c) => (
                     <div
                       key={c.id}
                       draggable
                       onDragStart={() => setDragCard({ id: c.id, from: col.id })}
-                      className="group relative cursor-grab rounded-lg border border-amud-outline-variant bg-amud-surface p-sm shadow-sm transition-colors hover:border-amud-primary active:cursor-grabbing"
+                      className="group relative cursor-grab rounded-lg border border-amud-outline-variant bg-amud-surface p-sm shadow-sm transition-all animate-amud-rise-in hover:-translate-y-0.5 hover:border-amud-primary hover:shadow-md active:cursor-grabbing"
                     >
                       <div className="mb-sm flex items-start justify-between">
                         <div className="flex items-center gap-sm">
@@ -188,7 +224,7 @@ export default function AmudAdminCandidaturesPage() {
                     </div>
                   ))}
                   {filtered[col.id].length === 0 ? (
-                    <div className="flex flex-1 flex-col items-center justify-center p-md text-center text-amud-outline">
+                    <div className="flex min-h-[140px] flex-1 flex-col items-center justify-center p-md text-center text-amud-outline">
                       <span className="material-symbols-outlined mb-sm text-display-lg">inbox</span>
                       <p className="text-label-sm">Glissez une carte ici.</p>
                     </div>
@@ -213,7 +249,7 @@ export default function AmudAdminCandidaturesPage() {
             <tbody>
               {COLONNES.flatMap((col) =>
                 filtered[col.id].map((c) => (
-                  <tr key={c.id} className="border-t border-amud-outline-variant hover:bg-amud-surface-container-low">
+                  <tr key={c.id} className="animate-amud-rise-in border-t border-amud-outline-variant hover:bg-amud-surface-container-low">
                     <td className="p-sm font-medium text-amud-on-surface">{c.nom}</td>
                     <td className="p-sm text-amud-on-surface-variant">{c.poste}</td>
                     <td className="p-sm">
@@ -230,6 +266,96 @@ export default function AmudAdminCandidaturesPage() {
           </table>
         </div>
       )}
+
+      <Modal
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        title="Ajouter un candidat"
+        subtitle="Le candidat rejoint la colonne sélectionnée du pipeline."
+        footer={
+          <div className="flex justify-end gap-sm">
+            <button
+              type="button"
+              onClick={() => setAddOpen(false)}
+              className="rounded-lg border border-amud-outline-variant px-lg py-2 text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              form="add-candidat-form"
+              className="rounded-lg bg-amud-primary px-lg py-2 text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark"
+            >
+              Ajouter
+            </button>
+          </div>
+        }
+      >
+        <form
+          id="add-candidat-form"
+          onSubmit={handleAddCandidat}
+          className="grid grid-cols-1 gap-md sm:grid-cols-2"
+        >
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Nom complet</label>
+            <input
+              autoFocus
+              value={nom}
+              onChange={(e) => setNom(e.target.value)}
+              required
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+              placeholder="Sophie Martin"
+              type="text"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Poste visé</label>
+            <input
+              value={poste}
+              onChange={(e) => setPoste(e.target.value)}
+              required
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+              placeholder="Infirmier D.E."
+              type="text"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Colonne</label>
+            <select
+              value={colonneChoisie}
+              onChange={(e) => setColonneChoisie(e.target.value as ColonneId)}
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+            >
+              {COLONNES.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Score (%)</label>
+            <input
+              value={score}
+              onChange={(e) => setScore(Number(e.target.value) || 0)}
+              min={0}
+              max={100}
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+              type="number"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Tags (séparés par des virgules)</label>
+            <input
+              value={tagsInput}
+              onChange={(e) => setTagsInput(e.target.value)}
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+              placeholder="Soins Intensifs, Bloc Opératoire"
+              type="text"
+            />
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

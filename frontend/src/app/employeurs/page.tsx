@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { SiteHeader } from '@/components/home/SiteHeader';
 import { SiteFooter } from '@/components/home/SiteFooter';
+import { Reveal, RevealNoScriptFallback } from '@/components/home/Reveal';
 import { RoiCalculatorForm } from './RoiCalculatorForm';
 
 export const metadata: Metadata = {
@@ -42,6 +43,7 @@ export default function EmployeursPage() {
       <SiteHeader />
 
       <main className="overflow-x-hidden bg-amud-background text-amud-on-background">
+        <RevealNoScriptFallback />
         {/* Hero */}
         <section className="mx-auto max-w-container-max px-margin-mobile pb-section-gap pt-20 sm:pt-28 md:px-gutter lg:pt-36">
           <div className="grid items-center gap-12 md:grid-cols-2">
@@ -88,33 +90,31 @@ export default function EmployeursPage() {
             }}
           />
           <div className="relative z-10 mx-auto max-w-container-max px-margin-mobile md:px-gutter">
-            <div className="mb-12 text-center">
+            <Reveal className="mb-12 text-center">
               <h2 className="mb-4 text-headline-lg text-amud-primary">The Cost of Vacancy</h2>
               <p className="mx-auto max-w-2xl text-body-md text-amud-on-surface-variant">
                 Le Mittelstand allemand fait face à des délais sans précédent pour ses recrutements critiques. Amud
                 Skills comble cet écart grâce à un sourcing rigoureux et vérifié.
               </p>
-            </div>
+            </Reveal>
             <div className="grid gap-6 md:grid-cols-3">
-              {STATS.map((s) =>
+              {STATS.map((s, idx) =>
                 s.raised ? (
-                  <div
-                    key={s.label}
-                    className="flex flex-col items-center rounded-lg bg-amud-primary p-6 text-center text-amud-on-primary shadow-[0_4px_24px_-8px_rgba(46,45,98,0.15)] md:-translate-y-4"
-                  >
-                    <span className="material-symbols-outlined fill mb-4 text-4xl text-amud-primary-fixed">{s.icon}</span>
-                    <h3 className="mb-2 text-headline-lg text-amud-on-primary">{s.value}</h3>
-                    <p className="text-label-md uppercase tracking-wider text-amud-primary-fixed-dim">{s.label}</p>
-                  </div>
+                  <Reveal key={s.label} className="h-full" delay={idx * 80}>
+                    <div className="flex h-full flex-col items-center rounded-lg bg-amud-primary p-6 text-center text-amud-on-primary shadow-[0_4px_24px_-8px_rgba(46,45,98,0.15)] md:-translate-y-4">
+                      <span className="material-symbols-outlined fill mb-4 text-4xl text-amud-primary-fixed">{s.icon}</span>
+                      <h3 className="mb-2 text-headline-lg text-amud-on-primary">{s.value}</h3>
+                      <p className="text-label-md uppercase tracking-wider text-amud-primary-fixed-dim">{s.label}</p>
+                    </div>
+                  </Reveal>
                 ) : (
-                  <div
-                    key={s.label}
-                    className="flex flex-col items-center rounded-lg border border-amud-primary/10 bg-amud-surface p-6 text-center shadow-[0_4px_24px_-8px_rgba(46,45,98,0.05)]"
-                  >
-                    <span className={`material-symbols-outlined fill mb-4 text-4xl ${s.iconClass}`}>{s.icon}</span>
-                    <h3 className="mb-2 text-headline-lg text-amud-primary">{s.value}</h3>
-                    <p className="text-label-md uppercase tracking-wider text-amud-on-surface-variant">{s.label}</p>
-                  </div>
+                  <Reveal key={s.label} className="h-full" delay={idx * 80}>
+                    <div className="flex h-full flex-col items-center rounded-lg border border-amud-primary/10 bg-amud-surface p-6 text-center shadow-[0_4px_24px_-8px_rgba(46,45,98,0.05)]">
+                      <span className={`material-symbols-outlined fill mb-4 text-4xl ${s.iconClass}`}>{s.icon}</span>
+                      <h3 className="mb-2 text-headline-lg text-amud-primary">{s.value}</h3>
+                      <p className="text-label-md uppercase tracking-wider text-amud-on-surface-variant">{s.label}</p>
+                    </div>
+                  </Reveal>
                 )
               )}
             </div>
@@ -125,26 +125,32 @@ export default function EmployeursPage() {
         <section id="standards" className="mx-auto max-w-container-max px-margin-mobile py-section-gap md:px-gutter">
           <div className="grid items-center gap-16 md:grid-cols-2">
             <div>
-              <h2 className="mb-6 text-headline-lg text-amud-primary">Uncompromising Standards</h2>
+              <Reveal>
+                <h2 className="mb-6 text-headline-lg text-amud-primary">Uncompromising Standards</h2>
+              </Reveal>
               <div className="space-y-6">
-                {STANDARDS.map((s) => (
-                  <div key={s.title} className="flex gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amud-surface-container-high">
-                      <span className="material-symbols-outlined text-amud-primary">{s.icon}</span>
+                {STANDARDS.map((s, idx) => (
+                  <Reveal key={s.title} delay={100 + idx * 100}>
+                    <div className="flex gap-4">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amud-surface-container-high">
+                        <span className="material-symbols-outlined text-amud-primary">{s.icon}</span>
+                      </div>
+                      <div>
+                        <h3 className="mb-2 text-headline-md text-amud-primary">{s.title}</h3>
+                        <p className="text-body-md text-amud-on-surface-variant">{s.desc}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="mb-2 text-headline-md text-amud-primary">{s.title}</h3>
-                      <p className="text-body-md text-amud-on-surface-variant">{s.desc}</p>
-                    </div>
-                  </div>
+                  </Reveal>
                 ))}
               </div>
             </div>
 
-            <div id="roi" className="rounded-xl border border-amud-primary/10 bg-amud-surface-container-low p-8">
-              <h3 className="mb-6 text-center text-headline-md text-amud-primary">ROI Calculator</h3>
-              <RoiCalculatorForm />
-            </div>
+            <Reveal delay={150}>
+              <div id="roi" className="rounded-xl border border-amud-primary/10 bg-amud-surface-container-low p-8">
+                <h3 className="mb-6 text-center text-headline-md text-amud-primary">ROI Calculator</h3>
+                <RoiCalculatorForm />
+              </div>
+            </Reveal>
           </div>
         </section>
       </main>

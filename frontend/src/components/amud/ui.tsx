@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 
 /**
  * Primitives partagées par le module `/amud` (Admin / Commercial / Employeur
@@ -116,6 +116,70 @@ export function Drawer({
 }
 
 /* ------------------------------------------------------------------ *
+ * Modal — dialogue centré (popups d'ajout/création), en complément du
+ * `Drawer` ci-dessus qui reste réservé aux panneaux de détail. Contrairement
+ * au Drawer, il ne reste pas monté fermé : pas d'animation de sortie, juste
+ * une entrée fade+scale à chaque ouverture.
+ * ------------------------------------------------------------------ */
+export function Modal({
+  open,
+  onClose,
+  title,
+  subtitle,
+  children,
+  footer,
+  widthClassName = 'max-w-lg',
+}: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  subtitle?: string;
+  children: ReactNode;
+  footer?: ReactNode;
+  widthClassName?: string;
+}) {
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-amud-on-surface/40 p-md backdrop-blur-sm animate-amud-fade-in"
+      onClick={onClose}
+      aria-hidden="true"
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        onClick={(e) => e.stopPropagation()}
+        className={`flex w-full ${widthClassName} max-h-[85vh] flex-col overflow-hidden rounded-xl border border-amud-outline-variant bg-amud-surface shadow-2xl animate-amud-scale-in`}
+      >
+        <div className="flex shrink-0 items-center justify-between border-b border-amud-outline-variant bg-amud-surface-container-low px-lg py-md">
+          <div>
+            <h3 className="text-title-lg font-semibold text-amud-on-surface">{title}</h3>
+            {subtitle ? <p className="mt-0.5 text-label-sm text-amud-on-surface-variant">{subtitle}</p> : null}
+          </div>
+          <button
+            className="rounded-full p-2 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-high hover:text-amud-on-surface"
+            onClick={onClose}
+            aria-label="Fermer"
+          >
+            <span className="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-lg">{children}</div>
+        {footer ? <div className="shrink-0 border-t border-amud-outline-variant bg-amud-surface p-md">{footer}</div> : null}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ *
  * NavItem — lien de sidebar avec état actif calculé sur l'URL, comme
  * src/app/admin/layout.tsx le fait déjà pour la console existante.
  * ------------------------------------------------------------------ */
@@ -131,6 +195,7 @@ export function NavItem({
   active,
   badge,
   variant = 'default',
+  collapsed = false,
 }: {
   href: string;
   icon: string;
@@ -138,6 +203,9 @@ export function NavItem({
   active: boolean;
   badge?: string | number;
   variant?: 'default' | 'onDark';
+  /** Rail réduite (icônes seules) — cf. AdminShell. Le libellé reste dans le
+   * DOM pour réapparaître au survol du conteneur `group`. */
+  collapsed?: boolean;
 }) {
   const base = 'flex items-center gap-3 rounded-lg px-4 py-2.5 text-label-md font-medium transition-colors';
   const activeCls =
@@ -148,15 +216,21 @@ export function NavItem({
     variant === 'onDark'
       ? 'text-white/80 hover:bg-white/10 hover:text-white'
       : 'text-amud-on-surface-variant hover:bg-amud-surface-container-high hover:text-amud-on-surface';
+  const labelCls = collapsed ? 'md:hidden md:group-hover:inline' : '';
 
   return (
-    <Link href={href} className={`${base} ${active ? activeCls : inactiveCls}`}>
-      <span className="material-symbols-outlined text-[20px]" style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}>
+    <Link href={href} className={`${base} ${active ? activeCls : inactiveCls}`} title={collapsed ? label : undefined}>
+      <span
+        className="material-symbols-outlined shrink-0 text-[20px]"
+        style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}
+      >
         {icon}
       </span>
-      <span className="flex-1">{label}</span>
+      <span className={`flex-1 ${labelCls}`}>{label}</span>
       {badge ? (
-        <span className="rounded-full bg-amud-secondary px-1.5 py-0.5 text-[10px] font-bold text-amud-on-secondary">{badge}</span>
+        <span className={`rounded-full bg-amud-secondary px-1.5 py-0.5 text-[10px] font-bold text-amud-on-secondary ${labelCls}`}>
+          {badge}
+        </span>
       ) : null}
     </Link>
   );
@@ -173,12 +247,15 @@ export function InertNavItem({
   label,
   variant = 'default',
   badge,
+  collapsed = false,
 }: {
   icon: string;
   label: string;
   variant?: 'default' | 'onDark';
   badge?: string | number;
+  collapsed?: boolean;
 }) {
+  const labelCls = collapsed ? 'md:hidden md:group-hover:inline' : '';
   return (
     <span
       className={`flex cursor-not-allowed items-center gap-3 rounded-lg px-4 py-2.5 text-label-md font-medium opacity-50 ${
@@ -186,11 +263,43 @@ export function InertNavItem({
       }`}
       title="Pas encore disponible dans cette maquette"
     >
-      <span className="material-symbols-outlined text-[20px]">{icon}</span>
-      <span className="flex-1">{label}</span>
-      {badge ? <span className="rounded-full bg-amud-secondary px-1.5 py-0.5 text-[10px] font-bold text-amud-on-secondary">{badge}</span> : null}
+      <span className="material-symbols-outlined shrink-0 text-[20px]">{icon}</span>
+      <span className={`flex-1 ${labelCls}`}>{label}</span>
+      {badge ? <span className={`rounded-full bg-amud-secondary px-1.5 py-0.5 text-[10px] font-bold text-amud-on-secondary ${labelCls}`}>{badge}</span> : null}
     </span>
   );
+}
+
+/* ------------------------------------------------------------------ *
+ * CountUp — anime un nombre de 0 (ou de sa valeur précédente) jusqu'à
+ * `value` à son affichage, pour les cartes KPI qui étaient jusque-là des
+ * chiffres figés. Respecte `prefers-reduced-motion`.
+ * ------------------------------------------------------------------ */
+export function CountUp({ value, durationMs = 900, formatter }: { value: number; durationMs?: number; formatter?: (n: number) => string }) {
+  const [display, setDisplay] = useState(0);
+  const fromRef = useRef(0);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      setDisplay(value);
+      return;
+    }
+    const from = fromRef.current;
+    const start = performance.now();
+    let raf = 0;
+    function tick(now: number) {
+      const progress = Math.min(1, (now - start) / durationMs);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(Math.round(from + (value - from) * eased));
+      if (progress < 1) raf = requestAnimationFrame(tick);
+      else fromRef.current = value;
+    }
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  return <>{formatter ? formatter(display) : display.toLocaleString('fr-FR')}</>;
 }
 
 /* ------------------------------------------------------------------ *

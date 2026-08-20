@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { commerciaux } from '@/data/amud/commerciaux';
+import { useToast } from '@/components/amud/Toast';
+import { exportCsv } from '@/lib/amud/csv';
 
 function statutObjectif(pct: number) {
   if (pct > 100) return { label: 'Dépassé', cls: 'bg-amud-primary-container/10 text-amud-primary-container border-amud-primary-container/20' };
@@ -11,12 +13,12 @@ function statutObjectif(pct: number) {
 }
 
 export default function AmudAdminObjectifsPage() {
+  const notify = useToast();
   const [editing, setEditing] = useState(false);
   const [appelsJour, setAppelsJour] = useState(60);
   const [rdvSemaine, setRdvSemaine] = useState(15);
   const [contactsMois, setContactsMois] = useState(120);
   const [tauxConversion, setTauxConversion] = useState(8.5);
-  const [notice, setNotice] = useState<string | null>(null);
 
   const objectifGlobal = 5000;
   const realiseGlobal = 3850;
@@ -29,13 +31,6 @@ export default function AmudAdminObjectifsPage() {
 
   return (
     <div>
-      {notice ? (
-        <div className="mb-md flex items-center gap-2 rounded-lg border border-amud-primary-fixed-dim bg-amud-primary-fixed p-md text-body-md text-amud-on-primary-fixed">
-          <span className="material-symbols-outlined">check_circle</span>
-          {notice}
-        </div>
-      ) : null}
-
       <div className="mb-lg">
         <h1 className="text-headline-lg text-amud-on-surface">Objectifs commerciaux</h1>
         <p className="mt-xs text-body-md text-amud-on-surface-variant">Suivi des performances et gestion des cibles de l&apos;équipe commerciale.</p>
@@ -112,7 +107,7 @@ export default function AmudAdminObjectifsPage() {
               <button
                 onClick={() => {
                   setEditing(false);
-                  setNotice('Objectifs standards mis à jour.');
+                  notify('Objectifs standards mis à jour.');
                 }}
                 className="rounded-lg bg-amud-primary px-md py-sm text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark"
               >
@@ -127,7 +122,7 @@ export default function AmudAdminObjectifsPage() {
               </button>
             )}
             <button
-              onClick={() => setNotice('Objectifs assignés à toute l’équipe.')}
+              onClick={() => notify('Objectifs assignés à toute l’équipe.')}
               className="flex items-center gap-xs rounded-lg bg-amud-primary px-md py-sm text-label-md text-white shadow-sm transition-colors hover:bg-amud-primary/90"
             >
               <span className="material-symbols-outlined text-[18px]">person_add</span> Assigner
@@ -146,7 +141,19 @@ export default function AmudAdminObjectifsPage() {
         <div className="flex items-center justify-between border-b border-amud-outline-variant bg-amud-surface-container-low/50 p-lg">
           <h2 className="text-title-lg text-amud-on-surface">Performance Commerciale</h2>
           <button
-            onClick={() => setNotice('Export du rapport en préparation.')}
+            onClick={() => {
+              exportCsv(
+                'performance-commerciale',
+                commerciaux.map((c) => ({
+                  Commercial: `${c.prenom} ${c.nom}`,
+                  Objectif: c.objectifMensuel,
+                  Réalisé: c.realiseMensuel,
+                  Restant: Math.max(0, c.objectifMensuel - c.realiseMensuel),
+                  '% Atteinte': Math.round((c.realiseMensuel / c.objectifMensuel) * 100),
+                })),
+              );
+              notify('Rapport exporté.');
+            }}
             title="Export"
             className="rounded-full p-xs text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-high"
           >

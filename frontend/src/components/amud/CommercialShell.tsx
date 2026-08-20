@@ -4,35 +4,53 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
 import { InertNavItem, NavItem, isNavActive } from '@/components/amud/ui';
+import { ToastProvider } from '@/components/amud/Toast';
+import { CURRENT_COMMERCIAL } from '@/data/amud/currentCommercial';
 
 /**
- * Coquille des 3 pages `/amud/commercial/*` — espace self-service d'un
+ * Coquille des pages `/amud/commercial/*` — espace self-service d'un
  * commercial (doc19 espace_de_travail_quotidien_commercial.html,
  * doc8 mes_rendez_vous_crm_commercial_annotated.html, et la fusion
  * doc10/doc16 pour les contacts). Nav alignée sur doc8, la seule maquette
  * du lot construite explicitement pour le self-service (Overview/Calendar/
  * Companies/Contacts/Tasks) plutôt que sur le sidebar générique "Commercial
  * Agents" recopié par erreur dans doc19/doc10/doc16.
+ *
+ * Entreprises / Activités / Tâches sont passées de `InertNavItem` (pas
+ * encore livrées) à de vrais liens le jour où ces 3 pages ont été
+ * construites — Candidats/Performance/Notifications/Profile restent inertes
+ * : ce ne sont pas des pages de ce lot de travail.
  */
 const NAV = [
   { href: '/amud/commercial', icon: 'dashboard', label: 'Vue d’ensemble' },
-  { href: '/amud/commercial/rendez-vous', icon: 'calendar_month', label: 'Calendrier' },
+  { href: '/amud/commercial/entreprises', icon: 'domain', label: 'Entreprises' },
+  { href: '/amud/commercial/activites', icon: 'history', label: 'Activités' },
+  { href: '/amud/commercial/taches', icon: 'assignment', label: 'Tâches' },
+  { href: '/amud/commercial/rendez-vous', icon: 'calendar_month', label: 'Rendez-vous' },
   { href: '/amud/commercial/contacts', icon: 'group', label: 'Contacts' },
 ];
 const INERT = [
-  { icon: 'domain', label: 'Entreprises' },
-  { icon: 'assignment', label: 'Tâches' },
+  { icon: 'person', label: 'Candidats' },
+  { icon: 'trending_up', label: 'Performance' },
+  { icon: 'notifications', label: 'Notifications' },
+  { icon: 'account_circle', label: 'Profile' },
 ];
 
 export function CommercialShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [navOpen, setNavOpen] = useState(false);
+  // Rail réduite (icônes seules) sur desktop, dépliée au survol — indépendante
+  // du tiroir mobile `navOpen` ci-dessus, qui reste un panneau plein écran.
+  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     setNavOpen(false);
   }, [pathname]);
 
+  const hiddenWhenCollapsed = collapsed ? 'md:hidden md:group-hover:block' : '';
+
   return (
+    <ToastProvider>
     <div className="flex min-h-screen bg-amud-background text-amud-on-background">
       {navOpen ? (
         <div
@@ -42,13 +60,13 @@ export function CommercialShell({ children }: { children: ReactNode }) {
         />
       ) : null}
       <aside
-        className={`fixed left-0 top-0 z-40 flex h-screen w-64 flex-col gap-base border-r border-amud-outline-variant bg-amud-surface-container p-md py-lg transition-transform duration-200 ease-in-out md:translate-x-0 ${
+        className={`group fixed left-0 top-0 z-40 flex h-screen w-64 flex-col gap-base border-r border-amud-outline-variant bg-amud-surface-container px-md py-lg transition-[width,transform] duration-200 ease-in-out md:translate-x-0 ${
           navOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        } ${collapsed ? 'md:w-20 md:px-2 md:hover:w-64 md:hover:px-md' : 'md:w-64'}`}
       >
         <div className="mb-xl flex items-center gap-md px-sm">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amud-primary font-title-lg font-bold text-white">A</div>
-          <div>
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amud-primary font-title-lg font-bold text-white">A</div>
+          <div className={hiddenWhenCollapsed}>
             <h1 className="text-title-lg font-black text-amud-primary">Amud Skills</h1>
             <p className="text-label-sm text-amud-on-surface-variant">Espace Commercial</p>
           </div>
@@ -56,10 +74,17 @@ export function CommercialShell({ children }: { children: ReactNode }) {
 
         <div className="flex flex-1 flex-col gap-sm overflow-y-auto">
           {NAV.map((item) => (
-            <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label} active={isNavActive(pathname, item.href, item.href === '/amud/commercial')} />
+            <NavItem
+              key={item.href}
+              href={item.href}
+              icon={item.icon}
+              label={item.label}
+              active={isNavActive(pathname, item.href, item.href === '/amud/commercial')}
+              collapsed={collapsed}
+            />
           ))}
           {INERT.map((item) => (
-            <InertNavItem key={item.label} icon={item.icon} label={item.label} />
+            <InertNavItem key={item.label} icon={item.icon} label={item.label} collapsed={collapsed} />
           ))}
         </div>
 
@@ -67,22 +92,37 @@ export function CommercialShell({ children }: { children: ReactNode }) {
           <Link
             href="/amud"
             className="flex items-center gap-3 rounded-lg px-3 py-2 text-label-md text-amud-on-surface-variant transition-colors hover:bg-amud-surface-variant"
+            title={collapsed ? "Changer d'espace" : undefined}
           >
-            <span className="material-symbols-outlined">apps</span>
-            Changer d&apos;espace
+            <span className="material-symbols-outlined shrink-0">apps</span>
+            <span className={collapsed ? 'md:hidden md:group-hover:inline' : ''}>Changer d&apos;espace</span>
           </Link>
         </div>
       </aside>
 
-      <div className="flex min-h-screen min-w-0 flex-1 flex-col md:ml-64">
+      <div
+        className={`flex min-h-screen min-w-0 flex-1 flex-col transition-[margin] duration-200 ease-in-out ${
+          collapsed ? 'md:ml-20' : 'md:ml-64'
+        }`}
+      >
         <header className="sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-amud-outline-variant bg-amud-surface px-md md:px-lg">
-          <button
-            onClick={() => setNavOpen(true)}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary md:hidden"
-            aria-label="Ouvrir le menu"
-          >
-            <span className="material-symbols-outlined">menu</span>
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setNavOpen(true)}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary md:hidden"
+              aria-label="Ouvrir le menu"
+            >
+              <span className="material-symbols-outlined">menu</span>
+            </button>
+            <button
+              onClick={() => setCollapsed((c) => !c)}
+              className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary md:flex"
+              aria-label={collapsed ? 'Développer le menu' : 'Réduire le menu'}
+              aria-pressed={collapsed}
+            >
+              <span className="material-symbols-outlined">menu</span>
+            </button>
+          </div>
           <div className="relative hidden w-64 md:block">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-amud-on-surface-variant">search</span>
             <input
@@ -101,12 +141,13 @@ export function CommercialShell({ children }: { children: ReactNode }) {
               <span className="material-symbols-outlined">settings</span>
             </button>
             <div className="h-8 w-8 cursor-pointer overflow-hidden rounded-full border border-amud-outline-variant bg-amud-primary-container flex items-center justify-center font-bold text-white text-sm">
-              C
+              {CURRENT_COMMERCIAL.initiales}
             </div>
           </div>
         </header>
         <main className="mx-auto w-full max-w-[1200px] flex-1 p-md md:p-lg lg:p-margin-desktop">{children}</main>
       </div>
     </div>
+    </ToastProvider>
   );
 }

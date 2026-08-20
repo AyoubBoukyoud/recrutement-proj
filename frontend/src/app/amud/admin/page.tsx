@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { commerciaux } from '@/data/amud/commerciaux';
+import { ADMIN_ALERTS } from '@/data/amud/alerts';
+import { CountUp } from '@/components/amud/ui';
 
 /** `/amud/admin` — tableau de bord (doc5: tableau_de_bord_administrateur_amud_skills.html). */
 export default function AmudAdminDashboardPage() {
@@ -32,19 +34,25 @@ export default function AmudAdminDashboardPage() {
 
       <div className="mb-xl grid grid-cols-2 gap-lg lg:grid-cols-4">
         {[
-          { label: 'Total candidats', value: '12,450', delta: '+5%', icon: 'group', accent: 'bg-amud-primary' },
-          { label: 'Total recruteurs', value: '840', delta: '+2%', icon: 'badge', accent: 'bg-amud-primary' },
-          { label: 'Total commerciaux', value: String(commerciaux.length * 8), delta: null, icon: 'support_agent', accent: 'bg-amud-tertiary-container' },
-          { label: 'Offres actives', value: '156', delta: null, icon: 'work', accent: 'bg-amud-tertiary-container' },
-        ].map((kpi) => (
-          <div key={kpi.label} className="relative overflow-hidden rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg shadow-sm">
+          { label: 'Total candidats', value: 12450, delta: '+5%', icon: 'group', accent: 'bg-amud-primary' },
+          { label: 'Total recruteurs', value: 840, delta: '+2%', icon: 'badge', accent: 'bg-amud-primary' },
+          { label: 'Total commerciaux', value: commerciaux.length * 8, delta: null, icon: 'support_agent', accent: 'bg-amud-tertiary-container' },
+          { label: 'Offres actives', value: 156, delta: null, icon: 'work', accent: 'bg-amud-tertiary-container' },
+        ].map((kpi, i) => (
+          <div
+            key={kpi.label}
+            style={{ animationDelay: `${i * 60}ms` }}
+            className="relative overflow-hidden rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg shadow-sm animate-amud-rise-in"
+          >
             <div className={`absolute bottom-0 left-0 top-0 w-1 ${kpi.accent}`} />
             <div className="mb-md flex items-start justify-between">
               <div className="text-label-md text-amud-on-surface-variant">{kpi.label}</div>
               <span className="material-symbols-outlined text-amud-primary">{kpi.icon}</span>
             </div>
             <div className="flex items-baseline gap-sm">
-              <div className="text-headline-lg text-amud-on-surface">{kpi.value}</div>
+              <div className="text-headline-lg text-amud-on-surface">
+                <CountUp value={kpi.value} />
+              </div>
               {kpi.delta ? (
                 <div className="rounded bg-amud-primary-fixed px-xs py-[2px] text-label-sm text-amud-on-primary-fixed">{kpi.delta}</div>
               ) : null}
@@ -108,26 +116,19 @@ export default function AmudAdminDashboardPage() {
               Alertes Requises
             </h3>
             <div className="space-y-sm">
-              <Link
-                href="/amud/admin/offres"
-                className="flex items-center justify-between rounded p-sm transition-colors hover:bg-amud-surface-container-low"
-              >
-                <div className="flex items-center gap-sm text-body-md text-amud-on-surface">
-                  <div className="h-2 w-2 rounded-full bg-amud-secondary" />
-                  Offres en attente
-                </div>
-                <span className="rounded-full bg-amud-error-container px-2 py-1 text-label-sm text-amud-on-error-container">12</span>
-              </Link>
-              <Link
-                href="/amud/admin/utilisateurs"
-                className="flex items-center justify-between rounded p-sm transition-colors hover:bg-amud-surface-container-low"
-              >
-                <div className="flex items-center gap-sm text-body-md text-amud-on-surface">
-                  <div className="h-2 w-2 rounded-full bg-amud-tertiary-container" />
-                  Recruteurs à valider
-                </div>
-                <span className="rounded-full bg-amud-tertiary-fixed px-2 py-1 text-label-sm text-amud-on-tertiary-container">7</span>
-              </Link>
+              {ADMIN_ALERTS.map((a) => (
+                <Link
+                  key={a.id}
+                  href={a.href}
+                  className="flex items-center justify-between rounded p-sm transition-colors hover:bg-amud-surface-container-low"
+                >
+                  <div className="flex items-center gap-sm text-body-md text-amud-on-surface">
+                    <div className={`h-2 w-2 rounded-full ${a.dot}`} />
+                    {a.label}
+                  </div>
+                  <span className="rounded-full bg-amud-error-container px-2 py-1 text-label-sm text-amud-on-error-container">{a.count}</span>
+                </Link>
+              ))}
             </div>
           </div>
         </div>

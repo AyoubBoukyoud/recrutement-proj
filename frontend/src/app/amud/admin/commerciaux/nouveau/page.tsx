@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { Commercial } from '@/data/amud/commerciaux';
 import { addLocalCommercial } from '@/lib/amud/localCommerciaux';
+import { useToast } from '@/components/amud/Toast';
 
 const RESPONSABLES = ['Marie Dubois - Directrice Commerciale', 'Paul Martin - Chef de Secteur'];
 const NIVEAUX = ['Junior (0-2 ans)', 'Intermédiaire (3-5 ans)', 'Senior (5+ ans)'];
@@ -15,6 +16,7 @@ function todayFr() {
 
 export default function AmudAdminNouveauCommercialPage() {
   const router = useRouter();
+  const notify = useToast();
   const [prenom, setPrenom] = useState('');
   const [nom, setNom] = useState('');
   const [email, setEmail] = useState('');
@@ -76,12 +78,14 @@ export default function AmudAdminNouveauCommercialPage() {
     if (!validate()) return;
     addLocalCommercial(buildCommercial());
     setSaved('draft');
+    notify('Brouillon enregistré.');
   }
 
   function handleCreateAndInvite() {
     if (!validate()) return;
     const c = buildCommercial();
     addLocalCommercial(c);
+    notify(`« ${c.prenom} ${c.nom} » créé, invitation envoyée.`);
     router.push(`/amud/admin/commerciaux/${c.id}`);
   }
 

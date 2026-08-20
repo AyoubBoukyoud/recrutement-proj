@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SiteHeader } from '@/components/home/SiteHeader';
 import { SiteFooter } from '@/components/home/SiteFooter';
+import { Reveal, RevealNoScriptFallback } from '@/components/home/Reveal';
 
 export const metadata: Metadata = {
   title: 'Matching en temps réel — Amud Skills',
@@ -23,6 +24,7 @@ export default function ProduitPage() {
       <SiteHeader />
 
       <main className="overflow-x-hidden bg-amud-background text-amud-on-background selection:bg-amud-primary-container/30 selection:text-amud-inverse-surface">
+        <RevealNoScriptFallback />
         {/* Hero */}
         <section className="relative overflow-hidden pb-32 pt-20 sm:pt-28 lg:pt-36">
           <div
@@ -100,93 +102,101 @@ export default function ProduitPage() {
         {/* Features */}
         <section className="bg-amud-surface-container-low py-section-gap">
           <div className="mx-auto max-w-container-max px-margin-mobile md:px-gutter">
-            <div className="mx-auto mb-16 max-w-2xl text-center">
+            <Reveal className="mx-auto mb-16 max-w-2xl text-center">
               <h2 className="mb-4 text-headline-lg text-amud-inverse-surface">Streamlined Pipeline</h2>
               <p className="text-body-md text-amud-on-surface-variant">
                 Notre technologie absorbe la friction pour que vous puissiez vous concentrer sur la connexion.
                 Entièrement automatisé, mobile d&apos;abord, et pensé pour la vitesse.
               </p>
-            </div>
+            </Reveal>
             <div className="grid auto-rows-[minmax(300px,auto)] grid-cols-1 gap-6 md:grid-cols-3">
-              <div className="group relative overflow-hidden rounded-xl border border-amud-inverse-surface/10 bg-white p-8 shadow-[0_8px_30px_rgb(38,49,67,0.05)] transition-transform duration-300 hover:-translate-y-1 md:col-span-2">
-                <div className="relative z-10 flex h-full w-2/3 flex-col justify-center">
-                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-amud-secondary/10">
-                    <span className="material-symbols-outlined fill text-2xl text-amud-secondary">videocam</span>
+              <Reveal className="h-full md:col-span-2">
+                <div className="group relative h-full overflow-hidden rounded-xl border border-amud-inverse-surface/10 bg-white p-8 shadow-[0_8px_30px_rgb(38,49,67,0.05)] transition-transform duration-300 hover:-translate-y-1">
+                  <div className="relative z-10 flex h-full w-2/3 flex-col justify-center">
+                    <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-amud-secondary/10">
+                      <span className="material-symbols-outlined fill text-2xl text-amud-secondary">videocam</span>
+                    </div>
+                    <h3 className="mb-3 text-headline-md text-amud-inverse-surface">The 45-Second Pitch</h3>
+                    <p className="text-body-md text-amud-on-surface-variant">
+                      Fini la lettre de motivation. Les candidats se présentent via de courts profils vidéo structurés.
+                      Authenticité et compétences de communication d&apos;emblée.
+                    </p>
                   </div>
-                  <h3 className="mb-3 text-headline-md text-amud-inverse-surface">The 45-Second Pitch</h3>
+                  <div className="absolute bottom-0 right-0 top-0 w-1/2 bg-gradient-to-l from-amud-surface-container-high/50 to-transparent">
+                    <img
+                      className="h-full w-full object-cover opacity-80 mix-blend-multiply"
+                      alt="Représentation abstraite d'un enregistrement vidéo sur mobile."
+                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwWjUI29GwCuRoJESpLhrR8BfSoC6fOs4USoNJC5Hw4ZrKvz_4IFDb06oL3SbZgJ4Hwf7BKv_jI8q1B2AObbkuC5todINdNJm0UUXhGGikSNoxgL_00yrUZfuJK2Nh1JbJtXYcwurHBmm_-_pXhj8vRmloy8HCs0_D986WnjS0-ti3FsiKn3qUw9tXQHvNSSgB-40E5_PzQLjK1twOPW6lQEmymuOOSBqZpfLyT7yLAYHrhddusotL"
+                    />
+                  </div>
+                </div>
+              </Reveal>
+
+              <Reveal className="h-full" delay={80}>
+                <div className="group relative flex h-full flex-col justify-center overflow-hidden rounded-xl bg-amud-inverse-surface p-8 shadow-[0_8px_30px_rgb(38,49,67,0.15)] transition-transform duration-300 hover:-translate-y-1">
+                  <div className="absolute inset-0 bg-amud-inverse-surface/5 opacity-20" />
+                  <div className="relative z-10">
+                    <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-amud-primary-container/20">
+                      <span className="material-symbols-outlined fill text-2xl text-amud-primary-container">money_off</span>
+                    </div>
+                    <h3 className="mb-3 text-headline-md text-white">Zero Cost for Candidates</h3>
+                    <p className="text-body-md text-amud-surface-variant/80">
+                      Démocratiser l&apos;opportunité. Nous supprimons les barrières financières pour garantir l&apos;accès
+                      aux meilleurs talents, quel que soit leur parcours.
+                    </p>
+                  </div>
+                </div>
+              </Reveal>
+
+              <Reveal className="h-full" delay={160}>
+                <div className="group flex h-full flex-col justify-between rounded-xl border border-amud-inverse-surface/10 bg-white p-8 shadow-[0_8px_30px_rgb(38,49,67,0.05)] transition-transform duration-300 hover:-translate-y-1">
+                  <div>
+                    <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-amud-inverse-surface/10">
+                      <span className="material-symbols-outlined fill text-2xl text-amud-inverse-surface">document_scanner</span>
+                    </div>
+                    <h3 className="mb-3 text-headline-md text-amud-inverse-surface">Intelligent OCR</h3>
+                  </div>
                   <p className="text-body-md text-amud-on-surface-variant">
-                    Fini la lettre de motivation. Les candidats se présentent via de courts profils vidéo structurés.
-                    Authenticité et compétences de communication d&apos;emblée.
+                    Vérification instantanée des documents et extraction de données. Des cartes d&apos;identité aux
+                    certifications, traités en millisecondes avec la précision allemande.
                   </p>
                 </div>
-                <div className="absolute bottom-0 right-0 top-0 w-1/2 bg-gradient-to-l from-amud-surface-container-high/50 to-transparent">
-                  <img
-                    className="h-full w-full object-cover opacity-80 mix-blend-multiply"
-                    alt="Représentation abstraite d'un enregistrement vidéo sur mobile."
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwWjUI29GwCuRoJESpLhrR8BfSoC6fOs4USoNJC5Hw4ZrKvz_4IFDb06oL3SbZgJ4Hwf7BKv_jI8q1B2AObbkuC5todINdNJm0UUXhGGikSNoxgL_00yrUZfuJK2Nh1JbJtXYcwurHBmm_-_pXhj8vRmloy8HCs0_D986WnjS0-ti3FsiKn3qUw9tXQHvNSSgB-40E5_PzQLjK1twOPW6lQEmymuOOSBqZpfLyT7yLAYHrhddusotL"
-                  />
-                </div>
-              </div>
+              </Reveal>
 
-              <div className="group relative flex flex-col justify-center overflow-hidden rounded-xl bg-amud-inverse-surface p-8 shadow-[0_8px_30px_rgb(38,49,67,0.15)] transition-transform duration-300 hover:-translate-y-1">
-                <div className="absolute inset-0 bg-amud-inverse-surface/5 opacity-20" />
-                <div className="relative z-10">
-                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-amud-primary-container/20">
-                    <span className="material-symbols-outlined fill text-2xl text-amud-primary-container">money_off</span>
-                  </div>
-                  <h3 className="mb-3 text-headline-md text-white">Zero Cost for Candidates</h3>
-                  <p className="text-body-md text-amud-surface-variant/80">
-                    Démocratiser l&apos;opportunité. Nous supprimons les barrières financières pour garantir l&apos;accès
-                    aux meilleurs talents, quel que soit leur parcours.
-                  </p>
-                </div>
-              </div>
-
-              <div className="group flex flex-col justify-between rounded-xl border border-amud-inverse-surface/10 bg-white p-8 shadow-[0_8px_30px_rgb(38,49,67,0.05)] transition-transform duration-300 hover:-translate-y-1">
-                <div>
-                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-amud-inverse-surface/10">
-                    <span className="material-symbols-outlined fill text-2xl text-amud-inverse-surface">document_scanner</span>
-                  </div>
-                  <h3 className="mb-3 text-headline-md text-amud-inverse-surface">Intelligent OCR</h3>
-                </div>
-                <p className="text-body-md text-amud-on-surface-variant">
-                  Vérification instantanée des documents et extraction de données. Des cartes d&apos;identité aux
-                  certifications, traités en millisecondes avec la précision allemande.
-                </p>
-              </div>
-
-              <div className="group relative flex items-center overflow-hidden rounded-xl border border-amud-inverse-surface/10 bg-white p-8 shadow-[0_8px_30px_rgb(38,49,67,0.05)] transition-transform duration-300 hover:-translate-y-1 md:col-span-2">
-                <div className="z-10 w-1/2 pr-8">
-                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-amud-primary-container/20">
-                    <span className="material-symbols-outlined fill text-2xl text-amud-primary-container">track_changes</span>
-                  </div>
-                  <h3 className="mb-3 text-headline-md text-amud-inverse-surface">Real-Time Tracking</h3>
-                  <p className="text-body-md text-amud-on-surface-variant">
-                    Candidats et employeurs savent exactement où ils en sont. Progression transparente de la
-                    candidature à l&apos;intégration via notre système de pont visuel.
-                  </p>
-                </div>
-                <div className="absolute right-0 top-0 flex h-full w-1/2 flex-col justify-center gap-4 pl-12">
-                  <div className="flex items-center gap-4 opacity-50">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amud-surface-container-high text-xs text-amud-inverse-surface">
-                      1
+              <Reveal className="h-full md:col-span-2" delay={240}>
+                <div className="group relative flex h-full items-center overflow-hidden rounded-xl border border-amud-inverse-surface/10 bg-white p-8 shadow-[0_8px_30px_rgb(38,49,67,0.05)] transition-transform duration-300 hover:-translate-y-1">
+                  <div className="z-10 w-1/2 pr-8">
+                    <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-amud-primary-container/20">
+                      <span className="material-symbols-outlined fill text-2xl text-amud-primary-container">track_changes</span>
                     </div>
-                    <div className="h-1 flex-1 bg-amud-surface-container-high" />
+                    <h3 className="mb-3 text-headline-md text-amud-inverse-surface">Real-Time Tracking</h3>
+                    <p className="text-body-md text-amud-on-surface-variant">
+                      Candidats et employeurs savent exactement où ils en sont. Progression transparente de la
+                      candidature à l&apos;intégration via notre système de pont visuel.
+                    </p>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amud-primary-container text-xs font-bold text-white shadow-[0_0_10px_rgba(27,94,55,0.5)]">
-                      2
+                  <div className="absolute right-0 top-0 flex h-full w-1/2 flex-col justify-center gap-4 pl-12">
+                    <div className="flex items-center gap-4 opacity-50">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amud-surface-container-high text-xs text-amud-inverse-surface">
+                        1
+                      </div>
+                      <div className="h-1 flex-1 bg-amud-surface-container-high" />
                     </div>
-                    <div className="h-1 flex-1 bg-amud-primary-container" />
-                  </div>
-                  <div className="flex items-center gap-4 opacity-50">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-amud-surface-container-high text-xs text-amud-inverse-surface">
-                      3
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amud-primary-container text-xs font-bold text-white shadow-[0_0_10px_rgba(27,94,55,0.5)]">
+                        2
+                      </div>
+                      <div className="h-1 flex-1 bg-amud-primary-container" />
                     </div>
-                    <div className="h-1 flex-1 bg-amud-surface-container-high/50" />
+                    <div className="flex items-center gap-4 opacity-50">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-amud-surface-container-high text-xs text-amud-inverse-surface">
+                        3
+                      </div>
+                      <div className="h-1 flex-1 bg-amud-surface-container-high/50" />
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Reveal>
             </div>
           </div>
         </section>

@@ -115,6 +115,20 @@ module.exports = {
         'label-md': ['14px', { lineHeight: '20px', letterSpacing: '0.01em', fontWeight: '500' }],
         'label-sm': ['12px', { lineHeight: '16px', fontWeight: '600' }],
       },
+      // Micro-animations Tailwind pur pour le module `/amud` (popups, toasts,
+      // cartes, lignes de tableau) — pas de lib externe (framer-motion...).
+      keyframes: {
+        'amud-fade-in': { from: { opacity: '0' }, to: { opacity: '1' } },
+        'amud-scale-in': { from: { opacity: '0', transform: 'scale(0.95)' }, to: { opacity: '1', transform: 'scale(1)' } },
+        'amud-slide-in-right': { from: { opacity: '0', transform: 'translateX(16px)' }, to: { opacity: '1', transform: 'translateX(0)' } },
+        'amud-rise-in': { from: { opacity: '0', transform: 'translateY(6px)' }, to: { opacity: '1', transform: 'translateY(0)' } },
+      },
+      animation: {
+        'amud-fade-in': 'amud-fade-in 0.2s ease-out',
+        'amud-scale-in': 'amud-scale-in 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
+        'amud-slide-in-right': 'amud-slide-in-right 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+        'amud-rise-in': 'amud-rise-in 0.25s ease-out both',
+      },
     },
   },
   plugins: [

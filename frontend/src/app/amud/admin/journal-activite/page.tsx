@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from 'react';
 import { Drawer } from '@/components/amud/ui';
+import { useToast } from '@/components/amud/Toast';
+import { exportCsv } from '@/lib/amud/csv';
 
 type Role = 'Admin' | 'Commercial' | 'Recruteur';
 type Resultat = 'Succès' | 'Échec';
@@ -101,6 +103,7 @@ const ROLE_CHIPS: Role[] = ['Admin', 'Commercial', 'Recruteur'];
 const MODULE_CHIPS = ['Utilisateurs', 'Offres', 'CRM'];
 
 export default function AmudAdminJournalActivitePage() {
+  const notify = useToast();
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<Role | null>(null);
   const [moduleFilter, setModuleFilter] = useState<string | null>(null);
@@ -127,7 +130,16 @@ export default function AmudAdminJournalActivitePage() {
             Suivez et auditez l&apos;ensemble des actions effectuées sur la plateforme pour garantir la sécurité et la traçabilité.
           </p>
         </div>
-        <button className="flex shrink-0 items-center gap-sm rounded-lg border border-amud-outline-variant bg-amud-surface px-4 py-2 text-label-md text-amud-primary transition-colors hover:bg-amud-surface-container-low">
+        <button
+          onClick={() => {
+            exportCsv(
+              'journal-activite',
+              filtered.map((l) => ({ Date: l.date, Heure: l.heure, Utilisateur: l.utilisateur, Rôle: l.role, Action: l.action, Module: l.module, Référence: l.reference, IP: l.ip, Résultat: l.resultat })),
+            );
+            notify('Logs exportés.');
+          }}
+          className="flex shrink-0 items-center gap-sm rounded-lg border border-amud-outline-variant bg-amud-surface px-4 py-2 text-label-md text-amud-primary transition-colors hover:bg-amud-surface-container-low"
+        >
           <span className="material-symbols-outlined">download</span>
           Exporter les logs
         </button>

@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Toggle } from '@/components/amud/ui';
+import { useToast } from '@/components/amud/Toast';
 
 /** `/amud/admin/parametres` — doc1: configuration_syst_me_param_tres_g_n_raux.html. */
 export default function AmudAdminParametresPage() {
+  const notify = useToast();
   const [nomPlateforme, setNomPlateforme] = useState('Amud Skills');
   const [email, setEmail] = useState('admin@amudskills.com');
   const [telephone, setTelephone] = useState('');
@@ -30,13 +32,6 @@ export default function AmudAdminParametresPage() {
     annonces: false,
     moderation: true,
   });
-
-  const [savedAt, setSavedAt] = useState<number | null>(null);
-  useEffect(() => {
-    if (!savedAt) return;
-    const t = setTimeout(() => setSavedAt(null), 2500);
-    return () => clearTimeout(t);
-  }, [savedAt]);
 
   function addActivite() {
     const v = nouvelleActivite.trim();
@@ -330,14 +325,8 @@ export default function AmudAdminParametresPage() {
       </section>
 
       <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex flex-wrap justify-end gap-md bg-gradient-to-t from-amud-surface to-transparent p-6 pb-[max(24px,env(safe-area-inset-bottom))] md:left-64">
-        {savedAt ? (
-          <div className="pointer-events-auto flex items-center gap-2 self-center rounded-lg bg-amud-primary-fixed px-4 py-2 text-label-md text-amud-on-primary-fixed shadow-sm">
-            <span className="material-symbols-outlined text-[18px]">check_circle</span>
-            Modifications enregistrées
-          </div>
-        ) : null}
         <button
-          onClick={() => setSavedAt(Date.now())}
+          onClick={() => notify('Modifications enregistrées.')}
           className="pointer-events-auto flex items-center gap-sm rounded-lg bg-amud-primary px-6 py-3 font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-amud-primary-dark hover:shadow-xl"
         >
           <span className="material-symbols-outlined">save</span>

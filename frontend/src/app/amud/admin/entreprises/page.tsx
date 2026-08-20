@@ -1,58 +1,48 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-
-type Statut = 'Vérifiée' | 'Active' | 'En attente' | 'Bloquée';
-
-type Entreprise = {
-  id: string;
-  nom: string;
-  icon: string;
-  recruteurs: number;
-  offres: number;
-  candidatures: number;
-  ville: string;
-  secteur: string;
-  statut: Statut;
-  derniereActivite: string;
-};
-
-const SEED: Entreprise[] = [
-  { id: '1', nom: 'TechCorp SA', icon: 'apartment', recruteurs: 4, offres: 12, candidatures: 145, ville: 'Casablanca', secteur: 'IT', statut: 'Vérifiée', derniereActivite: "Aujourd'hui" },
-  { id: '2', nom: 'BuildIt Construction', icon: 'construction', recruteurs: 2, offres: 5, candidatures: 68, ville: 'Berlin', secteur: 'BTP', statut: 'Active', derniereActivite: 'Hier' },
-  { id: '3', nom: 'MediCare Group', icon: 'local_hospital', recruteurs: 8, offres: 20, candidatures: 312, ville: 'Lyon', secteur: 'Santé', statut: 'En attente', derniereActivite: '12/10/2023' },
-  { id: '4', nom: 'Klinikum Berlin', icon: 'medical_services', recruteurs: 3, offres: 9, candidatures: 88, ville: 'Berlin', secteur: 'Santé', statut: 'Active', derniereActivite: 'Il y a 2 jours' },
-  { id: '5', nom: 'Innovate SA', icon: 'lightbulb', recruteurs: 5, offres: 14, candidatures: 176, ville: 'Casablanca', secteur: 'IT', statut: 'Vérifiée', derniereActivite: "Aujourd'hui" },
-  { id: '6', nom: 'Logistics Pro', icon: 'local_shipping', recruteurs: 1, offres: 3, candidatures: 22, ville: 'Marrakech', secteur: 'Transport', statut: 'Bloquée', derniereActivite: '01/09/2023' },
-  { id: '7', nom: 'Design Studio', icon: 'palette', recruteurs: 2, offres: 4, candidatures: 41, ville: 'Lyon', secteur: 'Design', statut: 'Active', derniereActivite: 'Il y a 5 jours' },
-];
-
-const STATUT_CLASS: Record<Statut, string> = {
-  Vérifiée: 'bg-amud-primary-fixed-dim text-amud-on-primary-fixed-variant',
-  Active: 'bg-amud-surface-container-highest text-amud-primary',
-  'En attente': 'bg-amud-tertiary-fixed text-amud-on-tertiary-fixed-variant',
-  Bloquée: 'bg-amud-error-container text-amud-on-error-container',
-};
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Drawer, Modal } from '@/components/amud/ui';
+import { useToast } from '@/components/amud/Toast';
+import { STATUT_CLASS, entreprisesSeed, type Entreprise, type Statut } from '@/data/amud/entreprises';
+import { addLocalEntreprise, loadLocalEntreprises } from '@/lib/amud/localEntreprises';
 
 const PAGE_SIZE = 3;
+const SECTEURS = ['IT', 'BTP', 'Santé', 'Transport', 'Design'];
 
 export default function AmudAdminEntreprisesPage() {
-  const [search, setSearch] = useState('');
+  const notify = useToast();
+  const searchParams = useSearchParams();
+  const [entreprises, setEntreprises] = useState<Entreprise[]>(entreprisesSeed);
+  const [search, setSearch] = useState(() => searchParams.get('q') ?? '');
   const [ville, setVille] = useState('');
   const [secteur, setSecteur] = useState('');
   const [statut, setStatut] = useState('');
   const [page, setPage] = useState(1);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [detail, setDetail] = useState<Entreprise | null>(null);
+
+  const [addOpen, setAddOpen] = useState(false);
+  const [nom, setNom] = useState('');
+  const [addVille, setAddVille] = useState('');
+  const [addSecteur, setAddSecteur] = useState(SECTEURS[0]);
+  const [addStatut, setAddStatut] = useState<Statut>('En attente');
+
+  useEffect(() => {
+    const extra = loadLocalEntreprises();
+    if (extra.length) setEntreprises([...entreprisesSeed, ...extra]);
+  }, []);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return SEED.filter(
+    return entreprises.filter(
       (e) =>
         (!q || e.nom.toLowerCase().includes(q)) &&
         (!ville || e.ville === ville) &&
         (!secteur || e.secteur === secteur) &&
         (!statut || e.statut === statut),
     );
-  }, [search, ville, secteur, statut]);
+  }, [entreprises, search, ville, secteur, statut]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -62,12 +52,53 @@ export default function AmudAdminEntreprisesPage() {
   }
 
   const kpis = [
-    { label: 'Total entreprises', value: SEED.length, accent: 'bg-amud-primary' },
-    { label: 'Actives', value: SEED.filter((e) => e.statut === 'Active' || e.statut === 'Vérifiée').length, accent: 'bg-amud-primary-container' },
-    { label: 'En attente', value: SEED.filter((e) => e.statut === 'En attente').length, accent: 'bg-amud-tertiary-fixed-dim' },
-    { label: 'Vérifiées', value: SEED.filter((e) => e.statut === 'Vérifiée').length, accent: 'bg-amud-primary-fixed-dim' },
-    { label: 'Bloquées', value: SEED.filter((e) => e.statut === 'Bloquée').length, accent: 'bg-amud-error' },
+    { label: 'Total entreprises', value: entreprises.length, accent: 'bg-amud-primary' },
+    { label: 'Actives', value: entreprises.filter((e) => e.statut === 'Active' || e.statut === 'Vérifiée').length, accent: 'bg-amud-primary-container' },
+    { label: 'En attente', value: entreprises.filter((e) => e.statut === 'En attente').length, accent: 'bg-amud-tertiary-fixed-dim' },
+    { label: 'Vérifiées', value: entreprises.filter((e) => e.statut === 'Vérifiée').length, accent: 'bg-amud-primary-fixed-dim' },
+    { label: 'Bloquées', value: entreprises.filter((e) => e.statut === 'Bloquée').length, accent: 'bg-amud-error' },
   ];
+
+  function resetAddForm() {
+    setNom('');
+    setAddVille('');
+    setAddSecteur(SECTEURS[0]);
+    setAddStatut('En attente');
+  }
+
+  function handleAddEntreprise(e: React.FormEvent) {
+    e.preventDefault();
+    if (!nom.trim()) return;
+    const entreprise: Entreprise = {
+      id: `entreprise-${Date.now()}`,
+      nom: nom.trim(),
+      icon: 'apartment',
+      recruteurs: 0,
+      offres: 0,
+      candidatures: 0,
+      ville: addVille.trim() || '—',
+      secteur: addSecteur,
+      statut: addStatut,
+      derniereActivite: "Aujourd'hui",
+    };
+    setEntreprises((prev) => [entreprise, ...prev]);
+    addLocalEntreprise(entreprise);
+    notify(`« ${entreprise.nom} » ajoutée aux entreprises partenaires.`);
+    setAddOpen(false);
+    resetAddForm();
+  }
+
+  function toggleBloquee(id: string) {
+    setEntreprises((prev) => prev.map((e) => (e.id === id ? { ...e, statut: e.statut === 'Bloquée' ? 'Active' : 'Bloquée' } : e)));
+    setOpenMenu(null);
+    notify('Statut mis à jour.');
+  }
+
+  function removeRow(id: string) {
+    setEntreprises((prev) => prev.filter((e) => e.id !== id));
+    setOpenMenu(null);
+    notify('Entreprise supprimée.', 'info');
+  }
 
   return (
     <div>
@@ -76,7 +107,10 @@ export default function AmudAdminEntreprisesPage() {
           <h2 className="text-headline-lg text-amud-on-surface">Gestion des entreprises</h2>
           <p className="mt-1 text-body-md text-amud-on-surface-variant">Gérez et suivez les entreprises partenaires.</p>
         </div>
-        <button className="flex items-center gap-2 rounded-lg bg-amud-primary px-6 py-3 text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark">
+        <button
+          onClick={() => setAddOpen(true)}
+          className="flex items-center gap-2 rounded-lg bg-amud-primary px-6 py-3 text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark"
+        >
           <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
             add
           </span>
@@ -132,11 +166,9 @@ export default function AmudAdminEntreprisesPage() {
             className="rounded-lg border border-amud-outline-variant bg-amud-surface px-4 py-2 text-label-md text-amud-on-surface focus:outline-none focus:ring-2 focus:ring-amud-primary focus:ring-offset-2"
           >
             <option value="">Secteur</option>
-            <option>IT</option>
-            <option>BTP</option>
-            <option>Santé</option>
-            <option>Transport</option>
-            <option>Design</option>
+            {SECTEURS.map((s) => (
+              <option key={s}>{s}</option>
+            ))}
           </select>
           <select
             value={statut}
@@ -170,7 +202,7 @@ export default function AmudAdminEntreprisesPage() {
           </thead>
           <tbody className="divide-y divide-amud-outline-variant">
             {paged.map((e) => (
-              <tr key={e.id} className="transition-colors hover:bg-amud-surface-container-lowest/50">
+              <tr key={e.id} className="animate-amud-rise-in transition-colors hover:bg-amud-surface-container-lowest/50">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded border border-amud-outline-variant bg-amud-surface">
@@ -192,10 +224,29 @@ export default function AmudAdminEntreprisesPage() {
                   <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUT_CLASS[e.statut]}`}>{e.statut}</span>
                 </td>
                 <td className="px-6 py-4 text-body-md text-amud-on-surface-variant">{e.derniereActivite}</td>
-                <td className="px-6 py-4 text-right">
-                  <button className="p-1 text-amud-on-surface-variant transition-colors hover:text-amud-primary">
+                <td className="relative px-6 py-4 text-right">
+                  <button onClick={() => setOpenMenu(openMenu === e.id ? null : e.id)} className="p-1 text-amud-on-surface-variant transition-colors hover:text-amud-primary">
                     <span className="material-symbols-outlined">more_vert</span>
                   </button>
+                  {openMenu === e.id ? (
+                    <div className="absolute right-6 top-12 z-10 w-44 rounded-lg border border-amud-outline-variant bg-amud-surface py-1 text-left shadow-lg animate-amud-fade-in">
+                      <button
+                        onClick={() => {
+                          setDetail(e);
+                          setOpenMenu(null);
+                        }}
+                        className="block w-full px-4 py-2 text-left text-label-md text-amud-on-surface hover:bg-amud-surface-container-low"
+                      >
+                        Voir la fiche
+                      </button>
+                      <button onClick={() => toggleBloquee(e.id)} className="block w-full px-4 py-2 text-left text-label-md text-amud-on-surface hover:bg-amud-surface-container-low">
+                        {e.statut === 'Bloquée' ? 'Réactiver' : 'Suspendre'}
+                      </button>
+                      <button onClick={() => removeRow(e.id)} className="block w-full px-4 py-2 text-left text-label-md text-amud-error hover:bg-amud-surface-container-low">
+                        Supprimer
+                      </button>
+                    </div>
+                  ) : null}
                 </td>
               </tr>
             ))}
@@ -242,6 +293,88 @@ export default function AmudAdminEntreprisesPage() {
           </button>
         </div>
       </div>
+
+      <Modal
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        title="Ajouter une entreprise"
+        footer={
+          <div className="flex justify-end gap-sm">
+            <button type="button" onClick={() => setAddOpen(false)} className="rounded-lg border border-amud-outline-variant px-lg py-2 text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
+              Annuler
+            </button>
+            <button type="submit" form="add-entreprise-form" className="rounded-lg bg-amud-primary px-lg py-2 text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark">
+              Ajouter
+            </button>
+          </div>
+        }
+      >
+        <form id="add-entreprise-form" onSubmit={handleAddEntreprise} className="grid grid-cols-1 gap-md sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Nom de l&apos;entreprise</label>
+            <input
+              autoFocus
+              value={nom}
+              onChange={(e) => setNom(e.target.value)}
+              required
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+              placeholder="TechCorp SA"
+              type="text"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Ville</label>
+            <input
+              value={addVille}
+              onChange={(e) => setAddVille(e.target.value)}
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+              placeholder="Casablanca"
+              type="text"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Secteur</label>
+            <select value={addSecteur} onChange={(e) => setAddSecteur(e.target.value)} className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary">
+              {SECTEURS.map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Statut initial</label>
+            <select value={addStatut} onChange={(e) => setAddStatut(e.target.value as Statut)} className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary">
+              <option>En attente</option>
+              <option>Active</option>
+              <option>Vérifiée</option>
+            </select>
+          </div>
+        </form>
+      </Modal>
+
+      <Drawer open={!!detail} onClose={() => setDetail(null)} title={detail?.nom ?? ''} subtitle={detail ? `${detail.secteur} · ${detail.ville}` : undefined}>
+        {detail ? (
+          <div className="space-y-lg">
+            <div className="grid grid-cols-2 gap-md">
+              <div className="rounded-lg border border-amud-outline-variant bg-amud-surface-container-low p-md text-center">
+                <div className="text-headline-md text-amud-primary">{detail.recruteurs}</div>
+                <div className="text-label-sm text-amud-on-surface-variant">Recruteurs</div>
+              </div>
+              <div className="rounded-lg border border-amud-outline-variant bg-amud-surface-container-low p-md text-center">
+                <div className="text-headline-md text-amud-primary">{detail.offres}</div>
+                <div className="text-label-sm text-amud-on-surface-variant">Offres actives</div>
+              </div>
+              <div className="rounded-lg border border-amud-outline-variant bg-amud-surface-container-low p-md text-center">
+                <div className="text-headline-md text-amud-primary">{detail.candidatures}</div>
+                <div className="text-label-sm text-amud-on-surface-variant">Candidatures</div>
+              </div>
+              <div className="rounded-lg border border-amud-outline-variant bg-amud-surface-container-low p-md text-center">
+                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUT_CLASS[detail.statut]}`}>{detail.statut}</span>
+              </div>
+            </div>
+            <p className="text-body-md text-amud-on-surface-variant">Dernière activité : {detail.derniereActivite}</p>
+          </div>
+        ) : null}
+      </Drawer>
     </div>
   );
 }

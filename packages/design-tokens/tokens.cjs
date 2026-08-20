@@ -15,57 +15,14 @@
 /* ------------------------------------------------------------------ *
  * Palette Pillar Foundation — vert sarcelle (primaire), or (secondaire),
  * bordeaux (tertiaire). Reprise de la charte candidat, qui porte le logo.
+ *
+ * Les valeurs vivent dans ./colors.json (JSON pur, sans logique) :
+ *   - success reprend primary : deux verts distincts sur un même écran se
+ *     liraient comme deux marques ;
+ *   - attention est l'or assombri jusqu'au ratio AA sur blanc, pour les
+ *     états intermédiaires des écrans ops (dossier en attente, relance due).
  * ------------------------------------------------------------------ */
-const palette = {
-  primary: '#006266',
-  primaryDark: '#004245',
-  primaryLight: '#C8E5E6',
-  onPrimary: '#FFFFFF',
-  onPrimaryContainer: '#002021',
-
-  secondary: '#D4AF37',
-  secondaryDark: '#855300',
-  secondaryLight: '#FFDF9A',
-  onSecondary: '#FFFFFF',
-  onSecondaryContainer: '#251A00',
-
-  tertiary: '#800020',
-  tertiaryDark: '#4A0012',
-  tertiaryLight: '#FFD9DE',
-  onTertiary: '#FFFFFF',
-  onTertiaryContainer: '#3F000E',
-
-  error: '#BA1A1A',
-  errorLight: '#FFDAD6',
-  onError: '#FFFFFF',
-  onErrorContainer: '#410002',
-
-  /* Le vert primaire fait aussi office de succès : deux verts distincts sur
-     un même écran se liraient comme deux marques. */
-  success: '#006266',
-  successLight: '#C8E5E6',
-
-  /* « Attention » couvre les états intermédiaires des écrans ops (dossier en
-     attente, relance due). C'est l'or assombri jusqu'au ratio AA sur blanc. */
-  attention: '#855300',
-  attentionLight: '#FFDF9A',
-  onAttentionContainer: '#251A00',
-
-  surface: '#F9F9FF',
-  surfaceBright: '#F9F9FF',
-  surfaceDim: '#CFDAF2',
-  surfaceLowest: '#FFFFFF',
-  surfaceLow: '#F0F3FF',
-  surfaceContainer: '#EDEEEF',
-  surfaceHigh: '#E7E8E9',
-  surfaceHighest: '#E1E3E4',
-
-  onSurface: '#191C1D',
-  onSurfaceVariant: '#43474E',
-
-  outline: '#74777F',
-  outlineVariant: '#C4C6CF',
-};
+const palette = require('./colors.json');
 
 /* ------------------------------------------------------------------ *
  * Thème Tailwind
