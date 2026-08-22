@@ -46,7 +46,7 @@ export function SiteHeader() {
       }`}
     >
       <div className="mx-auto flex w-full max-w-[1280px] items-center gap-4 px-6 py-4 lg:px-12">
-        <Link href="/" className="flex items-center gap-2 font-extrabold text-primary-dark">
+        <Link href="/accueil-public" className="flex items-center gap-2 font-extrabold text-primary-dark">
           <img src="/assets/images/logo-mark.png" alt="Amud Skills" className="h-9 w-9 object-contain" />
           <span className="whitespace-nowrap text-sm sm:text-base">Amud Skills</span>
         </Link>

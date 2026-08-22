@@ -17,12 +17,15 @@ import { MOCK_LATENCY_MS } from './opsConfig'
 import { MOCK_CANDIDATES, MOCK_SHORTLIST, mockCandidateDetail } from './fixtures/candidates'
 import {
   MOCK_ADMIN_CANDIDATES,
+  MOCK_ADMIN_RECRUITERS,
   MOCK_ADMIN_USERS,
   MOCK_COMPLAINTS,
   MOCK_METRICS,
   MOCK_ROLES,
   MOCK_TASKS,
+  mockAdminActivity,
   mockAdminCandidateDetail,
+  mockAdminRecruiterDetail,
 } from './fixtures/admin'
 import { MOCK_AGENT_INFO, MOCK_AGENT_REGISTRATIONS, MOCK_PAYOUTS } from './fixtures/referrals'
 import { findMockAccount } from './fixtures/accounts'
@@ -42,6 +45,7 @@ type State = {
   candidates: typeof MOCK_CANDIDATES
   shortlist: typeof MOCK_SHORTLIST
   adminCandidates: typeof MOCK_ADMIN_CANDIDATES
+  adminRecruiters: typeof MOCK_ADMIN_RECRUITERS
   complaints: typeof MOCK_COMPLAINTS
   tasks: typeof MOCK_TASKS
   users: typeof MOCK_ADMIN_USERS
@@ -58,6 +62,7 @@ function getState(): State {
       candidates: MOCK_CANDIDATES.map((c) => ({ ...c })),
       shortlist: MOCK_SHORTLIST.map((r) => ({ ...r })),
       adminCandidates: MOCK_ADMIN_CANDIDATES.map((c) => ({ ...c })),
+      adminRecruiters: MOCK_ADMIN_RECRUITERS.map((r) => ({ ...r })),
       complaints: MOCK_COMPLAINTS.map((c) => ({ ...c })),
       tasks: MOCK_TASKS.map((t) => ({ ...t })),
       users: MOCK_ADMIN_USERS.map((u) => ({ ...u })),
@@ -181,6 +186,146 @@ const routes: Array<[string, string, Handler]> = [
       reviewed_at: new Date().toISOString(),
       reviewed_by: { id: 301, name: 'Administrateur' },
     }),
+  ],
+  [
+    'GET',
+    '/admin/candidates/:id/activity',
+    (ctx) => {
+      const row = getState().adminCandidates.find((c) => c.id === numberParam(ctx))
+      if (!row) throw new MockHttpError(404)
+      return mockAdminActivity(row.name ?? row.phone)
+    },
+  ],
+  [
+    'PATCH',
+    '/admin/candidates/:id/status',
+    (ctx) => {
+      const row = getState().adminCandidates.find((c) => c.id === numberParam(ctx))
+      if (!row) throw new MockHttpError(404)
+      row.account_status = ctx.body.status as never
+      return { id: row.id, status: row.account_status }
+    },
+  ],
+  [
+    'POST',
+    '/admin/candidates/bulk',
+    (ctx) => {
+      const ids = (ctx.body.ids as number[]) ?? []
+      const action = ctx.body.action as string
+      const state = getState()
+      if (action === 'export') {
+        const rows = state.adminCandidates.filter((c) => ids.includes(c.id))
+        const csv = ['Nom,Téléphone,Email,Ville,Statut'].concat(
+          rows.map((c) => `${c.name ?? ''},${c.phone},${c.email ?? ''},${c.city ?? ''},${c.account_status}`),
+        )
+        return new Blob([csv.join('\n')], { type: 'text/csv' })
+      }
+      const statusByAction: Record<string, string> = { activate: 'active', deactivate: 'inactive', block: 'blocked' }
+      if (action === 'delete') {
+        state.adminCandidates = state.adminCandidates.filter((c) => !ids.includes(c.id))
+      } else if (statusByAction[action]) {
+        state.adminCandidates.forEach((c) => {
+          if (ids.includes(c.id)) c.account_status = statusByAction[action] as never
+        })
+      }
+      return { updated: ids.length, action }
+    },
+  ],
+
+  /* --- Recruteurs (vus par l'administrateur) --- */
+  [
+    'GET',
+    '/admin/recruiters',
+    (ctx) => {
+      const q = (ctx.query.get('q') ?? '').toLowerCase()
+      let rows = getState().adminRecruiters
+      if (q) {
+        rows = rows.filter(
+          (r) => (r.name ?? '').toLowerCase().includes(q) || (r.company_name ?? '').toLowerCase().includes(q) || r.phone.includes(q),
+        )
+      }
+      return paginate(rows, pageOf(ctx))
+    },
+  ],
+  [
+    'GET',
+    '/admin/recruiters/:id',
+    (ctx) => mockAdminRecruiterDetail(numberParam(ctx)) ?? (() => { throw new MockHttpError(404) })(),
+  ],
+  [
+    'PATCH',
+    '/admin/recruiters/:id',
+    (ctx) => {
+      const row = getState().adminRecruiters.find((r) => r.id === numberParam(ctx))
+      if (!row) throw new MockHttpError(404)
+      Object.assign(row, ctx.body)
+      return mockAdminRecruiterDetail(row.id)?.company
+    },
+  ],
+  [
+    'PATCH',
+    '/admin/recruiters/:id/status',
+    (ctx) => {
+      const row = getState().adminRecruiters.find((r) => r.id === numberParam(ctx))
+      if (!row) throw new MockHttpError(404)
+      row.account_status = ctx.body.status as never
+      return { id: row.id, status: row.account_status }
+    },
+  ],
+  [
+    'PATCH',
+    '/admin/recruiters/:id/verify',
+    (ctx) => {
+      const row = getState().adminRecruiters.find((r) => r.id === numberParam(ctx))
+      if (!row) throw new MockHttpError(404)
+      row.verified_at = ctx.body.verified ? new Date().toISOString() : null
+      return mockAdminRecruiterDetail(row.id)?.company
+    },
+  ],
+  [
+    'GET',
+    '/admin/recruiters/:id/activity',
+    (ctx) => {
+      const row = getState().adminRecruiters.find((r) => r.id === numberParam(ctx))
+      if (!row) throw new MockHttpError(404)
+      return mockAdminActivity(row.name ?? row.phone)
+    },
+  ],
+  [
+    'DELETE',
+    '/admin/recruiters/:id',
+    (ctx) => {
+      const id = numberParam(ctx)
+      const state = getState()
+      if (!state.adminRecruiters.some((r) => r.id === id)) throw new MockHttpError(404)
+      state.adminRecruiters = state.adminRecruiters.filter((r) => r.id !== id)
+      return {}
+    },
+  ],
+  [
+    'POST',
+    '/admin/recruiters/bulk',
+    (ctx) => {
+      const ids = (ctx.body.ids as number[]) ?? []
+      const action = ctx.body.action as string
+      const state = getState()
+      if (action === 'export') {
+        const rows = state.adminRecruiters.filter((r) => ids.includes(r.id))
+        const csv = ['Nom,Téléphone,Email,Entreprise,Statut'].concat(
+          rows.map((r) => `${r.name ?? ''},${r.phone},${r.email ?? ''},${r.company_name ?? ''},${r.account_status}`),
+        )
+        return new Blob([csv.join('\n')], { type: 'text/csv' })
+      }
+      const statusByAction: Record<string, string> = { activate: 'active', deactivate: 'inactive', block: 'blocked' }
+      if (action === 'delete') {
+        state.adminRecruiters = state.adminRecruiters.filter((r) => !ids.includes(r.id))
+      } else if (statusByAction[action]) {
+        state.adminRecruiters.forEach((r) => {
+          if (ids.includes(r.id)) r.account_status = statusByAction[action] as never
+        })
+      }
+      return { updated: ids.length, action }
+    },
   ],
 
   [

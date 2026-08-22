@@ -1,4 +1,12 @@
-import type { CandidateLanguage, Education } from './candidate'
+import type { CandidateLanguage, Education, ShortlistStage } from './candidate'
+
+export type AccountStatus = 'active' | 'inactive' | 'blocked'
+
+export const ACCOUNT_STATUS_LABELS: Record<AccountStatus, string> = {
+  active: 'Actif',
+  inactive: 'Désactivé',
+  blocked: 'Bloqué',
+}
 
 export type TaskCategory = 'language' | 'documents' | 'culture' | 'admin' | 'other'
 
@@ -55,7 +63,10 @@ export type AdminChecklist = {
 export type AdminCandidateRow = {
   id: number
   phone: string
+  email: string | null
   name: string | null
+  city: string | null
+  account_status: AccountStatus
   availability_status: string | null
   referred_by: string | null
   submitted_at: string | null
@@ -64,6 +75,40 @@ export type AdminCandidateRow = {
   checklist: AdminChecklist
   documents_awaiting_approval: number
   engagement: Engagement
+  top_skills: string[]
+  shortlists_count: number
+  interviews_count: number
+  placements_count: number
+}
+
+export type CandidateSkill = {
+  id: number
+  skill: string
+  level: 'debutant' | 'intermediaire' | 'avance' | 'expert'
+  years_of_experience: number | null
+}
+
+export const SKILL_LEVEL_LABELS: Record<CandidateSkill['level'], string> = {
+  debutant: 'Débutant',
+  intermediaire: 'Intermédiaire',
+  avance: 'Avancé',
+  expert: 'Expert',
+}
+
+/**
+ * A recruiter's tracking of one candidate, as the admin sees it — this
+ * product has no job-application/interview entity, so "Candidatures" and
+ * "Entretiens" on a candidate's dossier are this shortlist pipeline, keyed by
+ * `stage`. See RecruiterShortlist on the backend.
+ */
+export type AdminShortlistEntry = {
+  id: number
+  stage: ShortlistStage
+  notes: string | null
+  contact_revealed_at: string | null
+  created_at: string
+  updated_at: string
+  user: { id: number; name: string | null; phone: string }
 }
 
 /** A document with the administrative verdict on it, which recruiters never see. */
@@ -86,6 +131,7 @@ export type AdminCandidateDetail = {
   profession: string | null
   specialization: string | null
   years_of_experience: number | null
+  city: string | null
   date_of_birth: string | null
   availability_status: string | null
   terms_consent_at: string | null
@@ -95,14 +141,91 @@ export type AdminCandidateDetail = {
   verified_at: string | null
   admin_notes: string | null
   verified_by: { id: number; name: string | null; phone: string } | null
-  user: { id: number; name: string | null; phone: string; created_at: string }
+  user: {
+    id: number
+    name: string | null
+    phone: string
+    email: string | null
+    status: AccountStatus
+    status_reason: string | null
+    created_at: string
+  }
   educations: Education[]
   languages: CandidateLanguage[]
+  skills: CandidateSkill[]
   documents: AdminDocument[]
   task_assignments: TaskAssignment[]
+  shortlist_entries: AdminShortlistEntry[]
   checklist: AdminChecklist
   completeness: { percent: number; can_submit: boolean }
   engagement: Engagement
+}
+
+/** Row shape for /admin/candidates/{id}/activity and /admin/recruiters/{id}/activity. */
+export type AdminActivityEvent = {
+  at: string
+  type: string
+  label: string
+  meta: Record<string, unknown>
+}
+
+export type AdminCompanyProfile = {
+  id: number
+  user_id: number
+  company_name: string | null
+  sector: string | null
+  city: string | null
+  phone: string | null
+  website: string | null
+  employees_count: number | null
+  verified_at: string | null
+  verified_by_id: number | null
+  verified_by?: { id: number; name: string | null; phone: string } | null
+}
+
+export type AdminRecruiterRow = {
+  id: number
+  name: string | null
+  phone: string
+  email: string | null
+  account_status: AccountStatus
+  company_name: string | null
+  sector: string | null
+  city: string | null
+  verified_at: string | null
+  shortlists_count: number
+  interviewing_count: number
+  placed_count: number
+  last_activity_at: string | null
+  created_at: string
+}
+
+export type AdminRecruiterShortlistItem = {
+  id: number
+  stage: ShortlistStage
+  notes: string | null
+  contact_revealed_at: string | null
+  created_at: string
+  updated_at: string
+  candidate_profile: {
+    id: number
+    first_name: string | null
+    last_name: string | null
+    profession: string | null
+    city: string | null
+  } | null
+}
+
+export type AdminRecruiterDetail = {
+  id: number
+  name: string | null
+  phone: string
+  email: string | null
+  status: AccountStatus
+  status_reason: string | null
+  created_at: string
+  company: AdminCompanyProfile | null
+  shortlist: AdminRecruiterShortlistItem[]
 }
 
 export type AdminUser = {
@@ -123,6 +246,21 @@ export type Metrics = {
     discoverable: number
     drafts: number
     new_this_week: number
+    active: number
+    profiles_complete: number
+    profiles_incomplete: number
+    in_shortlist: number
+    interviewing: number
+    placed: number
+  }
+  recruiters: {
+    total: number
+    active: number
+    pending_verification: number
+    verified: number
+    blocked: number
+    shortlisted_candidates: number
+    interviews_scheduled: number
   }
   documents: {
     total: number

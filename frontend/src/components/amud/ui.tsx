@@ -11,6 +11,35 @@ import { ReactNode, useEffect, useRef, useState } from 'react';
  */
 
 /* ------------------------------------------------------------------ *
+ * useDropdown — ouverture contrôlée + fermeture au clic extérieur et à
+ * Échap, pour les menus du header (notifications, réglages, profil) des 4
+ * coquilles. Reprend le pattern déjà écrit à la main pour la cloche
+ * d'`AdminShell`, généralisé pour ne pas le dupliquer 11 fois de plus.
+ * ------------------------------------------------------------------ */
+export function useDropdown<T extends HTMLElement = HTMLDivElement>() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<T>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false);
+    }
+    document.addEventListener('mousedown', onClick);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  return { open, setOpen, ref };
+}
+
+/* ------------------------------------------------------------------ *
  * Toggle — remplace le pattern statique `<input checked class="peer">`
  * des maquettes par un switch réellement contrôlé.
  * ------------------------------------------------------------------ */
@@ -63,6 +92,7 @@ export function Drawer({
   children,
   footer,
   widthClassName = 'max-w-md',
+  anchor = 'right',
 }: {
   open: boolean;
   onClose: () => void;
@@ -71,6 +101,8 @@ export function Drawer({
   children: ReactNode;
   footer?: ReactNode;
   widthClassName?: string;
+  /** 'bottom' rend un vrai bottom-sheet (menu "Plus" mobile de `CompanyShell`) plutôt qu'un panneau latéral. */
+  anchor?: 'right' | 'bottom';
 }) {
   useEffect(() => {
     if (!open) return;
@@ -78,6 +110,15 @@ export function Drawer({
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
+
+  const asideCls =
+    anchor === 'bottom'
+      ? `fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] w-full flex-col rounded-t-2xl border-t border-amud-outline-variant bg-amud-surface shadow-2xl transition-transform duration-300 ease-in-out ${
+          open ? 'translate-y-0' : 'translate-y-full'
+        }`
+      : `fixed right-0 top-0 z-50 flex h-full w-full ${widthClassName} flex-col border-l border-amud-outline-variant bg-amud-surface shadow-2xl transition-transform duration-300 ease-in-out ${
+          open ? 'translate-x-0' : 'translate-x-full'
+        }`;
 
   return (
     <>
@@ -88,13 +129,10 @@ export function Drawer({
         onClick={onClose}
         aria-hidden="true"
       />
-      <aside
-        className={`fixed right-0 top-0 z-50 flex h-full w-full ${widthClassName} flex-col border-l border-amud-outline-variant bg-amud-surface shadow-2xl transition-transform duration-300 ease-in-out ${
-          open ? 'translate-x-0' : 'translate-x-full'
-        }`}
-        role="dialog"
-        aria-modal="true"
-      >
+      <aside className={asideCls} role="dialog" aria-modal="true">
+        {anchor === 'bottom' ? (
+          <div className="mx-auto mt-2 h-1.5 w-10 shrink-0 rounded-full bg-amud-outline-variant" aria-hidden="true" />
+        ) : null}
         <div className="flex shrink-0 items-center justify-between border-b border-amud-outline-variant bg-amud-surface-container-low px-lg py-md">
           <div>
             <h3 className="text-title-lg font-semibold text-amud-on-surface">{title}</h3>
@@ -108,7 +146,9 @@ export function Drawer({
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-lg">{children}</div>
+        <div className="flex-1 overflow-y-auto p-lg" style={anchor === 'bottom' ? { paddingBottom: 'max(24px, env(safe-area-inset-bottom))' } : undefined}>
+          {children}
+        </div>
         {footer ? <div className="shrink-0 border-t border-amud-outline-variant bg-amud-surface p-md">{footer}</div> : null}
       </aside>
     </>
@@ -331,5 +371,63 @@ export function Tabs({
         </button>
       ))}
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * ConfirmDialog — confirmation avant action destructrice (cahier des
+ * charges §24 : "Êtes-vous sûr de vouloir supprimer… Annuler / Confirmer"),
+ * partagée par toutes les pages CRUD du module plutôt que réimplémentée à
+ * chaque suppression.
+ * ------------------------------------------------------------------ */
+export function ConfirmDialog({
+  open,
+  onClose,
+  onConfirm,
+  title,
+  description,
+  confirmLabel = 'Confirmer',
+  danger = true,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title: string;
+  description?: string;
+  confirmLabel?: string;
+  danger?: boolean;
+}) {
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={title}
+      widthClassName="max-w-sm"
+      footer={
+        <div className="flex justify-end gap-sm">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg border border-amud-outline-variant px-lg py-2 text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low"
+          >
+            Annuler
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onConfirm();
+              onClose();
+            }}
+            className={`rounded-lg px-lg py-2 text-label-md font-medium text-white shadow-sm transition-colors ${
+              danger ? 'bg-amud-error hover:bg-amud-error/90' : 'bg-amud-primary hover:bg-amud-primary-dark'
+            }`}
+          >
+            {confirmLabel}
+          </button>
+        </div>
+      }
+    >
+      {description ? <p className="text-body-md text-amud-on-surface-variant">{description}</p> : null}
+    </Modal>
   );
 }

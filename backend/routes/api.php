@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AdminAccountRecoveryController;
 use App\Http\Controllers\Api\AdminCandidateController;
 use App\Http\Controllers\Api\AdminMetricsController;
 use App\Http\Controllers\Api\AdminReferralController;
+use App\Http\Controllers\Api\AdminRecruiterController;
 use App\Http\Controllers\Api\AdminTaskController;
 use App\Http\Controllers\Api\AdminUserController;
 use App\Http\Controllers\Api\AuthController;
@@ -26,7 +27,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('/auth/otp/request', [AuthController::class, 'requestOtp'])->middleware('throttle:otp-request');
 Route::post('/auth/otp/verify', [AuthController::class, 'verifyOtp'])->middleware('throttle:otp-verify');
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
@@ -90,12 +91,28 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/metrics', [AdminMetricsController::class, 'index']);
 
         Route::get('/admin/candidates', [AdminCandidateController::class, 'index']);
+        Route::post('/admin/candidates/bulk', [AdminCandidateController::class, 'bulk']);
         Route::get('/admin/candidates/{candidateProfile}', [AdminCandidateController::class, 'show']);
+        Route::get('/admin/candidates/{candidateProfile}/activity', [AdminCandidateController::class, 'activity']);
         // The administrator's own judgement on a dossier, and on the documents
         // in it — neither of which the completeness checklist can express.
         Route::patch('/admin/candidates/{candidateProfile}', [AdminCandidateController::class, 'update']);
+        // Platform access, distinct from that judgement — enforced server-side
+        // by EnsureAccountIsActive, not just reflected in a table.
+        Route::patch('/admin/candidates/{candidateProfile}/status', [AdminCandidateController::class, 'updateStatus']);
         Route::delete('/admin/candidates/{candidateProfile}', [AdminCandidateController::class, 'destroy']);
         Route::patch('/admin/documents/{document}/approval', [AdminCandidateController::class, 'reviewDocument']);
+
+        // Recruiters: a User with the "Company" role plus its CompanyProfile —
+        // there is no separate Recruiter model (see AdminRecruiterController).
+        Route::get('/admin/recruiters', [AdminRecruiterController::class, 'index']);
+        Route::post('/admin/recruiters/bulk', [AdminRecruiterController::class, 'bulk']);
+        Route::get('/admin/recruiters/{recruiter}', [AdminRecruiterController::class, 'show']);
+        Route::get('/admin/recruiters/{recruiter}/activity', [AdminRecruiterController::class, 'activity']);
+        Route::patch('/admin/recruiters/{recruiter}', [AdminRecruiterController::class, 'update']);
+        Route::patch('/admin/recruiters/{recruiter}/status', [AdminRecruiterController::class, 'updateStatus']);
+        Route::patch('/admin/recruiters/{recruiter}/verify', [AdminRecruiterController::class, 'verify']);
+        Route::delete('/admin/recruiters/{recruiter}', [AdminRecruiterController::class, 'destroy']);
 
         // The daily remote internship (spec §4): the catalogue, and what each
         // candidate has been given out of it.

@@ -1,28 +1,22 @@
 'use client';
 
+import { createCollection } from './storage/collection';
+import { AMUD_KEYS } from './storage/keys';
 import type { Commercial } from '@/data/amud/commerciaux';
 
-/**
- * Persistance légère (localStorage) des commerciaux créés depuis
- * `/amud/admin/commerciaux/nouveau`. Le module `/amud` n'a pas de backend
- * (cf. décision prise en amont avec l'utilisateur) — sans ce petit stockage,
- * un commercial "créé" disparaîtrait à la navigation suivante, ce qui
- * casserait le lien liste → profil que ce formulaire est censé alimenter.
- */
-const KEY = 'amud:commerciaux:extra';
+/** Wrapper de compatibilité au-dessus de la collection centralisée `AMUD_KEYS.commercials` — voir `localEntreprises.ts` pour la même remarque sur le changement de sémantique (collection entière, plus un delta). */
+const collection = createCollection<Commercial>(AMUD_KEYS.commercials);
 
 export function loadLocalCommerciaux(): Commercial[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const raw = window.localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as Commercial[]) : [];
-  } catch {
-    return [];
-  }
+  return collection.getAll();
 }
 
 export function addLocalCommercial(c: Commercial) {
-  if (typeof window === 'undefined') return;
-  const current = loadLocalCommerciaux();
-  window.localStorage.setItem(KEY, JSON.stringify([...current, c]));
+  collection.add(c);
 }
+
+export function updateLocalCommercial(id: string, patch: Partial<Commercial>) {
+  return collection.update(id, patch);
+}
+
+export { collection as commerciauxCollection };

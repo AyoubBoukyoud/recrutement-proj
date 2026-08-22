@@ -1,27 +1,39 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { STATUT_CLASS, entreprisesSeed, type Entreprise } from '@/data/amud/entreprises';
-import { loadLocalEntreprises } from '@/lib/amud/localEntreprises';
+import { STATUT_CLASS, entreprisesSeed } from '@/data/amud/entreprises';
+import { entreprisesCollection } from '@/lib/amud/localEntreprises';
+import { useCollection } from '@/lib/amud/storage/useCollection';
 import { CURRENT_COMMERCIAL } from '@/data/amud/currentCommercial';
+import { offresSeed } from '@/data/amud/offres';
+import { offresCollection } from '@/lib/amud/localOffres';
+import { applicationsSeed } from '@/data/amud/applications';
+import { applicationsCollection } from '@/lib/amud/localApplications';
 
 const SECTEURS = ['IT', 'BTP', 'Santé', 'Transport', 'Design'];
 
 export default function AmudCommercialEntreprisesPage() {
   const searchParams = useSearchParams();
-  const [entreprises, setEntreprises] = useState<Entreprise[]>(entreprisesSeed);
+  const [entreprises] = useCollection(entreprisesCollection, entreprisesSeed);
+  const [offres] = useCollection(offresCollection, offresSeed);
+  const [applications] = useCollection(applicationsCollection, applicationsSeed);
+  const offresCount = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const o of offres) if (o.entrepriseId) map.set(o.entrepriseId, (map.get(o.entrepriseId) ?? 0) + 1);
+    return map;
+  }, [offres]);
+  const candidaturesCount = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const a of applications) map.set(a.entrepriseId, (map.get(a.entrepriseId) ?? 0) + 1);
+    return map;
+  }, [applications]);
   const [search, setSearch] = useState(() => searchParams.get('q') ?? '');
   const [ville, setVille] = useState('');
   const [secteur, setSecteur] = useState('');
   const [statut, setStatut] = useState('');
   const [onlyMine, setOnlyMine] = useState(false);
-
-  useEffect(() => {
-    const extra = loadLocalEntreprises();
-    if (extra.length) setEntreprises([...entreprisesSeed, ...extra]);
-  }, []);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -124,8 +136,8 @@ export default function AmudCommercialEntreprisesPage() {
                     <span className="text-label-md font-semibold text-amud-on-surface hover:text-amud-primary">{e.nom}</span>
                   </Link>
                 </td>
-                <td className="px-6 py-4 text-center text-body-md text-amud-on-surface-variant">{e.offres}</td>
-                <td className="px-6 py-4 text-center text-body-md text-amud-on-surface-variant">{e.candidatures}</td>
+                <td className="px-6 py-4 text-center text-body-md text-amud-on-surface-variant">{offresCount.get(e.id) ?? 0}</td>
+                <td className="px-6 py-4 text-center text-body-md text-amud-on-surface-variant">{candidaturesCount.get(e.id) ?? 0}</td>
                 <td className="px-6 py-4">
                   <div className="flex flex-col">
                     <span className="text-body-md text-amud-on-surface">{e.ville}</span>

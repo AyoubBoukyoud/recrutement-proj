@@ -10,6 +10,7 @@ import {
   FileCheck,
   ClipboardList,
   LifeBuoy,
+  Briefcase,
   type LucideIcon,
 } from 'lucide-react';
 import { api } from '@/lib/opsApi';
@@ -187,6 +188,26 @@ export function MetricsPanel() {
               />
               <Stat label="Visibles" value={data.candidates.discoverable} hint="consentements enregistrés" />
               <Stat label="Nouveaux cette semaine" value={data.candidates.new_this_week} />
+              <Stat label="Profils complets" value={data.candidates.profiles_complete} to="/admin/candidats" />
+              <Stat
+                label="En entretien"
+                value={data.candidates.interviewing}
+                hint="pipeline recruteur"
+                to="/admin/candidats"
+              />
+            </SectionCard>
+
+            <SectionCard icon={Briefcase} title="Recruteurs">
+              <Stat label="Total" value={data.recruiters.total} to="/admin/recruteurs" />
+              <Stat label="Actifs" value={data.recruiters.active} />
+              <Stat
+                label="En attente de vérification"
+                value={data.recruiters.pending_verification}
+                tone="attention"
+                to="/admin/recruteurs"
+              />
+              <Stat label="Vérifiés" value={data.recruiters.verified} to="/admin/recruteurs" />
+              <Stat label="Candidatures reçues" value={data.recruiters.shortlisted_candidates} hint="tous recruteurs confondus" />
             </SectionCard>
 
             <SectionCard icon={FileCheck} title="Pièces justificatives">

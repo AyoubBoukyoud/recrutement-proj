@@ -1,13 +1,58 @@
+'use client';
+
 import Link from 'next/link';
-import { commerciaux } from '@/data/amud/commerciaux';
-import { ADMIN_ALERTS } from '@/data/amud/alerts';
+import { commerciaux as commerciauxSeed } from '@/data/amud/commerciaux';
+import { commerciauxCollection } from '@/lib/amud/localCommerciaux';
+import { candidatesSeed } from '@/data/amud/candidates';
+import { candidatesCollection } from '@/lib/amud/localCandidates';
+import { recruitersSeed } from '@/data/amud/recruiters';
+import { recruitersCollection } from '@/lib/amud/localRecruiters';
+import { offresSeed } from '@/data/amud/offres';
+import { offresCollection } from '@/lib/amud/localOffres';
+import { activitesSeed } from '@/data/amud/commercialActivites';
+import { activitesCollection } from '@/lib/amud/localCommercialActivites';
+import { buildSeedRdvs } from '@/data/amud/commercialRdv';
+import { rendezVousCollection } from '@/lib/amud/localRendezVous';
+import { notificationsSeed } from '@/data/amud/notifications';
+import { notifications as notificationsCollection } from '@/lib/amud/storage/notify';
+import { useCollection } from '@/lib/amud/storage/useCollection';
 import { CountUp } from '@/components/amud/ui';
+
+function todayFr() {
+  return new Date().toLocaleDateString('fr-FR');
+}
+function todayIso() {
+  return new Date().toISOString().slice(0, 10);
+}
 
 /** `/amud/admin` — tableau de bord (doc5: tableau_de_bord_administrateur_amud_skills.html). */
 export default function AmudAdminDashboardPage() {
+  const [commerciaux] = useCollection(commerciauxCollection, commerciauxSeed);
+  const [candidates] = useCollection(candidatesCollection, candidatesSeed);
+  const [recruiters] = useCollection(recruitersCollection, recruitersSeed);
+  const [offres] = useCollection(offresCollection, offresSeed);
+  const [activites] = useCollection(activitesCollection, activitesSeed);
+  const [rdvs] = useCollection(rendezVousCollection, buildSeedRdvs());
+  const [allNotifications] = useCollection(notificationsCollection, notificationsSeed);
+
   const leaderboard = [...commerciaux]
     .sort((a, b) => b.realiseMensuel / b.objectifMensuel - a.realiseMensuel / a.objectifMensuel)
     .slice(0, 4);
+
+  const appelsAuj = activites.filter((a) => a.type === 'Appel' && a.date === todayFr());
+  const tauxReponse = appelsAuj.length > 0 ? Math.round((appelsAuj.filter((a) => a.resultat === 'Répondu' || a.resultat === 'Positif').length / appelsAuj.length) * 100) : 0;
+  const rdvsAuj = rdvs.filter((r) => r.date === todayIso());
+
+  const alertes = [...allNotifications.filter((n) => n.scope === 'admin')]
+    .sort((a, b) => Number(a.read) - Number(b.read) || b.createdAt.localeCompare(a.createdAt))
+    .slice(0, 5);
+
+  const kpis = [
+    { label: 'Total candidats', value: candidates.length, icon: 'group', accent: 'bg-amud-primary' },
+    { label: 'Total recruteurs', value: recruiters.length, icon: 'badge', accent: 'bg-amud-primary' },
+    { label: 'Total commerciaux', value: commerciaux.length, icon: 'support_agent', accent: 'bg-amud-tertiary-container' },
+    { label: 'Offres actives', value: offres.filter((o) => o.statut === 'Publiée').length, icon: 'work', accent: 'bg-amud-tertiary-container' },
+  ];
 
   return (
     <div>
@@ -33,12 +78,7 @@ export default function AmudAdminDashboardPage() {
       </div>
 
       <div className="mb-xl grid grid-cols-2 gap-lg lg:grid-cols-4">
-        {[
-          { label: 'Total candidats', value: 12450, delta: '+5%', icon: 'group', accent: 'bg-amud-primary' },
-          { label: 'Total recruteurs', value: 840, delta: '+2%', icon: 'badge', accent: 'bg-amud-primary' },
-          { label: 'Total commerciaux', value: commerciaux.length * 8, delta: null, icon: 'support_agent', accent: 'bg-amud-tertiary-container' },
-          { label: 'Offres actives', value: 156, delta: null, icon: 'work', accent: 'bg-amud-tertiary-container' },
-        ].map((kpi, i) => (
+        {kpis.map((kpi, i) => (
           <div
             key={kpi.label}
             style={{ animationDelay: `${i * 60}ms` }}
@@ -53,9 +93,6 @@ export default function AmudAdminDashboardPage() {
               <div className="text-headline-lg text-amud-on-surface">
                 <CountUp value={kpi.value} />
               </div>
-              {kpi.delta ? (
-                <div className="rounded bg-amud-primary-fixed px-xs py-[2px] text-label-sm text-amud-on-primary-fixed">{kpi.delta}</div>
-              ) : null}
             </div>
           </div>
         ))}
@@ -68,15 +105,15 @@ export default function AmudAdminDashboardPage() {
             <div className="mb-lg grid grid-cols-3 gap-md">
               <div className="rounded-lg bg-amud-surface-container-low p-md">
                 <div className="mb-xs text-label-sm text-amud-on-surface-variant">Appels</div>
-                <div className="text-headline-md text-amud-primary">142</div>
+                <div className="text-headline-md text-amud-primary">{appelsAuj.length}</div>
               </div>
               <div className="rounded-lg bg-amud-surface-container-low p-md">
                 <div className="mb-xs text-label-sm text-amud-on-surface-variant">Taux de réponse</div>
-                <div className="text-headline-md text-amud-primary">68%</div>
+                <div className="text-headline-md text-amud-primary">{tauxReponse}%</div>
               </div>
               <div className="rounded-lg bg-amud-surface-container-low p-md">
                 <div className="mb-xs text-label-sm text-amud-on-surface-variant">Rendez-vous</div>
-                <div className="text-headline-md text-amud-primary">18</div>
+                <div className="text-headline-md text-amud-primary">{rdvsAuj.length}</div>
               </div>
             </div>
             <div className="overflow-hidden rounded-lg border border-amud-outline-variant">
@@ -116,19 +153,23 @@ export default function AmudAdminDashboardPage() {
               Alertes Requises
             </h3>
             <div className="space-y-sm">
-              {ADMIN_ALERTS.map((a) => (
-                <Link
-                  key={a.id}
-                  href={a.href}
-                  className="flex items-center justify-between rounded p-sm transition-colors hover:bg-amud-surface-container-low"
-                >
-                  <div className="flex items-center gap-sm text-body-md text-amud-on-surface">
-                    <div className={`h-2 w-2 rounded-full ${a.dot}`} />
-                    {a.label}
-                  </div>
-                  <span className="rounded-full bg-amud-error-container px-2 py-1 text-label-sm text-amud-on-error-container">{a.count}</span>
-                </Link>
-              ))}
+              {alertes.length === 0 ? (
+                <p className="text-body-md text-amud-on-surface-variant">Aucune alerte pour le moment.</p>
+              ) : (
+                alertes.map((a) => (
+                  <Link
+                    key={a.id}
+                    href={a.href ?? '/amud/admin'}
+                    className="flex items-center justify-between rounded p-sm transition-colors hover:bg-amud-surface-container-low"
+                  >
+                    <div className="flex items-center gap-sm text-body-md text-amud-on-surface">
+                      <div className={`h-2 w-2 rounded-full ${a.read ? 'bg-amud-outline-variant' : 'bg-amud-secondary'}`} />
+                      {a.title}
+                    </div>
+                    <span className="rounded-full bg-amud-surface-container-highest px-2 py-1 text-label-sm text-amud-on-surface-variant">{a.category}</span>
+                  </Link>
+                ))
+              )}
             </div>
           </div>
         </div>

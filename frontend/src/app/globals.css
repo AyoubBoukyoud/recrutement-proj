@@ -4,6 +4,11 @@
    web-admin) : colonnes chiffrées des tableaux, où l'alignement des chiffres
    prime — c'est le `font-mono` du preset partagé. */
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&display=swap');
+/* Pairing DM Sans / Space Grotesk repris de la démo de référence
+   (ui-ux-pro-max-skill.nextlevelbuilder.io/demo/pet-grooming), appliqué
+   uniquement à la page d'accueil via `.home-font-pairing` — le reste du
+   produit garde Inter. */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -26,6 +31,21 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-tap-highlight-color: transparent;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Page d'accueil (`/`) uniquement : pairing DM Sans (texte courant) /
+   Space Grotesk (titres h1-h4) repris de la démo de référence. Ne pas
+   étendre à SiteHeader/SiteFooter ailleurs — la classe n'est posée que
+   par app/page.tsx. */
+.home-font-pairing {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.home-font-pairing h1,
+.home-font-pairing h2,
+.home-font-pairing h3,
+.home-font-pairing h4 {
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* Bague de focus commune à toute l'application. Les écrans candidat s'en
@@ -189,5 +209,35 @@ body {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
   }
+}
+
+/* Espaces Admin & Commercial (`/amud/admin`, `/amud/commercial`) — tous les
+   textes réduits de 8 %, à la demande produit. Porté par `.amud-ops-scale`
+   posée sur le conteneur racine d'AdminShell/CommercialShell : la
+   spécificité (deux classes) l'emporte sur les utilitaires Tailwind ciblés
+   sans `!important`, et n'affecte ni les icônes (.material-symbols-outlined)
+   ni les autres espaces `/amud/*` (marketing, employeur, candidat) qui
+   partagent la même échelle typographique. */
+.amud-ops-scale .text-xs { font-size: 0.69rem; line-height: 0.92rem; }
+.amud-ops-scale .text-sm { font-size: 0.805rem; line-height: 1.15rem; }
+.amud-ops-scale .text-base { font-size: 0.92rem; line-height: 1.38rem; }
+.amud-ops-scale .text-lg { font-size: 1.035rem; line-height: 1.61rem; }
+.amud-ops-scale .text-xl { font-size: 1.15rem; line-height: 1.61rem; }
+.amud-ops-scale .text-2xl { font-size: 1.38rem; line-height: 1.84rem; }
+.amud-ops-scale .text-3xl { font-size: 1.725rem; line-height: 2.07rem; }
+.amud-ops-scale .text-4xl { font-size: 2.07rem; line-height: 2.3rem; }
+
+.amud-ops-scale .text-display-lg { font-size: 44.16px; line-height: 51.52px; }
+.amud-ops-scale .text-headline-lg { font-size: 29.44px; line-height: 36.8px; }
+.amud-ops-scale .text-headline-lg-mobile { font-size: 25.76px; line-height: 33.12px; }
+.amud-ops-scale .text-headline-md { font-size: 22.08px; line-height: 29.44px; }
+.amud-ops-scale .text-title-lg { font-size: 18.4px; line-height: 25.76px; }
+.amud-ops-scale .text-body-lg { font-size: 16.56px; line-height: 25.76px; }
+.amud-ops-scale .text-body-md { font-size: 14.72px; line-height: 22.08px; }
+.amud-ops-scale .text-label-md { font-size: 12.88px; line-height: 18.4px; }
+.amud-ops-scale .text-label-sm { font-size: 11.04px; line-height: 14.72px; }
+
+@media (min-width: 768px) {
+  .amud-ops-scale .md\:text-headline-lg { font-size: 29.44px; line-height: 36.8px; }
 }
 

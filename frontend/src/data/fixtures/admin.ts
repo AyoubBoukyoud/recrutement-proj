@@ -4,8 +4,11 @@
  * attente, brouillon, et candidat décroché (engagement en retard).
  */
 import type {
+  AdminActivityEvent,
   AdminCandidateDetail,
   AdminCandidateRow,
+  AdminRecruiterDetail,
+  AdminRecruiterRow,
   AdminUser,
   Engagement,
   Metrics,
@@ -30,7 +33,10 @@ export const MOCK_ADMIN_CANDIDATES: AdminCandidateRow[] = [
   {
     id: 1,
     phone: '+212661234567',
+    email: 'youssef.amrani@example.ma',
     name: 'Youssef Amrani',
+    city: 'Casablanca',
+    account_status: 'active',
     availability_status: 'immediate',
     referred_by: 'Agent Nord',
     submitted_at: '2026-08-01T09:00:00Z',
@@ -39,11 +45,18 @@ export const MOCK_ADMIN_CANDIDATES: AdminCandidateRow[] = [
     checklist: { profile_completed: true, cv_uploaded: true, certificates_uploaded: true, video_recorded: true },
     documents_awaiting_approval: 0,
     engagement: engagement(),
+    top_skills: ['JavaScript', 'PHP', 'Docker'],
+    shortlists_count: 2,
+    interviews_count: 1,
+    placements_count: 0,
   },
   {
     id: 2,
     phone: '+212662345678',
+    email: 'salma.bennis@example.ma',
     name: 'Salma Bennis',
+    city: 'Rabat',
+    account_status: 'active',
     availability_status: 'within_1_month',
     referred_by: null,
     submitted_at: '2026-08-04T15:30:00Z',
@@ -52,11 +65,18 @@ export const MOCK_ADMIN_CANDIDATES: AdminCandidateRow[] = [
     checklist: { profile_completed: true, cv_uploaded: true, certificates_uploaded: true, video_recorded: false },
     documents_awaiting_approval: 2,
     engagement: engagement({ completion_rate: 60, overdue: 3, streak_days: 0, active_today: false }),
+    top_skills: ['Prise en charge patient', 'Hygiène HACCP'],
+    shortlists_count: 1,
+    interviews_count: 0,
+    placements_count: 0,
   },
   {
     id: 3,
     phone: '+212663456789',
+    email: 'karim.elfassi@example.ma',
     name: 'Karim El Fassi',
+    city: 'Tanger',
+    account_status: 'inactive',
     availability_status: 'within_2_months',
     referred_by: 'Agent Sud',
     submitted_at: '2026-08-06T10:15:00Z',
@@ -65,11 +85,18 @@ export const MOCK_ADMIN_CANDIDATES: AdminCandidateRow[] = [
     checklist: { profile_completed: true, cv_uploaded: true, certificates_uploaded: false, video_recorded: false },
     documents_awaiting_approval: 1,
     engagement: engagement({ assigned: 8, completed: 3, completion_rate: 38, overdue: 4 }),
+    top_skills: ['Soudure TIG'],
+    shortlists_count: 0,
+    interviews_count: 0,
+    placements_count: 0,
   },
   {
     id: 5,
     phone: '+212665678901',
+    email: null,
     name: 'Hamza Rachidi',
+    city: null,
+    account_status: 'blocked',
     availability_status: null,
     referred_by: null,
     // Jamais soumis : rien n'a encore été assigné, d'où un taux nul plutôt que zéro.
@@ -88,6 +115,10 @@ export const MOCK_ADMIN_CANDIDATES: AdminCandidateRow[] = [
       active_today: false,
       last_activity_on: null,
     }),
+    top_skills: [],
+    shortlists_count: 0,
+    interviews_count: 0,
+    placements_count: 0,
   },
 ]
 
@@ -104,6 +135,7 @@ export function mockAdminCandidateDetail(id: number): AdminCandidateDetail | nul
     profession: 'Développeur Full-Stack',
     specialization: 'React / Laravel',
     years_of_experience: 4,
+    city: row.city,
     date_of_birth: '1996-03-18',
     availability_status: row.availability_status,
     terms_consent_at: '2026-07-30T08:00:00Z',
@@ -113,7 +145,30 @@ export function mockAdminCandidateDetail(id: number): AdminCandidateDetail | nul
     verified_at: row.verified_at,
     admin_notes: row.verified_at ? 'Dossier complet, entretien planifié.' : null,
     verified_by: row.verified_at ? { id: 301, name: 'Administrateur', phone: '+212600000004' } : null,
-    user: { id: 100 + row.id, name: row.name, phone: row.phone, created_at: '2026-07-29T12:00:00Z' },
+    user: {
+      id: 100 + row.id,
+      name: row.name,
+      phone: row.phone,
+      email: row.email,
+      status: row.account_status,
+      status_reason: null,
+      created_at: '2026-07-29T12:00:00Z',
+    },
+    skills: row.top_skills.map((skill, i) => ({ id: i + 1, skill, level: 'intermediaire', years_of_experience: 2 })),
+    shortlist_entries:
+      row.shortlists_count > 0
+        ? [
+            {
+              id: row.id,
+              stage: row.interviews_count > 0 ? 'interviewing' : 'saved',
+              notes: null,
+              contact_revealed_at: null,
+              created_at: '2026-08-05T10:00:00Z',
+              updated_at: '2026-08-09T10:00:00Z',
+              user: { id: 201, name: 'TechGmbH Munich', phone: '+212600000003' },
+            },
+          ]
+        : [],
     educations: [
       {
         id: 1,
@@ -208,7 +263,29 @@ export function mockAdminCandidateDetail(id: number): AdminCandidateDetail | nul
 }
 
 export const MOCK_METRICS: Metrics = {
-  candidates: { total: 148, submitted: 96, verified: 61, discoverable: 58, drafts: 52, new_this_week: 14 },
+  candidates: {
+    total: 148,
+    submitted: 96,
+    verified: 61,
+    discoverable: 58,
+    drafts: 52,
+    new_this_week: 14,
+    active: 139,
+    profiles_complete: 61,
+    profiles_incomplete: 87,
+    in_shortlist: 34,
+    interviewing: 9,
+    placed: 4,
+  },
+  recruiters: {
+    total: 12,
+    active: 10,
+    pending_verification: 3,
+    verified: 9,
+    blocked: 1,
+    shortlisted_candidates: 34,
+    interviews_scheduled: 9,
+  },
   documents: {
     total: 312,
     awaiting_approval: 17,
@@ -227,6 +304,115 @@ export const MOCK_METRICS: Metrics = {
     candidates_with_assignments: 63,
   },
   growth: { users: 173, referred_registrations: 44, referred_this_week: 6 },
+}
+
+/**
+ * Ce produit n'a pas d'entité « offre d'emploi »/« candidature » : un
+ * recruteur est un `User` avec le rôle Spatie « Company » plus un
+ * `CompanyProfile`, et son pipeline est la sélection (RecruiterShortlist) —
+ * voir `AdminRecruiterController` côté backend. Ces maquettes reflètent
+ * cette même forme, pas une couche job-board inventée pour l'occasion.
+ */
+export const MOCK_ADMIN_RECRUITERS: AdminRecruiterRow[] = [
+  {
+    id: 201,
+    name: 'TechGmbH Munich',
+    phone: '+212600000003',
+    email: 'rh@techgmbh.de',
+    account_status: 'active',
+    company_name: 'TechGmbH Munich',
+    sector: 'IT',
+    city: 'Casablanca',
+    verified_at: '2026-08-05T09:00:00Z',
+    shortlists_count: 3,
+    interviewing_count: 1,
+    placed_count: 0,
+    last_activity_at: '2026-08-09T10:00:00Z',
+    created_at: '2026-06-14T09:00:00Z',
+  },
+  {
+    id: 202,
+    name: 'Klinik Nord GmbH',
+    phone: '+212600000006',
+    email: 'contact@kliniknord.de',
+    account_status: 'active',
+    company_name: 'Klinik Nord GmbH',
+    sector: 'Santé',
+    city: 'Rabat',
+    verified_at: null,
+    shortlists_count: 1,
+    interviewing_count: 0,
+    placed_count: 0,
+    last_activity_at: '2026-08-06T14:00:00Z',
+    created_at: '2026-07-01T09:00:00Z',
+  },
+  {
+    id: 203,
+    name: 'BauWerk AG',
+    phone: '+212600000007',
+    email: null,
+    account_status: 'blocked',
+    company_name: 'BauWerk AG',
+    sector: 'BTP',
+    city: 'Tanger',
+    verified_at: null,
+    shortlists_count: 0,
+    interviewing_count: 0,
+    placed_count: 0,
+    last_activity_at: null,
+    created_at: '2026-07-10T09:00:00Z',
+  },
+]
+
+export function mockAdminRecruiterDetail(id: number): AdminRecruiterDetail | null {
+  const row = MOCK_ADMIN_RECRUITERS.find((r) => r.id === id)
+  if (!row) return null
+
+  return {
+    id: row.id,
+    name: row.name,
+    phone: row.phone,
+    email: row.email,
+    status: row.account_status,
+    status_reason: null,
+    created_at: row.created_at,
+    company: {
+      id: row.id,
+      user_id: row.id,
+      company_name: row.company_name,
+      sector: row.sector,
+      city: row.city,
+      phone: row.phone,
+      website: null,
+      employees_count: 40,
+      verified_at: row.verified_at,
+      verified_by_id: row.verified_at ? 301 : null,
+      verified_by: row.verified_at ? { id: 301, name: 'Administrateur', phone: '+212600000004' } : null,
+    },
+    shortlist:
+      row.shortlists_count > 0
+        ? [
+            {
+              id: row.id,
+              stage: row.interviewing_count > 0 ? 'interviewing' : 'saved',
+              notes: null,
+              contact_revealed_at: null,
+              created_at: '2026-08-05T10:00:00Z',
+              updated_at: row.last_activity_at ?? '2026-08-05T10:00:00Z',
+              candidate_profile: { id: 1, first_name: 'Youssef', last_name: 'Amrani', profession: 'Développeur Full-Stack', city: 'Casablanca' },
+            },
+          ]
+        : [],
+  }
+}
+
+/** Un flux dérivé simplifié — le vrai backend le compose depuis plusieurs tables (voir App\Services\ActivityFeed). */
+export function mockAdminActivity(name: string): AdminActivityEvent[] {
+  return [
+    { at: '2026-08-09T10:00:00Z', type: 'shortlisted', label: `${name} a été ajouté à une sélection`, meta: {} },
+    { at: '2026-08-03T11:00:00Z', type: 'profile_verified', label: 'Profil vérifié par Administrateur', meta: {} },
+    { at: '2026-07-29T12:00:00Z', type: 'registration', label: 'Compte créé', meta: {} },
+  ]
 }
 
 export const MOCK_TASKS: Task[] = [

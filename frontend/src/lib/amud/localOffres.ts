@@ -1,27 +1,35 @@
 'use client';
 
+import { createCollection } from './storage/collection';
+import { AMUD_KEYS } from './storage/keys';
 import type { Offre } from '@/data/amud/offres';
 
-/** Persistance légère (localStorage) des offres ajoutées depuis la popup "Ajouter une offre". */
-const KEY = 'amud:offres:extra';
+/**
+ * Wrapper de compatibilité au-dessus de la collection centralisée
+ * `AMUD_KEYS.offers` — même remarque que `localEntreprises.ts` : renvoie
+ * désormais la collection entière (seed + ajouts + modifications), plus un
+ * delta d'"extras".
+ */
+const collection = createCollection<Offre>(AMUD_KEYS.offers);
 
 export function loadLocalOffres(): Offre[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const raw = window.localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as Offre[]) : [];
-  } catch {
-    return [];
-  }
+  return collection.getAll();
 }
 
 export function addLocalOffre(o: Offre) {
-  if (typeof window === 'undefined') return;
-  const current = loadLocalOffres();
-  window.localStorage.setItem(KEY, JSON.stringify([...current, o]));
+  collection.add(o);
 }
 
-export function saveLocalOffres(all: Offre[], seedIds: Set<string>) {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(KEY, JSON.stringify(all.filter((o) => !seedIds.has(o.id))));
+export function updateLocalOffre(id: string, patch: Partial<Offre>) {
+  return collection.update(id, patch);
 }
+
+export function removeLocalOffre(id: string) {
+  collection.remove(id);
+}
+
+export function saveLocalOffres(all: Offre[]) {
+  collection.replace(all);
+}
+
+export { collection as offresCollection };

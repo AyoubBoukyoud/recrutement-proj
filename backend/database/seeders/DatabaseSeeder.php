@@ -37,5 +37,10 @@ class DatabaseSeeder extends Seeder
             'phone' => '+212600000003',
         ]);
         $agent->assignRole('Commercial Agent');
+
+        // Dev/demo volume for the admin Candidats/Recruteurs screens — see
+        // DemoDataSeeder. Needs the admin above to already exist (it stamps
+        // verified_by_id), so it runs last.
+        $this->call(DemoDataSeeder::class);
     }
 }

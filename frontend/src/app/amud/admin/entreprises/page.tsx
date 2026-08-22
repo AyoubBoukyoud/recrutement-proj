@@ -1,11 +1,18 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Drawer, Modal } from '@/components/amud/ui';
+import { ConfirmDialog, Drawer, Modal } from '@/components/amud/ui';
 import { useToast } from '@/components/amud/Toast';
 import { STATUT_CLASS, entreprisesSeed, type Entreprise, type Statut } from '@/data/amud/entreprises';
-import { addLocalEntreprise, loadLocalEntreprises } from '@/lib/amud/localEntreprises';
+import { entreprisesCollection } from '@/lib/amud/localEntreprises';
+import { useCollection } from '@/lib/amud/storage/useCollection';
+import { generateId } from '@/lib/amud/storage/ids';
+import { logAudit } from '@/lib/amud/storage/audit';
+import { offresSeed } from '@/data/amud/offres';
+import { offresCollection } from '@/lib/amud/localOffres';
+import { applicationsSeed } from '@/data/amud/applications';
+import { applicationsCollection } from '@/lib/amud/localApplications';
 
 const PAGE_SIZE = 3;
 const SECTEURS = ['IT', 'BTP', 'Santé', 'Transport', 'Design'];
@@ -13,7 +20,19 @@ const SECTEURS = ['IT', 'BTP', 'Santé', 'Transport', 'Design'];
 export default function AmudAdminEntreprisesPage() {
   const notify = useToast();
   const searchParams = useSearchParams();
-  const [entreprises, setEntreprises] = useState<Entreprise[]>(entreprisesSeed);
+  const [entreprises, { add: addEntreprise, update: updateEntreprise, remove: removeEntreprise }] = useCollection(entreprisesCollection, entreprisesSeed);
+  const [offres] = useCollection(offresCollection, offresSeed);
+  const [applications] = useCollection(applicationsCollection, applicationsSeed);
+  const offresCount = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const o of offres) if (o.entrepriseId) map.set(o.entrepriseId, (map.get(o.entrepriseId) ?? 0) + 1);
+    return map;
+  }, [offres]);
+  const candidaturesCount = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const a of applications) map.set(a.entrepriseId, (map.get(a.entrepriseId) ?? 0) + 1);
+    return map;
+  }, [applications]);
   const [search, setSearch] = useState(() => searchParams.get('q') ?? '');
   const [ville, setVille] = useState('');
   const [secteur, setSecteur] = useState('');
@@ -21,17 +40,13 @@ export default function AmudAdminEntreprisesPage() {
   const [page, setPage] = useState(1);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [detail, setDetail] = useState<Entreprise | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const [addOpen, setAddOpen] = useState(false);
   const [nom, setNom] = useState('');
   const [addVille, setAddVille] = useState('');
   const [addSecteur, setAddSecteur] = useState(SECTEURS[0]);
   const [addStatut, setAddStatut] = useState<Statut>('En attente');
-
-  useEffect(() => {
-    const extra = loadLocalEntreprises();
-    if (extra.length) setEntreprises([...entreprisesSeed, ...extra]);
-  }, []);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -70,7 +85,7 @@ export default function AmudAdminEntreprisesPage() {
     e.preventDefault();
     if (!nom.trim()) return;
     const entreprise: Entreprise = {
-      id: `entreprise-${Date.now()}`,
+      id: generateId('entreprise'),
       nom: nom.trim(),
       icon: 'apartment',
       recruteurs: 0,
@@ -81,21 +96,34 @@ export default function AmudAdminEntreprisesPage() {
       statut: addStatut,
       derniereActivite: "Aujourd'hui",
     };
-    setEntreprises((prev) => [entreprise, ...prev]);
-    addLocalEntreprise(entreprise);
+    addEntreprise(entreprise);
+    logAudit({ utilisateur: 'Administrateur', role: 'Admin', action: 'Création entreprise', actionType: 'create', module: 'Entreprises', reference: `${entreprise.nom} (#${entreprise.id})` });
     notify(`« ${entreprise.nom} » ajoutée aux entreprises partenaires.`);
     setAddOpen(false);
     resetAddForm();
   }
 
   function toggleBloquee(id: string) {
-    setEntreprises((prev) => prev.map((e) => (e.id === id ? { ...e, statut: e.statut === 'Bloquée' ? 'Active' : 'Bloquée' } : e)));
+    const e = entreprises.find((x) => x.id === id);
+    if (!e) return;
+    const next = e.statut === 'Bloquée' ? 'Active' : 'Bloquée';
+    updateEntreprise(id, { statut: next });
+    logAudit({
+      utilisateur: 'Administrateur',
+      role: 'Admin',
+      action: next === 'Bloquée' ? 'Blocage entreprise' : 'Réactivation entreprise',
+      actionType: next === 'Bloquée' ? 'disable' : 'update',
+      module: 'Entreprises',
+      reference: `${e.nom} (#${e.id})`,
+    });
     setOpenMenu(null);
     notify('Statut mis à jour.');
   }
 
   function removeRow(id: string) {
-    setEntreprises((prev) => prev.filter((e) => e.id !== id));
+    const e = entreprises.find((x) => x.id === id);
+    removeEntreprise(id);
+    if (e) logAudit({ utilisateur: 'Administrateur', role: 'Admin', action: 'Suppression entreprise', actionType: 'delete', module: 'Entreprises', reference: `${e.nom} (#${e.id})` });
     setOpenMenu(null);
     notify('Entreprise supprimée.', 'info');
   }
@@ -212,8 +240,8 @@ export default function AmudAdminEntreprisesPage() {
                   </div>
                 </td>
                 <td className="px-6 py-4 text-center text-body-md text-amud-on-surface-variant">{e.recruteurs}</td>
-                <td className="px-6 py-4 text-center text-body-md text-amud-on-surface-variant">{e.offres}</td>
-                <td className="px-6 py-4 text-center text-body-md text-amud-on-surface-variant">{e.candidatures}</td>
+                <td className="px-6 py-4 text-center text-body-md text-amud-on-surface-variant">{offresCount.get(e.id) ?? 0}</td>
+                <td className="px-6 py-4 text-center text-body-md text-amud-on-surface-variant">{candidaturesCount.get(e.id) ?? 0}</td>
                 <td className="px-6 py-4">
                   <div className="flex flex-col">
                     <span className="text-body-md text-amud-on-surface">{e.ville}</span>
@@ -242,7 +270,13 @@ export default function AmudAdminEntreprisesPage() {
                       <button onClick={() => toggleBloquee(e.id)} className="block w-full px-4 py-2 text-left text-label-md text-amud-on-surface hover:bg-amud-surface-container-low">
                         {e.statut === 'Bloquée' ? 'Réactiver' : 'Suspendre'}
                       </button>
-                      <button onClick={() => removeRow(e.id)} className="block w-full px-4 py-2 text-left text-label-md text-amud-error hover:bg-amud-surface-container-low">
+                      <button
+                        onClick={() => {
+                          setConfirmDeleteId(e.id);
+                          setOpenMenu(null);
+                        }}
+                        className="block w-full px-4 py-2 text-left text-label-md text-amud-error hover:bg-amud-surface-container-low"
+                      >
                         Supprimer
                       </button>
                     </div>
@@ -351,6 +385,15 @@ export default function AmudAdminEntreprisesPage() {
         </form>
       </Modal>
 
+      <ConfirmDialog
+        open={!!confirmDeleteId}
+        onClose={() => setConfirmDeleteId(null)}
+        onConfirm={() => confirmDeleteId && removeRow(confirmDeleteId)}
+        title="Supprimer cette entreprise ?"
+        description="Cette action est irréversible. L'entreprise sera retirée de la liste des partenaires."
+        confirmLabel="Supprimer"
+      />
+
       <Drawer open={!!detail} onClose={() => setDetail(null)} title={detail?.nom ?? ''} subtitle={detail ? `${detail.secteur} · ${detail.ville}` : undefined}>
         {detail ? (
           <div className="space-y-lg">
@@ -360,11 +403,11 @@ export default function AmudAdminEntreprisesPage() {
                 <div className="text-label-sm text-amud-on-surface-variant">Recruteurs</div>
               </div>
               <div className="rounded-lg border border-amud-outline-variant bg-amud-surface-container-low p-md text-center">
-                <div className="text-headline-md text-amud-primary">{detail.offres}</div>
+                <div className="text-headline-md text-amud-primary">{offresCount.get(detail.id) ?? 0}</div>
                 <div className="text-label-sm text-amud-on-surface-variant">Offres actives</div>
               </div>
               <div className="rounded-lg border border-amud-outline-variant bg-amud-surface-container-low p-md text-center">
-                <div className="text-headline-md text-amud-primary">{detail.candidatures}</div>
+                <div className="text-headline-md text-amud-primary">{candidaturesCount.get(detail.id) ?? 0}</div>
                 <div className="text-label-sm text-amud-on-surface-variant">Candidatures</div>
               </div>
               <div className="rounded-lg border border-amud-outline-variant bg-amud-surface-container-low p-md text-center">

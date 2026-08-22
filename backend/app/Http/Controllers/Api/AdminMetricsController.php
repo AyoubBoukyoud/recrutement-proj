@@ -7,6 +7,7 @@ use App\Models\CandidateProfile;
 use App\Models\Complaint;
 use App\Models\Document;
 use App\Models\LanguageAssessment;
+use App\Models\RecruiterShortlist;
 use App\Models\ReferralRegistration;
 use App\Models\TaskAssignment;
 use App\Models\User;
@@ -27,6 +28,7 @@ class AdminMetricsController extends Controller
     {
         return response()->json([
             'candidates' => $this->candidates(),
+            'recruiters' => $this->recruiters(),
             'documents' => $this->documents(),
             'complaints' => $this->complaints(),
             'assessments' => $this->assessments(),
@@ -40,6 +42,12 @@ class AdminMetricsController extends Controller
     {
         $total = CandidateProfile::count();
         $submitted = CandidateProfile::whereNotNull('submitted_at')->count();
+        $complete = CandidateProfile::whereNotNull('first_name')->whereNotNull('last_name')
+            ->whereNotNull('date_of_birth')->whereNotNull('availability_status')
+            ->whereNotNull('terms_consent_at')->whereNotNull('cndp_consent_at')
+            ->whereHas('educations')
+            ->whereHas('languages', fn ($q) => $q->whereNotNull('cefr_level'))
+            ->count();
 
         return [
             'total' => $total,
@@ -50,6 +58,38 @@ class AdminMetricsController extends Controller
                 ->whereNotNull('cndp_consent_at')->count(),
             'drafts' => $total - $submitted,
             'new_this_week' => CandidateProfile::where('created_at', '>=', now()->subWeek())->count(),
+            'active' => CandidateProfile::whereHas('user', fn ($q) => $q->where('status', 'active'))->count(),
+            'profiles_complete' => $complete,
+            'profiles_incomplete' => $total - $complete,
+            // Both keyed off the same recruiter shortlist pipeline everyone
+            // else in this admin surface uses — see App\Services\ActivityFeed
+            // and the plan this feature was built from for why: there is no
+            // separate job-application/interview entity in this product.
+            'in_shortlist' => RecruiterShortlist::distinct('candidate_profile_id')->count('candidate_profile_id'),
+            'interviewing' => RecruiterShortlist::where('stage', 'interviewing')
+                ->distinct('candidate_profile_id')->count('candidate_profile_id'),
+            'placed' => RecruiterShortlist::where('stage', 'placed')
+                ->distinct('candidate_profile_id')->count('candidate_profile_id'),
+        ];
+    }
+
+    /** @return array<string, mixed> */
+    private function recruiters(): array
+    {
+        $recruiters = User::role('Company');
+
+        return [
+            'total' => (clone $recruiters)->count(),
+            'active' => (clone $recruiters)->where('status', 'active')->count(),
+            'pending_verification' => (clone $recruiters)
+                ->whereDoesntHave('companyProfile', fn ($q) => $q->whereNotNull('verified_at'))
+                ->count(),
+            'verified' => (clone $recruiters)
+                ->whereHas('companyProfile', fn ($q) => $q->whereNotNull('verified_at'))
+                ->count(),
+            'blocked' => (clone $recruiters)->where('status', 'blocked')->count(),
+            'shortlisted_candidates' => RecruiterShortlist::count(),
+            'interviews_scheduled' => RecruiterShortlist::where('stage', 'interviewing')->count(),
         ];
     }
 

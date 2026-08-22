@@ -1,9 +1,18 @@
 'use client';
 
-import { useState } from 'react';
-import { commerciaux } from '@/data/amud/commerciaux';
+import { useMemo, useState } from 'react';
+import { commerciaux as commerciauxSeed } from '@/data/amud/commerciaux';
+import { commerciauxCollection } from '@/lib/amud/localCommerciaux';
+import { objectivesSeed } from '@/data/amud/objectives';
+import { objectivesCollection } from '@/lib/amud/localObjectives';
+import { useCollection } from '@/lib/amud/storage/useCollection';
 import { useToast } from '@/components/amud/Toast';
 import { exportCsv } from '@/lib/amud/csv';
+
+function average(values: number[]): number {
+  if (values.length === 0) return 0;
+  return Math.round((values.reduce((s, v) => s + v, 0) / values.length) * 10) / 10;
+}
 
 function statutObjectif(pct: number) {
   if (pct > 100) return { label: 'Dépassé', cls: 'bg-amud-primary-container/10 text-amud-primary-container border-amud-primary-container/20' };
@@ -14,15 +23,17 @@ function statutObjectif(pct: number) {
 
 export default function AmudAdminObjectifsPage() {
   const notify = useToast();
+  const [commerciaux] = useCollection(commerciauxCollection, commerciauxSeed);
+  const [objectives, { update: updateObjective }] = useCollection(objectivesCollection, objectivesSeed);
   const [editing, setEditing] = useState(false);
-  const [appelsJour, setAppelsJour] = useState(60);
-  const [rdvSemaine, setRdvSemaine] = useState(15);
-  const [contactsMois, setContactsMois] = useState(120);
-  const [tauxConversion, setTauxConversion] = useState(8.5);
+  const [appelsJour, setAppelsJour] = useState(() => average(objectivesSeed.map((o) => o.appelsJour)));
+  const [rdvSemaine, setRdvSemaine] = useState(() => average(objectivesSeed.map((o) => o.rdvSemaine)));
+  const [contactsMois, setContactsMois] = useState(() => average(objectivesSeed.map((o) => o.contactsMois)));
+  const [tauxConversion, setTauxConversion] = useState(() => average(objectivesSeed.map((o) => o.tauxConversionCible)));
 
-  const objectifGlobal = 5000;
-  const realiseGlobal = 3850;
-  const progression = Math.round((realiseGlobal / objectifGlobal) * 100);
+  const objectifGlobal = commerciaux.reduce((s, c) => s + c.objectifMensuel, 0);
+  const realiseGlobal = commerciaux.reduce((s, c) => s + c.realiseMensuel, 0);
+  const progression = objectifGlobal > 0 ? Math.round((realiseGlobal / objectifGlobal) * 100) : 0;
   const atteints = commerciaux.filter((c) => c.realiseMensuel / c.objectifMensuel >= 1).length;
   const enRetard = commerciaux.filter((c) => c.realiseMensuel / c.objectifMensuel < 0.5).length;
 
@@ -122,7 +133,12 @@ export default function AmudAdminObjectifsPage() {
               </button>
             )}
             <button
-              onClick={() => notify('Objectifs assignés à toute l’équipe.')}
+              onClick={() => {
+                for (const o of objectives) {
+                  updateObjective(o.id, { appelsJour, rdvSemaine, contactsMois, tauxConversionCible: tauxConversion });
+                }
+                notify(`Objectifs assignés à ${objectives.length} commerciaux.`);
+              }}
               className="flex items-center gap-xs rounded-lg bg-amud-primary px-md py-sm text-label-md text-white shadow-sm transition-colors hover:bg-amud-primary/90"
             >
               <span className="material-symbols-outlined text-[18px]">person_add</span> Assigner

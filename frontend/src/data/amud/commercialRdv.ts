@@ -152,6 +152,9 @@ export function buildSeedRdvs(): Rdv[] {
   ];
 }
 
-export function getRdvsForEntreprise(entrepriseId: string, all: Rdv[]) {
+/** Snapshot statique (calculée une fois au chargement du module) pour le code qui n'a pas besoin du live localStorage — ex. la fiche entreprise, qui combine elle-même `rdvsSeed` + ses propres extras. */
+export const rdvsSeed: Rdv[] = buildSeedRdvs();
+
+export function getRdvsForEntreprise(entrepriseId: string, all: Rdv[] = rdvsSeed) {
   return all.filter((r) => r.entrepriseId === entrepriseId);
 }

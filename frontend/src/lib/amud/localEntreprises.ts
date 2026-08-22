@@ -1,27 +1,39 @@
 'use client';
 
+import { createCollection } from './storage/collection';
+import { AMUD_KEYS } from './storage/keys';
 import type { Entreprise } from '@/data/amud/entreprises';
 
-/** Persistance légère (localStorage) des entreprises ajoutées depuis la popup "Ajouter une entreprise". */
-const KEY = 'amud:entreprises:extra';
+/**
+ * Wrapper de compatibilité au-dessus de la collection centralisée
+ * `AMUD_KEYS.companies` (voir `lib/amud/storage/collection.ts`). Mêmes noms
+ * exportés que l'ancienne version "extras seuls", mais la sémantique change :
+ * `loadLocalEntreprises()` renvoie désormais la collection ENTIÈRE (le seed,
+ * écrit une fois par `initAmudDemoData`, plus tout ajout/modification), pas
+ * un delta — les pages consommatrices ne doivent donc plus préfixer
+ * `entreprisesSeed` elles-mêmes (ça a été corrigé dans cette même passe pour
+ * toutes les pages qui le faisaient).
+ */
+const collection = createCollection<Entreprise>(AMUD_KEYS.companies);
 
 export function loadLocalEntreprises(): Entreprise[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const raw = window.localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as Entreprise[]) : [];
-  } catch {
-    return [];
-  }
+  return collection.getAll();
 }
 
 export function addLocalEntreprise(e: Entreprise) {
-  if (typeof window === 'undefined') return;
-  const current = loadLocalEntreprises();
-  window.localStorage.setItem(KEY, JSON.stringify([...current, e]));
+  collection.add(e);
 }
 
-export function saveLocalEntreprises(all: Entreprise[], seedIds: Set<string>) {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(KEY, JSON.stringify(all.filter((e) => !seedIds.has(e.id))));
+export function updateLocalEntreprise(id: string, patch: Partial<Entreprise>) {
+  return collection.update(id, patch);
 }
+
+export function removeLocalEntreprise(id: string) {
+  collection.remove(id);
+}
+
+export function saveLocalEntreprises(all: Entreprise[]) {
+  collection.replace(all);
+}
+
+export { collection as entreprisesCollection };

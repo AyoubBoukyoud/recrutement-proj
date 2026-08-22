@@ -1,27 +1,22 @@
 'use client';
 
+import { createCollection } from './storage/collection';
+import { AMUD_KEYS } from './storage/keys';
 import type { Rdv } from '@/data/amud/commercialRdv';
 
 /**
- * Persistance légère (localStorage) de l'agenda commercial. Contrairement
- * aux autres modules `/amud` (qui ne persistent que les *ajouts*), l'agenda
- * doit aussi persister les modifications/reports/suppressions d'un
- * rendez-vous existant du seed — on stocke donc l'état complet de la liste
- * plutôt qu'un delta.
+ * Wrapper de compatibilité au-dessus de la collection centralisée
+ * `AMUD_KEYS.appointments`. `AMUD_KEYS.appointments` est seedé une fois par
+ * `initAmudDemoData()` avec `buildSeedRdvs()` — la collection contient donc
+ * toujours quelque chose après le montage, `loadLocalRendezVous()` ne
+ * renvoie plus `null`.
  */
-const KEY = 'amud:rendezvous:all';
+export const rendezVousCollection = createCollection<Rdv>(AMUD_KEYS.appointments);
 
-export function loadLocalRendezVous(): Rdv[] | null {
-  if (typeof window === 'undefined') return null;
-  try {
-    const raw = window.localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as Rdv[]) : null;
-  } catch {
-    return null;
-  }
+export function loadLocalRendezVous(): Rdv[] {
+  return rendezVousCollection.getAll();
 }
 
 export function saveLocalRendezVous(all: Rdv[]) {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(KEY, JSON.stringify(all));
+  rendezVousCollection.replace(all);
 }

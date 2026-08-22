@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'profession',
     'specialization',
     'years_of_experience',
+    'city',
     'date_of_birth',
     'availability_status',
     'terms_consent_at',
@@ -50,6 +51,11 @@ class CandidateProfile extends Model
     public function languages(): HasMany
     {
         return $this->hasMany(CandidateLanguage::class);
+    }
+
+    public function skills(): HasMany
+    {
+        return $this->hasMany(CandidateSkill::class);
     }
 
     public function documents(): HasMany

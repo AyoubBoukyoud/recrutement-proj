@@ -119,6 +119,7 @@ export const tachesSeed: Tache[] = [
   },
 ];
 
-export function getTachesForEntreprise(entrepriseId: string, extra: Tache[] = []) {
-  return [...tachesSeed, ...extra].filter((t) => t.entrepriseId === entrepriseId);
+/** `all` doit déjà être la collection complète (seed + ajouts) — voir `lib/amud/localCommercialTaches.ts`. */
+export function getTachesForEntreprise(entrepriseId: string, all: Tache[] = tachesSeed) {
+  return all.filter((t) => t.entrepriseId === entrepriseId);
 }

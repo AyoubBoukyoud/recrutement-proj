@@ -2,12 +2,18 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Tabs } from '@/components/amud/ui';
+import { useMemo, useState } from 'react';
+import { Modal, Tabs } from '@/components/amud/ui';
 import { useToast } from '@/components/amud/Toast';
 import { exportCsv } from '@/lib/amud/csv';
-import { STATUT_LABEL, type Commercial, getCommercial } from '@/data/amud/commerciaux';
-import { loadLocalCommerciaux } from '@/lib/amud/localCommerciaux';
+import { commerciaux as commerciauxSeed, STATUT_LABEL, type Commercial } from '@/data/amud/commerciaux';
+import { commerciauxCollection } from '@/lib/amud/localCommerciaux';
+import { useCollection } from '@/lib/amud/storage/useCollection';
+import { activitesSeed, TYPE_ICON, RESULTAT_CLASS, type Activite } from '@/data/amud/commercialActivites';
+import { activitesCollection } from '@/lib/amud/localCommercialActivites';
+import { logAudit } from '@/lib/amud/storage/audit';
+import { objectivesSeed, getObjectiveForCommercial } from '@/data/amud/objectives';
+import { objectivesCollection } from '@/lib/amud/localObjectives';
 
 const TABS = [
   { id: 'overview', label: "Vue d'ensemble" },
@@ -25,21 +31,17 @@ const TABS = [
 export default function AmudAdminCommercialProfilePage() {
   const notify = useToast();
   const params = useParams<{ id: string }>();
-  const [commercial, setCommercial] = useState<Commercial | null | undefined>(undefined);
+  const [commerciaux, { update: updateCommercial }] = useCollection(commerciauxCollection, commerciauxSeed);
+  const commercial = useMemo<Commercial | null>(() => commerciaux.find((x) => x.id === params.id) ?? null, [commerciaux, params.id]);
   const [tab, setTab] = useState('overview');
-  const [actif, setActif] = useState(true);
+  const [editOpen, setEditOpen] = useState(false);
 
-  useEffect(() => {
-    const fromSeed = getCommercial(params.id);
-    if (fromSeed) {
-      setCommercial(fromSeed);
-      return;
-    }
-    const fromLocal = loadLocalCommerciaux().find((c) => c.id === params.id);
-    setCommercial(fromLocal ?? null);
-  }, [params.id]);
-
-  if (commercial === undefined) return null;
+  const [allActivites] = useCollection(activitesCollection, activitesSeed);
+  const activites = useMemo(() => (commercial ? allActivites.filter((a) => a.commercialId === commercial.id) : []), [commercial, allActivites]);
+  const [objectives] = useCollection(objectivesCollection, objectivesSeed);
+  const objective = useMemo(() => (commercial ? getObjectiveForCommercial(commercial.id, objectives) : undefined), [commercial, objectives]);
+  const appels = useMemo(() => activites.filter((a) => a.type === 'Appel'), [activites]);
+  const rappels = useMemo(() => activites.filter((a) => a.type === 'Follow-up'), [activites]);
 
   if (commercial === null) {
     return (
@@ -55,9 +57,13 @@ export default function AmudAdminCommercialProfilePage() {
   }
 
   const c = commercial;
-  const pctAppels = Math.round((c.appelsJour / c.objectifAppelsJour) * 100);
-  const pctRdv = Math.round((c.rdvSemaine / c.objectifRdvSemaine) * 100);
-  const pctConv = Math.round((c.conversionsMois / c.objectifConversionsMois) * 100);
+  const actif = c.actif !== false;
+  const objectifAppelsJour = objective?.appelsJour ?? c.objectifAppelsJour;
+  const objectifRdvSemaine = objective?.rdvSemaine ?? c.objectifRdvSemaine;
+  const objectifConversionsMois = c.objectifConversionsMois;
+  const pctAppels = Math.round((c.appelsJour / objectifAppelsJour) * 100);
+  const pctRdv = Math.round((c.rdvSemaine / objectifRdvSemaine) * 100);
+  const pctConv = Math.round((c.conversionsMois / objectifConversionsMois) * 100);
 
   return (
     <div className="mx-auto max-w-[1200px]">
@@ -102,14 +108,22 @@ export default function AmudAdminCommercialProfilePage() {
           </div>
           <div className="flex flex-wrap gap-sm">
             <button
-              onClick={() => notify('Ouverture du formulaire de modification (à venir).', 'info')}
+              onClick={() => setEditOpen(true)}
               className="flex items-center gap-xs rounded-lg bg-amud-primary px-md py-sm text-label-md text-white transition-opacity hover:opacity-90"
             >
               <span className="material-symbols-outlined text-sm">edit</span> Modifier
             </button>
             <button
               onClick={() => {
-                setActif((v) => !v);
+                updateCommercial(c.id, { actif: !actif });
+                logAudit({
+                  utilisateur: 'Administrateur',
+                  role: 'Admin',
+                  action: actif ? 'Désactivation de commercial' : 'Réactivation de commercial',
+                  actionType: actif ? 'disable' : 'update',
+                  module: 'Commerciaux',
+                  reference: `${c.prenom} ${c.nom} (#${c.id})`,
+                });
                 notify(actif ? `${c.prenom} ${c.nom} a été désactivé.` : `${c.prenom} ${c.nom} a été réactivé.`);
               }}
               className="flex items-center gap-xs rounded-lg border border-amud-outline-variant px-md py-sm text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low"
@@ -141,7 +155,12 @@ export default function AmudAdminCommercialProfilePage() {
         <Tabs tabs={TABS} active={tab} onChange={setTab} />
       </div>
 
-      {tab !== 'overview' ? (
+      {tab === 'activites' || tab === 'appels' || tab === 'rappels' ? (
+        <ActiviteList
+          activites={tab === 'activites' ? activites : tab === 'appels' ? appels : rappels}
+          emptyText={tab === 'activites' ? 'Aucune activité enregistrée.' : tab === 'appels' ? 'Aucun appel enregistré.' : 'Aucun follow-up enregistré.'}
+        />
+      ) : tab !== 'overview' ? (
         <div className="rounded-xl border border-amud-outline-variant/30 bg-amud-surface-container-lowest p-xl text-center text-amud-on-surface-variant">
           Cet onglet n&apos;est pas encore disponible dans cette version.
         </div>
@@ -199,13 +218,26 @@ export default function AmudAdminCommercialProfilePage() {
                 <h3 className="text-title-lg text-amud-on-surface">Atteinte des objectifs</h3>
                 <span className="material-symbols-outlined text-3xl text-amud-primary opacity-20">analytics</span>
               </div>
-              <ObjectifBar label="Quotidien (Appels)" value={c.appelsJour} target={c.objectifAppelsJour} pct={pctAppels} color="bg-amud-primary" />
-              <ObjectifBar label="Hebdomadaire (RDV)" value={c.rdvSemaine} target={c.objectifRdvSemaine} pct={pctRdv} color="bg-amud-tertiary-fixed-dim" />
-              <ObjectifBar label="Mensuel (Conversions)" value={c.conversionsMois} target={c.objectifConversionsMois} pct={pctConv} color="bg-amud-primary" last />
+              <ObjectifBar label="Quotidien (Appels)" value={c.appelsJour} target={objectifAppelsJour} pct={pctAppels} color="bg-amud-primary" />
+              <ObjectifBar label="Hebdomadaire (RDV)" value={c.rdvSemaine} target={objectifRdvSemaine} pct={pctRdv} color="bg-amud-tertiary-fixed-dim" />
+              <ObjectifBar label="Mensuel (Conversions)" value={c.conversionsMois} target={objectifConversionsMois} pct={pctConv} color="bg-amud-primary" last />
             </div>
           </div>
         </div>
       )}
+
+      <Modal open={editOpen} onClose={() => setEditOpen(false)} title="Modifier le commercial">
+        <EditCommercialForm
+          commercial={c}
+          onSubmit={(patch) => {
+            updateCommercial(c.id, patch);
+            logAudit({ utilisateur: 'Administrateur', role: 'Admin', action: 'Modification de commercial', actionType: 'update', module: 'Commerciaux', reference: `${c.prenom} ${c.nom} (#${c.id})` });
+            notify('Profil mis à jour.');
+            setEditOpen(false);
+          }}
+          onCancel={() => setEditOpen(false)}
+        />
+      </Modal>
     </div>
   );
 }
@@ -219,6 +251,99 @@ function KpiCard({ icon, value, label, accent }: { icon: string; value: string |
         <div className="text-label-sm text-amud-on-surface-variant">{label}</div>
       </div>
     </div>
+  );
+}
+
+function ActiviteList({ activites, emptyText }: { activites: Activite[]; emptyText: string }) {
+  if (activites.length === 0) {
+    return (
+      <div className="rounded-xl border border-amud-outline-variant/30 bg-amud-surface-container-lowest p-xl text-center text-amud-on-surface-variant">
+        {emptyText}
+      </div>
+    );
+  }
+  return (
+    <div className="rounded-xl border border-amud-outline-variant/30 bg-amud-surface-container-lowest p-lg">
+      <div className="relative ml-sm space-y-6 border-l border-amud-outline-variant">
+        {activites.map((a) => (
+          <div key={a.id} className="relative border-b border-amud-outline-variant/30 pb-md pl-lg last:border-0">
+            <div className="absolute left-[-6.5px] top-1 h-3 w-3 rounded-full bg-amud-primary ring-4 ring-amud-surface-container-lowest" />
+            <div className="mb-xs flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-xs text-label-md font-bold text-amud-on-surface">
+                <span className="material-symbols-outlined text-sm text-amud-primary">{TYPE_ICON[a.type]}</span> {a.type}
+                <span className="font-normal text-amud-on-surface-variant">· {a.entrepriseNom}</span>
+              </div>
+              <div className="text-label-sm text-amud-outline">
+                {a.date}, {a.heureDebut}
+              </div>
+            </div>
+            <div className="text-body-md text-amud-on-surface-variant">{a.resume}</div>
+            <span className={`mt-1 inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${RESULTAT_CLASS[a.resultat]}`}>{a.resultat}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function EditCommercialForm({
+  commercial,
+  onSubmit,
+  onCancel,
+}: {
+  commercial: Commercial;
+  onSubmit: (patch: Partial<Commercial>) => void;
+  onCancel: () => void;
+}) {
+  const [prenom, setPrenom] = useState(commercial.prenom);
+  const [nom, setNom] = useState(commercial.nom);
+  const [fonction, setFonction] = useState(commercial.fonction);
+  const [ville, setVille] = useState(commercial.ville);
+  const [email, setEmail] = useState(commercial.email);
+  const [telephone, setTelephone] = useState(commercial.telephone);
+
+  return (
+    <form
+      onSubmit={(ev) => {
+        ev.preventDefault();
+        if (!prenom.trim() || !nom.trim()) return;
+        onSubmit({ prenom: prenom.trim(), nom: nom.trim(), fonction: fonction.trim(), ville: ville.trim(), email: email.trim(), telephone: telephone.trim() });
+      }}
+      className="grid grid-cols-1 gap-md sm:grid-cols-2"
+    >
+      <div>
+        <label className="mb-1 block text-label-md text-amud-on-surface-variant">Prénom</label>
+        <input value={prenom} onChange={(e) => setPrenom(e.target.value)} required className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary" />
+      </div>
+      <div>
+        <label className="mb-1 block text-label-md text-amud-on-surface-variant">Nom</label>
+        <input value={nom} onChange={(e) => setNom(e.target.value)} required className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary" />
+      </div>
+      <div>
+        <label className="mb-1 block text-label-md text-amud-on-surface-variant">Fonction</label>
+        <input value={fonction} onChange={(e) => setFonction(e.target.value)} className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary" />
+      </div>
+      <div>
+        <label className="mb-1 block text-label-md text-amud-on-surface-variant">Ville</label>
+        <input value={ville} onChange={(e) => setVille(e.target.value)} className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary" />
+      </div>
+      <div>
+        <label className="mb-1 block text-label-md text-amud-on-surface-variant">Email</label>
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary" />
+      </div>
+      <div>
+        <label className="mb-1 block text-label-md text-amud-on-surface-variant">Téléphone</label>
+        <input value={telephone} onChange={(e) => setTelephone(e.target.value)} className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary" />
+      </div>
+      <div className="flex justify-end gap-sm sm:col-span-2">
+        <button type="button" onClick={onCancel} className="rounded-lg border border-amud-outline-variant px-lg py-2 text-label-md text-amud-on-surface hover:bg-amud-surface-container-low">
+          Annuler
+        </button>
+        <button type="submit" className="rounded-lg bg-amud-primary px-lg py-2 text-label-md font-medium text-white hover:bg-amud-primary-dark">
+          Enregistrer
+        </button>
+      </div>
+    </form>
   );
 }
 

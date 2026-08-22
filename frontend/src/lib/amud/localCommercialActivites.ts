@@ -1,29 +1,25 @@
 'use client';
 
+import { createCollection } from './storage/collection';
+import { AMUD_KEYS } from './storage/keys';
 import type { Activite } from '@/data/amud/commercialActivites';
 
 /**
- * Persistance légère (localStorage) des activités créées depuis les pages
- * `/amud/commercial/*` (fiche entreprise, page Activités). Même pattern que
- * `localEntreprises.ts` / `localOffres.ts` : c'est ce qui permet à une
- * activité créée sur la fiche entreprise ("Ajouter une activité", "Appeler")
- * d'apparaître aussi sur la page centrale Activités sans dupliquer les
- * données — une seule source, mergée au montage de chaque page.
+ * Wrapper de compatibilité au-dessus de la collection centralisée
+ * `AMUD_KEYS.activities`. Ajoute `updateLocalActivite`, qui n'existait pas
+ * avant — c'est ce qui corrige le bug où l'édition d'une activité existante
+ * sur la page centrale Activités ne persistait pas (seulement `setState`).
  */
-const KEY = 'amud:commercial:activites:extra';
+export const activitesCollection = createCollection<Activite>(AMUD_KEYS.activities);
 
 export function loadLocalActivites(): Activite[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const raw = window.localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as Activite[]) : [];
-  } catch {
-    return [];
-  }
+  return activitesCollection.getAll();
 }
 
 export function addLocalActivite(a: Activite) {
-  if (typeof window === 'undefined') return;
-  const current = loadLocalActivites();
-  window.localStorage.setItem(KEY, JSON.stringify([a, ...current]));
+  activitesCollection.add(a);
+}
+
+export function updateLocalActivite(id: string, patch: Partial<Activite>) {
+  return activitesCollection.update(id, patch);
 }
