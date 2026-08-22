@@ -28,7 +28,7 @@ class LanguageAssessmentController extends Controller
         ]);
 
         $profile = CandidateProfileResolver::resolve($request->user());
-        $path = $request->file('audio')->store('assessments', 'public');
+        $path = $request->file('audio')->store('assessments', 'local');
 
         $assessment = $profile->languageAssessments()->create([
             'language' => $data['language'],

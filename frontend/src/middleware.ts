@@ -9,9 +9,7 @@ import { NextResponse, type NextRequest } from 'next/server';
  */
 const CANDIDATE_PATHS = [
   '/dashboard',
-  '/cours-allemand',
   '/matching-preferences',
-  '/simulateur-salaire',
   '/documents',
   '/video',
   '/test-langue',
@@ -27,6 +25,18 @@ const CANDIDATE_PATHS = [
   '/parrainage',
   '/verification-identite',
 ];
+
+/**
+ * Duplicate Stitch-template pages, superseded by a functional rewrite. The
+ * page component's own `redirect()` only produces a client-side RSC hint
+ * here (this route group's layout is a client component), not a real HTTP
+ * redirect — middleware is what actually sends the 307, and it can do so
+ * before the auth gate below even runs.
+ */
+const LEGACY_REDIRECTS: Record<string, string> = {
+  '/simulateur-salaire': '/salaire',
+  '/cours-allemand': '/lecon-jour',
+};
 
 function isCandidatePath(pathname: string) {
   return CANDIDATE_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
@@ -54,6 +64,10 @@ function redirectTo(request: NextRequest, targetPathname: string) {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const role = request.cookies.get('as_role')?.value;
+
+  if (pathname in LEGACY_REDIRECTS) {
+    return redirectTo(request, LEGACY_REDIRECTS[pathname]);
+  }
 
   // Routes candidat : nécessite une session candidat.
   if (isCandidatePath(pathname)) {
@@ -97,10 +111,10 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/dashboard/:path*',
-    '/cours-allemand/:path*',
-    '/matching-preferences/:path*',
     '/simulateur-salaire/:path*',
+    '/cours-allemand/:path*',
+    '/dashboard/:path*',
+    '/matching-preferences/:path*',
     '/documents/:path*',
     '/video/:path*',
     '/test-langue/:path*',

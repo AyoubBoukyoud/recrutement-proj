@@ -40,7 +40,7 @@ class ProcessLanguageAssessment implements ShouldQueue
 
         $assessment->update(['status' => 'processing', 'failure_reason' => null]);
 
-        $absolutePath = Storage::disk('public')->path($assessment->audio_path);
+        $absolutePath = Storage::disk('local')->path($assessment->audio_path);
 
         // The language being tested is known, so Whisper is told rather than
         // left to guess — auto-detect misfires on short, accented clips.

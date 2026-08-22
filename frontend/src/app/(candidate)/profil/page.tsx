@@ -6,55 +6,103 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button, IconButton } from '@/components/shared/Button';
 import { useRouter } from 'next/navigation';
-import { useProfile } from '@/context/ProfileContext';
 import { useAuth } from '@/context/AuthContext';
+import { useCandidateProfile, useInvalidateCandidateProfile } from '@/lib/useCandidateProfile';
+import { candidateProfileRepository } from '@/data/candidateProfile';
+import { getProfileTimeline, LANGUAGE_LABELS, AVAILABILITY_LABELS, type TimelineMilestone } from '@/lib/candidateProfile';
+import { documentsRepository } from '@/data/documents';
+import { toLocalEntry, fileNameOf, type CandidateDocument } from '@/lib/documents';
 import { CEFRGauge } from '@/components/shared/CEFRGauge';
 import { DocumentViewer } from '@/components/shared/DocumentViewer';
 import { VideoPlayer } from '@/components/shared/VideoPlayer';
 import { QRCodeGenerator } from '@/components/shared/QRCodeGenerator';
 import { Timeline } from '@/components/shared/Timeline';
 import { SkeletonLoader } from '@/components/shared/SkeletonLoader';
-import { candidateRepository } from '@/data/candidate';
 import type { TimelineStep } from '@/lib/types';
+
+/** Le premier jalon sans date est « en cours » ; tout ce qui suit est « à venir ». */
+function toTimelineSteps(milestones: TimelineMilestone[]): TimelineStep[] {
+  const firstUnreachedIndex = milestones.findIndex((m) => !m.completed_at);
+
+  return milestones.map((m, index) => ({
+    id: m.key,
+    label: m.label,
+    description: '',
+    date: m.completed_at,
+    status:
+      m.completed_at != null
+        ? 'termine'
+        : index === firstUnreachedIndex
+        ? 'en_cours'
+        : 'a_venir',
+  }));
+}
 
 export default function ProfilPage() {
   const router = useRouter();
+  const { token, logout } = useAuth();
+  const { data: profile, isLoading } = useCandidateProfile();
+  const invalidateProfile = useInvalidateCandidateProfile();
+
   const [timeline, setTimeline] = useState<TimelineStep[]>([]);
+  const [documents, setDocuments] = useState<CandidateDocument[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showQr, setShowQr] = useState(false);
+  const [form, setForm] = useState({ profession: '', specialization: '' });
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
+    if (!token) return;
     let cancelled = false;
-    candidateRepository
-      .timeline()
-      .then((steps) => {
-        if (!cancelled) setTimeline(steps);
+
+    getProfileTimeline(token)
+      .then((milestones) => {
+        if (!cancelled) setTimeline(toTimelineSteps(milestones));
       })
       .catch(() => {
-        // Le parcours est une section secondaire du profil : s'il manque, le
-        // reste de la page reste utile. Le squelette laisse simplement place
-        // à rien plutôt que de faire échouer l'écran entier.
         if (!cancelled) setTimeline([]);
       });
+
+    documentsRepository
+      .list(token)
+      .then((docs) => {
+        if (!cancelled) setDocuments(docs);
+      })
+      .catch(() => {
+        if (!cancelled) setDocuments([]);
+      });
+
     return () => {
       cancelled = true;
     };
-  }, []);
-  const { logout } = useAuth();
-  const { profile, updateProfile } = useProfile();
-  const [isEditing, setIsEditing] = useState(false);
-  const [showQr, setShowQr] = useState(false);
-  const [form, setForm] = useState({ jobTitle: profile.jobTitle, city: profile.city });
+  }, [token]);
+
+  useEffect(() => {
+    if (profile) setForm({ profession: profile.profession ?? '', specialization: profile.specialization ?? '' });
+  }, [profile]);
 
   const handleLogout = () => {
     logout();
     router.replace('/auth-phone');
   };
 
-  const handleSave = () => {
-    updateProfile(form);
-    setIsEditing(false);
+  const handleSave = async () => {
+    if (!token) return;
+    setIsSaving(true);
+    try {
+      await candidateProfileRepository.update(
+        { profession: form.profession || null, specialization: form.specialization || null },
+        token
+      );
+      await invalidateProfile();
+      setIsEditing(false);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const shareUrl = `https://amudskills.app/p/${profile.avatarInitials || 'candidat'}`;
+  const avatarInitials = `${profile?.first_name?.[0] ?? ''}${profile?.last_name?.[0] ?? ''}`.toUpperCase();
+  const shareUrl = `https://amudskills.app/p/${avatarInitials || 'candidat'}`;
 
   return (
     <div className="min-h-screen bg-surface pb-32">
@@ -68,25 +116,26 @@ export default function ProfilPage() {
         </IconButton>
       </header>
 
+      {isLoading ? (
+        <main className="mx-auto max-w-xl px-6 pt-6"><p className="helper-text">Chargement…</p></main>
+      ) : (
       <main className="mx-auto max-w-xl space-y-6 px-6 pt-6 lg:max-w-6xl lg:px-10 lg:pt-8">
         <div className="space-y-6 lg:grid lg:grid-cols-5 lg:items-start lg:gap-8 lg:space-y-0">
           <div className="space-y-6 lg:col-span-2">
             <section className="flex flex-col items-center gap-3 text-center">
               <div className="relative">
                 <div className="flex h-32 w-32 items-center justify-center rounded-full border-4 border-surface-lowest bg-primary-light text-4xl font-bold text-primary shadow-lg">
-                  {profile.avatarInitials || '?'}
+                  {avatarInitials || '?'}
                 </div>
                 <div className="absolute bottom-1 right-1 h-7 w-7 rounded-full border-4 border-surface-lowest bg-primary" />
               </div>
               <div className="space-y-1">
-                <h2 className="text-3xl font-extrabold tracking-tight text-primary">{profile.firstName || 'Candidat'}</h2>
-                <div className="flex items-center justify-center gap-1 text-onSurface-variant">
-                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>location_on</span>
-                  <span className="text-sm font-medium">{profile.city || 'Maroc'}</span>
-                </div>
-                <div className="mt-2 inline-flex items-center rounded-full bg-primary-light px-3 py-1 text-xs font-bold uppercase tracking-wider text-onPrimary-container">
-                  {profile.noticePeriodWeeks === 0 ? 'Immédiat' : `Sous ${profile.noticePeriodWeeks} semaines`}
-                </div>
+                <h2 className="text-3xl font-extrabold tracking-tight text-primary">{profile?.first_name || 'Candidat'}</h2>
+                {profile?.availability_status && (
+                  <div className="mt-2 inline-flex items-center rounded-full bg-primary-light px-3 py-1 text-xs font-bold uppercase tracking-wider text-onPrimary-container">
+                    {AVAILABILITY_LABELS[profile.availability_status]}
+                  </div>
+                )}
               </div>
             </section>
 
@@ -96,33 +145,37 @@ export default function ProfilPage() {
               </div>
               {isEditing ? (
                 <div className="flex-1 space-y-2">
-                  <label htmlFor="profil-job-title" className="sr-only">Métier</label>
+                  <label htmlFor="profil-profession" className="sr-only">Secteur</label>
                   <input
-                    id="profil-job-title"
-                    value={form.jobTitle}
-                    onChange={(e) => setForm((p) => ({ ...p, jobTitle: e.target.value }))}
-                    placeholder="Métier"
+                    id="profil-profession"
+                    value={form.profession}
+                    onChange={(e) => setForm((p) => ({ ...p, profession: e.target.value }))}
+                    placeholder="Secteur"
                     className="w-full rounded-lg border border-outline px-3 py-2 text-sm outline-none focus:border-primary"
                   />
-                  <label htmlFor="profil-city" className="sr-only">Ville</label>
+                  <label htmlFor="profil-specialization" className="sr-only">Spécialisation</label>
                   <input
-                    id="profil-city"
-                    value={form.city}
-                    onChange={(e) => setForm((p) => ({ ...p, city: e.target.value }))}
-                    placeholder="Ville"
+                    id="profil-specialization"
+                    value={form.specialization}
+                    onChange={(e) => setForm((p) => ({ ...p, specialization: e.target.value }))}
+                    placeholder="Spécialisation"
                     className="w-full rounded-lg border border-outline px-3 py-2 text-sm outline-none focus:border-primary"
                   />
                 </div>
               ) : (
                 <div className="flex-1">
-                  <h3 className="text-lg font-bold text-primary">{profile.jobTitle || 'Métier non renseigné'}</h3>
-                  <p className="text-sm text-onSurface-variant">{profile.sector || '—'} · {profile.yearsExperience} ans d&apos;expérience</p>
+                  <h3 className="text-lg font-bold text-primary">{profile?.specialization || 'Spécialisation non renseignée'}</h3>
+                  <p className="text-sm text-onSurface-variant">
+                    {profile?.profession || '—'}
+                    {profile?.years_of_experience != null ? ` · ${profile.years_of_experience} ans d'expérience` : ''}
+                  </p>
                 </div>
               )}
               <Button
                 variant="link"
                 size="sm"
-                onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
+                onClick={() => (isEditing ? void handleSave() : setIsEditing(true))}
+                disabled={isSaving}
                 className="shrink-0 gap-1 font-semibold"
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 14 }}>{isEditing ? 'check' : 'edit'}</span>
@@ -134,7 +187,7 @@ export default function ProfilPage() {
           <div className="space-y-6 lg:col-span-3">
         <section className="space-y-3">
           <h3 className="px-1 text-lg font-bold text-primary">Langues</h3>
-          {profile.languages.length === 0 ? (
+          {!profile || profile.languages.length === 0 ? (
             <p className="rounded-xl bg-surface-container p-4 text-center text-sm text-onSurface-variant">
               Aucune langue renseignée.
             </p>
@@ -146,14 +199,14 @@ export default function ProfilPage() {
                   className="min-w-[220px] space-y-3 rounded-xl border border-outline-variant/30 bg-surface-lowest p-4 shadow-soft"
                 >
                   <div className="flex items-start justify-between">
-                    <span className="text-lg font-bold text-primary">{lang.language}</span>
-                    {lang.level && (
+                    <span className="text-lg font-bold text-primary">{LANGUAGE_LABELS[lang.language]}</span>
+                    {lang.cefr_level && (
                       <span className="rounded bg-primary-light px-2 py-0.5 text-xs font-bold text-onPrimary-container">
-                        {lang.level}
+                        {lang.cefr_level}
                       </span>
                     )}
                   </div>
-                  <CEFRGauge level={lang.level} />
+                  <CEFRGauge level={lang.cefr_level} />
                 </div>
               ))}
             </div>
@@ -161,13 +214,8 @@ export default function ProfilPage() {
         </section>
 
         <section className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <h3 className="text-lg font-bold text-primary">Ma présentation</h3>
-            {profile.testLangueScore !== null && (
-              <span className="text-sm font-bold text-primary">Score IA : {profile.testLangueScore}</span>
-            )}
-          </div>
-          <VideoPlayer src={profile.videoUrl} />
+          <h3 className="px-1 text-lg font-bold text-primary">Ma présentation</h3>
+          <VideoPlayer src={profile?.video_url ?? null} />
         </section>
 
         <section className="space-y-3">
@@ -184,122 +232,45 @@ export default function ProfilPage() {
         <section className="space-y-3">
           <h3 className="px-1 text-lg font-bold text-primary">Outils & Certifications</h3>
           <div className="grid grid-cols-1 gap-2.5">
-            <Link
-              href="/visibilite"
-              className="flex items-center justify-between rounded-pillar border border-outline-variant bg-surface-container-lowest p-3.5 shadow-subtle hover:bg-surface-container-low transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary" style={{ fontSize: 20 }}>
-                  insights
+            {[
+              { href: '/visibilite', icon: 'insights', label: 'Score de visibilité candidat' },
+              { href: '/verification-identite', icon: 'verified_user', label: "Vérification d'identité" },
+              { href: '/parrainage', icon: 'group_add', label: 'Programme de Parrainage' },
+              { href: '/matching-preferences', icon: 'tune', label: 'Préférences de matching' },
+              { href: '/salaire', icon: 'payments', label: 'Simuler mon salaire' },
+              { href: '/quiz-metier', icon: 'quiz', label: 'Quiz métier' },
+              { href: '/lecon-jour', icon: 'translate', label: 'Allemand du quotidien' },
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex items-center justify-between rounded-pillar border border-outline-variant bg-surface-container-lowest p-3.5 shadow-subtle hover:bg-surface-container-low transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-primary" style={{ fontSize: 20 }}>
+                    {item.icon}
+                  </span>
+                  <span className="text-xs font-bold text-onSurface">{item.label}</span>
+                </div>
+                <span className="material-symbols-outlined text-outline" style={{ fontSize: 18 }}>
+                  chevron_right
                 </span>
-                <span className="text-xs font-bold text-onSurface">Score de visibilité candidat</span>
-              </div>
-              <span className="material-symbols-outlined text-outline" style={{ fontSize: 18 }}>
-                chevron_right
-              </span>
-            </Link>
-
-            <Link
-              href="/verification-identite"
-              className="flex items-center justify-between rounded-pillar border border-outline-variant bg-surface-container-lowest p-3.5 shadow-subtle hover:bg-surface-container-low transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary" style={{ fontSize: 20 }}>
-                  verified_user
-                </span>
-                <span className="text-xs font-bold text-onSurface">Vérification d&apos;identité (Passeport)</span>
-              </div>
-              <span className="material-symbols-outlined text-outline" style={{ fontSize: 18 }}>
-                chevron_right
-              </span>
-            </Link>
-
-            <Link
-              href="/parrainage"
-              className="flex items-center justify-between rounded-pillar border border-outline-variant bg-surface-container-lowest p-3.5 shadow-subtle hover:bg-surface-container-low transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary" style={{ fontSize: 20 }}>
-                  group_add
-                </span>
-                <span className="text-xs font-bold text-onSurface">Programme de Parrainage</span>
-              </div>
-              <span className="material-symbols-outlined text-outline" style={{ fontSize: 18 }}>
-                chevron_right
-              </span>
-            </Link>
-
-            <Link
-              href="/matching-preferences"
-              className="flex items-center justify-between rounded-pillar border border-outline-variant bg-surface-container-lowest p-3.5 shadow-subtle hover:bg-surface-container-low transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary" style={{ fontSize: 20 }}>
-                  tune
-                </span>
-                <span className="text-xs font-bold text-onSurface">Préférences de matching</span>
-              </div>
-              <span className="material-symbols-outlined text-outline" style={{ fontSize: 18 }}>
-                chevron_right
-              </span>
-            </Link>
-
-            <Link
-              href="/salaire"
-              className="flex items-center justify-between rounded-pillar border border-outline-variant bg-surface-container-lowest p-3.5 shadow-subtle hover:bg-surface-container-low transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary" style={{ fontSize: 20 }}>
-                  payments
-                </span>
-                <span className="text-xs font-bold text-onSurface">Simuler mon salaire</span>
-              </div>
-              <span className="material-symbols-outlined text-outline" style={{ fontSize: 18 }}>
-                chevron_right
-              </span>
-            </Link>
-
-            <Link
-              href="/quiz-metier"
-              className="flex items-center justify-between rounded-pillar border border-outline-variant bg-surface-container-lowest p-3.5 shadow-subtle hover:bg-surface-container-low transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary" style={{ fontSize: 20 }}>
-                  quiz
-                </span>
-                <span className="text-xs font-bold text-onSurface">Quiz métier</span>
-              </div>
-              <span className="material-symbols-outlined text-outline" style={{ fontSize: 18 }}>
-                chevron_right
-              </span>
-            </Link>
-
-            <Link
-              href="/lecon-jour"
-              className="flex items-center justify-between rounded-pillar border border-outline-variant bg-surface-container-lowest p-3.5 shadow-subtle hover:bg-surface-container-low transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary" style={{ fontSize: 20 }}>
-                  translate
-                </span>
-                <span className="text-xs font-bold text-onSurface">Allemand du quotidien</span>
-              </div>
-              <span className="material-symbols-outlined text-outline" style={{ fontSize: 18 }}>
-                chevron_right
-              </span>
-            </Link>
+              </Link>
+            ))}
           </div>
         </section>
 
         <section className="space-y-3">
-          <h3 className="px-1 text-lg font-bold text-primary">Documents ({profile.documents.length})</h3>
+          <h3 className="px-1 text-lg font-bold text-primary">Documents ({documents.length})</h3>
           <div className="space-y-2.5 lg:grid lg:grid-cols-2 lg:gap-2.5 lg:space-y-0">
-            {profile.documents.length === 0 ? (
+            {documents.length === 0 ? (
               <p className="rounded-xl bg-surface-container p-4 text-center text-sm text-onSurface-variant lg:col-span-2">
                 Aucun document ajouté.
               </p>
             ) : (
-              profile.documents.map((doc) => <DocumentViewer key={doc.id} document={doc} />)
+              documents.map((doc) => (
+                <DocumentViewer key={doc.id} document={toLocalEntry(doc, fileNameOf(doc))} previewUrl={doc.url} />
+              ))
             )}
           </div>
         </section>
@@ -320,6 +291,7 @@ export default function ProfilPage() {
           </Button>
         </section>
       </main>
+      )}
 
       {showQr && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-surface p-6">

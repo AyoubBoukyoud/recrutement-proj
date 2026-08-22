@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
 import { InertNavItem, NavItem, isNavActive } from '@/components/amud/ui';
+import { DemoBanner } from '@/components/amud/DemoBanner';
 
 /** Coquille de `/amud/employer` (doc3: tableau_de_bord_employeur_desktop_restored.html). */
 const NAV = [{ href: '/amud/employer', icon: 'dashboard', label: 'Dashboard' }];
@@ -109,7 +110,10 @@ export function EmployerShell({ children }: { children: ReactNode }) {
             </button>
           </div>
         </header>
-        <div className="mx-auto max-w-7xl space-y-xl p-margin-mobile md:p-margin-desktop">{children}</div>
+        <div className="mx-auto max-w-7xl space-y-xl p-margin-mobile md:p-margin-desktop">
+          <DemoBanner />
+          {children}
+        </div>
       </main>
     </div>
   );

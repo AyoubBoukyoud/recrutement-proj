@@ -107,6 +107,7 @@ const mockDocuments: DocumentsRepository = {
       file_path: `documents/${file.name}`,
       url: URL.createObjectURL(file),
       ocr_status: 'processing',
+      approval_status: 'pending',
       created_at: new Date().toISOString(),
       extraction: null,
     };

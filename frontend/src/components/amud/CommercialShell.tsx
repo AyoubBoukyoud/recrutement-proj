@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
 import { InertNavItem, NavItem, isNavActive } from '@/components/amud/ui';
 import { ToastProvider } from '@/components/amud/Toast';
+import { DemoBanner } from '@/components/amud/DemoBanner';
 import { CURRENT_COMMERCIAL } from '@/data/amud/currentCommercial';
 
 /**
@@ -145,7 +146,10 @@ export function CommercialShell({ children }: { children: ReactNode }) {
             </div>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-[1200px] flex-1 p-md md:p-lg lg:p-margin-desktop">{children}</main>
+        <main className="mx-auto w-full max-w-[1200px] flex-1 p-md md:p-lg lg:p-margin-desktop">
+          <DemoBanner />
+          {children}
+        </main>
       </div>
     </div>
     </ToastProvider>

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { InertNavItem, NavItem, isNavActive } from '@/components/amud/ui';
 import { ToastProvider } from '@/components/amud/Toast';
+import { DemoBanner } from '@/components/amud/DemoBanner';
 import { ADMIN_ALERTS } from '@/data/amud/alerts';
 import { commerciaux as commerciauxSeed } from '@/data/amud/commerciaux';
 import { candidaturesSeed } from '@/data/amud/candidatures';
@@ -326,6 +327,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
             </div>
           </header>
           <main key={pathname} className="min-w-0 flex-1 animate-amud-rise-in p-margin-mobile md:p-margin-desktop">
+            <DemoBanner />
             {children}
           </main>
         </div>

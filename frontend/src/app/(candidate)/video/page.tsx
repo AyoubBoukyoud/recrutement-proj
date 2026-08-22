@@ -5,14 +5,27 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, Video, Square, RotateCcw, Check } from 'lucide-react';
-import { useProfile } from '@/context/ProfileContext';
+import { useAuth } from '@/context/AuthContext';
 import { useNetwork } from '@/context/NetworkContext';
+import { useCandidateProfile, useInvalidateCandidateProfile } from '@/lib/useCandidateProfile';
+import { candidateProfileRepository } from '@/data/candidateProfile';
 import { VideoPlayer } from '@/components/shared/VideoPlayer';
 import { Button } from '@/components/shared/Button';
+import { ApiError } from '@/lib/api';
+
+function messageOf(error: unknown, fallback: string): string {
+  if (error instanceof ApiError) {
+    if (error.isNetworkFailure) return "L'API est injoignable. Vérifiez votre connexion.";
+    return error.message || fallback;
+  }
+  return fallback;
+}
 
 export default function VideoRecordingPage() {
-  const { profile, updateProfile, markStepComplete } = useProfile();
-  const { isOnline, queueAction } = useNetwork();
+  const { token } = useAuth();
+  const { data: profile } = useCandidateProfile();
+  const invalidateProfile = useInvalidateCandidateProfile();
+  const { isOnline } = useNetwork();
 
   const liveVideoRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -22,9 +35,16 @@ export default function VideoRecordingPage() {
 
   const [isRecording, setIsRecording] = useState(false);
   const [seconds, setSeconds] = useState(0);
-  const [recordedUrl, setRecordedUrl] = useState<string | null>(profile.videoUrl);
+  const [recordedUrl, setRecordedUrl] = useState<string | null>(null);
+  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (profile?.video_url && !recordedUrl) setRecordedUrl(profile.video_url);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile]);
 
   useEffect(() => {
     return () => {
@@ -48,6 +68,7 @@ export default function VideoRecordingPage() {
       recorder.ondataavailable = (e) => chunksRef.current.push(e.data);
       recorder.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: 'video/webm' });
+        setRecordedBlob(blob);
         setRecordedUrl(URL.createObjectURL(blob));
         stream.getTracks().forEach((track) => track.stop());
       };
@@ -67,15 +88,24 @@ export default function VideoRecordingPage() {
     if (intervalRef.current) clearInterval(intervalRef.current);
   };
 
-  const handleSave = () => {
-    if (!recordedUrl) return;
-    updateProfile({ videoUrl: recordedUrl });
-    markStepComplete(5);
-    if (!isOnline) {
-      queueAction('submit_video', { hasVideo: true });
+  const handleSave = async () => {
+    if (!recordedBlob || !token) return;
+    setError(null);
+    setIsSaving(true);
+
+    try {
+      const file = new File([recordedBlob], 'presentation.webm', { type: 'video/webm' });
+      const updated = await candidateProfileRepository.uploadVideo(file, token);
+      setRecordedUrl(updated.video_url);
+      setRecordedBlob(null);
+      await invalidateProfile();
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch (cause) {
+      setError(messageOf(cause, "L'envoi a échoué. Réessayez."));
+    } finally {
+      setIsSaving(false);
     }
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
   };
 
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
@@ -131,13 +161,34 @@ export default function VideoRecordingPage() {
 
         {recordedUrl && !isRecording && (
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setRecordedUrl(null)} className="flex-1 gap-1.5 text-onSurface-variant">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setRecordedUrl(null);
+                setRecordedBlob(null);
+              }}
+              className="flex-1 gap-1.5 text-onSurface-variant"
+            >
               <RotateCcw size={16} /> Recommencer
             </Button>
-            <Button variant="secondary" onClick={handleSave} className="flex-1 gap-1.5">
-              <Check size={16} /> Valider
-            </Button>
+            {recordedBlob && (
+              <Button
+                variant="secondary"
+                onClick={() => void handleSave()}
+                disabled={isSaving || !isOnline}
+                isLoading={isSaving}
+                loadingLabel="Envoi…"
+                className="flex-1 gap-1.5"
+              >
+                <Check size={16} /> Valider
+              </Button>
+            )}
           </div>
+        )}
+        {!isOnline && recordedBlob && (
+          <p className="text-xs font-medium text-tertiary">
+            Hors ligne — l&apos;envoi de la vidéo demande une connexion.
+          </p>
         )}
       </main>
     </div>

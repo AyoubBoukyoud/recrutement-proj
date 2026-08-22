@@ -32,7 +32,7 @@ export class ApiError extends Error {
   }
 }
 
-type Method = 'GET' | 'POST' | 'PATCH' | 'DELETE';
+type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 /**
  * Le corps est envoyé en JSON, sauf pour un `FormData` : l'upload de document
@@ -86,8 +86,16 @@ export function apiPost<T>(path: string, body: unknown, token?: string | null): 
   return request<T>('POST', path, body, token);
 }
 
+export function apiPut<T>(path: string, body: unknown, token?: string | null): Promise<T> {
+  return request<T>('PUT', path, body, token);
+}
+
 export function apiPatch<T>(path: string, body: unknown, token?: string | null): Promise<T> {
   return request<T>('PATCH', path, body, token);
+}
+
+export function apiDelete<T>(path: string, token?: string | null): Promise<T> {
+  return request<T>('DELETE', path, undefined, token);
 }
 
 /**

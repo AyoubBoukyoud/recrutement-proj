@@ -47,7 +47,7 @@ class ProcessDocumentOcr implements ShouldQueue
 
         $document->update(['ocr_status' => 'processing']);
 
-        $absolutePath = Storage::disk('public')->path($document->file_path);
+        $absolutePath = Storage::disk('local')->path($document->file_path);
         $mimeType = $this->mimeType($document->file_path);
 
         $result = $this->shouldUseGemini($document, $mimeType, $gemini)

@@ -59,7 +59,7 @@ class CandidateDossierTest extends TestCase
 
     public function test_uploading_a_certificate_certifies_the_language(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
         Bus::fake([ProcessDocumentOcr::class]);
         $this->candidate();
 
@@ -76,12 +76,12 @@ class CandidateDossierTest extends TestCase
 
         // The certificate has to be *viewable*, not merely recorded.
         $this->assertNotNull($response->json('certificate_document.url'));
-        Storage::disk('public')->assertExists($response->json('certificate_document.file_path'));
+        Storage::disk('local')->assertExists($response->json('certificate_document.file_path'));
     }
 
     public function test_an_already_uploaded_document_can_be_attached_to_a_language(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
         Bus::fake([ProcessDocumentOcr::class]);
         $user = $this->candidate();
 
@@ -100,7 +100,7 @@ class CandidateDossierTest extends TestCase
 
     public function test_a_document_belonging_to_someone_else_cannot_be_attached(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
         Bus::fake([ProcessDocumentOcr::class]);
 
         $stranger = User::factory()->create();
@@ -119,7 +119,7 @@ class CandidateDossierTest extends TestCase
 
     public function test_editing_the_level_does_not_demote_a_certified_language(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
         Bus::fake([ProcessDocumentOcr::class]);
         $this->candidate();
 
@@ -136,7 +136,7 @@ class CandidateDossierTest extends TestCase
 
     public function test_detaching_a_certificate_returns_the_language_to_self_declared(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
         Bus::fake([ProcessDocumentOcr::class]);
         $this->candidate();
 

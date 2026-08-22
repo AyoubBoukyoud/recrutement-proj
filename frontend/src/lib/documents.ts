@@ -9,8 +9,8 @@
 import { apiGet, apiGetList, apiPatch, apiPost } from '@/lib/api';
 import type { DocumentEntry } from '@/lib/types';
 
-/** Les trois seuls types acceptés par la validation du back. */
-export type BackendDocumentType = 'cv' | 'certificate' | 'diploma';
+/** Les quatre seuls types acceptés par la validation du back. */
+export type BackendDocumentType = 'cv' | 'certificate' | 'diploma' | 'identity';
 
 /**
  * `needs_review` signifie qu'une lecture a bien eu lieu mais sans certitude :
@@ -60,13 +60,18 @@ export interface DocumentExtraction {
   reviewed_at: string | null;
 }
 
+export type ApprovalStatus = 'pending' | 'approved' | 'rejected';
+
 export interface CandidateDocument {
   id: number;
   type: BackendDocumentType;
   file_path: string;
-  /** URL publique du fichier stocké. */
+  /** URL signée de courte durée — jamais un lien public permanent. */
   url: string | null;
   ocr_status: OcrStatus;
+  /** Jugement d'un administrateur sur le document lui-même — distinct de `ocr_status`, qui ne parle que du scanner. */
+  approval_status?: ApprovalStatus;
+  rejection_reason?: string | null;
   created_at?: string;
   extraction?: DocumentExtraction | null;
 }
@@ -83,6 +88,7 @@ export const DOCUMENT_TYPE_LABELS: Record<BackendDocumentType, string> = {
   cv: 'CV',
   diploma: 'Diplôme',
   certificate: 'Certificat de langue',
+  identity: "Pièce d'identité",
 };
 
 /** Colonnes du profil telles que l'API les nomme, dans les mots du candidat. */

@@ -26,7 +26,7 @@ class ScanPendingDocumentsTest extends TestCase
         parent::setUp();
 
         $this->seed(RoleSeeder::class);
-        Storage::fake('public');
+        Storage::fake('local');
 
         // The extractors themselves are covered by GeminiCvExtractionTest;
         // what matters here is which documents get picked up.

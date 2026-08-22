@@ -46,7 +46,7 @@ class ComplaintController extends Controller
             'audio' => ['required_if:type,voice', 'nullable', 'file', 'mimes:wav,mp3,m4a,mp4,webm,aac,caf', 'max:20480'],
         ]);
 
-        $audioPath = $request->hasFile('audio') ? $request->file('audio')->store('complaints', 'public') : null;
+        $audioPath = $request->hasFile('audio') ? $request->file('audio')->store('complaints', 'local') : null;
 
         $complaint = $request->user()->complaints()->create([
             'type' => $data['type'],

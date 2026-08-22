@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\CandidateProfile;
 use App\Services\CandidateProfileResolver;
+use App\Services\CandidateTimeline;
 use App\Services\ProfileCompleteness;
 use App\Services\RecruiterProfileView;
 use App\Services\ReferralCommissions;
@@ -33,6 +34,12 @@ class CandidateProfileController extends Controller
             'years_of_experience' => ['sometimes', 'nullable', 'integer', 'min:0', 'max:60'],
             'date_of_birth' => ['sometimes', 'date'],
             'availability_status' => ['sometimes', 'in:immediate,within_1_month,within_2_months'],
+            'matching_preferences' => ['sometimes', 'nullable', 'array'],
+            'matching_preferences.regions' => ['sometimes', 'array'],
+            'matching_preferences.regions.*' => ['string', 'max:255'],
+            'matching_preferences.sectors' => ['sometimes', 'array'],
+            'matching_preferences.sectors.*' => ['string', 'max:255'],
+            'matching_preferences.min_salary' => ['sometimes', 'nullable', 'integer', 'min:0'],
             'terms_accepted' => ['sometimes', 'boolean'],
             'cndp_accepted' => ['sometimes', 'boolean'],
             // Optimistic concurrency: what the client believed the dossier
@@ -101,16 +108,20 @@ class CandidateProfileController extends Controller
     public function uploadVideo(Request $request): JsonResponse
     {
         $request->validate([
-            'video' => ['required', 'file', 'mimetypes:video/mp4,video/quicktime', 'max:51200'],
+            // webm is what MediaRecorder actually produces in every browser
+            // that lacks native mp4 recording (Chrome, Firefox) — the web
+            // candidate flow would 422 on every real recording without it.
+            // mp4/quicktime cover the native mobile recorder.
+            'video' => ['required', 'file', 'mimetypes:video/mp4,video/quicktime,video/webm', 'max:51200'],
         ]);
 
         $profile = CandidateProfileResolver::resolve($request->user());
 
         if ($profile->presentation_video_path) {
-            Storage::disk('public')->delete($profile->presentation_video_path);
+            Storage::disk('local')->delete($profile->presentation_video_path);
         }
 
-        $path = $request->file('video')->store('videos', 'public');
+        $path = $request->file('video')->store('videos', 'local');
         $profile->update(['presentation_video_path' => $path]);
 
         return response()->json($this->payload($profile->fresh()));
@@ -155,6 +166,14 @@ class CandidateProfileController extends Controller
         app(ReferralCommissions::class)->qualify($profile);
 
         return response()->json($this->payload($profile->fresh()));
+    }
+
+    /** Derived milestones for the candidate's own "profil" screen — see CandidateTimeline. */
+    public function timeline(Request $request): JsonResponse
+    {
+        $profile = CandidateProfileResolver::resolve($request->user());
+
+        return response()->json(CandidateTimeline::for($profile));
     }
 
     /** Every profile response carries its own progress, so no client recomputes it. */

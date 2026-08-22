@@ -2,72 +2,83 @@
 
 // Interface 14 — Formulaire de réclamation.
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 import { useNetwork } from '@/context/NetworkContext';
-import { useProfile } from '@/context/ProfileContext';
 import { AudioRecorder } from '@/components/shared/AudioRecorder';
-import { candidateRepository } from '@/data/candidate';
-import type { ReclamationEntry } from '@/lib/types';
 import { Button } from '@/components/shared/Button';
+import { ApiError } from '@/lib/api';
+import {
+  listMyComplaints,
+  submitTextComplaint,
+  submitVoiceComplaint,
+  parseSubject,
+  type Complaint,
+} from '@/lib/complaints';
 
 const CATEGORIES = ['Problème technique', 'Question sur mon dossier', 'Signaler une offre suspecte', 'Suggestion', 'Autre'];
 
+const STATUS_LABELS: Record<Complaint['status'], string> = {
+  open: 'Ouverte',
+  in_review: 'En cours',
+  resolved: 'Résolue',
+};
+
+function messageOf(error: unknown, fallback: string): string {
+  if (error instanceof ApiError) {
+    if (error.isNetworkFailure) return "L'API est injoignable. Vérifiez votre connexion.";
+    if (error.status === 401) return 'Votre session a expiré — reconnectez-vous.';
+    return error.message || fallback;
+  }
+  return fallback;
+}
+
 export default function ReclamationPage() {
-  const { isOnline, queueAction } = useNetwork();
-  const { profile } = useProfile();
-  const [entries, setEntries] = useState<ReclamationEntry[]>([]);
+  const { token } = useAuth();
+  const { isOnline } = useNetwork();
+  const [entries, setEntries] = useState<Complaint[]>([]);
   const [category, setCategory] = useState('');
   const [message, setMessage] = useState('');
-  const [voiceNoteUrl, setVoiceNoteUrl] = useState<string | null>(null);
+  const [voiceBlob, setVoiceBlob] = useState<Blob | null>(null);
+  const [voiceUrl, setVoiceUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [ticketRef, setTicketRef] = useState<string | null>(null);
 
+  const refresh = useCallback(() => {
+    if (!token) return;
+    listMyComplaints(token)
+      .then(setEntries)
+      .catch(() => setEntries([]));
+  }, [token]);
+
   useEffect(() => {
-    let cancelled = false;
-    candidateRepository
-      .complaints()
-      .then((list) => {
-        if (!cancelled) setEntries(list);
-      })
-      .catch(() => {
-        if (!cancelled) setEntries([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    refresh();
+  }, [refresh]);
 
   const handleSubmit = async () => {
-    if (!category || (!message.trim() && !voiceNoteUrl)) {
+    if (!token) return;
+    if (!category || (!message.trim() && !voiceBlob)) {
       setError('Merci de choisir un sujet et de décrire votre problème (texte ou message vocal).');
       return;
     }
     setError(null);
     setIsSubmitting(true);
 
-    const authorName = `${profile.firstName} ${profile.lastName}`.trim() || 'Candidat';
-
     try {
-      const entry = await candidateRepository.submitComplaint(
-        { category, message: message.trim() || 'Message vocal joint', voiceNoteUrl },
-        authorName
-      );
-
-      // Hors-ligne, la réclamation est rejouée à la reconnexion ; elle est tout
-      // de même affichée tout de suite, sinon l'envoi paraîtrait sans effet.
-      if (!isOnline) {
-        queueAction('submit_reclamation', { entry });
-      }
+      const entry = voiceBlob
+        ? await submitVoiceComplaint(category, voiceBlob, token)
+        : await submitTextComplaint(category, message.trim(), token);
 
       setEntries((prev) => [entry, ...prev]);
       setCategory('');
       setMessage('');
-      setVoiceNoteUrl(null);
-      setTicketRef(`AMU-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 9000) + 1000)}`);
-    } catch {
-      setError("L'envoi a échoué. Réessayez dans un instant.");
+      setVoiceBlob(null);
+      setVoiceUrl(null);
+      setTicketRef(`AMU-${new Date().getFullYear()}-${String(entry.id).padStart(4, '0')}`);
+    } catch (cause) {
+      setError(messageOf(cause, "L'envoi a échoué. Réessayez dans un instant."));
     } finally {
       setIsSubmitting(false);
     }
@@ -92,6 +103,12 @@ export default function ReclamationPage() {
           <h2 className="text-center text-2xl font-bold text-primary-dark lg:text-left">Comment pouvons-nous vous aider ?</h2>
           <p className="mt-2 text-center text-sm text-onSurface-variant lg:text-left">Votre avis nous aide à améliorer Amud Skills.</p>
         </div>
+
+        {!isOnline && (
+          <p className="rounded-xl bg-secondary-light p-3 text-sm font-medium text-onSecondary-container">
+            Hors ligne — l&apos;envoi d&apos;une réclamation demande une connexion. Réessayez une fois reconnecté.
+          </p>
+        )}
 
         <div className="space-y-8 lg:grid lg:grid-cols-[1fr_340px] lg:items-start lg:gap-8 lg:space-y-0">
         <div className="space-y-8">
@@ -145,8 +162,13 @@ export default function ReclamationPage() {
 
           <div className="space-y-4 rounded-xl bg-surface-container-low p-4">
             <p className="text-center text-sm font-semibold text-onSurface">Enregistrer un message vocal</p>
-            <AudioRecorder onRecordingComplete={(url) => setVoiceNoteUrl(url)} />
-            {voiceNoteUrl && (
+            <AudioRecorder
+              onRecordingComplete={(url, blob) => {
+                setVoiceUrl(url);
+                setVoiceBlob(blob);
+              }}
+            />
+            {voiceUrl && (
               <p className="text-center text-xs font-semibold text-primary-dark">Message vocal prêt à être envoyé.</p>
             )}
           </div>
@@ -158,7 +180,7 @@ export default function ReclamationPage() {
           size="lg"
           fullWidth
           onClick={handleSubmit}
-          disabled={isSubmitting}
+          disabled={isSubmitting || !isOnline}
           isLoading={isSubmitting}
           loadingLabel="Envoi en cours…"
           className="gap-3 text-lg shadow-lg"
@@ -171,25 +193,39 @@ export default function ReclamationPage() {
         <section className="space-y-3 pb-6">
           <h2 className="text-sm font-bold text-primary-dark">Mes réclamations ({entries.length})</h2>
           <div className="space-y-2.5">
-            {entries.map((entry) => (
-              <div key={entry.id} className="rounded-xl border border-outline-variant bg-surface-container-lowest p-3.5 shadow-soft">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-bold text-onSurface">{entry.subject}</span>
-                  <span
-                    className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                      entry.status === 'resolue'
-                        ? 'bg-primary-light text-onPrimary-container'
-                        : entry.status === 'en_cours'
-                        ? 'bg-gold-light text-gold-dark'
-                        : 'bg-secondary-light text-onSecondary-container'
-                    }`}
-                  >
-                    {entry.status === 'resolue' ? 'Résolue' : entry.status === 'en_cours' ? 'En cours' : 'Ouverte'}
-                  </span>
+            {entries.map((entry) => {
+              const { subject, message: body } = parseSubject(entry.body);
+              return (
+                <div key={entry.id} className="rounded-xl border border-outline-variant bg-surface-container-lowest p-3.5 shadow-soft">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-bold text-onSurface">
+                      {subject ?? (entry.type === 'voice' ? 'Message vocal' : 'Réclamation')}
+                    </span>
+                    <span
+                      className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                        entry.status === 'resolved'
+                          ? 'bg-primary-light text-onPrimary-container'
+                          : entry.status === 'in_review'
+                          ? 'bg-gold-light text-gold-dark'
+                          : 'bg-secondary-light text-onSecondary-container'
+                      }`}
+                    >
+                      {STATUS_LABELS[entry.status]}
+                    </span>
+                  </div>
+                  {body && <p className="mt-1 text-xs text-onSurface-variant">{body}</p>}
+                  {entry.audio_url && (
+                    <audio controls src={entry.audio_url} className="mt-2 w-full" />
+                  )}
+                  {entry.admin_response && (
+                    <p className="mt-2 rounded-lg bg-surface-container p-2 text-xs text-onSurface">
+                      <span className="font-bold">Réponse : </span>
+                      {entry.admin_response}
+                    </p>
+                  )}
                 </div>
-                <p className="mt-1 text-xs text-onSurface-variant">{entry.message}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
         </div>

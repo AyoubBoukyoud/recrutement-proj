@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * One recruiter's working relationship with one candidate: whether they saved
@@ -32,5 +33,11 @@ class RecruiterShortlist extends Model
     public function candidateProfile(): BelongsTo
     {
         return $this->belongsTo(CandidateProfile::class);
+    }
+
+    /** The auditable placement event this pipeline row led to, if any — see Placement's docblock. */
+    public function placement(): HasOne
+    {
+        return $this->hasOne(Placement::class);
     }
 }

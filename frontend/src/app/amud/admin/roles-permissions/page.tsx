@@ -118,6 +118,16 @@ export default function AmudAdminRolesPermissionsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-xl">
+      <div className="flex items-start gap-2 rounded-lg border border-red-300 bg-red-50 px-3.5 py-2.5 text-xs text-red-900">
+        <span className="material-symbols-outlined shrink-0" style={{ fontSize: 16 }}>
+          block
+        </span>
+        <p className="leading-relaxed">
+          <span className="font-bold">Non fonctionnel.</span> Cet éditeur ne persiste rien et ne s&apos;applique nulle
+          part ailleurs dans l&apos;application. Le système réel n&apos;a que 4 rôles à granularité route entière
+          (Administrator, Company, Commercial Agent, User) — pas de permissions fines par module/action.
+        </p>
+      </div>
       <div className="flex flex-col justify-between gap-md border-b border-amud-outline-variant pb-md md:flex-row md:items-end">
         <div>
           <h2 className="text-headline-lg font-bold text-amud-primary">Rôles &amp; permissions</h2>
@@ -134,7 +144,7 @@ export default function AmudAdminRolesPermissionsPage() {
             Créer un rôle
           </button>
           <button
-            onClick={() => notify(`Permissions de « ${role.nom} » enregistrées.`)}
+            onClick={() => notify('Maquette — rien n\'est enregistré, le back n\'a pas de permissions fines à ce niveau.')}
             className="rounded-lg bg-amud-primary px-md py-sm text-label-md text-white shadow-sm transition-colors hover:bg-amud-primary-dark"
           >
             Enregistrer

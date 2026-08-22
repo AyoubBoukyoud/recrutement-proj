@@ -55,7 +55,10 @@ return [
     |
     | Only ever honoured when the code was delivered by the `log` channel, so
     | turning this on in an environment with a real provider wired up still
-    | leaks nothing.
+    | leaks nothing. OtpService::exposedCode() additionally requires a live
+    | app()->environment('local', 'testing') check before reading this value at
+    | all — a stray OTP_EXPOSE_CODE=true surviving into a production .env (e.g.
+    | copy-pasted from staging) has no effect there.
     |
     */
 

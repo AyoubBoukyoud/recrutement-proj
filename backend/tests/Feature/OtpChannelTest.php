@@ -11,6 +11,7 @@ use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 /**
@@ -148,6 +149,30 @@ class OtpChannelTest extends TestCase
         $this->postJson('/api/auth/otp/request', ['phone' => '+212600000001'])
             ->assertStatus(502)
             ->assertJsonPath('message', 'We could not send your code right now. Please try again in a moment.');
+    }
+
+    public function test_the_log_channel_redacts_the_code_outside_local_and_testing(): void
+    {
+        config()->set('otp.channels', ['log']);
+
+        $messages = [];
+        Log::listen(function ($event) use (&$messages) {
+            $messages[] = $event->message;
+        });
+
+        $this->app->instance('env', 'production');
+
+        try {
+            $this->otp()->send('+212600000001');
+        } finally {
+            $this->app->instance('env', 'testing');
+        }
+
+        $this->assertNotEmpty($messages);
+        foreach ($messages as $message) {
+            $this->assertDoesNotMatchRegularExpression('/\b\d{6}\b/', $message);
+        }
+        $this->assertStringContainsString('[redacted]', $messages[0]);
     }
 
     public function test_a_new_provider_can_be_added_without_touching_existing_code(): void

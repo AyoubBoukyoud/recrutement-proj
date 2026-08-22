@@ -112,6 +112,19 @@ class AccountSessionTest extends TestCase
         $this->asDevice($third)->getJson('/api/auth/me')->assertOk();
     }
 
+    public function test_logging_out_revokes_only_the_calling_devices_token(): void
+    {
+        $phone = '+212600000001';
+        $loggedOut = $this->signIn($phone, 'Phone A');
+        $other = $this->signIn($phone, 'Phone B');
+
+        $this->asDevice($loggedOut)->postJson('/api/auth/logout')->assertOk();
+
+        $this->asDevice($loggedOut)->getJson('/api/auth/me')->assertUnauthorized();
+        // The other device's session is untouched — logout is per-token, not per-account.
+        $this->asDevice($other)->getJson('/api/auth/me')->assertOk();
+    }
+
     public function test_a_candidate_moves_their_account_to_a_new_number(): void
     {
         $token = $this->signIn('+212600000001', 'Phone A');

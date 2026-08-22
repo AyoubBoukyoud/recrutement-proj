@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { ReactNode } from 'react';
 import { InertNavItem, NavItem, isNavActive } from '@/components/amud/ui';
+import { DemoBanner } from '@/components/amud/DemoBanner';
 
 /** Coquille de `/amud/candidate` (doc4: tableau_de_bord_candidat_amud_skills.html). */
 const NAV = [{ href: '/amud/candidate', icon: 'dashboard', label: 'Tableau de bord' }];
@@ -82,7 +83,10 @@ export function CandidateShell({ children }: { children: ReactNode }) {
         </header>
 
         <div className="flex-1 overflow-y-auto p-margin-mobile pb-32 md:p-margin-desktop md:pb-margin-desktop">
-          <div className="mx-auto max-w-[1200px] space-y-xl">{children}</div>
+          <div className="mx-auto max-w-[1200px] space-y-xl">
+            <DemoBanner />
+            {children}
+          </div>
         </div>
       </main>
 

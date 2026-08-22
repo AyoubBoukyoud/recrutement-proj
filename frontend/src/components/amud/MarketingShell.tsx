@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { DemoBanner } from '@/components/amud/DemoBanner';
 
 /**
  * Coquille commune aux 3 pages marketing publiques `/amud/marketing/*`
@@ -42,6 +43,10 @@ export function MarketingToast({ notice }: { notice: string | null }) {
 
 export function MarketingNav({ active, onDeadAction }: { active: MarketingNavKey; onDeadAction: (label: string) => void }) {
   return (
+    <>
+    <div className="mx-auto max-w-container-max px-margin-mobile pt-3 md:px-gutter">
+      <DemoBanner />
+    </div>
     <nav className="sticky top-0 z-50 w-full border-b border-amud-primary/10 bg-amud-surface/90 backdrop-blur-md">
       <div className="mx-auto flex h-20 max-w-container-max items-center justify-between px-margin-mobile md:px-gutter">
         <Link href="/amud/marketing/home" className="text-headline-md text-amud-primary">
@@ -77,6 +82,7 @@ export function MarketingNav({ active, onDeadAction }: { active: MarketingNavKey
         </div>
       </div>
     </nav>
+    </>
   );
 }
 

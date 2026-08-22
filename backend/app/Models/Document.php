@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
+use App\Services\FileAccess;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Support\Facades\Storage;
 
 #[Fillable(['type', 'file_path', 'ocr_status', 'approval_status', 'reviewed_by_id', 'reviewed_at', 'rejection_reason'])]
 class Document extends Model
@@ -38,10 +38,15 @@ class Document extends Model
         return $this->hasOne(DocumentExtraction::class);
     }
 
+    /**
+     * A short-lived signed URL, generated fresh for whoever is asking — never
+     * a bare public path. Returns null (not the path) for a viewer who is not
+     * authorized to see this dossier at all, same as if the file did not exist.
+     */
     protected function url(): Attribute
     {
-        return Attribute::get(fn (): ?string => $this->file_path
-            ? Storage::disk('public')->url($this->file_path)
-            : null);
+        return Attribute::get(
+            fn (): ?string => FileAccess::dossierUrl($this->file_path, $this->candidateProfile, auth()->user())
+        );
     }
 }

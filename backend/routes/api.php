@@ -26,7 +26,10 @@ use Illuminate\Support\Facades\Route;
 Route::post('/auth/otp/request', [AuthController::class, 'requestOtp'])->middleware('throttle:otp-request');
 Route::post('/auth/otp/verify', [AuthController::class, 'verifyOtp'])->middleware('throttle:otp-verify');
 
-Route::middleware('auth:sanctum')->group(function () {
+// `throttle:api` is a generous per-user catch-all (AppServiceProvider) so
+// every authenticated route has *some* bound, even the ones with no
+// endpoint-specific limiter below.
+Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
@@ -45,6 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // What a recruiter will see, and the declaration that the dossier is done.
     Route::get('/candidate/profile/preview', [CandidateProfileController::class, 'preview']);
     Route::post('/candidate/profile/submit', [CandidateProfileController::class, 'submit']);
+    Route::get('/candidate/profile/timeline', [CandidateProfileController::class, 'timeline']);
 
     Route::get('/candidate/educations', [EducationController::class, 'index']);
     Route::post('/candidate/educations', [EducationController::class, 'store']);
@@ -57,23 +61,24 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/candidate/languages/{language}/certificate', [CandidateLanguageController::class, 'detachCertificate']);
 
     Route::get('/candidate/documents', [DocumentController::class, 'index']);
-    Route::post('/candidate/documents', [DocumentController::class, 'store']);
+    Route::post('/candidate/documents', [DocumentController::class, 'store'])->middleware('throttle:document-upload');
     Route::get('/candidate/documents/{document}', [DocumentController::class, 'show']);
     Route::patch('/candidate/documents/{document}/review', [DocumentController::class, 'review']);
     // Same file again (a transient API failure) vs. a replacement page (an
-    // unreadable scan) — the two failure modes need different remedies.
-    Route::post('/candidate/documents/{document}/retry', [DocumentController::class, 'retry']);
-    Route::post('/candidate/documents/{document}/rescan', [DocumentController::class, 'rescan']);
+    // unreadable scan) — the two failure modes need different remedies. Both
+    // dispatch a fresh OCR job, so both share the upload limiter.
+    Route::post('/candidate/documents/{document}/retry', [DocumentController::class, 'retry'])->middleware('throttle:document-upload');
+    Route::post('/candidate/documents/{document}/rescan', [DocumentController::class, 'rescan'])->middleware('throttle:document-upload');
 
     Route::get('/candidate/language-assessments', [LanguageAssessmentController::class, 'index']);
-    Route::post('/candidate/language-assessments', [LanguageAssessmentController::class, 'store']);
+    Route::post('/candidate/language-assessments', [LanguageAssessmentController::class, 'store'])->middleware('throttle:language-assessment');
     Route::get('/candidate/language-assessments/{languageAssessment}', [LanguageAssessmentController::class, 'show']);
 
     // The candidate's side of the daily internship.
     Route::get('/candidate/tasks', [CandidateTaskController::class, 'index']);
     Route::patch('/candidate/tasks/{assignment}', [CandidateTaskController::class, 'update']);
 
-    Route::post('/complaints', [ComplaintController::class, 'store']);
+    Route::post('/complaints', [ComplaintController::class, 'store'])->middleware('throttle:complaint-create');
     // The candidate's side of the conversation: their own reports, and the
     // replies administrators have written on them.
     Route::get('/complaints', [ComplaintController::class, 'mine']);
@@ -127,7 +132,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('role:Company')->group(function () {
         Route::get('/recruiter/ping', fn () => response()->json(['message' => 'pong', 'role' => 'Company']));
-        Route::get('/recruiter/candidates', [RecruiterCandidateController::class, 'index']);
+        Route::get('/recruiter/candidates', [RecruiterCandidateController::class, 'index'])->middleware('throttle:recruiter-search');
         Route::get('/recruiter/candidates/{candidateProfile}', [RecruiterCandidateController::class, 'show']);
 
         // What a recruiter does with a candidate once they have found them.
@@ -137,6 +142,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/recruiter/shortlist', [RecruiterShortlistController::class, 'index']);
         Route::put('/recruiter/candidates/{candidateProfile}/shortlist', [RecruiterShortlistController::class, 'upsert']);
         Route::delete('/recruiter/candidates/{candidateProfile}/shortlist', [RecruiterShortlistController::class, 'destroy']);
-        Route::post('/recruiter/candidates/{candidateProfile}/contact', [RecruiterShortlistController::class, 'revealContact']);
+        // Discloses phone/email — an attributable disclosure, and the
+        // tightest limiter in the file (see AppServiceProvider).
+        Route::post('/recruiter/candidates/{candidateProfile}/contact', [RecruiterShortlistController::class, 'revealContact'])->middleware('throttle:recruiter-contact-reveal');
     });
 });

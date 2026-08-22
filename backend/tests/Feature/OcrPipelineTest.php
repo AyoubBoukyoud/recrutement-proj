@@ -303,11 +303,11 @@ class OcrPipelineTest extends TestCase
 
     public function test_re_scanning_replaces_the_file_and_keeps_the_document_id(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
         Bus::fake([ProcessDocumentOcr::class]);
 
         $user = $this->candidate();
-        Storage::disk('public')->put('documents/old.jpg', 'BLURRY');
+        Storage::disk('local')->put('documents/old.jpg', 'BLURRY');
         $document = CandidateProfileResolver::resolve($user)->documents()->create([
             'type' => 'cv', 'file_path' => 'documents/old.jpg', 'ocr_status' => 'failed',
         ]);
@@ -320,7 +320,7 @@ class OcrPipelineTest extends TestCase
 
         $this->assertNotSame('documents/old.jpg', $document->file_path);
         $this->assertSame('pending', $document->ocr_status);
-        Storage::disk('public')->assertMissing('documents/old.jpg');
+        Storage::disk('local')->assertMissing('documents/old.jpg');
         Bus::assertDispatched(ProcessDocumentOcr::class);
     }
 
@@ -350,8 +350,8 @@ class OcrPipelineTest extends TestCase
 
     private function makeDocument(string $type, string $filename): Document
     {
-        Storage::fake('public');
-        Storage::disk('public')->put("documents/{$filename}", 'FILE');
+        Storage::fake('local');
+        Storage::disk('local')->put("documents/{$filename}", 'FILE');
 
         $user = User::factory()->create();
 

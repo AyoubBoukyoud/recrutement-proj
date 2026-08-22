@@ -8,9 +8,6 @@ import { ShortlistPanel } from '@/components/ShortlistPanel'
 import { Badge, Button, Card, Eyebrow } from '@/components/ui'
 import type { CandidateDetail } from '@/types/candidate'
 
-const storageUrl = (path: string) =>
-  `${(process.env.NEXT_PUBLIC_API_URL ?? '').replace(/\/api$/, '')}/storage/${path}`
-
 const AVAILABILITY_LABELS: Record<string, string> = {
   immediate: 'disponible immédiatement',
   within_1_month: 'disponible sous 1 mois',
@@ -106,10 +103,10 @@ export function CandidateDossier({ id, onBack }: { id: number; onBack: () => voi
             </Section>
           )}
 
-          {data.presentation_video_path && (
+          {data.video_url && (
             <Section title="Vidéo de présentation">
               <video controls className="w-full max-w-[480px] rounded-element">
-                <source src={storageUrl(data.presentation_video_path)} />
+                <source src={data.video_url} />
               </video>
             </Section>
           )}

@@ -11,8 +11,22 @@ import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/shared/Button';
 import { AuthShell } from '@/components/AuthShell';
 import { USE_MOCKS } from '@/data/config';
+import { authRepository } from '@/data/auth';
 import { MOCK_ACCOUNTS, MOCK_OTP_CODE } from '@/data/fixtures/auth';
 import type { UserRole } from '@/lib/types';
+
+/** Numéros seedés côté back (`php artisan migrate --seed`, voir SETUP.md) —
+ *  utilisés par le raccourci dev quand l'API réelle est active. */
+const REAL_DEMO_PHONE_BY_ROLE: Record<UserRole, string> = {
+  admin: '+212600000001',
+  employer: '+212600000002',
+  agent: '+212600000003',
+  // Non seedé : le back crée un compte candidat au premier code vérifié.
+  candidate: '+212600000099',
+};
+
+/** Le menu dev ne doit jamais atterrir dans un build de production, mocks ou non. */
+const SHOW_DEV_MENU = process.env.NODE_ENV !== 'production';
 
 const COUNTRY_CODES = [
   { code: '+212', label: '🇲🇦 +212' },
@@ -114,14 +128,12 @@ const DEV_REAL_APP_LINKS: DevLinkGroup[] = [
       { path: '/faq', label: 'FAQ / Centre d’aide' },
       { path: '/matching-preferences', label: 'Préférences de matching' },
       { path: '/quiz-metier', label: 'Quiz métier' },
-      { path: '/simulateur-salaire', label: 'Simulateur de salaire (template Stitch)' },
       { path: '/salaire', label: 'Simuler mon salaire' },
       { path: '/parrainage', label: 'Programme de parrainage' },
       { path: '/verification-identite', label: 'Vérification d’identité' },
       { path: '/video', label: 'Vidéo de présentation' },
       { path: '/visibilite', label: 'Score de visibilité' },
       { path: '/test-langue', label: 'Test de langue IA' },
-      { path: '/cours-allemand', label: 'Cours d’allemand (template Stitch)' },
       { path: '/lecon-jour', label: 'Leçon du jour' },
     ],
   },
@@ -224,15 +236,33 @@ export default function AuthPhonePage() {
   const [expandedRealGroup, setExpandedRealGroup] = useState<string | null>(null);
 
   // Raccourci dev : ouvre directement un compte de démo sur une page /amud
-  // précise, sans numéro ni code — n'existe qu'en maquette (jamais compilé
-  // contre l'API réelle en production).
+  // précise, sans numéro ni code. En mock, le code accepté est fixe
+  // (`MOCK_OTP_CODE`) ; contre l'API réelle, on redemande un vrai code au
+  // back et on se sert du `debug_otp_code` qu'il renvoie en local — jamais
+  // disponible hors `APP_ENV=local`, donc sans effet en production.
   const devSignInAs = async (role: UserRole, path: string) => {
-    const account = MOCK_ACCOUNTS.find((a) => a.role === role);
-    if (!account) return;
     setError(null);
     setDevLoadingPath(path);
     try {
-      const result = await verifyOtp(MOCK_OTP_CODE, account.phone);
+      let demoPhone: string;
+      let demoCode: string;
+
+      if (USE_MOCKS) {
+        const account = MOCK_ACCOUNTS.find((a) => a.role === role);
+        if (!account) return;
+        demoPhone = account.phone;
+        demoCode = MOCK_OTP_CODE;
+      } else {
+        demoPhone = REAL_DEMO_PHONE_BY_ROLE[role];
+        const otpResponse = await authRepository.requestOtp(demoPhone);
+        if (!otpResponse.debug_otp_code) {
+          setError('Connexion rapide indisponible : le back ne renvoie pas de code de démonstration (APP_ENV != local ?).');
+          return;
+        }
+        demoCode = otpResponse.debug_otp_code;
+      }
+
+      const result = await verifyOtp(demoCode, demoPhone);
       if (!result.ok) {
         setError(otpFailureMessage(result, t));
         return;
@@ -377,7 +407,7 @@ export default function AuthPhonePage() {
         </div>
       </form>
 
-      {USE_MOCKS && (
+      {SHOW_DEV_MENU && (
         <div className="fade-in-entry opacity-0 mx-6 mb-4 rounded-pillar border border-dashed border-outline-variant bg-surface-container-low p-3">
           <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-onSurface-variant">
             Dev — connexion rapide

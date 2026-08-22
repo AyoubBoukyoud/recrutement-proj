@@ -165,11 +165,17 @@ class OtpService
     }
 
     /**
-     * Only the log channel's codes are ever echoed back, so switching on a real
-     * provider closes this off even if the config flag is left on.
+     * Only the log channel's codes are ever echoed back, and only in local/testing —
+     * checked live against the running environment rather than trusting the cached
+     * config value alone, so a stray OTP_EXPOSE_CODE=true left in a production .env
+     * (e.g. copy-pasted from staging) cannot leak a real code into an API response.
      */
     private function exposedCode(string $channel, string $code): ?string
     {
-        return $channel === 'log' && config('otp.expose_code_in_response') ? $code : null;
+        if ($channel !== 'log' || ! app()->environment('local', 'testing')) {
+            return null;
+        }
+
+        return config('otp.expose_code_in_response') ? $code : null;
     }
 }

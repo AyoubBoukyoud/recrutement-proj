@@ -281,8 +281,8 @@ class GeminiCvExtractionTest extends TestCase
 
     private function makeDocument(string $type, string $filename, string $contents = 'FILE'): Document
     {
-        Storage::fake('public');
-        Storage::disk('public')->put("documents/{$filename}", $contents);
+        Storage::fake('local');
+        Storage::disk('local')->put("documents/{$filename}", $contents);
 
         $user = User::create(['phone' => '+2126'.random_int(10000000, 99999999)]);
         $profile = CandidateProfileResolver::resolve($user);

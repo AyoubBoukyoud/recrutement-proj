@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
+use App\Services\FileAccess;
 use Illuminate\Database\Eloquent\Attributes\Appends;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 #[Fillable([
     'type',
@@ -43,12 +43,17 @@ class Complaint extends Model
         return $this->belongsTo(User::class, 'responded_by_id');
     }
 
-    /** Clients need to play a voice note, not to know its storage key. */
+    /**
+     * A short-lived signed URL — never a bare public path. Only the
+     * candidate who filed this complaint or an administrator ever gets a
+     * non-null value; a recruiter never does, complaints are not dossier
+     * evidence.
+     */
     protected function audioUrl(): Attribute
     {
-        return Attribute::get(fn (): ?string => $this->audio_path
-            ? Storage::disk('public')->url($this->audio_path)
-            : null);
+        return Attribute::get(
+            fn (): ?string => FileAccess::complaintUrl($this->audio_path, $this->user_id, auth()->user())
+        );
     }
 
     /** Drives the badge on the candidate's "Report a problem" strip. */

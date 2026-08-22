@@ -114,7 +114,7 @@ class CandidateLanguageController extends Controller
     {
         $document = $profile->documents()->create([
             'type' => 'certificate',
-            'file_path' => $request->file('file')->store('documents', 'public'),
+            'file_path' => $request->file('file')->store('documents', 'local'),
             'ocr_status' => 'pending',
         ]);
 

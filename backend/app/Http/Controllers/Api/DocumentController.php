@@ -25,12 +25,12 @@ class DocumentController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'type' => ['required', 'in:cv,certificate,diploma'],
+            'type' => ['required', 'in:cv,certificate,diploma,identity'],
             'file' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:10240'],
         ]);
 
         $profile = CandidateProfileResolver::resolve($request->user());
-        $path = $request->file('file')->store('documents', 'public');
+        $path = $request->file('file')->store('documents', 'local');
 
         $document = $profile->documents()->create([
             'type' => $data['type'],
@@ -38,7 +38,12 @@ class DocumentController extends Controller
             'ocr_status' => 'pending',
         ]);
 
-        ProcessDocumentOcr::dispatch($document->id);
+        // An ID photo has no CV-shaped fields to extract — OCR here would
+        // just burn a Gemini call on nothing usable. Admin approval (below)
+        // is the real verification step for this type.
+        if ($data['type'] !== 'identity') {
+            ProcessDocumentOcr::dispatch($document->id);
+        }
 
         return response()->json($document, 201);
     }
@@ -122,12 +127,12 @@ class DocumentController extends Controller
         $previous = $document->file_path;
 
         $document->update([
-            'file_path' => $request->file('file')->store('documents', 'public'),
+            'file_path' => $request->file('file')->store('documents', 'local'),
             'ocr_status' => 'pending',
         ]);
 
         if ($previous && $previous !== $document->file_path) {
-            Storage::disk('public')->delete($previous);
+            Storage::disk('local')->delete($previous);
         }
 
         ProcessDocumentOcr::dispatch($document->id);

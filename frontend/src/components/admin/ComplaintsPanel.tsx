@@ -8,9 +8,6 @@ import { Avatar, Card, Button, Badge, SectionHeader } from '@/components/ui';
 import type { Complaint, ComplaintStatus } from '@/types/complaint';
 import type { PaginatedResponse } from '@/types/candidate';
 
-const storageUrl = (path: string) =>
-  `${(process.env.NEXT_PUBLIC_API_URL ?? '').replace(/\/api$/, '')}/storage/${path}`;
-
 const COMPLAINT_FILTERS: { value: ComplaintStatus | 'active'; label: string }[] = [
   { value: 'active', label: 'À traiter' },
   { value: 'open', label: 'Ouvertes' },
@@ -35,9 +32,9 @@ function ComplaintRow({ complaint }: { complaint: Complaint }) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-complaints'] }),
   });
 
-  // Le serveur construit une URL lisible ; storageUrl est le repli pour les
-  // lignes écrites avant l'existence de cet attribut.
-  const audio = complaint.audio_url ?? (complaint.audio_path ? storageUrl(complaint.audio_path) : null);
+  // Short-lived signed URL from the server — null when there is no
+  // recording, or when this admin session somehow isn't authorized for it.
+  const audio = complaint.audio_url;
 
   return (
     <div className="border-t border-outline-variant pt-4">

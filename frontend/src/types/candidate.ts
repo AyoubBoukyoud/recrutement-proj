@@ -129,6 +129,8 @@ export type CandidateDetail = Omit<
 > & {
   date_of_birth: string | null
   presentation_video_path: string | null
+  /** Short-lived signed URL; null when the video does not exist or this viewer is not authorized. */
+  video_url: string | null
   submitted_at: string | null
   educations: Education[]
   documents: CandidateDocument[]

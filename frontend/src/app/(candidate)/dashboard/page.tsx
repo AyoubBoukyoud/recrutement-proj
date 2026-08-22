@@ -2,8 +2,13 @@
 
 // Interface 10 — Tableau de bord candidat.
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 import { useProfile } from '@/context/ProfileContext';
+import { useCandidateProfile } from '@/lib/useCandidateProfile';
+import { listLanguageAssessments } from '@/lib/languageAssessment';
+import { documentsRepository } from '@/data/documents';
 import { ChecklistItem } from '@/components/shared/ChecklistItem';
 import { IconButton } from '@/components/shared/Button';
 
@@ -12,9 +17,9 @@ const QUICK_ACTIONS = [
   { href: '/video', label: 'Enregistrer une vidéo', icon: 'videocam' },
   { href: '/test-langue', label: 'Passer le test de langue', icon: 'mic' },
   { href: '/profil', label: 'Voir mon profil public', icon: 'account_circle' },
-  { href: '/cours-allemand', label: "Leçon d'allemand du jour", icon: 'translate' },
+  { href: '/lecon-jour', label: "Leçon d'allemand du jour", icon: 'translate' },
   { href: '/offres', label: "Voir les offres d'emploi", icon: 'work' },
-  { href: '/simulateur-salaire', label: 'Simuler mon salaire', icon: 'calculate' },
+  { href: '/salaire', label: 'Simuler mon salaire', icon: 'calculate' },
   { href: '/visibilite', label: 'Ma visibilité', icon: 'insights' },
   { href: '/parrainage', label: 'Parrainer un ami', icon: 'group_add' },
   { href: '/verification-identite', label: 'Vérifier mon identité', icon: 'verified_user' },
@@ -22,20 +27,45 @@ const QUICK_ACTIONS = [
 ];
 
 export default function DashboardPage() {
-  const { profile } = useProfile();
+  // Vérification d'identité reste sur l'écran dédié (son propre document
+  // approuvé fait foi) — ce tableau de bord ne la refait pas ici.
+  const { token } = useAuth();
+  const { profile: localProfile } = useProfile();
+  const { data: profile, isLoading } = useCandidateProfile();
+  const [cvDone, setCvDone] = useState(false);
+  const [diplomaDone, setDiplomaDone] = useState(false);
+  const [testDone, setTestDone] = useState(false);
+  const [identityVerified, setIdentityVerified] = useState(false);
 
-  const cvDone = profile.documents.some((d) => d.type === 'cv');
-  const diplomaDone = profile.documents.some((d) => d.type === 'diplome' || d.type === 'autre');
-  const videoDone = Boolean(profile.videoUrl);
-  const testDone = profile.testLangueScore !== null;
-  const doneCount = [cvDone, diplomaDone, videoDone, testDone].filter(Boolean).length;
-  const percent = 20 + doneCount * 20;
+  useEffect(() => {
+    if (!token) return;
+    documentsRepository
+      .list(token)
+      .then((docs) => {
+        setCvDone(docs.some((d) => d.type === 'cv' && d.ocr_status === 'completed'));
+        setDiplomaDone(docs.some((d) => d.type === 'diploma' || d.type === 'certificate'));
+        setIdentityVerified(docs.some((d) => d.type === 'identity' && d.approval_status === 'approved'));
+      })
+      .catch(() => undefined);
+    listLanguageAssessments(token)
+      .then((assessments) => setTestDone(assessments.some((a) => a.status === 'completed')))
+      .catch(() => undefined);
+  }, [token]);
+
+  const videoDone = Boolean(profile?.presentation_video_path);
+  const percent = profile?.completeness.percent ?? 0;
+  const personalDone = profile?.completeness.sections.find((s) => s.key === 'personal')?.complete ?? false;
+  const educationDone = profile?.completeness.sections.find((s) => s.key === 'education')?.complete ?? false;
+  const languagesDone = profile?.completeness.sections.find((s) => s.key === 'languages')?.complete ?? false;
+  const firstName = profile?.first_name ?? localProfile.firstName;
+  const avatarInitials =
+    `${profile?.first_name?.[0] ?? ''}${profile?.last_name?.[0] ?? ''}`.toUpperCase() || localProfile.avatarInitials;
 
   return (
     <div>
       <header className="sticky top-0 z-20 flex w-full items-center justify-between border-b border-surface-container-high bg-surface-container-lowest/90 px-6 py-3.5 backdrop-blur-md lg:px-10 lg:py-5">
         <div>
-          <h1 className="text-base font-extrabold text-primary lg:text-xl">Bonjour, {profile.firstName || 'Candidat'} 👋</h1>
+          <h1 className="text-base font-extrabold text-primary lg:text-xl">Bonjour, {firstName || 'Candidat'} 👋</h1>
           <p className="text-[10px] font-bold uppercase tracking-wider text-tertiary">Espace Candidat</p>
         </div>
         <div className="flex items-center gap-3">
@@ -46,7 +76,7 @@ export default function DashboardPage() {
             <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full border border-surface bg-error" />
           </IconButton>
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-black text-onPrimary shadow-sm">
-            {profile.avatarInitials || '—'}
+            {avatarInitials || '—'}
           </div>
         </div>
       </header>
@@ -74,11 +104,13 @@ export default function DashboardPage() {
 
             <div className="fade-in-entry stagger-1 opacity-0 flex items-center justify-center">
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-surface-container-low px-4 py-2 shadow-sm">
-                <span className="material-symbols-outlined fill animate-pulse text-primary" style={{ fontSize: 16 }}>
-                  visibility
+                <span className="material-symbols-outlined fill text-primary" style={{ fontSize: 16 }}>
+                  {profile?.terms_consent_at && profile?.cndp_consent_at ? 'visibility' : 'visibility_off'}
                 </span>
                 <span className="text-xs font-medium text-onSurface">
-                  Profil visible par <span className="font-extrabold text-primary">12 recruteurs</span>
+                  {profile?.terms_consent_at && profile?.cndp_consent_at
+                    ? 'Visible par les recruteurs'
+                    : "Pas encore visible — acceptez les conditions à l'étape 6"}
                 </span>
               </div>
             </div>
@@ -86,15 +118,31 @@ export default function DashboardPage() {
             <section className="fade-in-entry stagger-2 opacity-0 space-y-3">
               <h2 className="text-lg font-extrabold text-primary">À compléter</h2>
               <div className="overflow-hidden rounded-pillar border border-outline-variant bg-surface-container-lowest shadow-subtle divide-y divide-surface-container-high">
-                <ChecklistItem label="Profil personnel complété" status="done" />
-                <ChecklistItem label="Secteur et qualification renseignés" status="done" />
+                <ChecklistItem
+                  label="Profil personnel complété"
+                  status={isLoading ? 'pending' : personalDone ? 'done' : 'pending'}
+                  href="/profile-creation?step=1"
+                  actionLabel={personalDone ? undefined : 'Compléter'}
+                />
+                <ChecklistItem
+                  label="Formation renseignée"
+                  status={isLoading ? 'pending' : educationDone ? 'done' : 'pending'}
+                  href="/profile-creation?step=3"
+                  actionLabel={educationDone ? undefined : 'Compléter'}
+                />
+                <ChecklistItem
+                  label="Au moins une langue évaluée"
+                  status={isLoading ? 'pending' : languagesDone ? 'done' : 'pending'}
+                  href="/profile-creation?step=4"
+                  actionLabel={languagesDone ? undefined : 'Compléter'}
+                />
                 <ChecklistItem label="CV téléchargé" status={cvDone ? 'done' : 'pending'} href="/documents" actionLabel="Ajouter" />
                 <ChecklistItem label="Certificats / diplômes" status={diplomaDone ? 'done' : 'pending'} href="/documents" actionLabel="Ajouter" />
                 <ChecklistItem label="Vidéo de présentation" status={videoDone ? 'done' : 'pending'} href="/video" actionLabel="Enregistrer" />
                 <ChecklistItem label="Test de langue" status={testDone ? 'done' : 'pending'} href="/test-langue" actionLabel="Passer le test" />
                 <ChecklistItem
                   label="Identité vérifiée"
-                  status={profile.identityVerified ? 'done' : 'pending'}
+                  status={identityVerified ? 'done' : 'pending'}
                   href="/verification-identite"
                   actionLabel="Vérifier"
                 />

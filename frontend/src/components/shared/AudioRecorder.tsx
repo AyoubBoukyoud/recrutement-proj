@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 
 interface AudioRecorderProps {
-  onRecordingComplete?: (blobUrl: string) => void;
+  /** L'URL sert à l'aperçu local ; le blob est ce qui part réellement vers l'API. */
+  onRecordingComplete?: (blobUrl: string, blob: Blob) => void;
 }
 
 export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
@@ -33,7 +34,7 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
       recorder.ondataavailable = (e) => chunksRef.current.push(e.data);
       recorder.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        onRecordingComplete?.(URL.createObjectURL(blob));
+        onRecordingComplete?.(URL.createObjectURL(blob), blob);
         stream.getTracks().forEach((track) => track.stop());
       };
       recorder.start();

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { DemoBanner } from '@/components/amud/DemoBanner';
 
 const ESPACES = [
   {
@@ -52,6 +53,9 @@ const MARKETING = [
 export default function AmudHubPage() {
   return (
     <div className="flex min-h-screen flex-col items-center bg-amud-background px-6 py-16 text-amud-on-surface">
+      <div className="mb-8 w-full max-w-4xl">
+        <DemoBanner />
+      </div>
       <div className="mb-12 flex flex-col items-center text-center">
         <div className="mb-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-amud-primary-container shadow-sm">
           <img src="/assets/images/logo-mark.png" alt="Amud Skills" className="h-full w-full object-cover" />

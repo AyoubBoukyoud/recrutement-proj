@@ -169,6 +169,7 @@ export function mockCandidateDetail(id: number): CandidateDetail | null {
     updated_at: item.updated_at,
     date_of_birth: '1996-03-18',
     presentation_video_path: item.has_video ? 'videos/presentation.mp4' : null,
+    video_url: item.has_video ? '/assets/mock/presentation.mp4' : null,
     submitted_at: item.submitted ? '2026-08-01T09:00:00Z' : null,
     educations: [
       {

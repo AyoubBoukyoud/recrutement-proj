@@ -1,51 +1,83 @@
 'use client';
 
-// Page : Préférences de matching - Candidat (Stitch exact template)
+// Page : Préférences de matching - Candidat
+//
+// Persisté dans `candidate_profiles.matching_preferences` (JSON), lu et écrit
+// via PUT /candidate/profile — pas de table dédiée, rien d'autre ne consomme
+// ces préférences aujourd'hui.
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { useCandidateProfile, useInvalidateCandidateProfile } from '@/lib/useCandidateProfile';
+import { candidateProfileRepository } from '@/data/candidateProfile';
 import { Button } from '@/components/shared/Button';
+import { ApiError } from '@/lib/api';
+
+const REGIONS = ['Berlin', 'Bavière', 'Hambourg', 'Saxe', 'Bade-Wurtemberg', 'Hesse'];
+const ALL_SECTORS = ['Santé', 'Logistique', 'Électricité', 'Hôtellerie', 'Construction'];
+
+function messageOf(error: unknown, fallback: string): string {
+  if (error instanceof ApiError) {
+    if (error.isNetworkFailure) return "L'API est injoignable. Vérifiez votre connexion.";
+    return error.message || fallback;
+  }
+  return fallback;
+}
 
 export default function MatchingPreferencesPage() {
-  const [regions, setRegions] = useState<{ [key: string]: boolean }>({
-    Berlin: true,
-    Bavière: false,
-    Hambourg: false,
-    Saxe: false,
-    'Bade-Wurtemberg': false,
-    Hesse: false,
-  });
+  const { token } = useAuth();
+  const { data: profile, isLoading } = useCandidateProfile();
+  const invalidateProfile = useInvalidateCandidateProfile();
 
-  const [companyType, setCompanyType] = useState('Grand groupe');
-
-  const [sectors, setSectors] = useState<string[]>(['Santé', 'Logistique']);
-
-  const [salary, setSalary] = useState(45000);
-
+  const [regions, setRegions] = useState<string[]>([]);
+  const [sectors, setSectors] = useState<string[]>([]);
+  const [minSalary, setMinSalary] = useState(45000);
   const [savedToast, setSavedToast] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    if (!profile || hydrated) return;
+    const prefs = profile.matching_preferences as { regions?: string[]; sectors?: string[]; min_salary?: number } | undefined;
+    if (prefs) {
+      setRegions(prefs.regions ?? []);
+      setSectors(prefs.sectors ?? []);
+      setMinSalary(prefs.min_salary ?? 45000);
+    }
+    setHydrated(true);
+  }, [profile, hydrated]);
 
   const toggleRegion = (region: string) => {
-    setRegions((prev) => ({ ...prev, [region]: !prev[region] }));
+    setRegions((prev) => (prev.includes(region) ? prev.filter((r) => r !== region) : [...prev, region]));
   };
 
-  const removeSector = (sector: string) => {
-    setSectors((prev) => prev.filter((s) => s !== sector));
-  };
+  const removeSector = (sector: string) => setSectors((prev) => prev.filter((s) => s !== sector));
+  const addSector = (sector: string) => setSectors((prev) => (prev.includes(sector) ? prev : [...prev, sector]));
 
-  const addSector = (sector: string) => {
-    if (!sectors.includes(sector)) {
-      setSectors((prev) => [...prev, sector]);
+  const handleSave = async () => {
+    if (!token) return;
+    setError(null);
+    setIsSaving(true);
+
+    try {
+      await candidateProfileRepository.update(
+        { matching_preferences: { regions, sectors, min_salary: minSalary } },
+        token
+      );
+      await invalidateProfile();
+      setSavedToast(true);
+      setTimeout(() => setSavedToast(false), 3000);
+    } catch (cause) {
+      setError(messageOf(cause, "L'enregistrement a échoué. Réessayez."));
+    } finally {
+      setIsSaving(false);
     }
-  };
-
-  const handleSave = () => {
-    setSavedToast(true);
-    setTimeout(() => setSavedToast(false), 3000);
   };
 
   return (
     <div className="min-h-screen bg-background pb-32 text-onBackground font-sans">
-      {/* TopAppBar */}
       <header className="sticky top-0 z-40 w-full border-b border-outline-variant bg-surface">
         <div className="mx-auto flex h-16 w-full max-w-xl items-center justify-between px-4 lg:max-w-5xl lg:px-10">
           <div className="flex items-center gap-4">
@@ -74,9 +106,7 @@ export default function MatchingPreferencesPage() {
         </div>
       </header>
 
-      {/* Main Content Canvas */}
       <main className="mx-auto max-w-xl px-4 py-4 space-y-6 lg:max-w-5xl lg:px-10 lg:py-8">
-        {/* Welcome Section */}
         <div className="py-2">
           <h2 className="text-2xl font-extrabold text-onSurface">Personnalisez vos opportunités</h2>
           <p className="mt-1 text-sm font-medium leading-relaxed text-onSurface-variant">
@@ -84,8 +114,10 @@ export default function MatchingPreferencesPage() {
           </p>
         </div>
 
+        {isLoading ? (
+          <p className="helper-text">Chargement…</p>
+        ) : (
         <div className="space-y-6 lg:grid lg:grid-cols-2 lg:items-start lg:gap-6 lg:space-y-0">
-        {/* Section 1: Regions */}
         <section className="rounded-xl border border-outline-variant border-l-4 border-l-primary bg-surface-container-lowest p-6 shadow-subtle space-y-4">
           <h3 className="flex items-center gap-2 text-base font-extrabold text-primary">
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
@@ -94,7 +126,7 @@ export default function MatchingPreferencesPage() {
             Région souhaitée en Allemagne
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-            {Object.keys(regions).map((regionName) => (
+            {REGIONS.map((regionName) => (
               <label
                 key={regionName}
                 className="group flex cursor-pointer items-center justify-between rounded-lg border border-outline-variant p-3.5 transition-colors hover:bg-surface-container-low"
@@ -102,7 +134,7 @@ export default function MatchingPreferencesPage() {
                 <span className="text-sm font-semibold text-onSurface">{regionName}</span>
                 <input
                   type="checkbox"
-                  checked={regions[regionName]}
+                  checked={regions.includes(regionName)}
                   onChange={() => toggleRegion(regionName)}
                   className="h-5 w-5 rounded border-outline text-primary focus:ring-primary"
                 />
@@ -111,32 +143,6 @@ export default function MatchingPreferencesPage() {
           </div>
         </section>
 
-        {/* Section 2: Company Type */}
-        <section className="rounded-xl border border-outline-variant border-l-4 border-l-primary bg-surface-container-lowest p-6 shadow-subtle space-y-4">
-          <h3 className="flex items-center gap-2 text-base font-extrabold text-primary">
-            <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
-              corporate_fare
-            </span>
-            Type d&apos;entreprise
-          </h3>
-          <div className="flex flex-wrap gap-2 pt-1">
-            {['Grand groupe', 'PME', 'Start-up', 'Peu importe'].map((type) => (
-              <Button
-                key={type}
-                variant={companyType === type ? 'primary' : 'outline'}
-                size="sm"
-                pill
-                onClick={() => setCompanyType(type)}
-                aria-pressed={companyType === type}
-                className="px-5"
-              >
-                {type}
-              </Button>
-            ))}
-          </div>
-        </section>
-
-        {/* Section 3: Sectors */}
         <section className="rounded-xl border border-outline-variant border-l-4 border-l-primary bg-surface-container-lowest p-6 shadow-subtle space-y-4">
           <h3 className="flex items-center gap-2 text-base font-extrabold text-primary">
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
@@ -163,28 +169,25 @@ export default function MatchingPreferencesPage() {
                 </button>
               </div>
             ))}
-            {['Électricité', 'Hôtellerie', 'Construction']
-              .filter((s) => !sectors.includes(s))
-              .map((sec) => (
-                <Button
-                  key={sec}
-                  variant="outline"
-                  size="sm"
-                  pill
-                  onClick={() => addSector(sec)}
-                  className="gap-1.5 border-outline-variant text-onSurface-variant"
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
-                    add
-                  </span>
-                  {sec}
-                </Button>
-              ))}
+            {ALL_SECTORS.filter((s) => !sectors.includes(s)).map((sec) => (
+              <Button
+                key={sec}
+                variant="outline"
+                size="sm"
+                pill
+                onClick={() => addSector(sec)}
+                className="gap-1.5 border-outline-variant text-onSurface-variant"
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
+                  add
+                </span>
+                {sec}
+              </Button>
+            ))}
           </div>
         </section>
 
-        {/* Section 4: Salary */}
-        <section className="rounded-xl border border-outline-variant border-l-4 border-l-primary bg-surface-container-lowest p-6 shadow-subtle space-y-4">
+        <section className="rounded-xl border border-outline-variant border-l-4 border-l-primary bg-surface-container-lowest p-6 shadow-subtle space-y-4 lg:col-span-2">
           <h3 className="flex items-center gap-2 text-base font-extrabold text-primary">
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
               payments
@@ -198,8 +201,8 @@ export default function MatchingPreferencesPage() {
             <input
               type="number"
               step="1000"
-              value={salary}
-              onChange={(e) => setSalary(Number(e.target.value))}
+              value={minSalary}
+              onChange={(e) => setMinSalary(Number(e.target.value))}
               placeholder="45,000"
               className="w-full rounded-lg border border-outline bg-surface py-3 pl-10 pr-4 text-xl font-extrabold text-onSurface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
             />
@@ -210,8 +213,8 @@ export default function MatchingPreferencesPage() {
               min="30000"
               max="120000"
               step="5000"
-              value={salary}
-              onChange={(e) => setSalary(Number(e.target.value))}
+              value={minSalary}
+              onChange={(e) => setMinSalary(Number(e.target.value))}
               className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-surface-container accent-primary"
             />
             <div className="mt-2 flex justify-between text-xs font-bold text-onSurface-variant">
@@ -221,20 +224,9 @@ export default function MatchingPreferencesPage() {
           </div>
         </section>
         </div>
+        )}
 
-        {/* Visual Decorative Card */}
-        <div className="group relative h-48 overflow-hidden rounded-xl border border-outline-variant shadow-md">
-          <div
-            className="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-            style={{
-              backgroundImage:
-                "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCwCan9bPpZq5iQJykrngR1JCeHtHSq-7zkccaiau4EqUMRE3H9StxL-TG7oK29kATRTb48H96JnrE_8K-slpQGJ-Uyj_-WXUW2zdokU4Ls7E9tf7vzXQsBuLPsp8-9PzYWZx8KPub9H_Kw7rgHcRZVHJk-LH-36_eAQQIECb7c8Jmn7zv1tDa8RLWT4y0DO6vVAKv-pPcq8wQRmczZWKT36CTONLDMPvcOwzqmgNF1Hh4VnVIO_47s')",
-            }}
-          />
-          <div className="absolute inset-0 flex items-end bg-gradient-to-t from-primary/80 to-transparent p-5">
-            <p className="text-sm font-semibold text-onPrimary">Découvrez votre futur chez-vous en Allemagne.</p>
-          </div>
-        </div>
+        {error && <p className="text-sm font-medium text-error">{error}</p>}
 
         {savedToast && (
           <div className="flex items-center gap-2 rounded-pillar bg-primary-container p-4 text-xs font-bold text-onPrimary shadow-md animate-pulse">
@@ -245,9 +237,16 @@ export default function MatchingPreferencesPage() {
           </div>
         )}
 
-        {/* Action Button Container */}
         <div className="pt-4 pb-8 flex justify-center">
-          <Button size="lg" fullWidth onClick={handleSave} className="text-base font-extrabold shadow-lg lg:max-w-sm">
+          <Button
+            size="lg"
+            fullWidth
+            onClick={() => void handleSave()}
+            disabled={isSaving || isLoading}
+            isLoading={isSaving}
+            loadingLabel="Enregistrement…"
+            className="text-base font-extrabold shadow-lg lg:max-w-sm"
+          >
             <span>Enregistrer les préférences</span>
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
               save

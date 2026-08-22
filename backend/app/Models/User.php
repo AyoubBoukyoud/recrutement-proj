@@ -37,6 +37,18 @@ class User extends Authenticatable
         return $this->hasMany(Complaint::class);
     }
 
+    /** The billing identity behind this user, when the user is a recruiter (Company role). */
+    public function employerProfile(): HasOne
+    {
+        return $this->hasOne(EmployerProfile::class);
+    }
+
+    /** B2C candidate subscriptions — a user may have had several over time (renewed, lapsed, re-subscribed). */
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *

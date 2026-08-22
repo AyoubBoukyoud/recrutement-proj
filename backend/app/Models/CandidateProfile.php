@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use App\Services\FileAccess;
+use Illuminate\Database\Eloquent\Attributes\Appends;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
+#[Appends(['video_url'])]
 #[Fillable([
     'first_name',
     'last_name',
@@ -16,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'years_of_experience',
     'date_of_birth',
     'availability_status',
+    'matching_preferences',
     'terms_consent_at',
     'cndp_consent_at',
     'presentation_video_path',
@@ -30,6 +35,7 @@ class CandidateProfile extends Model
     {
         return [
             'date_of_birth' => 'date',
+            'matching_preferences' => 'array',
             'terms_consent_at' => 'datetime',
             'cndp_consent_at' => 'datetime',
             'submitted_at' => 'datetime',
@@ -68,6 +74,12 @@ class CandidateProfile extends Model
         return $this->hasMany(RecruiterShortlist::class);
     }
 
+    /** Employer success-fee events — see Placement's own docblock for why this isn't just a shortlist stage. */
+    public function placements(): HasMany
+    {
+        return $this->hasMany(Placement::class);
+    }
+
     public function taskAssignments(): HasMany
     {
         return $this->hasMany(TaskAssignment::class);
@@ -82,5 +94,17 @@ class CandidateProfile extends Model
     public function referralRegistration(): HasOne
     {
         return $this->hasOne(ReferralRegistration::class);
+    }
+
+    /**
+     * A short-lived signed URL for the presentation video — never a bare
+     * public path. Same dossier-visibility rule as documents (owner,
+     * admin, or a recruiter this profile is discoverable to).
+     */
+    protected function videoUrl(): Attribute
+    {
+        return Attribute::get(
+            fn (): ?string => FileAccess::dossierUrl($this->presentation_video_path, $this, auth()->user())
+        );
     }
 }

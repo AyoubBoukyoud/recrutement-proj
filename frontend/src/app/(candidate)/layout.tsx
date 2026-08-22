@@ -5,8 +5,9 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useProfile } from '@/context/ProfileContext';
 import { useAuth } from '@/context/AuthContext';
+import { useCandidateProfile } from '@/lib/useCandidateProfile';
+import { REQUIRED_SECTION_TO_STEP } from '@/lib/candidateProfile';
 
 const TABS = [
   { href: '/dashboard', label: 'Accueil', icon: 'home' },
@@ -20,16 +21,17 @@ export default function CandidateLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const router = useRouter();
   const { isLoading } = useAuth();
-  const { isHydrated, getIncompleteStep } = useProfile();
+  const { data: profile, isLoading: profileLoading } = useCandidateProfile();
 
   useEffect(() => {
-    if (isLoading || !isHydrated) return;
-    const incompleteStep = getIncompleteStep();
+    if (isLoading || profileLoading || !profile) return;
+    const missing = profile.completeness.missing_required[0];
+    const incompleteStep = missing ? REQUIRED_SECTION_TO_STEP[missing] : undefined;
     if (incompleteStep) {
       router.replace(`/profile-creation?step=${incompleteStep}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, isHydrated]);
+  }, [isLoading, profileLoading, profile]);
 
   return (
     <div className="min-h-screen bg-surface lg:flex">

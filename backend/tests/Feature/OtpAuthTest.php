@@ -191,6 +191,22 @@ class OtpAuthTest extends TestCase
             ->assertJsonPath('debug_otp_code', null);
     }
 
+    public function test_the_code_is_never_exposed_outside_local_or_testing(): void
+    {
+        // Simulates a stray OTP_EXPOSE_CODE=true surviving into a production
+        // .env (e.g. copy-pasted from staging) — exposedCode() must refuse
+        // regardless of that config value once the app isn't local/testing.
+        $this->app->instance('env', 'production');
+
+        try {
+            $this->postJson('/api/auth/otp/request', ['phone' => '+212600000001'])
+                ->assertOk()
+                ->assertJsonPath('debug_otp_code', null);
+        } finally {
+            $this->app->instance('env', 'testing');
+        }
+    }
+
     public function test_the_otp_request_endpoint_is_rate_limited(): void
     {
         // Undo the setUp() bypass: this test is about the limiter itself.

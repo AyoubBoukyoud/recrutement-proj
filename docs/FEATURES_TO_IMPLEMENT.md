@@ -451,7 +451,7 @@ Things that read as finished and are not. These matter more than the plain gaps 
 | 4 | ~~Language certificates can be certified~~ | Fixed. `POST /candidate/languages/{language}/certificate` is the one path that writes `certificate_document_id` and `source='certified'`. |
 | 5 | ~~Lists are paginated~~ | Fixed. `Pagination` is wired into recruiter search, the shortlist, the admin candidate list, users and the activity catalogue. |
 | 6 | ~~OTP delivery is swappable~~ | Fixed. `App\Contracts\OtpChannel` with log, WhatsApp and Twilio drivers behind `config/otp.php`. |
-| 7 | Logging out ends the session | Web-admin `logout()` clears localStorage and never calls `POST /auth/logout` — the Sanctum token stays valid. |
+| 7 | ~~Logging out ends the session~~ | Fixed — and the `web-admin` app this referred to no longer exists (merged into `frontend/` in commit `21e6258`). `frontend/src/context/AuthContext.tsx` and `mobile-expo/src/context/AuthContext.tsx` both call `POST /auth/logout` before clearing local state, and `AuthController::logout` revokes the calling device's Sanctum token (`currentAccessToken()->delete()`). Covered by `AccountSessionTest::test_logging_out_revokes_only_the_calling_devices_token`. |
 
 ---
 
