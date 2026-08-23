@@ -17,6 +17,18 @@ import { notificationsSeed } from '@/data/amud/notifications';
 import { notifications as notificationsCollection } from '@/lib/amud/storage/notify';
 import { useCollection } from '@/lib/amud/storage/useCollection';
 import { CountUp } from '@/components/amud/ui';
+import { centresCollection } from '@/lib/amud/localCentres';
+import { centresSeed } from '@/data/amud/centres';
+import { centerStudentsCollection } from '@/lib/amud/localCenterStudents';
+import { centerStudentsSeed } from '@/data/amud/centerStudents';
+import { centerTeachersCollection } from '@/lib/amud/localCenterTeachers';
+import { centerTeachersSeed } from '@/data/amud/centerTeachers';
+import { centerFormationsCollection } from '@/lib/amud/localCenterFormations';
+import { centerFormationsSeed } from '@/data/amud/centerFormations';
+import { centerGroupsCollection } from '@/lib/amud/localCenterGroups';
+import { centerGroupsSeed } from '@/data/amud/centerGroups';
+import { auditLogs } from '@/lib/amud/storage/audit';
+import { auditLogSeed } from '@/data/amud/auditLog';
 
 function todayFr() {
   return new Date().toLocaleDateString('fr-FR');
@@ -34,6 +46,12 @@ export default function AmudAdminDashboardPage() {
   const [activites] = useCollection(activitesCollection, activitesSeed);
   const [rdvs] = useCollection(rendezVousCollection, buildSeedRdvs());
   const [allNotifications] = useCollection(notificationsCollection, notificationsSeed);
+  const [centres] = useCollection(centresCollection, centresSeed);
+  const [centerStudents] = useCollection(centerStudentsCollection, centerStudentsSeed);
+  const [centerTeachers] = useCollection(centerTeachersCollection, centerTeachersSeed);
+  const [centerFormations] = useCollection(centerFormationsCollection, centerFormationsSeed);
+  const [centerGroups] = useCollection(centerGroupsCollection, centerGroupsSeed);
+  const [auditEntries] = useCollection(auditLogs, auditLogSeed);
 
   const leaderboard = [...commerciaux]
     .sort((a, b) => b.realiseMensuel / b.objectifMensuel - a.realiseMensuel / a.objectifMensuel)
@@ -53,6 +71,22 @@ export default function AmudAdminDashboardPage() {
     { label: 'Total commerciaux', value: commerciaux.length, icon: 'support_agent', accent: 'bg-amud-tertiary-container' },
     { label: 'Offres actives', value: offres.filter((o) => o.statut === 'Publiée').length, icon: 'work', accent: 'bg-amud-tertiary-container' },
   ];
+
+  const centreKpis = [
+    { label: 'Total centres', value: centres.length, icon: 'school', accent: 'bg-amud-primary' },
+    { label: 'Centres actifs', value: centres.filter((c) => c.statut === 'Actif').length, icon: 'check_circle', accent: 'bg-amud-primary-container' },
+    { label: 'En négociation', value: centres.filter((c) => c.partnershipStatus === 'NEGOCIATION' || c.partnershipStatus === 'ESSAI').length, icon: 'handshake', accent: 'bg-amud-tertiary-container' },
+    { label: 'Suspendus', value: centres.filter((c) => c.partnershipStatus === 'SUSPENDU' || c.partnershipStatus === 'EXPIRE').length, icon: 'pause_circle', accent: 'bg-amud-error' },
+    { label: 'Étudiants (centres)', value: centerStudents.length, icon: 'group', accent: 'bg-amud-primary' },
+    { label: 'Enseignants (centres)', value: centerTeachers.length, icon: 'cast_for_education', accent: 'bg-amud-primary' },
+    { label: 'Formations (centres)', value: centerFormations.length, icon: 'menu_book', accent: 'bg-amud-tertiary-container' },
+    { label: 'Groupes (centres)', value: centerGroups.length, icon: 'diversity_3', accent: 'bg-amud-tertiary-container' },
+  ];
+
+  const centreActivity = [...auditEntries]
+    .filter((l) => !!l.centerId)
+    .sort((a, b) => `${b.date} ${b.heure}`.localeCompare(`${a.date} ${a.heure}`))
+    .slice(0, 5);
 
   return (
     <div>
@@ -96,6 +130,28 @@ export default function AmudAdminDashboardPage() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="mb-xl">
+        <h3 className="mb-md text-title-lg text-amud-on-surface">Centres de formation</h3>
+        <div className="grid grid-cols-2 gap-lg lg:grid-cols-4">
+          {centreKpis.map((kpi, i) => (
+            <div
+              key={kpi.label}
+              style={{ animationDelay: `${i * 60}ms` }}
+              className="relative overflow-hidden rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg shadow-sm animate-amud-rise-in"
+            >
+              <div className={`absolute bottom-0 left-0 top-0 w-1 ${kpi.accent}`} />
+              <div className="mb-md flex items-start justify-between">
+                <div className="text-label-md text-amud-on-surface-variant">{kpi.label}</div>
+                <span className="material-symbols-outlined text-amud-primary">{kpi.icon}</span>
+              </div>
+              <div className="text-headline-lg text-amud-on-surface">
+                <CountUp value={kpi.value} />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-lg lg:grid-cols-3">
@@ -167,6 +223,31 @@ export default function AmudAdminDashboardPage() {
                       {a.title}
                     </div>
                     <span className="rounded-full bg-amud-surface-container-highest px-2 py-1 text-label-sm text-amud-on-surface-variant">{a.category}</span>
+                  </Link>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg shadow-sm">
+            <h3 className="mb-lg flex items-center gap-sm text-title-lg text-amud-on-surface">
+              <span className="material-symbols-outlined text-amud-primary">school</span>
+              Activité récente des centres
+            </h3>
+            <div className="space-y-sm">
+              {centreActivity.length === 0 ? (
+                <p className="text-body-md text-amud-on-surface-variant">Aucune activité récente.</p>
+              ) : (
+                centreActivity.map((l) => (
+                  <Link
+                    key={l.id}
+                    href={l.centerId ? `/amud/admin/centres/${l.centerId}` : '/amud/admin/centres'}
+                    className="block rounded p-sm transition-colors hover:bg-amud-surface-container-low"
+                  >
+                    <div className="text-body-md text-amud-on-surface">{l.action}</div>
+                    <div className="text-label-sm text-amud-on-surface-variant">
+                      {l.reference} · {l.date}
+                    </div>
                   </Link>
                 ))
               )}

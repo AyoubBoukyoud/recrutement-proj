@@ -9,7 +9,7 @@ import { useCollection } from '@/lib/amud/storage/useCollection';
 import { offresCollection } from '@/lib/amud/localOffres';
 import { offresSeed, STATUT_CLASS } from '@/data/amud/offres';
 import { applicationsCollection } from '@/lib/amud/localApplications';
-import { applicationsSeed, KANBAN_COLUMNS, STATUS_LABEL, colonneForStatus, type ColonneId, type Application } from '@/data/amud/applications';
+import { applicationsSeed, KANBAN_COLUMNS, colonneForStatus, type ColonneId, type Application } from '@/data/amud/applications';
 import { CURRENT_EMPLOYER } from '@/data/amud/currentEmployer';
 import { publishOffer, pauseOffer, reactivateOffer, archiveOffer, deleteOffer, duplicateOffer } from '@/lib/amud/offerCascades';
 import { changeApplicationStatus } from '@/lib/amud/applicationCascades';

@@ -30,6 +30,18 @@ export const AMUD_KEYS = {
   favorites: 'amud_favorites',
   conversations: 'amud_conversations',
   candidateNotes: 'amud_candidate_notes',
+  centres: 'amud_centres',
+  centerStudents: 'amud_center_students',
+  centerTeachers: 'amud_center_teachers',
+  centerFormations: 'amud_center_formations',
+  centerGroups: 'amud_center_groups',
+  centerSchedules: 'amud_center_schedules',
+  centerAttendance: 'amud_center_attendance',
+  centerStudentPayments: 'amud_center_student_payments',
+  centerTeacherPayments: 'amud_center_teacher_payments',
+  centerTarifs: 'amud_center_tarifs',
+  centerLeads: 'amud_center_leads',
+  centerModificationRequests: 'amud_center_modification_requests',
 } as const;
 
 export type AmudKey = (typeof AMUD_KEYS)[keyof typeof AMUD_KEYS];

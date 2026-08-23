@@ -188,34 +188,35 @@ export function Modal({
   if (!open) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-amud-on-surface/40 p-md backdrop-blur-sm animate-amud-fade-in"
-      onClick={onClose}
-      aria-hidden="true"
-    >
-      <div
-        role="dialog"
-        aria-modal="true"
-        onClick={(e) => e.stopPropagation()}
-        className={`flex w-full ${widthClassName} max-h-[85vh] flex-col overflow-hidden rounded-xl border border-amud-outline-variant bg-amud-surface shadow-2xl animate-amud-scale-in`}
-      >
-        <div className="flex shrink-0 items-center justify-between border-b border-amud-outline-variant bg-amud-surface-container-low px-lg py-md">
-          <div>
-            <h3 className="text-title-lg font-semibold text-amud-on-surface">{title}</h3>
-            {subtitle ? <p className="mt-0.5 text-label-sm text-amud-on-surface-variant">{subtitle}</p> : null}
+    <>
+      <div className="fixed inset-0 z-50 bg-amud-on-surface/40 backdrop-blur-sm animate-amud-fade-in" onClick={onClose} aria-hidden="true" />
+      <div className="fixed inset-0 z-50 flex flex-col items-center p-md" onClick={onClose}>
+        <div className="grow-[3]" aria-hidden="true" />
+        <div
+          role="dialog"
+          aria-modal="true"
+          onClick={(e) => e.stopPropagation()}
+          className={`flex w-full ${widthClassName} max-h-[85vh] flex-col overflow-hidden rounded-xl border border-amud-outline-variant bg-amud-surface shadow-2xl animate-amud-scale-in`}
+        >
+          <div className="flex shrink-0 items-center justify-between border-b border-amud-outline-variant bg-amud-surface-container-low px-lg py-md">
+            <div>
+              <h3 className="text-title-lg font-semibold text-amud-on-surface">{title}</h3>
+              {subtitle ? <p className="mt-0.5 text-label-sm text-amud-on-surface-variant">{subtitle}</p> : null}
+            </div>
+            <button
+              className="rounded-full p-2 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-high hover:text-amud-on-surface"
+              onClick={onClose}
+              aria-label="Fermer"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
           </div>
-          <button
-            className="rounded-full p-2 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-high hover:text-amud-on-surface"
-            onClick={onClose}
-            aria-label="Fermer"
-          >
-            <span className="material-symbols-outlined">close</span>
-          </button>
+          <div className="flex-1 overflow-y-auto p-lg">{children}</div>
+          {footer ? <div className="shrink-0 border-t border-amud-outline-variant bg-amud-surface p-md">{footer}</div> : null}
         </div>
-        <div className="flex-1 overflow-y-auto p-lg">{children}</div>
-        {footer ? <div className="shrink-0 border-t border-amud-outline-variant bg-amud-surface p-md">{footer}</div> : null}
+        <div className="grow-[17]" aria-hidden="true" />
       </div>
-    </div>
+    </>
   );
 }
 

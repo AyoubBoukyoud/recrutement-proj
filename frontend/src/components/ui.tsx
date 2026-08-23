@@ -312,7 +312,8 @@ export function Modal({
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-on-surface/40 p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex flex-col items-center bg-on-surface/40 p-4" onClick={onClose}>
+      <div className="grow-[3]" aria-hidden="true" />
       <div
         role="dialog"
         aria-modal="true"
@@ -332,6 +333,7 @@ export function Modal({
         </div>
         {children}
       </div>
+      <div className="grow-[17]" aria-hidden="true" />
     </div>
   )
 }

@@ -9,6 +9,7 @@ import { CURRENT_COMMERCIAL } from '@/data/amud/currentCommercial';
 import { loadLocalEntreprises } from '@/lib/amud/localEntreprises';
 import { loadLocalMesContacts } from '@/lib/amud/localMesContacts';
 import { loadLocalTaches } from '@/lib/amud/localCommercialTaches';
+import { loadLocalCentres } from '@/lib/amud/localCentres';
 import { notificationsSeed } from '@/data/amud/notifications';
 import { notifications as notificationsCollection, markNotificationRead, markAllNotificationsRead } from '@/lib/amud/storage/notify';
 import { useCollection } from '@/lib/amud/storage/useCollection';
@@ -30,6 +31,7 @@ import { useCollection } from '@/lib/amud/storage/useCollection';
 const NAV = [
   { href: '/amud/commercial', icon: 'dashboard', label: 'Vue d’ensemble' },
   { href: '/amud/commercial/entreprises', icon: 'domain', label: 'Entreprises' },
+  { href: '/amud/commercial/centres', icon: 'school', label: 'Centres partenaires' },
   { href: '/amud/commercial/activites', icon: 'history', label: 'Activités' },
   { href: '/amud/commercial/taches', icon: 'assignment', label: 'Tâches' },
   { href: '/amud/commercial/rendez-vous', icon: 'calendar_month', label: 'Rendez-vous' },
@@ -67,6 +69,12 @@ function useCommercialSearchResults(query: string): SearchResult[] {
       if (results.filter((r) => r.sub === 'Tâche').length >= 3) break;
       if (t.titre.toLowerCase().includes(q)) {
         results.push({ id: `tac-${t.id}`, label: t.titre, sub: 'Tâche', href: `/amud/commercial/taches?open=${t.id}`, icon: 'assignment' });
+      }
+    }
+    for (const c of loadLocalCentres()) {
+      if (results.filter((r) => r.sub === 'Centre de formation').length >= 3) break;
+      if (c.nom.toLowerCase().includes(q) || c.ville.toLowerCase().includes(q)) {
+        results.push({ id: `centre-${c.id}`, label: c.nom, sub: 'Centre de formation', href: `/amud/commercial/centres/${c.id}`, icon: 'school' });
       }
     }
 

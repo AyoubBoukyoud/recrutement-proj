@@ -196,7 +196,8 @@ export default function ReclamationPage() {
       </main>
 
       {ticketRef && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-primary-dark/40 px-6 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[60] flex flex-col items-center bg-primary-dark/40 px-6 backdrop-blur-sm">
+          <div className="grow-[3]" aria-hidden="true" />
           <div className="w-full max-w-sm rounded-3xl bg-surface-container-lowest p-8 text-center shadow-2xl">
             <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary-container text-on-primary">
               <span className="material-symbols-outlined" style={{ fontSize: 40 }}>check</span>
@@ -211,6 +212,7 @@ export default function ReclamationPage() {
               Retour à l&apos;accueil
             </Button>
           </div>
+          <div className="grow-[17]" aria-hidden="true" />
         </div>
       )}
     </div>

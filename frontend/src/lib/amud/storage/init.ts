@@ -25,6 +25,18 @@ import { interviewFeedbackSeed } from '@/data/amud/interviewFeedback';
 import { favoritesSeed } from '@/data/amud/favorites';
 import { conversationsSeed } from '@/data/amud/conversations';
 import { candidateNotesSeed } from '@/data/amud/candidateNotes';
+import { centresSeed } from '@/data/amud/centres';
+import { centerStudentsSeed } from '@/data/amud/centerStudents';
+import { centerTeachersSeed } from '@/data/amud/centerTeachers';
+import { centerFormationsSeed } from '@/data/amud/centerFormations';
+import { centerGroupsSeed } from '@/data/amud/centerGroups';
+import { centerSchedulesSeed } from '@/data/amud/centerSchedules';
+import { centerAttendanceSeed } from '@/data/amud/centerAttendance';
+import { centerStudentPaymentsSeed } from '@/data/amud/centerStudentPayments';
+import { centerTeacherPaymentsSeed } from '@/data/amud/centerTeacherPayments';
+import { centerTarifsSeed } from '@/data/amud/centerTarifs';
+import { centerLeadsSeed } from '@/data/amud/centerLeads';
+import { centerModificationRequestsSeed } from '@/data/amud/centerModificationRequests';
 
 /**
  * Initialise chaque collection manquante avec un jeu de données de
@@ -71,6 +83,18 @@ export function initAmudDemoData() {
   seedIfMissing(AMUD_KEYS.favorites, () => favoritesSeed);
   seedIfMissing(AMUD_KEYS.conversations, () => conversationsSeed);
   seedIfMissing(AMUD_KEYS.candidateNotes, () => candidateNotesSeed);
+  seedIfMissing(AMUD_KEYS.centres, () => centresSeed);
+  seedIfMissing(AMUD_KEYS.centerStudents, () => centerStudentsSeed);
+  seedIfMissing(AMUD_KEYS.centerTeachers, () => centerTeachersSeed);
+  seedIfMissing(AMUD_KEYS.centerFormations, () => centerFormationsSeed);
+  seedIfMissing(AMUD_KEYS.centerGroups, () => centerGroupsSeed);
+  seedIfMissing(AMUD_KEYS.centerSchedules, () => centerSchedulesSeed);
+  seedIfMissing(AMUD_KEYS.centerAttendance, () => centerAttendanceSeed);
+  seedIfMissing(AMUD_KEYS.centerStudentPayments, () => centerStudentPaymentsSeed);
+  seedIfMissing(AMUD_KEYS.centerTeacherPayments, () => centerTeacherPaymentsSeed);
+  seedIfMissing(AMUD_KEYS.centerTarifs, () => centerTarifsSeed);
+  seedIfMissing(AMUD_KEYS.centerLeads, () => centerLeadsSeed);
+  seedIfMissing(AMUD_KEYS.centerModificationRequests, () => centerModificationRequestsSeed);
 }
 
 /**

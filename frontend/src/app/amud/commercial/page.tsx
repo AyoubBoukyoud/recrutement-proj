@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { CountUp, Modal } from '@/components/amud/ui';
 import { useToast } from '@/components/amud/Toast';
 import { CURRENT_COMMERCIAL } from '@/data/amud/currentCommercial';
@@ -18,6 +19,14 @@ import { useCollection } from '@/lib/amud/storage/useCollection';
 import { generateId } from '@/lib/amud/storage/ids';
 import { createCallTicket } from '@/lib/amud/callTicketCascade';
 import type { CallResult } from '@/data/amud/callTickets';
+import { centresCollection } from '@/lib/amud/localCentres';
+import { centresSeed } from '@/data/amud/centres';
+import { centerStudentsCollection } from '@/lib/amud/localCenterStudents';
+import { centerStudentsSeed } from '@/data/amud/centerStudents';
+import { centerTeachersCollection } from '@/lib/amud/localCenterTeachers';
+import { centerTeachersSeed } from '@/data/amud/centerTeachers';
+import { centerFormationsCollection } from '@/lib/amud/localCenterFormations';
+import { centerFormationsSeed } from '@/data/amud/centerFormations';
 
 const CALL_RESULTS: CallResult[] = ['Répondu', 'Pas de réponse', 'Ligne occupée', 'Téléphone éteint', 'Numéro incorrect', 'Refus', 'Intéressé', 'À rappeler', 'Rendez-vous fixé'];
 
@@ -34,6 +43,18 @@ export default function AmudCommercialDashboardPage() {
   const [followups, { add: addFollowUp }] = useCollection(followupsCollection, followupsSeed);
   const [objectives] = useCollection(objectivesCollection, objectivesSeed);
   const [rdvsAll] = useCollection(rendezVousCollection, buildSeedRdvs());
+  const [centres] = useCollection(centresCollection, centresSeed);
+  const [centerStudents] = useCollection(centerStudentsCollection, centerStudentsSeed);
+  const [centerTeachers] = useCollection(centerTeachersCollection, centerTeachersSeed);
+  const [centerFormations] = useCollection(centerFormationsCollection, centerFormationsSeed);
+
+  const mesCentres = useMemo(() => centres.filter((c) => c.assignedCommercialNom === CURRENT_COMMERCIAL.nom), [centres]);
+  const mesCentresIds = useMemo(() => new Set(mesCentres.map((c) => c.id)), [mesCentres]);
+  const centresActifs = mesCentres.filter((c) => c.partnershipStatus === 'ACTIF').length;
+  const centresNegociation = mesCentres.filter((c) => c.partnershipStatus === 'NEGOCIATION' || c.partnershipStatus === 'ESSAI').length;
+  const centreStudentsTotal = centerStudents.filter((s) => mesCentresIds.has(s.centerId)).length;
+  const centreTeachersTotal = centerTeachers.filter((t) => mesCentresIds.has(t.centerId)).length;
+  const centreFormationsActives = centerFormations.filter((f) => mesCentresIds.has(f.centerId) && f.statut === 'Active').length;
 
   const mesActivites = useMemo(() => activites.filter((a) => a.commercialId === CURRENT_COMMERCIAL.id), [activites]);
   const activitesAuj = useMemo(() => mesActivites.filter((a) => a.date === todayFr()), [mesActivites]);
@@ -314,6 +335,44 @@ export default function AmudCommercialDashboardPage() {
               ))}
               {journal.length === 0 ? <p className="text-label-sm text-amud-on-surface-variant">Aucune activité récente.</p> : null}
             </div>
+          </div>
+
+          <div className="rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-title-lg text-amud-on-surface">Centres partenaires</h3>
+              <Link href="/amud/commercial/centres" className="text-label-sm text-amud-primary hover:underline">
+                Voir tout
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-md">
+              <div className="rounded-lg bg-amud-surface-container-low p-md">
+                <div className="mb-xs text-label-sm text-amud-on-surface-variant">Mes centres</div>
+                <div className="text-headline-md text-amud-primary">
+                  <CountUp value={mesCentres.length} />
+                </div>
+              </div>
+              <div className="rounded-lg bg-amud-surface-container-low p-md">
+                <div className="mb-xs text-label-sm text-amud-on-surface-variant">Actifs</div>
+                <div className="text-headline-md text-amud-primary">
+                  <CountUp value={centresActifs} />
+                </div>
+              </div>
+              <div className="rounded-lg bg-amud-surface-container-low p-md">
+                <div className="mb-xs text-label-sm text-amud-on-surface-variant">En négociation</div>
+                <div className="text-headline-md text-amud-on-surface">
+                  <CountUp value={centresNegociation} />
+                </div>
+              </div>
+              <div className="rounded-lg bg-amud-surface-container-low p-md">
+                <div className="mb-xs text-label-sm text-amud-on-surface-variant">Étudiants</div>
+                <div className="text-headline-md text-amud-on-surface">
+                  <CountUp value={centreStudentsTotal} />
+                </div>
+              </div>
+            </div>
+            <p className="mt-md text-label-sm text-amud-on-surface-variant">
+              {centreTeachersTotal} enseignants · {centreFormationsActives} formations actives
+            </p>
           </div>
         </div>
       </div>

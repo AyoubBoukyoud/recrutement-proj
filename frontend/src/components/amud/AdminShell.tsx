@@ -13,6 +13,7 @@ import { loadLocalApplications } from '@/lib/amud/localApplications';
 import { loadLocalEntreprises } from '@/lib/amud/localEntreprises';
 import { loadLocalOffres } from '@/lib/amud/localOffres';
 import { loadLocalUtilisateurs } from '@/lib/amud/localUtilisateurs';
+import { loadLocalCentres } from '@/lib/amud/localCentres';
 
 /**
  * Coquille commune aux 13 pages admin du module `/amud` (portées depuis les
@@ -52,6 +53,10 @@ const NAV_GROUPS: {
       { href: '/amud/admin/objectifs', icon: 'target', label: 'Objectifs' },
       { href: '/amud/admin/activites', icon: 'call', label: 'Activités' },
     ],
+  },
+  {
+    label: 'Centres de formation',
+    items: [{ href: '/amud/admin/centres', icon: 'school', label: 'Centres de formation' }],
   },
   {
     label: 'Sécurité',
@@ -103,6 +108,12 @@ function useGlobalSearchResults(query: string): SearchResult[] {
       if (results.filter((r) => r.sub === 'Utilisateur').length >= 3) break;
       if (u.nom.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)) {
         results.push({ id: `usr-${u.id}`, label: u.nom, sub: `Utilisateur · ${u.role}`, href: `/amud/admin/utilisateurs?q=${encodeURIComponent(u.nom)}`, icon: 'group' });
+      }
+    }
+    for (const c of loadLocalCentres()) {
+      if (results.filter((r) => r.sub === 'Centre de formation').length >= 3) break;
+      if (c.nom.toLowerCase().includes(q) || c.ville.toLowerCase().includes(q) || c.telephone.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || c.contactNom.toLowerCase().includes(q) || c.assignedCommercialNom.toLowerCase().includes(q)) {
+        results.push({ id: `centre-${c.id}`, label: c.nom, sub: 'Centre de formation', href: `/amud/admin/centres/${c.id}`, icon: 'school' });
       }
     }
     return results.slice(0, 8);

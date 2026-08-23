@@ -23,6 +23,7 @@ export function logAudit(input: {
   reference: string;
   diff?: { before: string; after: string };
   resultat?: AuditLog['resultat'];
+  centerId?: string;
 }): AuditLog {
   const now = new Date();
   const entry: AuditLog = {
@@ -39,6 +40,7 @@ export function logAudit(input: {
     localisation: 'Session locale',
     resultat: input.resultat ?? 'Succès',
     diff: input.diff,
+    centerId: input.centerId,
   };
   auditLogs.add(entry);
   return entry;

@@ -5,7 +5,7 @@
  * `admin/journal-activite/page.tsx` — mêmes noms de champs pour que la page
  * n'ait qu'à changer sa source de données, pas son rendu.
  */
-export type AuditRole = 'Admin' | 'Commercial' | 'Recruteur' | 'Candidat' | 'N/A';
+export type AuditRole = 'Admin' | 'Commercial' | 'Recruteur' | 'Candidat' | 'Centre' | 'N/A';
 export type AuditResultat = 'Succès' | 'Échec';
 export type AuditActionType = 'create' | 'update' | 'disable' | 'delete' | 'login_failed';
 
@@ -23,6 +23,8 @@ export type AuditLog = {
   localisation: string;
   resultat: AuditResultat;
   diff?: { before: string; after: string };
+  /** Rattache une entrée à un centre de formation pour les vues scoping "Activité"/"Journal" du module Centres — absent pour toutes les entrées existantes des autres modules. */
+  centerId?: string;
 };
 
 /** Quelques entrées de démarrage pour que le journal ne soit pas vide avant la première action réelle. */
