@@ -1,0 +1,81 @@
+{
+  "header": {
+    "title": "Dokument hinzufügen"
+  },
+  "notices": {
+    "loginRequired": "Melden Sie sich an, um ein Dokument zu senden und Ihr Profil automatisch ausfüllen zu lassen.",
+    "offline": "Offline — die Analyse eines Dokuments erfordert eine Internetverbindung. Versuchen Sie es erneut, sobald Sie wieder verbunden sind."
+  },
+  "upload": {
+    "sending": "Wird gesendet…",
+    "prompt": "Machen Sie ein Foto oder importieren Sie eine Datei",
+    "hint": "PDF, JPG, PNG — Max. 10 MB",
+    "cvHint": "Ihr Lebenslauf füllt Namen, Beruf, Ausbildung und Sprachen von selbst aus.",
+    "takePhoto": "Foto aufnehmen",
+    "import": "Importieren"
+  },
+  "scanning": {
+    "notice": "Das Einlesen dauert etwa fünfzehn Sekunden. Sie können diesen Bildschirm geöffnet lassen."
+  },
+  "failed": {
+    "notice": "Von dieser Seite konnte nichts Lesbares erfasst werden. Ein neues Foto genügt meist: Legen Sie das Dokument flach hin, rahmen Sie es vollständig ein und vermeiden Sie Schatten und Blitzlicht.",
+    "retryAnalysis": "Analyse erneut starten",
+    "replaceFile": "Datei ersetzen"
+  },
+  "review": {
+    "completed": "Analyse abgeschlossen",
+    "toReview": "Zu überprüfen",
+    "confidence": "Zuverlässigkeit {value}%",
+    "needsReviewNotice": "Ein Teil des Dokuments war schwer zu lesen. Korrigieren Sie Fehlerhaftes und ergänzen Sie Fehlendes: Was Sie hier bestätigen, wird in Ihrem Profil gespeichert.",
+    "fields": {
+      "full_name": { "label": "Vollständiger Name" },
+      "date_of_birth": { "label": "Geburtsdatum" },
+      "profession": { "label": "Beruf", "placeholder": "Krankenpfleger, Elektriker…" },
+      "specialization": { "label": "Fachrichtung", "placeholder": "Intensivpflege…" },
+      "years_of_experience": { "label": "Berufserfahrung (Jahre)" },
+      "email": { "label": "E-Mail" },
+      "phone": { "label": "Telefon" }
+    },
+    "educationsRead": "Erkannte Ausbildungen",
+    "languagesRead": "Erkannte Sprachen",
+    "educationLevels": {
+      "general_school": "Allgemeinbildende Schule",
+      "vocational": "Berufsausbildung",
+      "professional_training": "Qualifizierende Weiterbildung",
+      "bachelor": "Bachelorabschluss",
+      "master": "Masterabschluss",
+      "other": "Sonstiges"
+    },
+    "languageNames": {
+      "fr": "Französisch",
+      "ar": "Arabisch",
+      "en": "Englisch",
+      "de": "Deutsch"
+    },
+    "documentSaved": "Dokument gespeichert. Ihr Profil enthielt diese Informationen bereits.",
+    "addedToProfile": "Zu Ihrem Profil hinzugefügt: {value}.",
+    "keptAsEntered": "So beibehalten, wie Sie es eingegeben haben: {value}. Das Dokument zeigt etwas anderes an.",
+    "useDocumentValues": "Stattdessen die Werte aus dem Dokument verwenden",
+    "addAnotherDocument": "Weiteres Dokument hinzufügen",
+    "confirmButton": "Bestätigen und mein Profil vervollständigen",
+    "savingLabel": "Wird gespeichert…"
+  },
+  "toast": {
+    "profileCompleted": "Profil vervollständigt: {value}.",
+    "documentSavedNothingNew": "Dokument gespeichert — nichts Neues für Ihr Profil hinzuzufügen."
+  },
+  "errors": {
+    "networkUnreachable": "Die API ist nicht erreichbar. Überprüfen Sie Ihre Verbindung.",
+    "sessionExpired": "Ihre Sitzung ist abgelaufen — bitte melden Sie sich erneut an.",
+    "fileRejected": "Datei abgelehnt: PDF, JPG oder PNG, maximal 10 MB.",
+    "uploadFailed": "Die Übertragung ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "applyFailed": "Diese Angaben konnten nicht auf Ihr Profil angewendet werden.",
+    "retryFailed": "Die neue Analyse konnte nicht gestartet werden.",
+    "replaceFailed": "Das Ersetzen ist fehlgeschlagen."
+  },
+  "list": {
+    "title": "Hochgeladene Dokumente ({value})",
+    "empty": "Noch keine Dokumente vorhanden.",
+    "verify": "Überprüfen"
+  }
+}

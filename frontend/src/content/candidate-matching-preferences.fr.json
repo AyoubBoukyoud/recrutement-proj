@@ -1,0 +1,46 @@
+{
+  "header": {
+    "backAria": "Retour",
+    "title": "Mes préférences",
+    "profileAria": "Mon profil"
+  },
+  "intro": {
+    "title": "Personnalisez vos opportunités",
+    "body": "Définissez vos critères pour que nous puissions vous proposer les meilleures offres en Allemagne."
+  },
+  "loading": "Chargement…",
+  "regionsSection": {
+    "title": "Région souhaitée en Allemagne"
+  },
+  "regionLabels": {
+    "Berlin": "Berlin",
+    "Bavière": "Bavière",
+    "Hambourg": "Hambourg",
+    "Saxe": "Saxe",
+    "Bade-Wurtemberg": "Bade-Wurtemberg",
+    "Hesse": "Hesse"
+  },
+  "sectorsSection": {
+    "title": "Secteurs d'activité",
+    "removeAriaPrefix": "Retirer"
+  },
+  "sectorLabels": {
+    "Santé": "Santé",
+    "Logistique": "Logistique",
+    "Électricité": "Électricité",
+    "Hôtellerie": "Hôtellerie",
+    "Construction": "Construction"
+  },
+  "salarySection": {
+    "title": "Salaire minimum (Annuel)"
+  },
+  "errors": {
+    "networkUnreachable": "L'API est injoignable. Vérifiez votre connexion.",
+    "saveFailed": "L'enregistrement a échoué. Réessayez."
+  },
+  "savedToast": "Vos préférences de matching ont été enregistrées avec succès !",
+  "saveButton": {
+    "label": "Enregistrer les préférences",
+    "loadingLabel": "Enregistrement…"
+  }
+}

@@ -8,6 +8,8 @@ import { useAuth } from '@/context/AuthContext';
 import { useNetwork } from '@/context/NetworkContext';
 import { AudioRecorder } from '@/components/shared/AudioRecorder';
 import { Button } from '@/components/shared/Button';
+import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { ApiError } from '@/lib/api';
 import {
   listMyComplaints,
@@ -16,25 +18,31 @@ import {
   parseSubject,
   type Complaint,
 } from '@/lib/complaints';
+import { useLanguage } from '@/context/LanguageContext';
+import { candidateReclamationContentFor, categoryLabelFor } from '@/lib/candidateReclamationContent';
 
+// Valeurs canoniques (français) : préfixées telles quelles dans `body` lors
+// de l'envoi (`submitTextComplaint`/`submitVoiceComplaint`) puis relues par
+// `parseSubject` — les garder stables évite des sujets incohérents selon la
+// langue active au moment de l'envoi. L'affichage traduit passe par
+// `categoryLabelFor`.
 const CATEGORIES = ['Problème technique', 'Question sur mon dossier', 'Signaler une offre suspecte', 'Suggestion', 'Autre'];
 
-const STATUS_LABELS: Record<Complaint['status'], string> = {
-  open: 'Ouverte',
-  in_review: 'En cours',
-  resolved: 'Résolue',
-};
-
-function messageOf(error: unknown, fallback: string): string {
-  if (error instanceof ApiError) {
-    if (error.isNetworkFailure) return "L'API est injoignable. Vérifiez votre connexion.";
-    if (error.status === 401) return 'Votre session a expiré — reconnectez-vous.';
-    return error.message || fallback;
-  }
-  return fallback;
-}
-
 export default function ReclamationPage() {
+  const { language } = useLanguage();
+  const content = candidateReclamationContentFor(language);
+
+  const STATUS_LABELS: Record<Complaint['status'], string> = content.statusLabels;
+
+  function messageOf(error: unknown, fallback: string): string {
+    if (error instanceof ApiError) {
+      if (error.isNetworkFailure) return content.errors.networkUnreachable;
+      if (error.status === 401) return content.errors.sessionExpired;
+      return error.message || fallback;
+    }
+    return fallback;
+  }
+
   const { token } = useAuth();
   const { isOnline } = useNetwork();
   const [entries, setEntries] = useState<Complaint[]>([]);
@@ -60,7 +68,7 @@ export default function ReclamationPage() {
   const handleSubmit = async () => {
     if (!token) return;
     if (!category || (!message.trim() && !voiceBlob)) {
-      setError('Merci de choisir un sujet et de décrire votre problème (texte ou message vocal).');
+      setError(content.form.validationError);
       return;
     }
     setError(null);
@@ -78,7 +86,7 @@ export default function ReclamationPage() {
       setVoiceUrl(null);
       setTicketRef(`AMU-${new Date().getFullYear()}-${String(entry.id).padStart(4, '0')}`);
     } catch (cause) {
-      setError(messageOf(cause, "L'envoi a échoué. Réessayez dans un instant."));
+      setError(messageOf(cause, content.errors.submitFailed));
     } finally {
       setIsSubmitting(false);
     }
@@ -90,7 +98,11 @@ export default function ReclamationPage() {
         <Link href="/dashboard" className="mr-4 text-primary-dark transition-transform active:scale-95">
           <span className="material-symbols-outlined" style={{ fontSize: 22 }}>arrow_back</span>
         </Link>
-        <h1 className="text-lg font-bold text-primary-dark">Réclamation</h1>
+        <h1 className="flex-1 text-lg font-bold text-primary-dark">{content.header.title}</h1>
+        <div className="flex items-center gap-1">
+          <LanguageSwitcher compact />
+          <ThemeToggle />
+        </div>
       </header>
 
       <main className="mx-auto max-w-md space-y-8 px-6 pt-8 lg:max-w-5xl lg:px-10 lg:pt-10">
@@ -100,13 +112,13 @@ export default function ReclamationPage() {
               report_problem
             </span>
           </div>
-          <h2 className="text-center text-2xl font-bold text-primary-dark lg:text-left">Comment pouvons-nous vous aider ?</h2>
-          <p className="mt-2 text-center text-sm text-onSurface-variant lg:text-left">Votre avis nous aide à améliorer Amud Skills.</p>
+          <h2 className="text-center text-2xl font-bold text-primary-dark lg:text-left">{content.intro.title}</h2>
+          <p className="mt-2 text-center text-sm text-onSurface-variant lg:text-left">{content.intro.body}</p>
         </div>
 
         {!isOnline && (
           <p className="rounded-xl bg-secondary-light p-3 text-sm font-medium text-onSecondary-container">
-            Hors ligne — l&apos;envoi d&apos;une réclamation demande une connexion. Réessayez une fois reconnecté.
+            {content.offlineNotice}
           </p>
         )}
 
@@ -119,8 +131,8 @@ export default function ReclamationPage() {
           <div className="flex items-center gap-3">
             <span className="material-symbols-outlined text-primary-dark" style={{ fontSize: 22 }}>quiz</span>
             <div>
-              <p className="text-sm font-bold text-onSurface">Centre d&apos;aide / FAQ</p>
-              <p className="text-xs text-onSurface-variant">Trouvez une réponse rapide avant d&apos;envoyer une réclamation</p>
+              <p className="text-sm font-bold text-onSurface">{content.faqLink.title}</p>
+              <p className="text-xs text-onSurface-variant">{content.faqLink.subtitle}</p>
             </div>
           </div>
           <span className="material-symbols-outlined text-outline" style={{ fontSize: 18 }}>chevron_right</span>
@@ -128,40 +140,40 @@ export default function ReclamationPage() {
 
         <section className="space-y-6">
           <div className="space-y-2">
-            <label className="block px-1 text-sm font-medium text-onSurface-variant">Sujet de la réclamation</label>
+            <label className="block px-1 text-sm font-medium text-onSurface-variant">{content.form.subjectLabel}</label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="w-full rounded-xl border border-outline bg-surface-container-lowest px-4 py-3.5 text-sm outline-none transition-all focus:border-primary-dark focus:ring-2 focus:ring-primary-dark/20"
             >
-              <option value="" disabled>Choisir un type…</option>
+              <option value="" disabled>{content.form.subjectPlaceholder}</option>
               {CATEGORIES.map((c) => (
-                <option key={c} value={c}>{c}</option>
+                <option key={c} value={c}>{categoryLabelFor(content, c)}</option>
               ))}
             </select>
           </div>
 
           <div className="space-y-2">
             <div className="flex justify-between px-1">
-              <label className="text-sm font-medium text-onSurface-variant">Message</label>
+              <label className="text-sm font-medium text-onSurface-variant">{content.form.messageLabel}</label>
               <span className="text-xs text-onSurface-variant">{message.length} / 1000</span>
             </div>
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value.slice(0, 1000))}
-              placeholder="Décrivez votre problème…"
+              placeholder={content.form.messagePlaceholder}
               className="h-36 w-full resize-none rounded-xl border border-outline bg-surface-container-lowest p-4 text-sm outline-none transition-all focus:border-primary-dark focus:ring-2 focus:ring-primary-dark/20"
             />
           </div>
 
           <div className="flex items-center gap-4 py-2">
             <div className="h-px flex-1 bg-outline-variant" />
-            <span className="text-xs font-bold text-outline">OU</span>
+            <span className="text-xs font-bold text-outline">{content.form.orDivider}</span>
             <div className="h-px flex-1 bg-outline-variant" />
           </div>
 
           <div className="space-y-4 rounded-xl bg-surface-container-low p-4">
-            <p className="text-center text-sm font-semibold text-onSurface">Enregistrer un message vocal</p>
+            <p className="text-center text-sm font-semibold text-onSurface">{content.form.voiceTitle}</p>
             <AudioRecorder
               onRecordingComplete={(url, blob) => {
                 setVoiceUrl(url);
@@ -169,7 +181,7 @@ export default function ReclamationPage() {
               }}
             />
             {voiceUrl && (
-              <p className="text-center text-xs font-semibold text-primary-dark">Message vocal prêt à être envoyé.</p>
+              <p className="text-center text-xs font-semibold text-primary-dark">{content.form.voiceReady}</p>
             )}
           </div>
         </section>
@@ -182,16 +194,16 @@ export default function ReclamationPage() {
           onClick={handleSubmit}
           disabled={isSubmitting || !isOnline}
           isLoading={isSubmitting}
-          loadingLabel="Envoi en cours…"
+          loadingLabel={content.submitButton.loadingLabel}
           className="gap-3 text-lg shadow-lg"
         >
-          {isSubmitting ? 'Envoi en cours…' : 'Envoyer la réclamation'}
+          {isSubmitting ? content.submitButton.loadingLabel : content.submitButton.label}
           <span className="material-symbols-outlined" style={{ fontSize: 20 }}>send</span>
         </Button>
         </div>
 
         <section className="space-y-3 pb-6">
-          <h2 className="text-sm font-bold text-primary-dark">Mes réclamations ({entries.length})</h2>
+          <h2 className="text-sm font-bold text-primary-dark">{content.history.titlePrefix} ({entries.length})</h2>
           <div className="space-y-2.5">
             {entries.map((entry) => {
               const { subject, message: body } = parseSubject(entry.body);
@@ -199,7 +211,7 @@ export default function ReclamationPage() {
                 <div key={entry.id} className="rounded-xl border border-outline-variant bg-surface-container-lowest p-3.5 shadow-soft">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-sm font-bold text-onSurface">
-                      {subject ?? (entry.type === 'voice' ? 'Message vocal' : 'Réclamation')}
+                      {subject ?? (entry.type === 'voice' ? content.history.voiceFallback : content.history.textFallback)}
                     </span>
                     <span
                       className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${
@@ -219,7 +231,7 @@ export default function ReclamationPage() {
                   )}
                   {entry.admin_response && (
                     <p className="mt-2 rounded-lg bg-surface-container p-2 text-xs text-onSurface">
-                      <span className="font-bold">Réponse : </span>
+                      <span className="font-bold">{content.history.responsePrefix} </span>
                       {entry.admin_response}
                     </p>
                   )}
@@ -238,14 +250,14 @@ export default function ReclamationPage() {
             <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary-container text-on-primary">
               <span className="material-symbols-outlined" style={{ fontSize: 40 }}>check</span>
             </div>
-            <h3 className="mb-2 text-xl font-bold text-primary-dark">Envoyé avec succès !</h3>
-            <p className="mb-6 text-sm text-onSurface-variant">Nous reviendrons vers vous dans les plus brefs délais.</p>
+            <h3 className="mb-2 text-xl font-bold text-primary-dark">{content.successModal.title}</h3>
+            <p className="mb-6 text-sm text-onSurface-variant">{content.successModal.body}</p>
             <div className="inline-block rounded-lg border border-outline-variant bg-surface-container p-3">
-              <span className="block text-xs font-bold uppercase tracking-wider text-onSurface-variant">Référence Ticket</span>
+              <span className="block text-xs font-bold uppercase tracking-wider text-onSurface-variant">{content.successModal.ticketLabel}</span>
               <span className="text-lg font-bold text-primary-dark">#{ticketRef}</span>
             </div>
             <Button size="lg" fullWidth onClick={() => setTicketRef(null)} className="mt-8 bg-primary-dark">
-              Retour à l&apos;accueil
+              {content.successModal.backButton}
             </Button>
           </div>
           <div className="grow-[17]" aria-hidden="true" />

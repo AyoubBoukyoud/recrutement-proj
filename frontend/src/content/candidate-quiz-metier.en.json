@@ -1,0 +1,33 @@
+{
+  "header": { "title": "Trade Quiz", "backAria": "Back" },
+  "jobTitle": "Building Electrician",
+  "questionOf": "Question {index} of {total}",
+  "questions": [
+    {
+      "question": "Which device is used to measure electrical voltage in a circuit?",
+      "tag": "Measurement technique",
+      "options": ["Ammeter", "Voltmeter", "Ohmmeter", "Wattmeter"],
+      "correctIndex": 1
+    },
+    {
+      "question": "Which standard governs low-voltage electrical installations in Germany?",
+      "tag": "Regulations",
+      "options": ["VDE 0100", "ISO 9001", "DIN EN 12464", "RGE"],
+      "correctIndex": 0
+    },
+    {
+      "question": "What does the abbreviation \"PPE\" mean on a construction site?",
+      "tag": "Safety",
+      "options": ["Portable Power Equipment", "Personal Protective Equipment", "Preliminary Project Evaluation", "None of the above"],
+      "correctIndex": 1
+    }
+  ],
+  "nextButton": "Next question",
+  "resultButton": "See my result",
+  "finished": {
+    "scoreTemplate": "{score} / {total} correct answers",
+    "description": "This result will be visible to recruiters interested in your technical profile.",
+    "backToOffers": "Back to listings",
+    "restart": "Start over"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "hero": {
+    "title": "Rekrutieren Sie in Marokko nach deutschen Vertrauensstandards.",
+    "body": "Verkürzen Sie Ihre Stellenvakanzzeiten mit verifizierten, hochqualifizierten marokkanischen Fachkräften, die nach strengen deutschen GER-Standards ausgebildet und vollständig DSGVO-konform sind.",
+    "ctaRoi": "ROI berechnen",
+    "ctaStandards": "Standards ansehen",
+    "imageAlt": "Marokkanische Pflegefachkraft in einer modernen deutschen medizinischen Einrichtung."
+  },
+  "stats": [
+    { "value": "136 Tage", "label": "Nationale durchschnittliche Vakanzzeit" },
+    { "value": "212 Tage", "label": "Vakanzzeit im Gesundheitswesen" },
+    { "value": "-40%", "label": "Verkürzung der Time-to-Hire" }
+  ],
+  "cost": {
+    "title": "Die Kosten der Vakanz",
+    "body": "Der deutsche Mittelstand steht bei kritischen Einstellungen vor beispiellosen Verzögerungen. Amud Skills schließt diese Lücke durch rigoroses, verifiziertes Sourcing."
+  },
+  "standards": {
+    "title": "Kompromisslose Standards",
+    "items": [
+      {
+        "title": "DSGVO-konform",
+        "desc": "Unser gesamter Sourcing-, Verifizierungs- und Datenübermittlungsprozess entspricht strikt den deutschen und europäischen Datenschutzbestimmungen."
+      },
+      {
+        "title": "Verifizierte GER-Deutschniveaus",
+        "desc": "Wir garantieren, dass jeder Kandidat das erforderliche Sprachniveau B1/B2 erreicht, bestätigt durch akkreditierte Testzentren vor der Vermittlung."
+      }
+    ]
+  },
+  "roi": {
+    "title": "ROI-Rechner",
+    "openPositionsLabel": "Offene Stellen",
+    "openPositionsPlaceholder": "z. B. 3",
+    "industryLabel": "Branche",
+    "industries": [
+      "Gesundheitswesen (Ø 212 Tage)",
+      "Logistik (Ø 145 Tage)",
+      "IT (Ø 160 Tage)"
+    ],
+    "submit": "Einsparungen berechnen",
+    "toast": "Schätzung berechnet — ein Berater meldet sich, um sie zu verfeinern."
+  }
+}

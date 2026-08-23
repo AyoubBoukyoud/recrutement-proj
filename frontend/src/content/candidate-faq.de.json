@@ -1,0 +1,58 @@
+{
+  "header": { "title": "Hilfezentrum" },
+  "hero": {
+    "title": "Häufig gestellte Fragen",
+    "subtitle": "Hier finden Sie Antworten auf die Fragen, die uns Kandidaten am häufigsten stellen."
+  },
+  "sections": [
+    {
+      "title": "Mein Profil",
+      "items": [
+        {
+          "question": "Wie ändere ich meine persönlichen Daten?",
+          "answer": "Gehen Sie zum Reiter Profil und tippen Sie auf „Bearbeiten“, um Ihren Beruf, Ihre Stadt oder andere Angaben zu aktualisieren."
+        },
+        {
+          "question": "Kann ich eine weitere Sprache hinzufügen?",
+          "answer": "Ja. Nutzen Sie im Schritt „Sprachkenntnisse“ der Profilerstellung die Auswahl „Weitere Sprache hinzufügen“, um die Liste über Deutsch, Englisch und Französisch hinaus zu erweitern."
+        }
+      ]
+    },
+    {
+      "title": "Bewerbung & Dokumente",
+      "items": [
+        {
+          "question": "Welche Dokumente muss ich vorlegen?",
+          "answer": "Ein Lebenslauf, eine Passkopie und Ihre Abschlusszeugnisse sind erforderlich. Sie können sie im Reiter Dokumente hochladen."
+        },
+        {
+          "question": "Wie lange dauert die Prüfung meiner Dokumente?",
+          "answer": "Unser Team prüft Ihre Dokumente in der Regel innerhalb von 48 bis 72 Werkstunden."
+        }
+      ]
+    },
+    {
+      "title": "Ausbildung & Sprachtest",
+      "items": [
+        {
+          "question": "Ist der Sprachtest verpflichtend?",
+          "answer": "Er ist nicht verpflichtend, wird aber dringend empfohlen: Er stärkt das Vertrauen deutscher Arbeitgeber in Ihr Profil."
+        },
+        {
+          "question": "Wie gelange ich zu den Deutschkursen?",
+          "answer": "Auf der Startseite bietet Ihnen der Bereich „Deutschkurse“ kostenlose tägliche Lektionen."
+        }
+      ]
+    },
+    {
+      "title": "Nach der Vermittlung",
+      "items": [
+        {
+          "question": "Wer begleitet mich bei Visum und Abreise?",
+          "answer": "Sobald ein Arbeitgeber Ihre Vermittlung bestätigt, meldet sich ein Amud-Skills-Berater bei Ihnen, um Sie bei den Verwaltungsschritten und der Abreise zu begleiten."
+        }
+      ]
+    }
+  ],
+  "contactSupport": "Keine passende Antwort gefunden? Support kontaktieren"
+}

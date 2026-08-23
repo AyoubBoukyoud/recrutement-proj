@@ -1,0 +1,30 @@
+{
+  "header": { "title": "ظهوري", "backAria": "رجوع" },
+  "visibility": {
+    "visible": "مرئي لأصحاب العمل",
+    "hidden": "غير مرئي بعد"
+  },
+  "sectionLabels": {
+    "personal": "المعلومات الشخصية",
+    "education": "التكوين",
+    "languages": "اللغات",
+    "availability": "التوفر",
+    "consents": "الموافقات"
+  },
+  "status": { "done": "منجز", "todo": "قيد الإنجاز" },
+  "tips": {
+    "title": "نصائح لتحسين ملفك",
+    "video": {
+      "text": "أضف فيديو تقديميًا لإكمال ملفك.",
+      "cta": "تسجيل"
+    },
+    "language": {
+      "text": "أضف لغة واحدة على الأقل لإكمال ملفك.",
+      "cta": "إضافة لغاتي"
+    }
+  },
+  "badges": {
+    "title": "الشارات",
+    "identityVerified": "الهوية موثّقة"
+  }
+}

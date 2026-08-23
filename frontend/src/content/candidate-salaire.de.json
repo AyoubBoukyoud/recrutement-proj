@@ -1,0 +1,58 @@
+{
+  "header": {
+    "title": "Mein Gehalt simulieren"
+  },
+  "intro": {
+    "title": "Mein Gehalt simulieren",
+    "body": "Schätzen Sie Ihren künftigen Lebensstandard in Deutschland ein und bereiten Sie Ihren beruflichen Wechsel vor."
+  },
+  "form": {
+    "professionLabel": "Beruf",
+    "professionPlaceholder": "z. B. Krankenpfleger",
+    "regionLabel": "Region in Deutschland",
+    "experienceLabel": "Berufserfahrung (Jahre)",
+    "submit": "Berechnen",
+    "submitting": "Wird berechnet…"
+  },
+  "regions": [
+    "Berlin",
+    "Bayern (München)",
+    "Baden-Württemberg (Stuttgart)",
+    "Hessen (Frankfurt)",
+    "Nordrhein-Westfalen"
+  ],
+  "migrationCosts": [
+    "Arbeitsvisum (Konsulat)",
+    "Flugticket (Casablanca → Deutschland)",
+    "Reiseversicherung (90 Tage)",
+    "Erste Miete + Kaution (Schätzung)",
+    "Beglaubigte Übersetzung der Dokumente"
+  ],
+  "results": {
+    "grossTitle": "Geschätztes monatliches Bruttogehalt",
+    "perMonth": "/ Monat",
+    "low": "Niedrig",
+    "high": "Hoch",
+    "netLabel": "Geschätztes Nettogehalt",
+    "resteAVivreLabel": "Verfügbares Einkommen",
+    "resteAVivreNote": "Nach Miete und Nebenkosten",
+    "migrationTitle": "Migration: geschätzte Kosten",
+    "migrationBadge": "Schätzung 2026",
+    "tableExpenseHeader": "Ausgabenposten",
+    "tableAmountHeader": "Betrag",
+    "totalLabel": "Geschätzte Gesamtkosten",
+    "aidLabel": "Mögliche Unterstützung:",
+    "aidProgram": "THAMM-Programm",
+    "aidBody": "Sie könnten im Rahmen der bilateralen Abkommen zwischen Marokko und Deutschland eine teilweise Erstattung dieser Kosten erhalten."
+  },
+  "sidebar": {
+    "optimizeTitle": "Optimieren Sie Ihr Profil",
+    "optimizeBody": "Die Gehälter können je nach zertifiziertem Deutschniveau (B1/B2) um bis zu 20 % variieren.",
+    "languageCoursesLink": "Sprachkurse ansehen",
+    "supportTitle": "Brauchen Sie Unterstützung?",
+    "supportBody": "Unsere Berater helfen Ihnen bei der Vorbereitung Ihres Visumantrags und bei der Suche nach Ihrer ersten Wohnung.",
+    "tags": ["Wohnungssuche", "Visa-Unterstützung", "Bankkontoeröffnung"],
+    "contactLink": "Berater kontaktieren"
+  },
+  "downloadPdf": "Schätzung herunterladen (PDF)"
+}

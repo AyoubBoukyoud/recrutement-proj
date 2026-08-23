@@ -1,0 +1,19 @@
+{
+  "header": { "title": "Alltagsdeutsch" },
+  "streak": { "label": "{count} Tage in Folge" },
+  "progress": { "label": "Wöchentlicher Fortschritt" },
+  "lesson": {
+    "listenAria": "Aussprache anhören",
+    "frenchLabel": "Französisch",
+    "arabicLabel": "Arabisch",
+    "listen": "Anhören",
+    "repeat": "Nachsprechen",
+    "repeating": "Aufnahme läuft…",
+    "feedback": "Gut ausgesprochen! 🎉"
+  },
+  "quiz": {
+    "title": "Mini-Quiz",
+    "question": "Wie sagt man „Bonjour“ auf Deutsch?"
+  },
+  "finish": "Fertig"
+}

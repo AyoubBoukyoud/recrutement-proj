@@ -1,0 +1,46 @@
+{
+  "header": {
+    "backAria": "رجوع",
+    "title": "تفضيلاتي",
+    "profileAria": "ملفي الشخصي"
+  },
+  "intro": {
+    "title": "خصّص فرصك المهنية",
+    "body": "حدّد معاييرك حتى نتمكن من اقتراح أفضل العروض المتاحة في ألمانيا."
+  },
+  "loading": "جارٍ التحميل…",
+  "regionsSection": {
+    "title": "المنطقة المفضلة في ألمانيا"
+  },
+  "regionLabels": {
+    "Berlin": "برلين",
+    "Bavière": "بافاريا",
+    "Hambourg": "هامبورغ",
+    "Saxe": "ساكسونيا",
+    "Bade-Wurtemberg": "بادن-فورتمبيرغ",
+    "Hesse": "هيسن"
+  },
+  "sectorsSection": {
+    "title": "قطاعات النشاط",
+    "removeAriaPrefix": "إزالة"
+  },
+  "sectorLabels": {
+    "Santé": "الرعاية الصحية",
+    "Logistique": "اللوجستيات",
+    "Électricité": "الكهرباء",
+    "Hôtellerie": "الضيافة",
+    "Construction": "البناء"
+  },
+  "salarySection": {
+    "title": "الحد الأدنى للراتب (سنويًا)"
+  },
+  "errors": {
+    "networkUnreachable": "تعذّر الوصول إلى الواجهة البرمجية. تحقق من اتصالك.",
+    "saveFailed": "فشل الحفظ. يرجى المحاولة مرة أخرى."
+  },
+  "savedToast": "تم حفظ تفضيلات المطابقة بنجاح!",
+  "saveButton": {
+    "label": "حفظ التفضيلات",
+    "loadingLabel": "جارٍ الحفظ…"
+  }
+}

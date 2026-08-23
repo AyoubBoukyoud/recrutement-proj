@@ -1,0 +1,43 @@
+{
+  "header": {
+    "backAriaLabel": "العودة إلى لوحة التحكم",
+    "title": "ملفي الشخصي العام",
+    "shareAriaLabel": "مشاركة"
+  },
+  "loading": "جارٍ التحميل…",
+  "fallbackName": "مرشح",
+  "professionCard": {
+    "professionSrLabel": "القطاع",
+    "professionPlaceholder": "القطاع",
+    "specializationSrLabel": "التخصص",
+    "specializationPlaceholder": "التخصص",
+    "specializationFallback": "لم يتم إدخال التخصص",
+    "yearsExperienceSuffix": " سنوات خبرة",
+    "save": "حفظ",
+    "edit": "تعديل"
+  },
+  "sections": {
+    "languagesTitle": "اللغات",
+    "languagesEmpty": "لم يتم إدخال أي لغة.",
+    "presentationTitle": "تقديمي",
+    "timelineTitle": "المسار",
+    "toolsTitle": "الأدوات والشهادات",
+    "documentsTitle": "المستندات",
+    "documentsEmpty": "لم تتم إضافة أي مستند."
+  },
+  "tools": [
+    { "label": "مؤشر ظهور المرشح" },
+    { "label": "التحقق من الهوية" },
+    { "label": "برنامج الإحالة" },
+    { "label": "تفضيلات المطابقة" },
+    { "label": "محاكاة راتبي" },
+    { "label": "اختبار المهن" },
+    { "label": "الألمانية اليومية" }
+  ],
+  "logout": "تسجيل الخروج",
+  "qr": {
+    "closeAriaLabel": "إغلاق",
+    "title": "مشاركة ملفي الشخصي",
+    "scanMe": "امسح الرمز"
+  }
+}

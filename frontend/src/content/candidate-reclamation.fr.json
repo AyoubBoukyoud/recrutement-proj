@@ -1,0 +1,57 @@
+{
+  "header": {
+    "title": "Réclamation"
+  },
+  "intro": {
+    "title": "Comment pouvons-nous vous aider ?",
+    "body": "Votre avis nous aide à améliorer Amud Skills."
+  },
+  "offlineNotice": "Hors ligne — l'envoi d'une réclamation demande une connexion. Réessayez une fois reconnecté.",
+  "faqLink": {
+    "title": "Centre d'aide / FAQ",
+    "subtitle": "Trouvez une réponse rapide avant d'envoyer une réclamation"
+  },
+  "form": {
+    "subjectLabel": "Sujet de la réclamation",
+    "subjectPlaceholder": "Choisir un type…",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Décrivez votre problème…",
+    "orDivider": "OU",
+    "voiceTitle": "Enregistrer un message vocal",
+    "voiceReady": "Message vocal prêt à être envoyé.",
+    "validationError": "Merci de choisir un sujet et de décrire votre problème (texte ou message vocal)."
+  },
+  "categoryLabels": {
+    "Problème technique": "Problème technique",
+    "Question sur mon dossier": "Question sur mon dossier",
+    "Signaler une offre suspecte": "Signaler une offre suspecte",
+    "Suggestion": "Suggestion",
+    "Autre": "Autre"
+  },
+  "errors": {
+    "networkUnreachable": "L'API est injoignable. Vérifiez votre connexion.",
+    "sessionExpired": "Votre session a expiré — reconnectez-vous.",
+    "submitFailed": "L'envoi a échoué. Réessayez dans un instant."
+  },
+  "submitButton": {
+    "label": "Envoyer la réclamation",
+    "loadingLabel": "Envoi en cours…"
+  },
+  "history": {
+    "titlePrefix": "Mes réclamations",
+    "voiceFallback": "Message vocal",
+    "textFallback": "Réclamation",
+    "responsePrefix": "Réponse :"
+  },
+  "statusLabels": {
+    "open": "Ouverte",
+    "in_review": "En cours",
+    "resolved": "Résolue"
+  },
+  "successModal": {
+    "title": "Envoyé avec succès !",
+    "body": "Nous reviendrons vers vous dans les plus brefs délais.",
+    "ticketLabel": "Référence Ticket",
+    "backButton": "Retour à l'accueil"
+  }
+}

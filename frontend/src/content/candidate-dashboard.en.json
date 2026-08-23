@@ -1,0 +1,67 @@
+{
+  "header": {
+    "greeting": "Hello, {name}",
+    "greetingEmoji": "👋",
+    "fallbackName": "Candidate",
+    "spaceLabel": "Candidate Space",
+    "notificationsAriaLabel": "Notifications"
+  },
+  "profileProgress": {
+    "title": "Profile completeness",
+    "description": "Complete your profile to appear first to German recruiters."
+  },
+  "visibility": {
+    "visible": "Visible to recruiters",
+    "hidden": "Not yet visible — accept the terms in step 6"
+  },
+  "checklist": {
+    "title": "To complete",
+    "items": {
+      "personal": { "label": "Personal profile completed", "action": "Complete" },
+      "education": { "label": "Education provided", "action": "Complete" },
+      "languages": { "label": "At least one language assessed", "action": "Complete" },
+      "cv": { "label": "CV uploaded", "action": "Add" },
+      "diploma": { "label": "Certificates / diplomas", "action": "Add" },
+      "video": { "label": "Introduction video", "action": "Record" },
+      "test": { "label": "Language test", "action": "Take the test" },
+      "identity": { "label": "Identity verified", "action": "Verify" }
+    }
+  },
+  "quickActions": {
+    "title": "Quick actions",
+    "items": {
+      "addDocument": "Add a document",
+      "recordVideo": "Record a video",
+      "languageTest": "Take the language test",
+      "publicProfile": "View my public profile",
+      "germanLesson": "Today's German lesson",
+      "jobOffers": "View job offers",
+      "salarySimulator": "Simulate my salary",
+      "visibility": "My visibility",
+      "referral": "Refer a friend",
+      "verifyIdentity": "Verify my identity",
+      "matchingPreferences": "Matching preferences"
+    }
+  },
+  "applications": {
+    "title": "Application tracking",
+    "viewOffers": "View offers",
+    "stages": ["Sent", "Shortlisting", "Interview", "Decision"],
+    "updatedOn": "Updated on {date}",
+    "items": [
+      { "id": 1, "title": "Qualified Nurse", "statusLabel": "Interview scheduled", "updatedAt": "August 18" },
+      { "id": 2, "title": "Building Electrician", "statusLabel": "In shortlisting", "updatedAt": "August 15" },
+      { "id": 3, "title": "Truck Driver", "statusLabel": "Application sent", "updatedAt": "August 12" }
+    ]
+  },
+  "recommendations": {
+    "title": "Recommendations",
+    "matchBadge": "{value}% Match",
+    "applyButton": "Apply",
+    "appliedButton": "Application sent",
+    "items": [
+      { "id": 1, "title": "Receptionist", "location": "Munich, Germany", "contract": "Permanent contract" },
+      { "id": 2, "title": "Care Assistant", "location": "Hamburg, Germany", "contract": "Full time" }
+    ]
+  }
+}

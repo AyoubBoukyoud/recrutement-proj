@@ -1,0 +1,19 @@
+{
+  "header": { "title": "Everyday German" },
+  "streak": { "label": "{count}-day streak" },
+  "progress": { "label": "Weekly progress" },
+  "lesson": {
+    "listenAria": "Listen to the pronunciation",
+    "frenchLabel": "French",
+    "arabicLabel": "Arabic",
+    "listen": "Listen",
+    "repeat": "Repeat",
+    "repeating": "Listening…",
+    "feedback": "Well pronounced! 🎉"
+  },
+  "quiz": {
+    "title": "Mini quiz",
+    "question": "How do you say “Bonjour” in German?"
+  },
+  "finish": "Done"
+}

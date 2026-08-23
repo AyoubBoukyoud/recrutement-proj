@@ -1,0 +1,43 @@
+{
+  "header": {
+    "title": "Sprachtest — Deutsch"
+  },
+  "preparation": {
+    "heading": "Bereit für Ihre Bewertung?",
+    "intro": "Die künstliche Intelligenz analysiert Ihre Sprachgewandtheit, Ihre Aussprache und Ihren Wortschatz.",
+    "topicLabel": "Thema der Prüfung",
+    "topic": "Beschreiben Sie Ihren Beruf und Ihre täglichen Aufgaben im Detail.",
+    "hint": "Anweisung: Sprechen Sie mindestens {seconds} Sekunden lang über Ihren Beruf und Ihre täglichen Aufgaben.",
+    "startButton": "Test starten"
+  },
+  "recording": {
+    "inProgress": "Aufnahme läuft…"
+  },
+  "processing": {
+    "uploading": "Ihre Aufnahme wird gesendet…",
+    "analyzing": "Ihre Aussprache wird analysiert…",
+    "description": "Die KI transkribiert und vergleicht Ihre Phoneme mit deutschen Standards. Dies kann etwa fünfzehn Sekunden dauern."
+  },
+  "failed": {
+    "heading": "Bewertung nicht erfolgreich",
+    "retryButton": "Erneut versuchen"
+  },
+  "results": {
+    "aiEvaluated": "KI-bewertet",
+    "levelLabel": "Niveau {level}",
+    "heading": "Ergebnis der Bewertung",
+    "wordsPerMinute": "{value} Wörter/Minute",
+    "duration": "{value}s aufgenommen.",
+    "pronunciationLabel": "Klarheit / Aussprache",
+    "fillerWordsLabel": "Anteil an Füllwörtern",
+    "transcriptLabel": "Transkription",
+    "viewProfileButton": "Mein Profil ansehen",
+    "retakeButton": "Test wiederholen"
+  },
+  "errors": {
+    "networkUnreachable": "Die API ist nicht erreichbar. Überprüfen Sie Ihre Verbindung.",
+    "uploadFailed": "Die Übertragung ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "recordingTooShort": "Aufnahme zu kurz ({seconds}s) — sprechen Sie mindestens {minSeconds} Sekunden.",
+    "microphoneUnavailable": "Zugriff auf das Mikrofon nicht möglich. Überprüfen Sie die Berechtigungen."
+  }
+}

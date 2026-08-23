@@ -1,0 +1,43 @@
+{
+  "header": {
+    "backAriaLabel": "Back to dashboard",
+    "title": "My public profile",
+    "shareAriaLabel": "Share"
+  },
+  "loading": "Loading…",
+  "fallbackName": "Candidate",
+  "professionCard": {
+    "professionSrLabel": "Sector",
+    "professionPlaceholder": "Sector",
+    "specializationSrLabel": "Specialization",
+    "specializationPlaceholder": "Specialization",
+    "specializationFallback": "No specialization provided",
+    "yearsExperienceSuffix": " years of experience",
+    "save": "Save",
+    "edit": "Edit"
+  },
+  "sections": {
+    "languagesTitle": "Languages",
+    "languagesEmpty": "No languages provided.",
+    "presentationTitle": "My introduction",
+    "timelineTitle": "Journey",
+    "toolsTitle": "Tools & Certifications",
+    "documentsTitle": "Documents",
+    "documentsEmpty": "No documents added."
+  },
+  "tools": [
+    { "label": "Candidate visibility score" },
+    { "label": "Identity verification" },
+    { "label": "Referral program" },
+    { "label": "Matching preferences" },
+    { "label": "Simulate my salary" },
+    { "label": "Job quiz" },
+    { "label": "Everyday German" }
+  ],
+  "logout": "Log out",
+  "qr": {
+    "closeAriaLabel": "Close",
+    "title": "Share my profile",
+    "scanMe": "SCAN ME"
+  }
+}

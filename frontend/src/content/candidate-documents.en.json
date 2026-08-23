@@ -1,0 +1,81 @@
+{
+  "header": {
+    "title": "Add a document"
+  },
+  "notices": {
+    "loginRequired": "Sign in to upload a document and have your profile filled in automatically.",
+    "offline": "Offline — analyzing a document requires a connection. Try again once you're back online."
+  },
+  "upload": {
+    "sending": "Uploading…",
+    "prompt": "Take a photo or import a file",
+    "hint": "PDF, JPG, PNG — Max 10 MB",
+    "cvHint": "Your CV fills in your name, job, education, and languages by itself.",
+    "takePhoto": "Take a photo",
+    "import": "Import"
+  },
+  "scanning": {
+    "notice": "Reading the document takes about fifteen seconds. You can leave this screen open."
+  },
+  "failed": {
+    "notice": "Nothing legible could be read from this page. A new photo is usually enough: lay the document flat, frame it fully, and avoid shadows and flash.",
+    "retryAnalysis": "Retry the analysis",
+    "replaceFile": "Replace the file"
+  },
+  "review": {
+    "completed": "Analysis complete",
+    "toReview": "To review",
+    "confidence": "Confidence {value}%",
+    "needsReviewNotice": "Part of the document was hard to read. Correct anything wrong and fill in what's missing: what you confirm here is what will be saved to your profile.",
+    "fields": {
+      "full_name": { "label": "Full name" },
+      "date_of_birth": { "label": "Date of birth" },
+      "profession": { "label": "Job", "placeholder": "Nurse, electrician…" },
+      "specialization": { "label": "Specialization", "placeholder": "Intensive care…" },
+      "years_of_experience": { "label": "Years of experience" },
+      "email": { "label": "Email" },
+      "phone": { "label": "Phone" }
+    },
+    "educationsRead": "Education found",
+    "languagesRead": "Languages found",
+    "educationLevels": {
+      "general_school": "General education",
+      "vocational": "Vocational training",
+      "professional_training": "Qualifying training",
+      "bachelor": "Bachelor's degree",
+      "master": "Master's degree",
+      "other": "Other"
+    },
+    "languageNames": {
+      "fr": "French",
+      "ar": "Arabic",
+      "en": "English",
+      "de": "German"
+    },
+    "documentSaved": "Document saved. Your profile already had this information.",
+    "addedToProfile": "Added to your profile: {value}.",
+    "keptAsEntered": "Kept as you entered it: {value}. The document says something different.",
+    "useDocumentValues": "Use the document's values instead",
+    "addAnotherDocument": "Add another document",
+    "confirmButton": "Confirm and complete my profile",
+    "savingLabel": "Saving…"
+  },
+  "toast": {
+    "profileCompleted": "Profile completed: {value}.",
+    "documentSavedNothingNew": "Document saved — nothing new to add to your profile."
+  },
+  "errors": {
+    "networkUnreachable": "The API is unreachable. Check your connection.",
+    "sessionExpired": "Your session has expired — please sign in again.",
+    "fileRejected": "File rejected: PDF, JPG, or PNG, 10 MB maximum.",
+    "uploadFailed": "The upload failed. Please try again.",
+    "applyFailed": "Unable to apply this information to your profile.",
+    "retryFailed": "The new analysis could not start.",
+    "replaceFailed": "The replacement failed."
+  },
+  "list": {
+    "title": "Uploaded documents ({value})",
+    "empty": "No documents yet.",
+    "verify": "Review"
+  }
+}

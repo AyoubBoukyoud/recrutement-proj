@@ -1,0 +1,67 @@
+{
+  "header": {
+    "greeting": "Hallo, {name}",
+    "greetingEmoji": "👋",
+    "fallbackName": "Kandidat",
+    "spaceLabel": "Kandidatenbereich",
+    "notificationsAriaLabel": "Benachrichtigungen"
+  },
+  "profileProgress": {
+    "title": "Profilfortschritt",
+    "description": "Vervollständigen Sie Ihr Profil, um bei deutschen Personalverantwortlichen vorrangig angezeigt zu werden."
+  },
+  "visibility": {
+    "visible": "Für Recruiter sichtbar",
+    "hidden": "Noch nicht sichtbar — akzeptieren Sie die Bedingungen in Schritt 6"
+  },
+  "checklist": {
+    "title": "Noch zu erledigen",
+    "items": {
+      "personal": { "label": "Persönliches Profil vervollständigt", "action": "Vervollständigen" },
+      "education": { "label": "Ausbildung angegeben", "action": "Vervollständigen" },
+      "languages": { "label": "Mindestens eine Sprache bewertet", "action": "Vervollständigen" },
+      "cv": { "label": "Lebenslauf hochgeladen", "action": "Hinzufügen" },
+      "diploma": { "label": "Zertifikate / Diplome", "action": "Hinzufügen" },
+      "video": { "label": "Vorstellungsvideo", "action": "Aufnehmen" },
+      "test": { "label": "Sprachtest", "action": "Test ablegen" },
+      "identity": { "label": "Identität verifiziert", "action": "Verifizieren" }
+    }
+  },
+  "quickActions": {
+    "title": "Schnellzugriff",
+    "items": {
+      "addDocument": "Dokument hinzufügen",
+      "recordVideo": "Video aufnehmen",
+      "languageTest": "Sprachtest ablegen",
+      "publicProfile": "Mein öffentliches Profil ansehen",
+      "germanLesson": "Heutige Deutschlektion",
+      "jobOffers": "Stellenangebote ansehen",
+      "salarySimulator": "Mein Gehalt simulieren",
+      "visibility": "Meine Sichtbarkeit",
+      "referral": "Einen Freund empfehlen",
+      "verifyIdentity": "Meine Identität verifizieren",
+      "matchingPreferences": "Matching-Präferenzen"
+    }
+  },
+  "applications": {
+    "title": "Bewerbungsverfolgung",
+    "viewOffers": "Stellenangebote ansehen",
+    "stages": ["Gesendet", "Vorauswahl", "Vorstellungsgespräch", "Entscheidung"],
+    "updatedOn": "Aktualisiert am {date}",
+    "items": [
+      { "id": 1, "title": "Qualifizierte Krankenpflegekraft", "statusLabel": "Vorstellungsgespräch geplant", "updatedAt": "18. August" },
+      { "id": 2, "title": "Elektriker (Gebäudetechnik)", "statusLabel": "In der Vorauswahl", "updatedAt": "15. August" },
+      { "id": 3, "title": "LKW-Fahrer", "statusLabel": "Bewerbung gesendet", "updatedAt": "12. August" }
+    ]
+  },
+  "recommendations": {
+    "title": "Empfehlungen",
+    "matchBadge": "{value}% Übereinstimmung",
+    "applyButton": "Bewerben",
+    "appliedButton": "Bewerbung gesendet",
+    "items": [
+      { "id": 1, "title": "Empfangsmitarbeiter", "location": "München, Deutschland", "contract": "Unbefristeter Vertrag" },
+      { "id": 2, "title": "Pflegehelfer", "location": "Hamburg, Deutschland", "contract": "Vollzeit" }
+    ]
+  }
+}

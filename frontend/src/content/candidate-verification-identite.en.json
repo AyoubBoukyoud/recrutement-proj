@@ -1,0 +1,31 @@
+{
+  "header": {
+    "title": "Identity verification"
+  },
+  "status": {
+    "pending": "Awaiting review by an administrator.",
+    "approved": "Identity verified.",
+    "rejected": "Verification declined — please retake the photo."
+  },
+  "loading": "Loading…",
+  "errors": {
+    "network": "The API is unreachable. Check your connection.",
+    "camera": "Couldn't access the camera. Check your permissions.",
+    "upload": "The upload failed. Please try again."
+  },
+  "capture": {
+    "instructions": "Take a photo of yourself holding your ID next to your face.",
+    "previousRejectedPrefix": "Previous photo declined",
+    "previousRejectedSeparator": ": ",
+    "previousRejectedEnd": ".",
+    "capturedAlt": "Captured photo",
+    "toggleFlashAriaLabel": "Turn flash on or off",
+    "retake": "Retake",
+    "send": "Send",
+    "sending": "Sending…"
+  },
+  "footer": {
+    "backToProfile": "Back to profile",
+    "privacyNotice": "Your data is encrypted and processed in accordance with European data protection regulations (GDPR)."
+  }
+}

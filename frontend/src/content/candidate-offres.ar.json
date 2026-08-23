@@ -1,0 +1,32 @@
+{
+  "header": {
+    "profileAlt": "الصورة الشخصية للمرشح",
+    "notificationsAria": "الإشعارات"
+  },
+  "search": {
+    "title": "عروض مناسبة لك",
+    "srLabel": "ابحث عن مهنة أو مدينة",
+    "placeholder": "ابحث عن مهنة أو مدينة..."
+  },
+  "filters": {
+    "button": "التصفية",
+    "labels": {
+      "Tous": "الكل",
+      "Santé": "الصحة",
+      "Électricité": "الكهرباء",
+      "Hôtellerie": "الضيافة",
+      "Logistique": "اللوجستيات",
+      "Disponibilité immédiate": "متاح فورًا"
+    }
+  },
+  "job": {
+    "removeFavoriteAria": "إزالة من المفضلة",
+    "addFavoriteAria": "إضافة إلى المفضلة",
+    "interestedButton": "أنا مهتم"
+  },
+  "banner": {
+    "title": "عزّز ظهورك",
+    "body": "أكمل ملفك الشخصي بنسبة 100% لتظهر أولاً أمام مسؤولي التوظيف الألمان.",
+    "cta": "تحسين ملفي الشخصي"
+  }
+}

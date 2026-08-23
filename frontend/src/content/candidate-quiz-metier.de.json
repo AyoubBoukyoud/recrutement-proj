@@ -1,0 +1,33 @@
+{
+  "header": { "title": "Berufsquiz", "backAria": "Zurück" },
+  "jobTitle": "Elektriker Gebäudetechnik",
+  "questionOf": "Frage {index} von {total}",
+  "questions": [
+    {
+      "question": "Mit welchem Gerät misst man die elektrische Spannung in einem Stromkreis?",
+      "tag": "Messtechnik",
+      "options": ["Amperemeter", "Voltmeter", "Ohmmeter", "Wattmeter"],
+      "correctIndex": 1
+    },
+    {
+      "question": "Welche Norm regelt Niederspannungsanlagen in Deutschland?",
+      "tag": "Vorschriften",
+      "options": ["VDE 0100", "ISO 9001", "DIN EN 12464", "RGE"],
+      "correctIndex": 0
+    },
+    {
+      "question": "Wofür steht die Abkürzung „PSA“ auf einer Baustelle?",
+      "tag": "Sicherheit",
+      "options": ["Portable Sicherheitsausrüstung", "Persönliche Schutzausrüstung", "Präventive Sicherheitsanalyse", "Keine der genannten Antworten"],
+      "correctIndex": 1
+    }
+  ],
+  "nextButton": "Nächste Frage",
+  "resultButton": "Mein Ergebnis ansehen",
+  "finished": {
+    "scoreTemplate": "{score} / {total} richtige Antworten",
+    "description": "Dieses Ergebnis ist für Personalverantwortliche sichtbar, die sich für Ihr technisches Profil interessieren.",
+    "backToOffers": "Zurück zu den Stellenangeboten",
+    "restart": "Neu starten"
+  }
+}

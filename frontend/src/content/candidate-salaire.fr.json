@@ -1,0 +1,58 @@
+{
+  "header": {
+    "title": "Simuler mon salaire"
+  },
+  "intro": {
+    "title": "Simuler mon salaire",
+    "body": "Estimez votre futur niveau de vie en Allemagne et anticipez votre transition professionnelle."
+  },
+  "form": {
+    "professionLabel": "Profession",
+    "professionPlaceholder": "Ex: Infirmier",
+    "regionLabel": "Région en Allemagne",
+    "experienceLabel": "Années d'expérience",
+    "submit": "Calculer",
+    "submitting": "Calcul en cours…"
+  },
+  "regions": [
+    "Berlin",
+    "Bavière (Munich)",
+    "Bade-Wurtemberg (Stuttgart)",
+    "Hesse (Francfort)",
+    "Rhénanie-du-Nord-Westphalie"
+  ],
+  "migrationCosts": [
+    "Visa de travail (Consulat)",
+    "Billet d'avion (Casa → Allemagne)",
+    "Assurance voyage (90 jours)",
+    "Premier loyer + Caution (estimation)",
+    "Traduction certifiée des documents"
+  ],
+  "results": {
+    "grossTitle": "Salaire brut mensuel estimé",
+    "perMonth": "/ mois",
+    "low": "Bas",
+    "high": "Haut",
+    "netLabel": "Salaire net estimé",
+    "resteAVivreLabel": "Reste à vivre",
+    "resteAVivreNote": "Après loyer et charges",
+    "migrationTitle": "Migration : devis estimatif",
+    "migrationBadge": "Estimation 2026",
+    "tableExpenseHeader": "Poste de dépense",
+    "tableAmountHeader": "Montant",
+    "totalLabel": "Coût total estimé",
+    "aidLabel": "Aides possibles :",
+    "aidProgram": "Programme THAMM",
+    "aidBody": "Vous pourriez être éligible à un remboursement partiel de ces frais via les accords bilatéraux Maroc–Allemagne."
+  },
+  "sidebar": {
+    "optimizeTitle": "Optimisez votre profil",
+    "optimizeBody": "Les salaires peuvent varier de 20% selon la certification de votre niveau d'allemand (B1/B2).",
+    "languageCoursesLink": "Voir les cours de langue",
+    "supportTitle": "Besoin d'accompagnement ?",
+    "supportBody": "Nos conseillers vous aident à préparer votre dossier de visa et à trouver votre premier logement.",
+    "tags": ["Recherche de logement", "Assistance Visa", "Ouverture compte bancaire"],
+    "contactLink": "Contacter un conseiller"
+  },
+  "downloadPdf": "Télécharger l'estimation (PDF)"
+}

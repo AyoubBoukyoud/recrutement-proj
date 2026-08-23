@@ -1,0 +1,30 @@
+{
+  "header": { "title": "My visibility", "backAria": "Back" },
+  "visibility": {
+    "visible": "Visible to recruiters",
+    "hidden": "Not yet visible"
+  },
+  "sectionLabels": {
+    "personal": "Personal information",
+    "education": "Education",
+    "languages": "Languages",
+    "availability": "Availability",
+    "consents": "Consents"
+  },
+  "status": { "done": "Done", "todo": "To do" },
+  "tips": {
+    "title": "Tips to improve your score",
+    "video": {
+      "text": "Add an introduction video to complete your file.",
+      "cta": "Record"
+    },
+    "language": {
+      "text": "Add at least one language to complete your file.",
+      "cta": "Add my languages"
+    }
+  },
+  "badges": {
+    "title": "Badges",
+    "identityVerified": "Identity verified"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "header": { "title": "Introduction video" },
+  "instructions": "Record a short video (60 seconds) to introduce yourself to employers.",
+  "cameraPreview": "Camera preview",
+  "saved": "Video saved to your profile.",
+  "restart": "Start over",
+  "validate": "Confirm",
+  "sending": "Sending…",
+  "offlineNotice": "Offline — sending the video requires a connection.",
+  "errors": {
+    "cameraUnavailable": "Couldn't access the camera. Check your permissions.",
+    "networkUnreachable": "The API is unreachable. Check your connection.",
+    "uploadFailed": "Upload failed. Please try again."
+  }
+}

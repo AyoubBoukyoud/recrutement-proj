@@ -33,7 +33,7 @@ const BUTTON_BASE =
   'inline-flex items-center justify-center gap-2 rounded-element border border-transparent font-semibold tracking-[0.1px] transition-[background-color,border-color,transform] duration-100 active:enabled:scale-[0.985] disabled:cursor-not-allowed disabled:opacity-60'
 
 const BUTTON_VARIANTS = {
-  primary: 'bg-primary text-white hover:enabled:bg-primary-dark disabled:bg-surface-highest disabled:text-outline',
+  primary: 'bg-primary text-onPrimary hover:enabled:bg-primary-dark disabled:bg-surface-highest disabled:text-outline',
   ghost:
     'border-outline-variant bg-surface-lowest text-on-surface hover:enabled:border-primary hover:enabled:text-primary',
   danger:
@@ -204,7 +204,7 @@ export function Wordmark({ subtitle }: { subtitle?: string }) {
   )
 }
 
-const AVATAR_TONES = ['bg-primary text-white', 'bg-secondary text-white', 'bg-tertiary text-white', 'bg-primary-dark text-white']
+const AVATAR_TONES = ['bg-primary text-onPrimary', 'bg-secondary text-onSecondary', 'bg-tertiary text-onTertiary', 'bg-primary-dark text-onPrimary']
 
 /** Deux lettres, une teinte stable par nom — pas une photo qu'on n'a pas. */
 export function Avatar({ name, size = 36 }: { name: string; size?: number }) {
@@ -271,7 +271,7 @@ export function StepLedger({ step, total, label }: { step: number; total: number
               className={cx(
                 'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border font-mono text-[11px] tabular-nums',
                 i < step
-                  ? 'border-primary bg-primary text-white'
+                  ? 'border-primary bg-primary text-onPrimary'
                   : i === step
                     ? 'border-primary bg-surface-lowest text-primary'
                     : 'border-outline-variant bg-surface-lowest text-outline'

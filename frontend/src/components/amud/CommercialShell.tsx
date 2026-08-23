@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { InertNavItem, NavItem, Toggle, isNavActive, useDropdown } from '@/components/amud/ui';
+import { HeaderLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
 import { ToastProvider } from '@/components/amud/Toast';
 import { DemoBanner } from '@/components/amud/DemoBanner';
 import { CURRENT_COMMERCIAL } from '@/data/amud/currentCommercial';
@@ -179,7 +180,7 @@ export function CommercialShell({ children }: { children: ReactNode }) {
           collapsed ? 'md:ml-20' : 'md:ml-64'
         }`}
       >
-        <header className="sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-amud-outline-variant bg-amud-surface px-md md:px-lg">
+        <header className="fixed inset-x-0 bottom-0 z-20 flex h-16 w-full items-center justify-between border-t border-amud-outline-variant bg-amud-surface px-md pb-[env(safe-area-inset-bottom)] md:sticky md:inset-x-auto md:top-0 md:bottom-auto md:border-b md:border-t-0 md:px-lg md:pb-0">
           <div className="flex items-center gap-1">
             <button
               onClick={() => setNavOpen(true)}
@@ -313,6 +314,7 @@ export function CommercialShell({ children }: { children: ReactNode }) {
                 </div>
               ) : null}
             </div>
+            <HeaderLanguageThemeControls iconButtonClassName="rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary" />
             <div ref={profileMenu.ref} className="relative">
               <button
                 onClick={() => profileMenu.setOpen((v) => !v)}
@@ -350,7 +352,7 @@ export function CommercialShell({ children }: { children: ReactNode }) {
             </div>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-[1200px] flex-1 p-md md:p-lg lg:p-margin-desktop">
+        <main className="mx-auto w-full max-w-[1200px] flex-1 p-md pb-24 md:p-lg md:pb-lg lg:p-margin-desktop">
           <DemoBanner />
           {children}
         </main>

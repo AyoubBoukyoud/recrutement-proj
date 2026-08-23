@@ -1,0 +1,15 @@
+{
+  "header": { "title": "Vorstellungsvideo" },
+  "instructions": "Nehmen Sie ein kurzes Video (60 Sekunden) auf, um sich Arbeitgebern vorzustellen.",
+  "cameraPreview": "Kameravorschau",
+  "saved": "Video in Ihrem Profil gespeichert.",
+  "restart": "Neu starten",
+  "validate": "Bestätigen",
+  "sending": "Wird gesendet…",
+  "offlineNotice": "Offline — für den Versand des Videos ist eine Verbindung erforderlich.",
+  "errors": {
+    "cameraUnavailable": "Zugriff auf die Kamera nicht möglich. Überprüfen Sie die Berechtigungen.",
+    "networkUnreachable": "Die API ist nicht erreichbar. Überprüfen Sie Ihre Verbindung.",
+    "uploadFailed": "Der Versand ist fehlgeschlagen. Bitte versuchen Sie es erneut."
+  }
+}

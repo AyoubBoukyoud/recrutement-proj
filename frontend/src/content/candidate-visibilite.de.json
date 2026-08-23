@@ -1,0 +1,30 @@
+{
+  "header": { "title": "Meine Sichtbarkeit", "backAria": "Zurück" },
+  "visibility": {
+    "visible": "Für Personalverantwortliche sichtbar",
+    "hidden": "Noch nicht sichtbar"
+  },
+  "sectionLabels": {
+    "personal": "Persönliche Angaben",
+    "education": "Ausbildung",
+    "languages": "Sprachen",
+    "availability": "Verfügbarkeit",
+    "consents": "Einwilligungen"
+  },
+  "status": { "done": "Erledigt", "todo": "Ausstehend" },
+  "tips": {
+    "title": "Tipps zur Verbesserung",
+    "video": {
+      "text": "Fügen Sie ein Vorstellungsvideo hinzu, um Ihr Profil zu vervollständigen.",
+      "cta": "Aufnehmen"
+    },
+    "language": {
+      "text": "Geben Sie mindestens eine Sprache an, um Ihr Profil zu vervollständigen.",
+      "cta": "Sprachen angeben"
+    }
+  },
+  "badges": {
+    "title": "Abzeichen",
+    "identityVerified": "Identität verifiziert"
+  }
+}

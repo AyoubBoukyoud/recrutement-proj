@@ -1,0 +1,33 @@
+{
+  "profileAlt": "Profilbild von Anas",
+  "hero": {
+    "title": "Lade deine Freunde ein",
+    "body": "Hilf deinen Freunden, ihre nächste Karriere in Deutschland zu finden, und sichere dir exklusive Prämien für jede erfolgreiche Empfehlung."
+  },
+  "codeCard": {
+    "eyebrow": "DEIN CODE",
+    "title": "Dein Empfehlungscode",
+    "copiedNotice": "Code in die Zwischenablage kopiert!",
+    "copyButton": "Kopieren",
+    "shareButton": "Über WhatsApp teilen",
+    "shareMessagePrefix": "Schließe dich mir bei Amud Skills an und finde deinen nächsten Job in Deutschland! Nutze meinen Empfehlungscode:"
+  },
+  "qrCard": {
+    "alt": "QR-Code für Empfehlungen",
+    "instructions": "Scannen, um jemanden persönlich zu empfehlen",
+    "tokenLabel": "Token"
+  },
+  "stats": {
+    "referralsLabel": "angemeldete Empfehlungen",
+    "progressPrefix": "Fortschritt:",
+    "rewardHint": "Ein Gratismonat steht bevor"
+  },
+  "list": {
+    "title": "Meine letzten Empfehlungen",
+    "statusRegistered": "Angemeldet",
+    "statusProfileCompleted": "Profil vervollständigt"
+  },
+  "footer": {
+    "viewRewards": "Meine Prämien ansehen"
+  }
+}

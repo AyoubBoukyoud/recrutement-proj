@@ -1,0 +1,33 @@
+{
+  "profileAlt": "Anas's profile picture",
+  "hero": {
+    "title": "Invite your friends",
+    "body": "Help your friends find their next career in Germany and earn exclusive rewards for every successful referral."
+  },
+  "codeCard": {
+    "eyebrow": "YOUR CODE",
+    "title": "Your referral code",
+    "copiedNotice": "Code copied to clipboard!",
+    "copyButton": "Copy",
+    "shareButton": "Share via WhatsApp",
+    "shareMessagePrefix": "Join me on Amud Skills to find your next job in Germany! Use my referral code:"
+  },
+  "qrCard": {
+    "alt": "Referral QR code",
+    "instructions": "Scan to refer someone in person",
+    "tokenLabel": "Token"
+  },
+  "stats": {
+    "referralsLabel": "referrals signed up",
+    "progressPrefix": "Progress:",
+    "rewardHint": "One free month coming up"
+  },
+  "list": {
+    "title": "My recent referrals",
+    "statusRegistered": "Signed up",
+    "statusProfileCompleted": "Profile completed"
+  },
+  "footer": {
+    "viewRewards": "View my rewards"
+  }
+}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { useHomeContent } from '@/lib/useLocalizedContent';
 import { PrimaryCta } from './Cta';
 import { IconButton } from '@/components/shared/Button';
@@ -65,6 +66,7 @@ export function SiteHeader() {
 
         <div className="ms-auto flex items-center gap-3">
           <LanguageSwitcher />
+          <ThemeToggle />
 
           <Link
             href="/auth-phone"

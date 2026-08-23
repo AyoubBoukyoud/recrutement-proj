@@ -13,19 +13,31 @@ import { useCandidateProfile, useInvalidateCandidateProfile } from '@/lib/useCan
 import { candidateProfileRepository } from '@/data/candidateProfile';
 import { Button } from '@/components/shared/Button';
 import { ApiError } from '@/lib/api';
+import { useLanguage } from '@/context/LanguageContext';
+import {
+  candidateMatchingPreferencesContentFor,
+  regionLabelFor,
+  sectorLabelFor,
+} from '@/lib/candidateMatchingPreferencesContent';
 
+// Valeurs canoniques (français) : servent de clés de comparaison (`includes`)
+// et sont persistées telles quelles dans `matching_preferences` côté API.
+// L'affichage traduit passe par `regionLabelFor` / `sectorLabelFor`.
 const REGIONS = ['Berlin', 'Bavière', 'Hambourg', 'Saxe', 'Bade-Wurtemberg', 'Hesse'];
 const ALL_SECTORS = ['Santé', 'Logistique', 'Électricité', 'Hôtellerie', 'Construction'];
 
-function messageOf(error: unknown, fallback: string): string {
-  if (error instanceof ApiError) {
-    if (error.isNetworkFailure) return "L'API est injoignable. Vérifiez votre connexion.";
-    return error.message || fallback;
-  }
-  return fallback;
-}
-
 export default function MatchingPreferencesPage() {
+  const { language } = useLanguage();
+  const content = candidateMatchingPreferencesContentFor(language);
+
+  function messageOf(error: unknown, fallback: string): string {
+    if (error instanceof ApiError) {
+      if (error.isNetworkFailure) return content.errors.networkUnreachable;
+      return error.message || fallback;
+    }
+    return fallback;
+  }
+
   const { token } = useAuth();
   const { data: profile, isLoading } = useCandidateProfile();
   const invalidateProfile = useInvalidateCandidateProfile();
@@ -70,7 +82,7 @@ export default function MatchingPreferencesPage() {
       setSavedToast(true);
       setTimeout(() => setSavedToast(false), 3000);
     } catch (cause) {
-      setError(messageOf(cause, "L'enregistrement a échoué. Réessayez."));
+      setError(messageOf(cause, content.errors.saveFailed));
     } finally {
       setIsSaving(false);
     }
@@ -83,19 +95,19 @@ export default function MatchingPreferencesPage() {
           <div className="flex items-center gap-4">
             <Link
               href="/dashboard"
-              aria-label="Retour"
+              aria-label={content.header.backAria}
               className="flex h-10 w-10 items-center justify-center rounded-full text-primary transition-colors hover:bg-surface-container-high active:scale-95"
             >
               <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
                 arrow_back
               </span>
             </Link>
-            <h1 className="text-lg font-bold text-primary">Mes préférences</h1>
+            <h1 className="text-lg font-bold text-primary">{content.header.title}</h1>
           </div>
           <div className="flex items-center gap-2">
             <Link
               href="/profil"
-              aria-label="Mon profil"
+              aria-label={content.header.profileAria}
               className="flex h-10 w-10 items-center justify-center rounded-full text-onSurface-variant transition-colors hover:bg-surface-container-high active:scale-95"
             >
               <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
@@ -108,14 +120,12 @@ export default function MatchingPreferencesPage() {
 
       <main className="mx-auto max-w-xl px-4 py-4 space-y-6 lg:max-w-5xl lg:px-10 lg:py-8">
         <div className="py-2">
-          <h2 className="text-2xl font-extrabold text-onSurface">Personnalisez vos opportunités</h2>
-          <p className="mt-1 text-sm font-medium leading-relaxed text-onSurface-variant">
-            Définissez vos critères pour que nous puissions vous proposer les meilleures offres en Allemagne.
-          </p>
+          <h2 className="text-2xl font-extrabold text-onSurface">{content.intro.title}</h2>
+          <p className="mt-1 text-sm font-medium leading-relaxed text-onSurface-variant">{content.intro.body}</p>
         </div>
 
         {isLoading ? (
-          <p className="helper-text">Chargement…</p>
+          <p className="helper-text">{content.loading}</p>
         ) : (
         <div className="space-y-6 lg:grid lg:grid-cols-2 lg:items-start lg:gap-6 lg:space-y-0">
         <section className="rounded-xl border border-outline-variant border-l-4 border-l-primary bg-surface-container-lowest p-6 shadow-subtle space-y-4">
@@ -123,7 +133,7 @@ export default function MatchingPreferencesPage() {
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
               map
             </span>
-            Région souhaitée en Allemagne
+            {content.regionsSection.title}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             {REGIONS.map((regionName) => (
@@ -131,7 +141,7 @@ export default function MatchingPreferencesPage() {
                 key={regionName}
                 className="group flex cursor-pointer items-center justify-between rounded-lg border border-outline-variant p-3.5 transition-colors hover:bg-surface-container-low"
               >
-                <span className="text-sm font-semibold text-onSurface">{regionName}</span>
+                <span className="text-sm font-semibold text-onSurface">{regionLabelFor(content, regionName)}</span>
                 <input
                   type="checkbox"
                   checked={regions.includes(regionName)}
@@ -148,7 +158,7 @@ export default function MatchingPreferencesPage() {
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
               category
             </span>
-            Secteurs d&apos;activité
+            {content.sectorsSection.title}
           </h3>
           <div className="flex flex-wrap gap-2 pt-1">
             {sectors.map((sec) => (
@@ -156,11 +166,11 @@ export default function MatchingPreferencesPage() {
                 key={sec}
                 className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-surface-container-high px-4 py-2 text-xs font-bold text-primary shadow-xs"
               >
-                <span>{sec}</span>
+                <span>{sectorLabelFor(content, sec)}</span>
                 <button
                   type="button"
                   onClick={() => removeSector(sec)}
-                  aria-label={`Retirer ${sec}`}
+                  aria-label={`${content.sectorsSection.removeAriaPrefix} ${sectorLabelFor(content, sec)}`}
                   className="-m-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full hover:opacity-75"
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: 16 }} aria-hidden="true">
@@ -181,7 +191,7 @@ export default function MatchingPreferencesPage() {
                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
                   add
                 </span>
-                {sec}
+                {sectorLabelFor(content, sec)}
               </Button>
             ))}
           </div>
@@ -192,7 +202,7 @@ export default function MatchingPreferencesPage() {
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
               payments
             </span>
-            Salaire minimum (Annuel)
+            {content.salarySection.title}
           </h3>
           <div className="relative mt-2">
             <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-base font-extrabold text-onSurface-variant">
@@ -233,7 +243,7 @@ export default function MatchingPreferencesPage() {
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
               check_circle
             </span>
-            Vos préférences de matching ont été enregistrées avec succès !
+            {content.savedToast}
           </div>
         )}
 
@@ -244,10 +254,10 @@ export default function MatchingPreferencesPage() {
             onClick={() => void handleSave()}
             disabled={isSaving || isLoading}
             isLoading={isSaving}
-            loadingLabel="Enregistrement…"
+            loadingLabel={content.saveButton.loadingLabel}
             className="text-base font-extrabold shadow-lg lg:max-w-sm"
           >
-            <span>Enregistrer les préférences</span>
+            <span>{content.saveButton.label}</span>
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
               save
             </span>

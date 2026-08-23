@@ -11,37 +11,41 @@ import { listLanguageAssessments } from '@/lib/languageAssessment';
 import { documentsRepository } from '@/data/documents';
 import { ChecklistItem } from '@/components/shared/ChecklistItem';
 import { Button, IconButton } from '@/components/shared/Button';
+import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
+import { useLanguage } from '@/context/LanguageContext';
+import { candidateDashboardContentFor } from '@/lib/candidateDashboardContent';
 
 const QUICK_ACTIONS = [
-  { href: '/documents', label: 'Ajouter un document', icon: 'description' },
-  { href: '/video', label: 'Enregistrer une vidéo', icon: 'videocam' },
-  { href: '/test-langue', label: 'Passer le test de langue', icon: 'mic' },
-  { href: '/profil', label: 'Voir mon profil public', icon: 'account_circle' },
-  { href: '/lecon-jour', label: "Leçon d'allemand du jour", icon: 'translate' },
-  { href: '/offres', label: "Voir les offres d'emploi", icon: 'work' },
-  { href: '/salaire', label: 'Simuler mon salaire', icon: 'calculate' },
-  { href: '/visibilite', label: 'Ma visibilité', icon: 'insights' },
-  { href: '/parrainage', label: 'Parrainer un ami', icon: 'group_add' },
-  { href: '/verification-identite', label: 'Vérifier mon identité', icon: 'verified_user' },
-  { href: '/matching-preferences', label: 'Préférences de matching', icon: 'tune' },
-];
-
-const APPLICATION_STAGES = ['Envoyée', 'Présélection', 'Entretien', 'Décision'];
+  { href: '/documents', key: 'addDocument', icon: 'description' },
+  { href: '/video', key: 'recordVideo', icon: 'videocam' },
+  { href: '/test-langue', key: 'languageTest', icon: 'mic' },
+  { href: '/profil', key: 'publicProfile', icon: 'account_circle' },
+  { href: '/lecon-jour', key: 'germanLesson', icon: 'translate' },
+  { href: '/offres', key: 'jobOffers', icon: 'work' },
+  { href: '/salaire', key: 'salarySimulator', icon: 'calculate' },
+  { href: '/visibilite', key: 'visibility', icon: 'insights' },
+  { href: '/parrainage', key: 'referral', icon: 'group_add' },
+  { href: '/verification-identite', key: 'verifyIdentity', icon: 'verified_user' },
+  { href: '/matching-preferences', key: 'matchingPreferences', icon: 'tune' },
+] as const;
 
 const APPLICATIONS = [
-  { id: 1, title: 'Infirmier Qualifié', company: 'Klinik Berlin', icon: 'medical_services', stage: 2, statusLabel: 'Entretien prévu', updatedAt: '18 août' },
-  { id: 2, title: 'Électricien de Bâtiment', company: 'Elektro GmbH', icon: 'bolt', stage: 1, statusLabel: 'En présélection', updatedAt: '15 août' },
-  { id: 3, title: 'Chauffeur PL', company: 'Logistik Nord', icon: 'local_shipping', stage: 0, statusLabel: 'Candidature envoyée', updatedAt: '12 août' },
+  { id: 1, company: 'Klinik Berlin', icon: 'medical_services', stage: 2 },
+  { id: 2, company: 'Elektro GmbH', icon: 'bolt', stage: 1 },
+  { id: 3, company: 'Logistik Nord', icon: 'local_shipping', stage: 0 },
 ] as const;
 
 const RECOMMENDATIONS = [
-  { id: 1, title: 'Réceptionniste', company: 'Hôtel München', icon: 'hotel', location: 'Munich, Allemagne', contract: 'CDI', match: 92 },
-  { id: 2, title: 'Aide-Soignant', company: 'Pflegeheim Hamburg', icon: 'medical_services', location: 'Hambourg, Allemagne', contract: 'Plein temps', match: 87 },
+  { id: 1, company: 'Hôtel München', icon: 'hotel', match: 92 },
+  { id: 2, company: 'Pflegeheim Hamburg', icon: 'medical_services', match: 87 },
 ] as const;
 
 export default function DashboardPage() {
   // Vérification d'identité reste sur l'écran dédié (son propre document
   // approuvé fait foi) — ce tableau de bord ne la refait pas ici.
+  const { language } = useLanguage();
+  const content = candidateDashboardContentFor(language);
   const { token } = useAuth();
   const { profile: localProfile } = useProfile();
   const { data: profile, isLoading } = useCandidateProfile();
@@ -77,16 +81,24 @@ export default function DashboardPage() {
   const [appliedIds, setAppliedIds] = useState<number[]>([]);
   const heroApplication = [...APPLICATIONS].sort((a, b) => b.stage - a.stage)[0];
   const otherApplications = APPLICATIONS.filter((application) => application.id !== heroApplication.id);
+  const applicationTextFor = (id: number) => content.applications.items.find((item) => item.id === id)!;
+  const recommendationTextFor = (id: number) => content.recommendations.items.find((item) => item.id === id)!;
+  const heroApplicationText = applicationTextFor(heroApplication.id);
 
   return (
     <div>
       <header className="sticky top-0 z-20 flex w-full items-center justify-between border-b border-surface-container-high bg-surface-container-lowest/90 px-6 py-3.5 backdrop-blur-md lg:px-10 lg:py-5">
         <div>
-          <h1 className="text-base font-extrabold text-primary lg:text-xl">Bonjour, {firstName || 'Candidat'} 👋</h1>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-tertiary">Espace Candidat</p>
+          <h1 className="text-base font-extrabold text-primary lg:text-xl">
+            {content.header.greeting.replace('{name}', firstName || content.header.fallbackName)}{' '}
+            {content.header.greetingEmoji}
+          </h1>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-tertiary">{content.header.spaceLabel}</p>
         </div>
-        <div className="flex items-center gap-3">
-          <IconButton variant="ghost" aria-label="Notifications" className="relative">
+        <div className="flex items-center gap-1">
+          <LanguageSwitcher compact />
+          <ThemeToggle />
+          <IconButton variant="ghost" aria-label={content.header.notificationsAriaLabel} className="relative">
             <span className="material-symbols-outlined text-onSurface-variant" style={{ fontSize: 22 }}>
               notifications
             </span>
@@ -103,7 +115,7 @@ export default function DashboardPage() {
           <div className="space-y-6 lg:col-span-2">
             <section className="fade-in-entry opacity-0 flex flex-col items-center rounded-pillar border border-outline-variant bg-surface-container-lowest p-6 text-center shadow-subtle">
               <div className="mb-4 flex w-full items-center justify-between">
-                <h2 className="text-sm font-extrabold text-onSurface">Progression du profil</h2>
+                <h2 className="text-sm font-extrabold text-onSurface">{content.profileProgress.title}</h2>
                 <span className="text-xs font-extrabold text-primary">{percent}%</span>
               </div>
               <div
@@ -115,7 +127,7 @@ export default function DashboardPage() {
                 <span className="text-3xl font-black leading-none tracking-tight text-primary">{percent}%</span>
               </div>
               <p className="px-2 text-xs leading-relaxed text-onSurface-variant font-medium">
-                Complétez votre profil pour apparaître en priorité auprès des recruteurs allemands.
+                {content.profileProgress.description}
               </p>
             </section>
 
@@ -126,49 +138,69 @@ export default function DashboardPage() {
                 </span>
                 <span className="text-xs font-medium text-onSurface">
                   {profile?.terms_consent_at && profile?.cndp_consent_at
-                    ? 'Visible par les recruteurs'
-                    : "Pas encore visible — acceptez les conditions à l'étape 6"}
+                    ? content.visibility.visible
+                    : content.visibility.hidden}
                 </span>
               </div>
             </div>
 
             <section className="fade-in-entry stagger-2 opacity-0 space-y-3">
-              <h2 className="text-lg font-extrabold text-primary">À compléter</h2>
+              <h2 className="text-lg font-extrabold text-primary">{content.checklist.title}</h2>
               <div className="overflow-hidden rounded-pillar border border-outline-variant bg-surface-container-lowest shadow-subtle divide-y divide-surface-container-high">
                 <ChecklistItem
-                  label="Profil personnel complété"
+                  label={content.checklist.items.personal.label}
                   status={isLoading ? 'pending' : personalDone ? 'done' : 'pending'}
                   href="/profile-creation?step=1"
-                  actionLabel={personalDone ? undefined : 'Compléter'}
+                  actionLabel={personalDone ? undefined : content.checklist.items.personal.action}
                 />
                 <ChecklistItem
-                  label="Formation renseignée"
+                  label={content.checklist.items.education.label}
                   status={isLoading ? 'pending' : educationDone ? 'done' : 'pending'}
                   href="/profile-creation?step=3"
-                  actionLabel={educationDone ? undefined : 'Compléter'}
+                  actionLabel={educationDone ? undefined : content.checklist.items.education.action}
                 />
                 <ChecklistItem
-                  label="Au moins une langue évaluée"
+                  label={content.checklist.items.languages.label}
                   status={isLoading ? 'pending' : languagesDone ? 'done' : 'pending'}
                   href="/profile-creation?step=4"
-                  actionLabel={languagesDone ? undefined : 'Compléter'}
+                  actionLabel={languagesDone ? undefined : content.checklist.items.languages.action}
                 />
-                <ChecklistItem label="CV téléchargé" status={cvDone ? 'done' : 'pending'} href="/documents" actionLabel="Ajouter" />
-                <ChecklistItem label="Certificats / diplômes" status={diplomaDone ? 'done' : 'pending'} href="/documents" actionLabel="Ajouter" />
-                <ChecklistItem label="Vidéo de présentation" status={videoDone ? 'done' : 'pending'} href="/video" actionLabel="Enregistrer" />
-                <ChecklistItem label="Test de langue" status={testDone ? 'done' : 'pending'} href="/test-langue" actionLabel="Passer le test" />
                 <ChecklistItem
-                  label="Identité vérifiée"
+                  label={content.checklist.items.cv.label}
+                  status={cvDone ? 'done' : 'pending'}
+                  href="/documents"
+                  actionLabel={content.checklist.items.cv.action}
+                />
+                <ChecklistItem
+                  label={content.checklist.items.diploma.label}
+                  status={diplomaDone ? 'done' : 'pending'}
+                  href="/documents"
+                  actionLabel={content.checklist.items.diploma.action}
+                />
+                <ChecklistItem
+                  label={content.checklist.items.video.label}
+                  status={videoDone ? 'done' : 'pending'}
+                  href="/video"
+                  actionLabel={content.checklist.items.video.action}
+                />
+                <ChecklistItem
+                  label={content.checklist.items.test.label}
+                  status={testDone ? 'done' : 'pending'}
+                  href="/test-langue"
+                  actionLabel={content.checklist.items.test.action}
+                />
+                <ChecklistItem
+                  label={content.checklist.items.identity.label}
                   status={identityVerified ? 'done' : 'pending'}
                   href="/verification-identite"
-                  actionLabel="Vérifier"
+                  actionLabel={content.checklist.items.identity.action}
                 />
               </div>
             </section>
           </div>
 
           <section className="fade-in-entry stagger-3 opacity-0 space-y-3 lg:col-span-3">
-            <h2 className="text-lg font-extrabold text-primary">Actions rapides</h2>
+            <h2 className="text-lg font-extrabold text-primary">{content.quickActions.title}</h2>
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
               {QUICK_ACTIONS.map((action) => (
                 <Link
@@ -181,7 +213,7 @@ export default function DashboardPage() {
                       {action.icon}
                     </span>
                   </div>
-                  <span className="text-xs font-bold text-onSurface">{action.label}</span>
+                  <span className="text-xs font-bold text-onSurface">{content.quickActions.items[action.key]}</span>
                 </Link>
               ))}
             </div>
@@ -191,9 +223,9 @@ export default function DashboardPage() {
         <div className="space-y-6 lg:grid lg:grid-cols-5 lg:items-start lg:gap-8 lg:space-y-0">
           <section className="fade-in-entry stagger-4 opacity-0 space-y-3 lg:col-span-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-extrabold text-primary">Suivi des candidatures</h2>
+              <h2 className="text-lg font-extrabold text-primary">{content.applications.title}</h2>
               <Link href="/offres" className="text-xs font-bold text-primary hover:underline">
-                Voir les offres
+                {content.applications.viewOffers}
               </Link>
             </div>
 
@@ -206,12 +238,12 @@ export default function DashboardPage() {
                     </span>
                   </div>
                   <div>
-                    <h3 className="text-sm font-extrabold text-onSurface">{heroApplication.title}</h3>
+                    <h3 className="text-sm font-extrabold text-onSurface">{heroApplicationText.title}</h3>
                     <p className="text-xs font-medium text-onSurface-variant">{heroApplication.company}</p>
                   </div>
                 </div>
                 <span className="rounded-full bg-gold/15 px-3 py-1 text-[11px] font-bold text-tertiary">
-                  {heroApplication.statusLabel}
+                  {heroApplicationText.statusLabel}
                 </span>
               </div>
 
@@ -219,10 +251,10 @@ export default function DashboardPage() {
                 <div className="absolute left-[12%] right-[12%] top-[13px] h-0.5 bg-outline-variant" />
                 <div
                   className="absolute left-[12%] top-[13px] h-0.5 bg-primary transition-all duration-500"
-                  style={{ width: `${(heroApplication.stage / (APPLICATION_STAGES.length - 1)) * 76}%` }}
+                  style={{ width: `${(heroApplication.stage / (content.applications.stages.length - 1)) * 76}%` }}
                 />
                 <div className="relative flex items-center justify-between">
-                  {APPLICATION_STAGES.map((stage, i) => {
+                  {content.applications.stages.map((stage, i) => {
                     const done = i < heroApplication.stage;
                     const active = i === heroApplication.stage;
                     return (
@@ -244,37 +276,43 @@ export default function DashboardPage() {
                   })}
                 </div>
               </div>
-              <p className="mt-3 text-right text-[10px] text-onSurface-variant">Mise à jour le {heroApplication.updatedAt}</p>
+              <p className="mt-3 text-right text-[10px] text-onSurface-variant">
+                {content.applications.updatedOn.replace('{date}', heroApplicationText.updatedAt)}
+              </p>
             </div>
 
-            {otherApplications.map((application) => (
-              <div
-                key={application.id}
-                className="flex items-center justify-between rounded-pillar border border-outline-variant bg-surface-container-lowest p-4 shadow-subtle"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-pillar bg-surface-container-low text-onSurface-variant">
-                    <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
-                      {application.icon}
-                    </span>
+            {otherApplications.map((application) => {
+              const applicationText = applicationTextFor(application.id);
+              return (
+                <div
+                  key={application.id}
+                  className="flex items-center justify-between rounded-pillar border border-outline-variant bg-surface-container-lowest p-4 shadow-subtle"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-pillar bg-surface-container-low text-onSurface-variant">
+                      <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
+                        {application.icon}
+                      </span>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-onSurface">{applicationText.title}</h4>
+                      <p className="text-xs font-medium text-onSurface-variant">{application.company}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-onSurface">{application.title}</h4>
-                    <p className="text-xs font-medium text-onSurface-variant">{application.company}</p>
+                  <div className="text-right">
+                    <span className="block text-xs font-bold text-onSurface">{applicationText.statusLabel}</span>
+                    <span className="text-[10px] text-outline">{applicationText.updatedAt}</span>
                   </div>
                 </div>
-                <div className="text-right">
-                  <span className="block text-xs font-bold text-onSurface">{application.statusLabel}</span>
-                  <span className="text-[10px] text-outline">{application.updatedAt}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </section>
 
           <section className="fade-in-entry stagger-4 opacity-0 space-y-3 lg:col-span-2">
-            <h2 className="text-lg font-extrabold text-primary">Recommandations</h2>
+            <h2 className="text-lg font-extrabold text-primary">{content.recommendations.title}</h2>
             {RECOMMENDATIONS.map((offer) => {
               const applied = appliedIds.includes(offer.id);
+              const offerText = recommendationTextFor(offer.id);
               return (
                 <div key={offer.id} className="rounded-pillar border border-outline-variant bg-surface-container-lowest p-5 shadow-subtle">
                   <div className="mb-3 flex items-start justify-between">
@@ -287,13 +325,13 @@ export default function DashboardPage() {
                       <span className="material-symbols-outlined" style={{ fontSize: 13 }}>
                         bolt
                       </span>
-                      {offer.match}% Match
+                      {content.recommendations.matchBadge.replace('{value}', String(offer.match))}
                     </span>
                   </div>
-                  <h3 className="text-sm font-extrabold text-onSurface">{offer.title}</h3>
+                  <h3 className="text-sm font-extrabold text-onSurface">{offerText.title}</h3>
                   <p className="mb-3 text-xs font-medium text-onSurface-variant">{offer.company}</p>
                   <div className="mb-4 flex flex-wrap gap-2">
-                    {[offer.location, offer.contract].map((tag) => (
+                    {[offerText.location, offerText.contract].map((tag) => (
                       <span key={tag} className="rounded-md bg-surface-container-low px-2 py-1 text-[11px] font-semibold text-onSurface-variant">
                         {tag}
                       </span>
@@ -313,7 +351,7 @@ export default function DashboardPage() {
                       ) : undefined
                     }
                   >
-                    {applied ? 'Candidature envoyée' : 'Postuler'}
+                    {applied ? content.recommendations.appliedButton : content.recommendations.applyButton}
                   </Button>
                 </div>
               );

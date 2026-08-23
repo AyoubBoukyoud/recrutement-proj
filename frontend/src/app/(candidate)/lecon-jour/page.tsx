@@ -6,8 +6,21 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button, IconButton } from '@/components/shared/Button';
+import { useLanguage } from '@/context/LanguageContext';
+import { candidateLeconJourContentFor } from '@/lib/candidateLeconJourContent';
 
 const WEEK_SLOTS = ['done', 'done', 'done', 'done', 'done', 'active', 'remaining'] as const;
+
+// Nombre de jours de la série en cours — mock, non traduisible (interpolé dans
+// `content.streak.label`).
+const STREAK_DAYS = 7;
+
+// Contenu de la leçon du jour : le mot allemand enseigné et ses traductions de
+// référence (française et arabe) restent fixes quelle que soit la langue de
+// l'interface — ce sont les données pédagogiques, pas du texte d'UI.
+const GERMAN_PHRASE = 'Guten Morgen';
+const FRENCH_TRANSLATION = 'Bonjour';
+const ARABIC_TRANSLATION = 'صباح الخير';
 
 const QUIZ_OPTIONS = [
   { text: 'Guten Tag', correct: true },
@@ -24,6 +37,8 @@ function speak(text: string, lang: string) {
 
 export default function LeconJourPage() {
   const router = useRouter();
+  const { language } = useLanguage();
+  const content = candidateLeconJourContentFor(language);
   const [isRepeating, setIsRepeating] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -33,7 +48,7 @@ export default function LeconJourPage() {
     setFeedback(null);
     setTimeout(() => {
       setIsRepeating(false);
-      setFeedback('Bien prononcé ! 🎉');
+      setFeedback(content.lesson.feedback);
       setTimeout(() => setFeedback(null), 2500);
     }, 1500);
   };
@@ -48,17 +63,17 @@ export default function LeconJourPage() {
         <Link href="/dashboard" className="p-2 transition-transform active:scale-95">
           <span className="material-symbols-outlined text-primary-dark">arrow_back</span>
         </Link>
-        <h1 className="flex-1 truncate text-lg font-bold text-primary-dark">Allemand du quotidien</h1>
+        <h1 className="flex-1 truncate text-lg font-bold text-primary-dark">{content.header.title}</h1>
         <div className="flex items-center gap-1.5 rounded-full bg-gold/10 px-3 py-1.5">
           <span className="material-symbols-outlined fill text-gold" style={{ fontSize: 18 }}>local_fire_department</span>
-          <span className="text-sm font-bold text-gold-dark">7 jours</span>
+          <span className="text-sm font-bold text-gold-dark">{content.streak.label.replace('{count}', String(STREAK_DAYS))}</span>
         </div>
       </header>
 
       <main className="mx-auto w-full max-w-[600px] space-y-8 px-4 py-6 lg:max-w-[720px] lg:px-10 lg:py-10">
         <section className="space-y-3">
           <div className="flex items-center justify-between px-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-onSurface-variant">Progression hebdomadaire</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-onSurface-variant">{content.progress.label}</span>
             <span className="text-xs font-bold text-primary-dark">85%</span>
           </div>
           <div className="flex h-2.5 gap-2">
@@ -80,11 +95,11 @@ export default function LeconJourPage() {
               <span className="material-symbols-outlined" style={{ fontSize: 48 }}>wb_sunny</span>
             </div>
             <div className="flex items-center justify-center gap-3">
-              <h2 className="text-2xl font-bold text-primary-dark">Guten Morgen</h2>
+              <h2 className="text-2xl font-bold text-primary-dark">{GERMAN_PHRASE}</h2>
               <IconButton
                 variant="primary"
-                onClick={() => speak('Guten Morgen', 'de-DE')}
-                aria-label="Écouter la prononciation"
+                onClick={() => speak(GERMAN_PHRASE, 'de-DE')}
+                aria-label={content.lesson.listenAria}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 20 }}>volume_up</span>
               </IconButton>
@@ -92,23 +107,23 @@ export default function LeconJourPage() {
 
             <div className="w-full space-y-3 border-t border-outline-variant/30 pt-4">
               <div className="flex items-center justify-between rounded-lg bg-surface-container p-3">
-                <span className="text-xs font-semibold text-onSurface-variant">Français</span>
-                <span className="text-sm font-semibold">Bonjour</span>
+                <span className="text-xs font-semibold text-onSurface-variant">{content.lesson.frenchLabel}</span>
+                <span className="text-sm font-semibold">{FRENCH_TRANSLATION}</span>
               </div>
               <div className="flex items-center justify-between rounded-lg bg-surface-container p-3">
-                <span className="text-xs font-semibold text-onSurface-variant">Arabe</span>
-                <span className="text-sm font-semibold" dir="rtl">صباح الخير</span>
+                <span className="text-xs font-semibold text-onSurface-variant">{content.lesson.arabicLabel}</span>
+                <span className="text-sm font-semibold" dir="rtl">{ARABIC_TRANSLATION}</span>
               </div>
             </div>
 
             <div className="grid w-full grid-cols-2 gap-4 pt-4">
-              <Button variant="tonal" onClick={() => speak('Guten Morgen', 'de-DE')} className="flex-1">
+              <Button variant="tonal" onClick={() => speak(GERMAN_PHRASE, 'de-DE')} className="flex-1">
                 <span className="material-symbols-outlined" style={{ fontSize: 20 }}>play_circle</span>
-                Écouter
+                {content.lesson.listen}
               </Button>
               <Button onClick={handleRepeat} disabled={isRepeating} className="flex-1 shadow-lg shadow-primary-dark/20">
                 <span className={`material-symbols-outlined ${isRepeating ? 'animate-pulse' : ''}`} style={{ fontSize: 20 }}>mic</span>
-                {isRepeating ? 'Écoute…' : 'Répéter'}
+                {isRepeating ? content.lesson.repeating : content.lesson.repeat}
               </Button>
             </div>
 
@@ -119,12 +134,10 @@ export default function LeconJourPage() {
         <section className="space-y-4">
           <div className="flex items-center gap-2 px-1">
             <span className="material-symbols-outlined text-tertiary" style={{ fontSize: 20 }}>quiz</span>
-            <h3 className="text-lg font-bold text-onSurface">Mini Quiz</h3>
+            <h3 className="text-lg font-bold text-onSurface">{content.quiz.title}</h3>
           </div>
           <div className="space-y-6 rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
-            <p className="text-onSurface">
-              Comment dit-on <span className="font-bold">« Bonjour »</span> en allemand ?
-            </p>
+            <p className="text-onSurface">{content.quiz.question}</p>
             <div className="grid grid-cols-1 gap-3">
               {QUIZ_OPTIONS.map((option) => {
                 const isSelected = selectedOption === option.text;
@@ -162,7 +175,7 @@ export default function LeconJourPage() {
             onClick={handleFinish}
             className="bg-tertiary text-onTertiary shadow-lg shadow-tertiary/20 hover:enabled:bg-tertiary-dark"
           >
-            Terminé
+            {content.finish}
           </Button>
         </footer>
       </main>

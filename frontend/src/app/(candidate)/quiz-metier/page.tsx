@@ -6,37 +6,14 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button, IconButton } from '@/components/shared/Button';
-
-interface Question {
-  question: string;
-  tag: string;
-  options: string[];
-  correctIndex: number;
-}
-
-const QUESTIONS: Question[] = [
-  {
-    question: "Quel est l'appareil utilisé pour mesurer la tension électrique dans un circuit ?",
-    tag: 'Technique de mesure',
-    options: ['Ampèremètre', 'Voltmètre', 'Ohmmètre', 'Wattmètre'],
-    correctIndex: 1,
-  },
-  {
-    question: 'Quelle norme régit les installations électriques basse tension en Allemagne ?',
-    tag: 'Réglementation',
-    options: ['VDE 0100', 'ISO 9001', 'DIN EN 12464', 'RGE'],
-    correctIndex: 0,
-  },
-  {
-    question: 'Que signifie le sigle « EPI » sur un chantier ?',
-    tag: 'Sécurité',
-    options: ['Équipement Portable Intégré', 'Équipement de Protection Individuelle', 'Étude Préalable Industrielle', 'Aucune de ces réponses'],
-    correctIndex: 1,
-  },
-];
+import { useLanguage } from '@/context/LanguageContext';
+import { candidateQuizMetierContentFor } from '@/lib/candidateQuizMetierContent';
 
 export default function QuizMetierPage() {
   const router = useRouter();
+  const { language } = useLanguage();
+  const content = candidateQuizMetierContentFor(language);
+  const QUESTIONS = content.questions;
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [answers, setAnswers] = useState<(number | null)[]>([]);
@@ -66,24 +43,24 @@ export default function QuizMetierPage() {
           <Link href="/offres" className="p-2 transition-transform active:scale-95">
             <span className="material-symbols-outlined text-primary-dark">arrow_back</span>
           </Link>
-          <h1 className="text-lg font-bold text-primary-dark">Quiz Métier</h1>
+          <h1 className="text-lg font-bold text-primary-dark">{content.header.title}</h1>
         </header>
         <main className="mx-auto flex max-w-[600px] flex-col items-center space-y-6 px-4 py-16 text-center lg:max-w-[720px] lg:px-10">
           <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gold/10">
             <span className="material-symbols-outlined text-gold-dark" style={{ fontSize: 48 }}>emoji_events</span>
           </div>
           <h2 className="text-2xl font-bold text-primary-dark">
-            {score} / {QUESTIONS.length} bonnes réponses
+            {content.finished.scoreTemplate.replace('{score}', String(score)).replace('{total}', String(QUESTIONS.length))}
           </h2>
           <p className="text-onSurface-variant">
-            Ce résultat sera visible par les recruteurs intéressés par votre profil technique.
+            {content.finished.description}
           </p>
           <div className="flex w-full flex-col gap-3 sm:flex-row">
             <Link
               href="/offres"
               className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary-dark py-4 text-sm font-semibold text-on-primary transition-all active:scale-95"
             >
-              Retour aux offres
+              {content.finished.backToOffers}
             </Link>
             <Button
               variant="outline"
@@ -96,7 +73,7 @@ export default function QuizMetierPage() {
               className="flex-1 text-primary-dark"
             >
               <span className="material-symbols-outlined" style={{ fontSize: 18 }}>refresh</span>
-              Recommencer
+              {content.finished.restart}
             </Button>
           </div>
         </main>
@@ -107,18 +84,18 @@ export default function QuizMetierPage() {
   return (
     <div className="min-h-screen bg-surface pb-24">
       <header className="sticky top-0 z-20 flex h-16 w-full items-center gap-4 border-b border-outline-variant bg-surface px-4 lg:px-10">
-        <IconButton variant="ghost" onClick={() => router.back()} aria-label="Retour">
+        <IconButton variant="ghost" onClick={() => router.back()} aria-label={content.header.backAria}>
           <span className="material-symbols-outlined text-primary-dark">arrow_back</span>
         </IconButton>
-        <h1 className="text-lg font-bold text-primary-dark">Quiz Métier</h1>
+        <h1 className="text-lg font-bold text-primary-dark">{content.header.title}</h1>
       </header>
 
       <main className="mx-auto max-w-[800px] space-y-8 px-4 pt-6 lg:px-10">
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-bold text-onSurface">Électricien Bâtiment</h2>
+            <h2 className="font-bold text-onSurface">{content.jobTitle}</h2>
             <span className="text-sm font-bold text-primary-dark">
-              Question {index + 1} sur {QUESTIONS.length}
+              {content.questionOf.replace('{index}', String(index + 1)).replace('{total}', String(QUESTIONS.length))}
             </span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-surface-container">
@@ -148,7 +125,7 @@ export default function QuizMetierPage() {
               >
                 <div
                   className={`mr-4 flex h-10 w-10 items-center justify-center rounded-lg font-bold ${
-                    isSelected ? 'bg-gold text-white' : 'bg-surface-container text-onSurface-variant'
+                    isSelected ? 'bg-gold text-onSecondary' : 'bg-surface-container text-onSurface-variant'
                   }`}
                 >
                   {String.fromCharCode(65 + i)}
@@ -172,7 +149,7 @@ export default function QuizMetierPage() {
             disabled={selected === null}
             className="bg-primary-dark shadow-md hover:enabled:opacity-90 md:shadow-none"
           >
-            {index + 1 >= QUESTIONS.length ? 'Voir mon résultat' : 'Question suivante'}
+            {index + 1 >= QUESTIONS.length ? content.resultButton : content.nextButton}
             <span className="material-symbols-outlined">chevron_right</span>
           </Button>
         </div>

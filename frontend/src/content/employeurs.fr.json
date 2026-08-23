@@ -1,0 +1,44 @@
+{
+  "hero": {
+    "title": "Recrutez au Maroc avec les standards de confiance allemands.",
+    "body": "Réduisez vos délais de vacance de poste grâce à des professionnels marocains vérifiés, hautement qualifiés, formés aux standards CECR allemands stricts et entièrement conformes au RGPD.",
+    "ctaRoi": "Calculer le ROI",
+    "ctaStandards": "Voir nos standards",
+    "imageAlt": "Professionnelle de santé marocaine dans un établissement médical allemand moderne."
+  },
+  "stats": [
+    { "value": "136 jours", "label": "Délai de vacance moyen (national)" },
+    { "value": "212 jours", "label": "Délai de vacance (santé)" },
+    { "value": "-40%", "label": "Réduction du délai d'embauche" }
+  ],
+  "cost": {
+    "title": "Le coût de la vacance de poste",
+    "body": "Le Mittelstand allemand fait face à des délais sans précédent pour ses recrutements critiques. Amud Skills comble cet écart grâce à un sourcing rigoureux et vérifié."
+  },
+  "standards": {
+    "title": "Des standards sans compromis",
+    "items": [
+      {
+        "title": "Conforme RGPD / DSGVO",
+        "desc": "L'ensemble de notre processus de sourcing, de vérification et de transmission de données respecte strictement les réglementations allemandes et européennes en matière de protection des données."
+      },
+      {
+        "title": "Niveaux d'allemand CECR vérifiés",
+        "desc": "Nous garantissons que tous les candidats atteignent le niveau d'allemand B1/B2 requis, authentifié par des centres de test accrédités avant le placement."
+      }
+    ]
+  },
+  "roi": {
+    "title": "Calculateur de ROI",
+    "openPositionsLabel": "Postes à pourvoir",
+    "openPositionsPlaceholder": "ex. 3",
+    "industryLabel": "Secteur d'activité",
+    "industries": [
+      "Santé (moy. 212 jours)",
+      "Logistique (moy. 145 jours)",
+      "IT (moy. 160 jours)"
+    ],
+    "submit": "Calculer les économies",
+    "toast": "Estimation calculée — un conseiller vous recontacte pour l'affiner."
+  }
+}

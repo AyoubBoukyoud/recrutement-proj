@@ -1,0 +1,33 @@
+{
+  "profileAlt": "Profil Anas",
+  "hero": {
+    "title": "Invitez vos amis",
+    "body": "Aidez vos amis à trouver leur prochaine carrière en Allemagne et gagnez des récompenses exclusives à chaque parrainage réussi."
+  },
+  "codeCard": {
+    "eyebrow": "VOTRE CODE",
+    "title": "Votre code de parrainage",
+    "copiedNotice": "Code copié dans le presse-papier !",
+    "copyButton": "Copier",
+    "shareButton": "Partager via WhatsApp",
+    "shareMessagePrefix": "Rejoins-moi sur Amud Skills pour trouver un emploi en Allemagne ! Utilise mon code parrain :"
+  },
+  "qrCard": {
+    "alt": "Code QR de parrainage",
+    "instructions": "Scannez pour parrainer en personne",
+    "tokenLabel": "Token"
+  },
+  "stats": {
+    "referralsLabel": "filleuls inscrits",
+    "progressPrefix": "Progression :",
+    "rewardHint": "1 mois gratuit en approche"
+  },
+  "list": {
+    "title": "Mes parrainages récents",
+    "statusRegistered": "Inscrit",
+    "statusProfileCompleted": "Profil complété"
+  },
+  "footer": {
+    "viewRewards": "Voir mes récompenses"
+  }
+}

@@ -9,27 +9,38 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { IconButton, Button } from '@/components/shared/Button';
 import { ApiError } from '@/lib/api';
 import { documentsRepository } from '@/data/documents';
 import type { CandidateDocument } from '@/lib/documents';
+import { verificationIdentiteContentFor, type VerificationIdentiteContent } from '@/lib/candidateVerificationIdentiteContent';
 
-function messageOf(error: unknown, fallback: string): string {
+function messageOf(error: unknown, fallback: string, networkMessage: string): string {
   if (error instanceof ApiError) {
-    if (error.isNetworkFailure) return "L'API est injoignable. Vérifiez votre connexion.";
+    if (error.isNetworkFailure) return networkMessage;
     return error.message || fallback;
   }
   return fallback;
 }
 
-const STATUS_COPY: Record<'pending' | 'approved' | 'rejected', { label: string; icon: string }> = {
-  pending: { label: 'En attente de vérification par un administrateur.', icon: 'hourglass_top' },
-  approved: { label: 'Identité vérifiée.', icon: 'verified_user' },
-  rejected: { label: 'Vérification refusée — reprenez une photo.', icon: 'error' },
+const STATUS_ICONS: Record<'pending' | 'approved' | 'rejected', string> = {
+  pending: 'hourglass_top',
+  approved: 'verified_user',
+  rejected: 'error',
 };
+
+function statusLabel(
+  status: 'pending' | 'approved' | 'rejected',
+  content: VerificationIdentiteContent
+): string {
+  return content.status[status];
+}
 
 export default function VerificationIdentitePage() {
   const { token } = useAuth();
+  const { language } = useLanguage();
+  const content = verificationIdentiteContentFor(language);
   const [existing, setExisting] = useState<CandidateDocument | null | undefined>(undefined);
   const [flashOn, setFlashOn] = useState(true);
   const [capturedBlob, setCapturedBlob] = useState<Blob | null>(null);
@@ -77,14 +88,14 @@ export default function VerificationIdentitePage() {
           void videoRef.current.play();
         }
       })
-      .catch(() => setError("Impossible d'accéder à la caméra. Vérifiez les autorisations."));
+      .catch(() => setError(content.errors.camera));
 
     return () => {
       cancelled = true;
       streamRef.current?.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
     };
-  }, [needsCapture, capturedUrl]);
+  }, [needsCapture, capturedUrl, content.errors.camera]);
 
   const handleCapture = () => {
     const video = videoRef.current;
@@ -123,13 +134,14 @@ export default function VerificationIdentitePage() {
       setCapturedUrl(null);
       await refresh();
     } catch (cause) {
-      setError(messageOf(cause, "L'envoi a échoué. Réessayez."));
+      setError(messageOf(cause, content.errors.upload, content.errors.network));
     } finally {
       setIsUploading(false);
     }
   };
 
-  const statusCopy = existing?.approval_status ? STATUS_COPY[existing.approval_status] : null;
+  const statusIcon = existing?.approval_status ? STATUS_ICONS[existing.approval_status] : null;
+  const statusText = existing?.approval_status ? statusLabel(existing.approval_status, content) : null;
 
   return (
     <div className="min-h-screen bg-background text-onSurface pb-24 flex flex-col font-sans">
@@ -140,20 +152,20 @@ export default function VerificationIdentitePage() {
         >
           <span className="material-symbols-outlined text-2xl">arrow_back</span>
         </Link>
-        <h1 className="flex-1 pr-10 text-center text-lg font-extrabold text-primary">Vérification d&apos;identité</h1>
+        <h1 className="flex-1 pr-10 text-center text-lg font-extrabold text-primary">{content.header.title}</h1>
       </header>
 
       <main className="mx-auto flex flex-1 w-full max-w-md flex-col items-center px-4 pb-12 lg:max-w-lg lg:pb-16 lg:pt-6">
         {existing === undefined ? (
-          <p className="helper-text py-8">Chargement…</p>
+          <p className="helper-text py-8">{content.loading}</p>
         ) : existing && existing.approval_status !== 'rejected' ? (
           <section className="w-full space-y-4 py-8 text-center">
             <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-surface-container-low text-primary">
               <span className="material-symbols-outlined" style={{ fontSize: 40 }}>
-                {statusCopy?.icon}
+                {statusIcon}
               </span>
             </div>
-            <p className="text-base font-semibold text-onSurface">{statusCopy?.label}</p>
+            <p className="text-base font-semibold text-onSurface">{statusText}</p>
             {existing.rejection_reason && (
               <p className="text-sm text-onSurface-variant">{existing.rejection_reason}</p>
             )}
@@ -162,11 +174,14 @@ export default function VerificationIdentitePage() {
           <>
             <section className="w-full py-4 text-center">
               <p className="text-base font-semibold leading-relaxed text-onSurface-variant">
-                Prenez une photo de vous tenant votre pièce d&apos;identité à côté de votre visage.
+                {content.capture.instructions}
               </p>
               {existing?.approval_status === 'rejected' && (
                 <p className="mt-2 text-sm font-medium text-error">
-                  Photo précédente refusée{existing.rejection_reason ? ` : ${existing.rejection_reason}` : '.'}
+                  {content.capture.previousRejectedPrefix}
+                  {existing.rejection_reason
+                    ? `${content.capture.previousRejectedSeparator}${existing.rejection_reason}`
+                    : content.capture.previousRejectedEnd}
                 </p>
               )}
             </section>
@@ -174,7 +189,7 @@ export default function VerificationIdentitePage() {
             <div className="relative aspect-[3/4] w-full max-w-md overflow-hidden rounded-3xl bg-black shadow-2xl flex flex-col justify-center items-center lg:max-w-lg">
               {capturedUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={capturedUrl} alt="Photo capturée" className="h-full w-full object-cover" />
+                <img src={capturedUrl} alt={content.capture.capturedAlt} className="h-full w-full object-cover" />
               ) : (
                 <video ref={videoRef} muted playsInline className="h-full w-full object-cover" />
               )}
@@ -211,7 +226,7 @@ export default function VerificationIdentitePage() {
                     variant="ghost"
                     onClick={() => setFlashOn(!flashOn)}
                     aria-pressed={flashOn}
-                    aria-label="Activer ou couper le flash"
+                    aria-label={content.capture.toggleFlashAriaLabel}
                     className="bg-black/50 text-white backdrop-blur-md hover:enabled:bg-black/70"
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
@@ -227,16 +242,16 @@ export default function VerificationIdentitePage() {
             {capturedUrl && (
               <div className="mt-6 flex w-full gap-3">
                 <Button variant="outline" onClick={retake} className="flex-1" disabled={isUploading}>
-                  Reprendre
+                  {content.capture.retake}
                 </Button>
                 <Button
                   onClick={() => void confirmUpload()}
                   className="flex-1"
                   disabled={isUploading}
                   isLoading={isUploading}
-                  loadingLabel="Envoi…"
+                  loadingLabel={content.capture.sending}
                 >
-                  Envoyer
+                  {content.capture.send}
                 </Button>
               </div>
             )}
@@ -251,10 +266,10 @@ export default function VerificationIdentitePage() {
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
               person
             </span>
-            Retour au Profil
+            {content.footer.backToProfile}
           </Link>
           <p className="px-6 text-center text-[11px] leading-relaxed text-onSurface-variant opacity-80 font-medium">
-            Vos données sont chiffrées et traitées conformément à la réglementation européenne sur la protection des données (RGPD).
+            {content.footer.privacyNotice}
           </p>
         </div>
       </main>

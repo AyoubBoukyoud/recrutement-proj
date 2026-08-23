@@ -1,0 +1,43 @@
+{
+  "header": {
+    "title": "Test de langue — Allemand"
+  },
+  "preparation": {
+    "heading": "Prêt pour votre évaluation ?",
+    "intro": "L'intelligence artificielle analysera votre fluidité, votre prononciation et votre vocabulaire.",
+    "topicLabel": "Sujet de l'épreuve",
+    "topic": "Décrivez votre métier et vos tâches quotidiennes en détail.",
+    "hint": "Consigne : Parlez pendant au moins {seconds} secondes de votre métier et de vos responsabilités quotidiennes.",
+    "startButton": "Démarrer le test"
+  },
+  "recording": {
+    "inProgress": "Enregistrement en cours…"
+  },
+  "processing": {
+    "uploading": "Envoi de votre enregistrement…",
+    "analyzing": "Analyse de votre prononciation…",
+    "description": "L'IA transcrit et compare vos phonèmes aux standards allemands. Cela peut prendre une quinzaine de secondes."
+  },
+  "failed": {
+    "heading": "Évaluation non aboutie",
+    "retryButton": "Réessayer"
+  },
+  "results": {
+    "aiEvaluated": "Évalué par IA",
+    "levelLabel": "Niveau {level}",
+    "heading": "Résultat de l'évaluation",
+    "wordsPerMinute": "{value} mots/minute",
+    "duration": "{value}s enregistrées.",
+    "pronunciationLabel": "Clarté / prononciation",
+    "fillerWordsLabel": "Part d'hésitations",
+    "transcriptLabel": "Transcription",
+    "viewProfileButton": "Voir mon profil",
+    "retakeButton": "Repasser le test"
+  },
+  "errors": {
+    "networkUnreachable": "L'API est injoignable. Vérifiez votre connexion.",
+    "uploadFailed": "L'envoi a échoué. Réessayez.",
+    "recordingTooShort": "Enregistrement trop court ({seconds}s) — parlez au moins {minSeconds} secondes.",
+    "microphoneUnavailable": "Impossible d'accéder au microphone. Vérifiez les autorisations."
+  }
+}

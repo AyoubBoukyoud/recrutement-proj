@@ -12,8 +12,12 @@ const { preset, cssVars } = require('../packages/design-tokens/tokens.cjs');
  * Les teintes vertes (primary*) sont recalculées à partir du vert du projet
  * (`palette.primary` = #006266, cf. packages/design-tokens/tokens.cjs) pour
  * respecter la charte existante plutôt que le vert forêt des maquettes.
+ *
+ * Valeurs claires « source de vérité » — converties en variables CSS
+ * (`amud` ci-dessous) pour que le dark mode puisse les repeindre via `.dark`
+ * dans globals.css, sans toucher aux classes Tailwind `bg-amud-*` elles-mêmes.
  */
-const amud = {
+const amudLight = {
   primary: '#006266',
   'primary-dark': '#004245',
   'primary-light': '#C8E5E6',
@@ -70,7 +74,14 @@ const amud = {
   'outline-variant': '#c0c9bf',
 };
 
+// `bg-amud-primary` etc. résolvent vers `var(--amud-primary)` : la valeur
+// vient de `amudLight` par défaut sur `:root` (injectée plus bas) et se
+// repeint sous `.dark` dans globals.css.
+const amud = Object.fromEntries(Object.keys(amudLight).map((key) => [key, `var(--amud-${key})`]));
+const amudCssVars = Object.fromEntries(Object.entries(amudLight).map(([key, value]) => [`--amud-${key}`, value]));
+
 module.exports = {
+  darkMode: 'class',
   presets: [preset],
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -136,6 +147,6 @@ module.exports = {
   },
   plugins: [
     // Les mêmes tokens en variables CSS, pour le CSS hors Tailwind de globals.css.
-    plugin(({ addBase }) => addBase({ ':root': cssVars })),
+    plugin(({ addBase }) => addBase({ ':root': { ...cssVars, ...amudCssVars } })),
   ],
 };

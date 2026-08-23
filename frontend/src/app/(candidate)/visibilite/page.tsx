@@ -12,11 +12,15 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useCandidateProfile } from '@/lib/useCandidateProfile';
 import { documentsRepository } from '@/data/documents';
+import { useLanguage } from '@/context/LanguageContext';
+import { candidateVisibiliteContentFor } from '@/lib/candidateVisibiliteContent';
 
 const CIRCUMFERENCE = 263.89;
 
 export default function VisibilitePage() {
   const { token } = useAuth();
+  const { language } = useLanguage();
+  const content = candidateVisibiliteContentFor(language);
   const { data: profile, isLoading } = useCandidateProfile();
   const [identityVerified, setIdentityVerified] = useState(false);
   const [dashOffset, setDashOffset] = useState(CIRCUMFERENCE);
@@ -46,14 +50,14 @@ export default function VisibilitePage() {
       <header className="sticky top-0 z-40 mx-auto flex w-full max-w-xl items-center justify-between border-b border-surface-container-high bg-surface px-4 py-4 lg:max-w-6xl lg:px-10">
         <Link
           href="/dashboard"
-          aria-label="Retour"
+          aria-label={content.header.backAria}
           className="flex items-center text-primary transition-opacity hover:opacity-80 active:scale-95"
         >
           <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
             arrow_back
           </span>
         </Link>
-        <h1 className="text-xl font-extrabold text-primary">Ma visibilité</h1>
+        <h1 className="text-xl font-extrabold text-primary">{content.header.title}</h1>
         <span className="w-6" />
       </header>
 
@@ -101,7 +105,7 @@ export default function VisibilitePage() {
             <span className="material-symbols-outlined fill text-[18px]">
               {visible ? 'visibility' : 'visibility_off'}
             </span>
-            {visible ? 'Visible par les recruteurs' : 'Pas encore visible'}
+            {visible ? content.visibility.visible : content.visibility.hidden}
           </div>
         </section>
 
@@ -112,9 +116,11 @@ export default function VisibilitePage() {
             .map((section) => (
               <div key={section.key} className="rounded-pillar border border-outline-variant bg-surface-container-lowest p-4 shadow-subtle backdrop-blur-md">
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="text-sm font-medium text-onSurface capitalize">{SECTION_LABELS[section.key] ?? section.key}</span>
+                  <span className="text-sm font-medium text-onSurface capitalize">
+                    {(content.sectionLabels as Record<string, string>)[section.key] ?? section.key}
+                  </span>
                   <span className={`text-sm font-extrabold ${section.complete ? 'text-primary' : 'text-onSurface-variant'}`}>
-                    {section.complete ? 'Fait' : 'À faire'}
+                    {section.complete ? content.status.done : content.status.todo}
                   </span>
                 </div>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-surface-container">
@@ -126,7 +132,7 @@ export default function VisibilitePage() {
 
         {(!videoDone || !languageDone) && (
           <section className="mb-10">
-            <h2 className="mb-4 text-xl font-bold text-onSurface">Conseils pour progresser</h2>
+            <h2 className="mb-4 text-xl font-bold text-onSurface">{content.tips.title}</h2>
             <div className="space-y-4">
               {!videoDone && (
                 <div className="flex flex-col gap-4 rounded-pillar border border-outline-variant border-l-4 border-l-primary bg-surface-container-lowest p-4 shadow-subtle">
@@ -135,14 +141,14 @@ export default function VisibilitePage() {
                       <span className="material-symbols-outlined text-[24px]">videocam</span>
                     </div>
                     <p className="text-sm leading-relaxed text-onSurface font-medium">
-                      Ajoutez une vidéo de présentation pour compléter votre dossier.
+                      {content.tips.video.text}
                     </p>
                   </div>
                   <Link
                     href="/video"
                     className="block w-full rounded-pillar bg-primary py-3 text-center text-sm font-bold text-onPrimary transition-all hover:bg-primary/90 active:scale-[0.98]"
                   >
-                    Filmer
+                    {content.tips.video.cta}
                   </Link>
                 </div>
               )}
@@ -154,14 +160,14 @@ export default function VisibilitePage() {
                       <span className="material-symbols-outlined text-[24px]">language</span>
                     </div>
                     <p className="text-sm leading-relaxed text-onSurface font-medium">
-                      Renseignez au moins une langue pour compléter votre dossier.
+                      {content.tips.language.text}
                     </p>
                   </div>
                   <Link
                     href="/profile-creation?step=4"
                     className="block w-full rounded-pillar border border-primary py-3 text-center text-sm font-bold text-primary transition-all hover:bg-surface-container-low active:scale-[0.98]"
                   >
-                    Renseigner mes langues
+                    {content.tips.language.cta}
                   </Link>
                 </div>
               )}
@@ -171,13 +177,13 @@ export default function VisibilitePage() {
 
         {identityVerified && (
           <section className="mb-10">
-            <h2 className="mb-4 text-xl font-bold text-onSurface">Badges</h2>
+            <h2 className="mb-4 text-xl font-bold text-onSurface">{content.badges.title}</h2>
             <div className="flex gap-4 overflow-x-auto pb-4">
               <div className="flex w-32 shrink-0 flex-col items-center rounded-pillar border border-outline-variant bg-surface-container-lowest p-4 text-center shadow-subtle">
                 <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <span className="material-symbols-outlined fill text-[28px]">verified_user</span>
                 </div>
-                <span className="text-xs font-bold leading-tight text-onSurface">Identité vérifiée</span>
+                <span className="text-xs font-bold leading-tight text-onSurface">{content.badges.identityVerified}</span>
               </div>
             </div>
           </section>
@@ -188,11 +194,3 @@ export default function VisibilitePage() {
     </div>
   );
 }
-
-const SECTION_LABELS: Record<string, string> = {
-  personal: 'Informations personnelles',
-  education: 'Formation',
-  languages: 'Langues',
-  availability: 'Disponibilité',
-  consents: 'Consentements',
-};

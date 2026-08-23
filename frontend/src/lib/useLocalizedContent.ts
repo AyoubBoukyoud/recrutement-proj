@@ -11,6 +11,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import type { Language } from '@/lib/types';
 import { homeFor, type HomeContent } from '@/lib/homeContent';
 import { popularFor, sectorsFor, tradesFor, type Trade } from '@/lib/trades';
+import { employeursFor, type EmployeursContent } from '@/lib/employeursContent';
 
 export function useHomeContent(): HomeContent {
   const { language } = useLanguage();
@@ -26,4 +27,9 @@ export function useTrades(): { trades: Trade[]; popular: Trade[]; sectors: strin
     popular: popularFor(language),
     sectors: sectorsFor(language),
   };
+}
+
+export function useEmployeursContent(): EmployeursContent {
+  const { language } = useLanguage();
+  return employeursFor(language);
 }

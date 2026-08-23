@@ -1,0 +1,15 @@
+{
+  "header": { "title": "Vidéo de présentation" },
+  "instructions": "Enregistrez une courte vidéo (60 secondes) pour vous présenter aux employeurs.",
+  "cameraPreview": "Aperçu caméra",
+  "saved": "Vidéo enregistrée dans votre profil.",
+  "restart": "Recommencer",
+  "validate": "Valider",
+  "sending": "Envoi…",
+  "offlineNotice": "Hors ligne — l'envoi de la vidéo demande une connexion.",
+  "errors": {
+    "cameraUnavailable": "Impossible d'accéder à la caméra. Vérifiez les autorisations.",
+    "networkUnreachable": "L'API est injoignable. Vérifiez votre connexion.",
+    "uploadFailed": "L'envoi a échoué. Réessayez."
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "header": {
+    "title": "Vérification d'identité"
+  },
+  "status": {
+    "pending": "En attente de vérification par un administrateur.",
+    "approved": "Identité vérifiée.",
+    "rejected": "Vérification refusée — reprenez une photo."
+  },
+  "loading": "Chargement…",
+  "errors": {
+    "network": "L'API est injoignable. Vérifiez votre connexion.",
+    "camera": "Impossible d'accéder à la caméra. Vérifiez les autorisations.",
+    "upload": "L'envoi a échoué. Réessayez."
+  },
+  "capture": {
+    "instructions": "Prenez une photo de vous tenant votre pièce d'identité à côté de votre visage.",
+    "previousRejectedPrefix": "Photo précédente refusée",
+    "previousRejectedSeparator": " : ",
+    "previousRejectedEnd": ".",
+    "capturedAlt": "Photo capturée",
+    "toggleFlashAriaLabel": "Activer ou couper le flash",
+    "retake": "Reprendre",
+    "send": "Envoyer",
+    "sending": "Envoi…"
+  },
+  "footer": {
+    "backToProfile": "Retour au Profil",
+    "privacyNotice": "Vos données sont chiffrées et traitées conformément à la réglementation européenne sur la protection des données (RGPD)."
+  }
+}

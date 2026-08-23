@@ -1,0 +1,57 @@
+{
+  "header": {
+    "title": "شكوى"
+  },
+  "intro": {
+    "title": "كيف يمكننا مساعدتك؟",
+    "body": "ملاحظاتك تساعدنا على تحسين Amud Skills."
+  },
+  "offlineNotice": "غير متصل — يتطلب إرسال الشكوى اتصالاً بالإنترنت. يرجى إعادة المحاولة عند الاتصال من جديد.",
+  "faqLink": {
+    "title": "مركز المساعدة / الأسئلة الشائعة",
+    "subtitle": "ابحث عن إجابة سريعة قبل إرسال شكوى"
+  },
+  "form": {
+    "subjectLabel": "موضوع الشكوى",
+    "subjectPlaceholder": "اختر نوعًا…",
+    "messageLabel": "الرسالة",
+    "messagePlaceholder": "صف مشكلتك…",
+    "orDivider": "أو",
+    "voiceTitle": "تسجيل رسالة صوتية",
+    "voiceReady": "الرسالة الصوتية جاهزة للإرسال.",
+    "validationError": "يرجى اختيار موضوع ووصف مشكلتك (نصًا أو برسالة صوتية)."
+  },
+  "categoryLabels": {
+    "Problème technique": "مشكلة تقنية",
+    "Question sur mon dossier": "سؤال عن ملفي",
+    "Signaler une offre suspecte": "الإبلاغ عن عرض مشبوه",
+    "Suggestion": "اقتراح",
+    "Autre": "أخرى"
+  },
+  "errors": {
+    "networkUnreachable": "تعذّر الوصول إلى الواجهة البرمجية. تحقق من اتصالك.",
+    "sessionExpired": "انتهت صلاحية جلستك — يرجى تسجيل الدخول مرة أخرى.",
+    "submitFailed": "فشل الإرسال. يرجى المحاولة مرة أخرى بعد لحظات."
+  },
+  "submitButton": {
+    "label": "إرسال الشكوى",
+    "loadingLabel": "جارٍ الإرسال…"
+  },
+  "history": {
+    "titlePrefix": "شكاواي",
+    "voiceFallback": "رسالة صوتية",
+    "textFallback": "شكوى",
+    "responsePrefix": "الرد:"
+  },
+  "statusLabels": {
+    "open": "مفتوحة",
+    "in_review": "قيد المراجعة",
+    "resolved": "تم الحل"
+  },
+  "successModal": {
+    "title": "تم الإرسال بنجاح!",
+    "body": "سنعاود التواصل معك في أقرب وقت ممكن.",
+    "ticketLabel": "رقم التذكرة",
+    "backButton": "العودة إلى الصفحة الرئيسية"
+  }
+}

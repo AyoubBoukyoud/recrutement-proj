@@ -1,0 +1,30 @@
+{
+  "header": { "title": "Ma visibilité", "backAria": "Retour" },
+  "visibility": {
+    "visible": "Visible par les recruteurs",
+    "hidden": "Pas encore visible"
+  },
+  "sectionLabels": {
+    "personal": "Informations personnelles",
+    "education": "Formation",
+    "languages": "Langues",
+    "availability": "Disponibilité",
+    "consents": "Consentements"
+  },
+  "status": { "done": "Fait", "todo": "À faire" },
+  "tips": {
+    "title": "Conseils pour progresser",
+    "video": {
+      "text": "Ajoutez une vidéo de présentation pour compléter votre dossier.",
+      "cta": "Filmer"
+    },
+    "language": {
+      "text": "Renseignez au moins une langue pour compléter votre dossier.",
+      "cta": "Renseigner mes langues"
+    }
+  },
+  "badges": {
+    "title": "Badges",
+    "identityVerified": "Identité vérifiée"
+  }
+}

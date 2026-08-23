@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { InertNavItem, NavItem, isNavActive, useDropdown } from '@/components/amud/ui';
+import { HeaderLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
 import { ToastProvider } from '@/components/amud/Toast';
 import { DemoBanner } from '@/components/amud/DemoBanner';
 import { notificationsSeed } from '@/data/amud/notifications';
@@ -245,7 +246,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
             collapsed ? 'md:ml-20' : 'md:ml-64'
           }`}
         >
-          <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-amud-outline-variant bg-amud-surface px-gutter">
+          <header className="fixed inset-x-0 bottom-0 z-30 flex h-16 items-center justify-between border-t border-amud-outline-variant bg-amud-surface px-gutter pb-[env(safe-area-inset-bottom)] md:sticky md:inset-x-auto md:top-0 md:bottom-auto md:border-b md:border-t-0 md:pb-0">
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setNavOpen(true)}
@@ -361,6 +362,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
               <button className="rounded-full p-2 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary" aria-label="Aide">
                 <span className="material-symbols-outlined">help</span>
               </button>
+              <HeaderLanguageThemeControls />
               <div ref={profileMenu.ref} className="relative">
                 <button
                   onClick={() => profileMenu.setOpen((v) => !v)}
@@ -405,7 +407,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
               </div>
             </div>
           </header>
-          <main key={pathname} className="min-w-0 flex-1 animate-amud-rise-in p-margin-mobile md:p-margin-desktop">
+          <main key={pathname} className="min-w-0 flex-1 animate-amud-rise-in p-margin-mobile pb-24 md:p-margin-desktop">
             <DemoBanner />
             {children}
           </main>

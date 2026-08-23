@@ -1,0 +1,43 @@
+{
+  "header": {
+    "title": "Language Test — German"
+  },
+  "preparation": {
+    "heading": "Ready for your assessment?",
+    "intro": "Artificial intelligence will analyze your fluency, pronunciation, and vocabulary.",
+    "topicLabel": "Test topic",
+    "topic": "Describe your job and your daily tasks in detail.",
+    "hint": "Instructions: Speak for at least {seconds} seconds about your job and daily responsibilities.",
+    "startButton": "Start the test"
+  },
+  "recording": {
+    "inProgress": "Recording in progress…"
+  },
+  "processing": {
+    "uploading": "Uploading your recording…",
+    "analyzing": "Analyzing your pronunciation…",
+    "description": "The AI transcribes and compares your phonemes against German standards. This can take about fifteen seconds."
+  },
+  "failed": {
+    "heading": "Assessment unsuccessful",
+    "retryButton": "Try again"
+  },
+  "results": {
+    "aiEvaluated": "AI-evaluated",
+    "levelLabel": "Level {level}",
+    "heading": "Assessment result",
+    "wordsPerMinute": "{value} words/minute",
+    "duration": "{value}s recorded.",
+    "pronunciationLabel": "Clarity / pronunciation",
+    "fillerWordsLabel": "Filler word ratio",
+    "transcriptLabel": "Transcript",
+    "viewProfileButton": "View my profile",
+    "retakeButton": "Retake the test"
+  },
+  "errors": {
+    "networkUnreachable": "The API is unreachable. Check your connection.",
+    "uploadFailed": "The upload failed. Please try again.",
+    "recordingTooShort": "Recording too short ({seconds}s) — speak for at least {minSeconds} seconds.",
+    "microphoneUnavailable": "Unable to access the microphone. Check your permissions."
+  }
+}

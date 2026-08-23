@@ -1,0 +1,43 @@
+{
+  "header": {
+    "title": "اختبار اللغة — الألمانية"
+  },
+  "preparation": {
+    "heading": "هل أنت مستعد لتقييمك؟",
+    "intro": "سيحلّل الذكاء الاصطناعي طلاقتك ونطقك ومفرداتك.",
+    "topicLabel": "موضوع الاختبار",
+    "topic": "صف مهنتك ومهامك اليومية بالتفصيل.",
+    "hint": "التعليمات: تحدَّث لمدة {seconds} ثانية على الأقل عن مهنتك ومسؤولياتك اليومية.",
+    "startButton": "بدء الاختبار"
+  },
+  "recording": {
+    "inProgress": "التسجيل جارٍ…"
+  },
+  "processing": {
+    "uploading": "جارٍ إرسال تسجيلك…",
+    "analyzing": "جارٍ تحليل نطقك…",
+    "description": "يقوم الذكاء الاصطناعي بتفريغ كلامك ومقارنة أصواتك بالمعايير الألمانية. قد يستغرق ذلك نحو خمس عشرة ثانية."
+  },
+  "failed": {
+    "heading": "لم يكتمل التقييم",
+    "retryButton": "إعادة المحاولة"
+  },
+  "results": {
+    "aiEvaluated": "مُقيَّم بالذكاء الاصطناعي",
+    "levelLabel": "المستوى {level}",
+    "heading": "نتيجة التقييم",
+    "wordsPerMinute": "{value} كلمة/دقيقة",
+    "duration": "{value} ثانية مسجَّلة.",
+    "pronunciationLabel": "الوضوح / النطق",
+    "fillerWordsLabel": "نسبة الحشو الكلامي",
+    "transcriptLabel": "النص المفرَّغ",
+    "viewProfileButton": "عرض ملفي الشخصي",
+    "retakeButton": "إعادة اجتياز الاختبار"
+  },
+  "errors": {
+    "networkUnreachable": "تعذّر الوصول إلى واجهة الخدمة (API). تحقق من اتصالك.",
+    "uploadFailed": "فشل الإرسال. حاول مرة أخرى.",
+    "recordingTooShort": "التسجيل قصير جدًا ({seconds} ثانية) — تحدَّث لمدة {minSeconds} ثانية على الأقل.",
+    "microphoneUnavailable": "تعذّر الوصول إلى الميكروفون. تحقق من الأذونات."
+  }
+}

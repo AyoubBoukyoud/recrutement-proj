@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { Drawer, NavItem, isNavActive, useDropdown } from '@/components/amud/ui';
+import { HeaderLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
 import { ToastProvider } from '@/components/amud/Toast';
 import { useCurrentCenter } from '@/lib/amud/currentCentre';
 import { CENTER_ROLES, CENTER_ROLE_LABELS } from '@/data/amud/centerTypes';
@@ -208,6 +209,7 @@ export function CentreShell({ children }: { children: ReactNode }) {
                   </div>
                 ) : null}
               </div>
+              <HeaderLanguageThemeControls />
               <div ref={profileMenu.ref} className="relative">
                 <button onClick={() => profileMenu.setOpen((v) => !v)} className="flex h-9 w-9 items-center justify-center rounded-full bg-amud-primary-container font-bold text-white transition-opacity hover:opacity-90" aria-label="Menu du compte" aria-haspopup="menu" aria-expanded={profileMenu.open}>
                   {(currentCentre?.nom ?? 'C').charAt(0)}

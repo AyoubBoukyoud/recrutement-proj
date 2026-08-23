@@ -19,7 +19,7 @@ const SECTIONS = [
 
 const NAV_BASE =
   'inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-element border border-transparent px-3 text-[13px] font-semibold tracking-[0.1px] transition-[background-color,border-color,color] duration-100';
-const NAV_ACTIVE = 'bg-primary text-white';
+const NAV_ACTIVE = 'bg-primary text-onPrimary';
 const NAV_INACTIVE = 'border-outline-variant bg-surface-lowest text-on-surface hover:border-primary hover:text-primary';
 
 /**
@@ -78,7 +78,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </nav>
 
-      <main className="mx-auto grid max-w-5xl gap-6 px-6 py-8">{children}</main>
+      <main className="mx-auto grid max-w-5xl gap-6 px-6 py-8 pb-36 md:pb-8">{children}</main>
     </div>
   );
 }

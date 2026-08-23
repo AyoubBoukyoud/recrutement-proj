@@ -1,0 +1,32 @@
+{
+  "header": {
+    "profileAlt": "Profil Candidat",
+    "notificationsAria": "Notifications"
+  },
+  "search": {
+    "title": "Offres pour vous",
+    "srLabel": "Rechercher un métier ou une ville",
+    "placeholder": "Rechercher un métier ou une ville..."
+  },
+  "filters": {
+    "button": "Filtres",
+    "labels": {
+      "Tous": "Tous",
+      "Santé": "Santé",
+      "Électricité": "Électricité",
+      "Hôtellerie": "Hôtellerie",
+      "Logistique": "Logistique",
+      "Disponibilité immédiate": "Disponibilité immédiate"
+    }
+  },
+  "job": {
+    "removeFavoriteAria": "Retirer des favoris",
+    "addFavoriteAria": "Ajouter aux favoris",
+    "interestedButton": "Je suis intéressé"
+  },
+  "banner": {
+    "title": "Booster votre visibilité",
+    "body": "Complétez votre profil à 100% pour apparaître en priorité auprès des recruteurs allemands.",
+    "cta": "Optimiser mon profil"
+  }
+}

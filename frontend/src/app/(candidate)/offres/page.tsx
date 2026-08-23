@@ -4,7 +4,16 @@
 
 import Link from 'next/link';
 import { Button, IconButton } from '@/components/shared/Button';
+import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { useState } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
+import { candidateOffresContentFor, filterLabelFor } from '@/lib/candidateOffresContent';
+
+// Valeurs canoniques (français) des puces de filtre : servent de clé de
+// comparaison (`selectedFilter === filter`) pour le style actif/inactif.
+// L'affichage traduit passe par `filterLabelFor`.
+const FILTERS = ['Santé', 'Électricité', 'Hôtellerie', 'Logistique', 'Disponibilité immédiate'];
 
 const JOB_OFFERS = [
   {
@@ -62,6 +71,8 @@ const JOB_OFFERS = [
 ];
 
 export default function OffresPage() {
+  const { language } = useLanguage();
+  const content = candidateOffresContentFor(language);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [search, setSearch] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('Tous');
@@ -78,34 +89,38 @@ export default function OffresPage() {
           <div className="h-10 w-10 overflow-hidden rounded-full border border-outline-variant">
             <img
               className="h-full w-full object-cover"
-              alt="Profil Candidat"
+              alt={content.header.profileAlt}
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPqRi7uOfHx4qDLV3jcEYoiF5AeUAPOc9qwHNBwrI3wC8MvbITgV3g32wcLhQlFGqGBuuxUGOv12XjyPxoXY7ZZJiaFzsICmrDZN57TVLXDlqjl3_eI3sDYP_kGv3aG47XF1zb1DuuqDlgMeTYavqAUHjR15B-aeEAqM-bnUplCp6qX_HuelHwo1wJPJCEq8Jm1oZU2JOxIk1duMeR6GmVR9HUmXijT09cjIn0dUaJ5hcxHwYu9Rof"
             />
           </div>
           <h1 className="text-lg font-extrabold text-primary">Amud Careers</h1>
         </div>
-        <IconButton variant="ghost" aria-label="Notifications">
-          <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
-            notifications
-          </span>
-        </IconButton>
+        <div className="flex items-center gap-1">
+          <LanguageSwitcher compact />
+          <ThemeToggle />
+          <IconButton variant="ghost" aria-label={content.header.notificationsAria}>
+            <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
+              notifications
+            </span>
+          </IconButton>
+        </div>
       </header>
 
       <main className="mx-auto max-w-xl px-4 py-6 lg:max-w-6xl lg:px-10 lg:py-8">
         {/* Header & Search */}
         <div className="mb-6 lg:max-w-xl">
-          <h2 className="mb-3 text-2xl font-extrabold text-primary">Offres pour vous</h2>
+          <h2 className="mb-3 text-2xl font-extrabold text-primary">{content.search.title}</h2>
           <div className="relative w-full">
             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" aria-hidden="true" style={{ fontSize: 20 }}>
               search
             </span>
-            <label htmlFor="offres-search" className="sr-only">Rechercher un métier ou une ville</label>
+            <label htmlFor="offres-search" className="sr-only">{content.search.srLabel}</label>
             <input
               id="offres-search"
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Rechercher un métier ou une ville..."
+              placeholder={content.search.placeholder}
               className="w-full rounded-xl border border-outline bg-surface-container-lowest py-3 pl-12 pr-4 text-sm font-semibold text-onSurface outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
             />
           </div>
@@ -124,10 +139,10 @@ export default function OffresPage() {
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
               tune
             </span>
-            <span>Filtres</span>
+            <span>{content.filters.button}</span>
           </Button>
           <div className="h-6 w-px shrink-0 bg-outline-variant" />
-          {['Santé', 'Électricité', 'Hôtellerie', 'Logistique', 'Disponibilité immédiate'].map((filter) => (
+          {FILTERS.map((filter) => (
             <Button
               key={filter}
               variant={selectedFilter === filter ? 'primary' : 'outline'}
@@ -137,7 +152,7 @@ export default function OffresPage() {
               aria-pressed={selectedFilter === filter}
               className="shrink-0 whitespace-nowrap"
             >
-              {filter}
+              {filterLabelFor(content, filter)}
             </Button>
           ))}
         </div>
@@ -172,7 +187,7 @@ export default function OffresPage() {
                       size="sm"
                       onClick={() => toggleFavorite(job.id)}
                       aria-pressed={isFav}
-                      aria-label={isFav ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                      aria-label={isFav ? content.job.removeFavoriteAria : content.job.addFavoriteAria}
                       className={isFav ? 'text-secondary-dark' : 'text-outline hover:enabled:text-secondary-dark'}
                     >
                       <span className={`material-symbols-outlined ${isFav ? 'fill' : ''}`} style={{ fontSize: 22 }}>
@@ -220,7 +235,7 @@ export default function OffresPage() {
                   fullWidth
                   className="text-xs font-extrabold uppercase tracking-wider shadow-sm"
                 >
-                  Je suis intéressé
+                  {content.job.interestedButton}
                   <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
                     arrow_forward
                   </span>
@@ -233,15 +248,13 @@ export default function OffresPage() {
         {/* Featured Banner */}
         <div className="relative mt-8 overflow-hidden rounded-2xl bg-primary p-6 text-onPrimary shadow-lg">
           <div className="relative z-10">
-            <h3 className="mb-2 text-xl font-extrabold">Booster votre visibilité</h3>
-            <p className="mb-4 text-xs leading-relaxed text-onPrimary/90">
-              Complétez votre profil à 100% pour apparaître en priorité auprès des recruteurs allemands.
-            </p>
+            <h3 className="mb-2 text-xl font-extrabold">{content.banner.title}</h3>
+            <p className="mb-4 text-xs leading-relaxed text-onPrimary/90">{content.banner.body}</p>
             <Link
               href="/visibilite"
               className="inline-block rounded-lg bg-onPrimary px-5 py-2.5 text-xs font-extrabold text-primary transition-colors hover:bg-surface-container-low"
             >
-              Optimiser mon profil
+              {content.banner.cta}
             </Link>
           </div>
           <span className="material-symbols-outlined absolute -bottom-4 -right-4 text-[120px] text-onPrimary/10 pointer-events-none">

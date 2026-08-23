@@ -1,0 +1,44 @@
+{
+  "hero": {
+    "title": "Recruit in Morocco with German-grade trust standards.",
+    "body": "Cut your position vacancy times with verified, highly qualified Moroccan professionals, trained to strict German CEFR standards and fully GDPR-compliant.",
+    "ctaRoi": "Calculate ROI",
+    "ctaStandards": "View Standards",
+    "imageAlt": "Moroccan healthcare professional at a modern German medical facility."
+  },
+  "stats": [
+    { "value": "136 Days", "label": "National Average Vacancy" },
+    { "value": "212 Days", "label": "Healthcare Vacancy" },
+    { "value": "-40%", "label": "Time-to-Hire Reduction" }
+  ],
+  "cost": {
+    "title": "The Cost of Vacancy",
+    "body": "German Mittelstand companies face unprecedented delays for critical hires. Amud Skills closes this gap through rigorous, verified sourcing."
+  },
+  "standards": {
+    "title": "Uncompromising Standards",
+    "items": [
+      {
+        "title": "GDPR / DSGVO Compliant",
+        "desc": "Our entire sourcing, verification, and data-transfer process strictly complies with German and European data protection regulations."
+      },
+      {
+        "title": "Verified CEFR German Levels",
+        "desc": "We guarantee every candidate reaches the required B1/B2 German level, authenticated by accredited testing centers before placement."
+      }
+    ]
+  },
+  "roi": {
+    "title": "ROI Calculator",
+    "openPositionsLabel": "Open Positions",
+    "openPositionsPlaceholder": "e.g., 3",
+    "industryLabel": "Industry",
+    "industries": [
+      "Healthcare (Avg 212 days)",
+      "Logistics (Avg 145 days)",
+      "IT (Avg 160 days)"
+    ],
+    "submit": "Calculate Savings",
+    "toast": "Estimate calculated — an advisor will follow up to refine it."
+  }
+}

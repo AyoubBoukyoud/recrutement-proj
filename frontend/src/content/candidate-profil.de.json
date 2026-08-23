@@ -1,0 +1,43 @@
+{
+  "header": {
+    "backAriaLabel": "Zurück zum Dashboard",
+    "title": "Mein öffentliches Profil",
+    "shareAriaLabel": "Teilen"
+  },
+  "loading": "Wird geladen…",
+  "fallbackName": "Kandidat",
+  "professionCard": {
+    "professionSrLabel": "Branche",
+    "professionPlaceholder": "Branche",
+    "specializationSrLabel": "Spezialisierung",
+    "specializationPlaceholder": "Spezialisierung",
+    "specializationFallback": "Keine Spezialisierung angegeben",
+    "yearsExperienceSuffix": " Jahre Erfahrung",
+    "save": "Speichern",
+    "edit": "Bearbeiten"
+  },
+  "sections": {
+    "languagesTitle": "Sprachen",
+    "languagesEmpty": "Keine Sprache angegeben.",
+    "presentationTitle": "Meine Vorstellung",
+    "timelineTitle": "Werdegang",
+    "toolsTitle": "Tools & Zertifizierungen",
+    "documentsTitle": "Dokumente",
+    "documentsEmpty": "Kein Dokument hinzugefügt."
+  },
+  "tools": [
+    { "label": "Sichtbarkeits-Score als Kandidat" },
+    { "label": "Identitätsprüfung" },
+    { "label": "Empfehlungsprogramm" },
+    { "label": "Matching-Präferenzen" },
+    { "label": "Mein Gehalt simulieren" },
+    { "label": "Berufe-Quiz" },
+    { "label": "Alltagsdeutsch" }
+  ],
+  "logout": "Abmelden",
+  "qr": {
+    "closeAriaLabel": "Schließen",
+    "title": "Mein Profil teilen",
+    "scanMe": "SCANNEN"
+  }
+}

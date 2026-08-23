@@ -1,0 +1,57 @@
+{
+  "header": {
+    "title": "Complaint"
+  },
+  "intro": {
+    "title": "How can we help you?",
+    "body": "Your feedback helps us improve Amud Skills."
+  },
+  "offlineNotice": "Offline — sending a complaint requires a connection. Please try again once you're back online.",
+  "faqLink": {
+    "title": "Help center / FAQ",
+    "subtitle": "Find a quick answer before submitting a complaint"
+  },
+  "form": {
+    "subjectLabel": "Complaint subject",
+    "subjectPlaceholder": "Choose a type…",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Describe your issue…",
+    "orDivider": "OR",
+    "voiceTitle": "Record a voice message",
+    "voiceReady": "Voice message ready to send.",
+    "validationError": "Please choose a subject and describe your issue (text or voice message)."
+  },
+  "categoryLabels": {
+    "Problème technique": "Technical issue",
+    "Question sur mon dossier": "Question about my file",
+    "Signaler une offre suspecte": "Report a suspicious listing",
+    "Suggestion": "Suggestion",
+    "Autre": "Other"
+  },
+  "errors": {
+    "networkUnreachable": "The API is unreachable. Check your connection.",
+    "sessionExpired": "Your session has expired — please sign in again.",
+    "submitFailed": "Sending failed. Please try again in a moment."
+  },
+  "submitButton": {
+    "label": "Send complaint",
+    "loadingLabel": "Sending…"
+  },
+  "history": {
+    "titlePrefix": "My complaints",
+    "voiceFallback": "Voice message",
+    "textFallback": "Complaint",
+    "responsePrefix": "Response:"
+  },
+  "statusLabels": {
+    "open": "Open",
+    "in_review": "In review",
+    "resolved": "Resolved"
+  },
+  "successModal": {
+    "title": "Sent successfully!",
+    "body": "We'll get back to you as soon as possible.",
+    "ticketLabel": "Ticket reference",
+    "backButton": "Back to home"
+  }
+}

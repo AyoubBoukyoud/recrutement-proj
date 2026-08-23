@@ -8,20 +8,22 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useCandidateProfile } from '@/lib/useCandidateProfile';
 import { REQUIRED_SECTION_TO_STEP } from '@/lib/candidateProfile';
-
-const TABS = [
-  { href: '/dashboard', label: 'Accueil', icon: 'home' },
-  { href: '/offres', label: 'Offres', icon: 'work' },
-  { href: '/documents', label: 'Documents', icon: 'description' },
-  { href: '/profil', label: 'Profil', icon: 'person' },
-  { href: '/reclamation', label: 'Support', icon: 'help_outline' },
-];
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function CandidateLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { isLoading } = useAuth();
   const { data: profile, isLoading: profileLoading } = useCandidateProfile();
+  const { t } = useLanguage();
+
+  const TABS = [
+    { href: '/dashboard', label: t('nav_dashboard'), icon: 'home' },
+    { href: '/offres', label: t('nav_offres'), icon: 'work' },
+    { href: '/documents', label: t('nav_documents'), icon: 'description' },
+    { href: '/profil', label: t('nav_profile'), icon: 'person' },
+    { href: '/reclamation', label: t('nav_support'), icon: 'help_outline' },
+  ];
 
   useEffect(() => {
     if (isLoading || profileLoading || !profile) return;
@@ -42,7 +44,7 @@ export default function CandidateLayout({ children }: { children: React.ReactNod
           <span className="text-base font-extrabold text-primary-dark">Amud Skills</span>
         </Link>
 
-        <nav className="flex-1 space-y-1 px-3" aria-label="Navigation candidat">
+        <nav className="flex-1 space-y-1 px-3" aria-label={t('nav_candidate_aria_label')}>
           {TABS.map(({ href, label, icon }) => {
             const isActive = pathname === href;
             return (

@@ -1,0 +1,43 @@
+{
+  "header": {
+    "backAriaLabel": "Retour au tableau de bord",
+    "title": "Mon profil public",
+    "shareAriaLabel": "Partager"
+  },
+  "loading": "Chargement…",
+  "fallbackName": "Candidat",
+  "professionCard": {
+    "professionSrLabel": "Secteur",
+    "professionPlaceholder": "Secteur",
+    "specializationSrLabel": "Spécialisation",
+    "specializationPlaceholder": "Spécialisation",
+    "specializationFallback": "Spécialisation non renseignée",
+    "yearsExperienceSuffix": " ans d'expérience",
+    "save": "Enregistrer",
+    "edit": "Modifier"
+  },
+  "sections": {
+    "languagesTitle": "Langues",
+    "languagesEmpty": "Aucune langue renseignée.",
+    "presentationTitle": "Ma présentation",
+    "timelineTitle": "Parcours",
+    "toolsTitle": "Outils & Certifications",
+    "documentsTitle": "Documents",
+    "documentsEmpty": "Aucun document ajouté."
+  },
+  "tools": [
+    { "label": "Score de visibilité candidat" },
+    { "label": "Vérification d'identité" },
+    { "label": "Programme de Parrainage" },
+    { "label": "Préférences de matching" },
+    { "label": "Simuler mon salaire" },
+    { "label": "Quiz métier" },
+    { "label": "Allemand du quotidien" }
+  ],
+  "logout": "Se déconnecter",
+  "qr": {
+    "closeAriaLabel": "Fermer",
+    "title": "Partager mon profil",
+    "scanMe": "SCAN ME"
+  }
+}

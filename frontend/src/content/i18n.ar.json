@@ -64,5 +64,6 @@
   "otp_error_delivery": "تعذّر إرسال الرمز حاليًا. حاول بعد قليل.",
   "otp_error_network": "تعذّر الاتصال. تحقق من اتصالك بالإنترنت.",
   "otp_resend_cta": "إعادة إرسال الرمز",
-  "otp_resend_countdown_prefix": "إعادة الإرسال خلال"
+  "otp_resend_countdown_prefix": "إعادة الإرسال خلال",
+  "nav_candidate_aria_label": "تنقّل المرشح"
 }

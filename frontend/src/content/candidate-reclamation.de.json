@@ -1,0 +1,57 @@
+{
+  "header": {
+    "title": "Beschwerde"
+  },
+  "intro": {
+    "title": "Wie können wir dir helfen?",
+    "body": "Dein Feedback hilft uns, Amud Skills zu verbessern."
+  },
+  "offlineNotice": "Offline — zum Senden einer Beschwerde ist eine Verbindung nötig. Bitte versuche es erneut, sobald du wieder online bist.",
+  "faqLink": {
+    "title": "Hilfecenter / FAQ",
+    "subtitle": "Finde schnell eine Antwort, bevor du eine Beschwerde einreichst"
+  },
+  "form": {
+    "subjectLabel": "Betreff der Beschwerde",
+    "subjectPlaceholder": "Typ auswählen…",
+    "messageLabel": "Nachricht",
+    "messagePlaceholder": "Beschreibe dein Problem…",
+    "orDivider": "ODER",
+    "voiceTitle": "Sprachnachricht aufnehmen",
+    "voiceReady": "Sprachnachricht bereit zum Senden.",
+    "validationError": "Bitte wähle einen Betreff und beschreibe dein Problem (Text oder Sprachnachricht)."
+  },
+  "categoryLabels": {
+    "Problème technique": "Technisches Problem",
+    "Question sur mon dossier": "Frage zu meiner Akte",
+    "Signaler une offre suspecte": "Verdächtiges Stellenangebot melden",
+    "Suggestion": "Vorschlag",
+    "Autre": "Sonstiges"
+  },
+  "errors": {
+    "networkUnreachable": "Die API ist nicht erreichbar. Überprüfe deine Verbindung.",
+    "sessionExpired": "Deine Sitzung ist abgelaufen — bitte melde dich erneut an.",
+    "submitFailed": "Senden fehlgeschlagen. Bitte versuche es gleich noch einmal."
+  },
+  "submitButton": {
+    "label": "Beschwerde senden",
+    "loadingLabel": "Wird gesendet…"
+  },
+  "history": {
+    "titlePrefix": "Meine Beschwerden",
+    "voiceFallback": "Sprachnachricht",
+    "textFallback": "Beschwerde",
+    "responsePrefix": "Antwort:"
+  },
+  "statusLabels": {
+    "open": "Offen",
+    "in_review": "In Bearbeitung",
+    "resolved": "Gelöst"
+  },
+  "successModal": {
+    "title": "Erfolgreich gesendet!",
+    "body": "Wir melden uns so schnell wie möglich bei dir.",
+    "ticketLabel": "Ticket-Referenz",
+    "backButton": "Zurück zur Startseite"
+  }
+}

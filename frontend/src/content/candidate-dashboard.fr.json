@@ -1,0 +1,67 @@
+{
+  "header": {
+    "greeting": "Bonjour, {name}",
+    "greetingEmoji": "👋",
+    "fallbackName": "Candidat",
+    "spaceLabel": "Espace Candidat",
+    "notificationsAriaLabel": "Notifications"
+  },
+  "profileProgress": {
+    "title": "Progression du profil",
+    "description": "Complétez votre profil pour apparaître en priorité auprès des recruteurs allemands."
+  },
+  "visibility": {
+    "visible": "Visible par les recruteurs",
+    "hidden": "Pas encore visible — acceptez les conditions à l'étape 6"
+  },
+  "checklist": {
+    "title": "À compléter",
+    "items": {
+      "personal": { "label": "Profil personnel complété", "action": "Compléter" },
+      "education": { "label": "Formation renseignée", "action": "Compléter" },
+      "languages": { "label": "Au moins une langue évaluée", "action": "Compléter" },
+      "cv": { "label": "CV téléchargé", "action": "Ajouter" },
+      "diploma": { "label": "Certificats / diplômes", "action": "Ajouter" },
+      "video": { "label": "Vidéo de présentation", "action": "Enregistrer" },
+      "test": { "label": "Test de langue", "action": "Passer le test" },
+      "identity": { "label": "Identité vérifiée", "action": "Vérifier" }
+    }
+  },
+  "quickActions": {
+    "title": "Actions rapides",
+    "items": {
+      "addDocument": "Ajouter un document",
+      "recordVideo": "Enregistrer une vidéo",
+      "languageTest": "Passer le test de langue",
+      "publicProfile": "Voir mon profil public",
+      "germanLesson": "Leçon d'allemand du jour",
+      "jobOffers": "Voir les offres d'emploi",
+      "salarySimulator": "Simuler mon salaire",
+      "visibility": "Ma visibilité",
+      "referral": "Parrainer un ami",
+      "verifyIdentity": "Vérifier mon identité",
+      "matchingPreferences": "Préférences de matching"
+    }
+  },
+  "applications": {
+    "title": "Suivi des candidatures",
+    "viewOffers": "Voir les offres",
+    "stages": ["Envoyée", "Présélection", "Entretien", "Décision"],
+    "updatedOn": "Mise à jour le {date}",
+    "items": [
+      { "id": 1, "title": "Infirmier Qualifié", "statusLabel": "Entretien prévu", "updatedAt": "18 août" },
+      { "id": 2, "title": "Électricien de Bâtiment", "statusLabel": "En présélection", "updatedAt": "15 août" },
+      { "id": 3, "title": "Chauffeur PL", "statusLabel": "Candidature envoyée", "updatedAt": "12 août" }
+    ]
+  },
+  "recommendations": {
+    "title": "Recommandations",
+    "matchBadge": "{value}% Correspondance",
+    "applyButton": "Postuler",
+    "appliedButton": "Candidature envoyée",
+    "items": [
+      { "id": 1, "title": "Réceptionniste", "location": "Munich, Allemagne", "contract": "CDI" },
+      { "id": 2, "title": "Aide-Soignant", "location": "Hambourg, Allemagne", "contract": "Plein temps" }
+    ]
+  }
+}

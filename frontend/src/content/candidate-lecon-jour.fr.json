@@ -1,0 +1,19 @@
+{
+  "header": { "title": "Allemand du quotidien" },
+  "streak": { "label": "{count} jours" },
+  "progress": { "label": "Progression hebdomadaire" },
+  "lesson": {
+    "listenAria": "Écouter la prononciation",
+    "frenchLabel": "Français",
+    "arabicLabel": "Arabe",
+    "listen": "Écouter",
+    "repeat": "Répéter",
+    "repeating": "Écoute…",
+    "feedback": "Bien prononcé ! 🎉"
+  },
+  "quiz": {
+    "title": "Mini Quiz",
+    "question": "Comment dit-on « Bonjour » en allemand ?"
+  },
+  "finish": "Terminé"
+}

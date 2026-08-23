@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { Drawer, NavItem, Toggle, isNavActive, useDropdown } from '@/components/amud/ui';
+import { HeaderLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
 import { ToastProvider } from '@/components/amud/Toast';
 import { CURRENT_EMPLOYER } from '@/data/amud/currentEmployer';
 import { entreprisesSeed } from '@/data/amud/entreprises';
@@ -342,6 +343,8 @@ export function CompanyShell({ children }: { children: ReactNode }) {
                   </div>
                 ) : null}
               </div>
+
+              <HeaderLanguageThemeControls />
 
               <div className="hidden h-8 w-[1px] bg-amud-outline-variant sm:block" />
 

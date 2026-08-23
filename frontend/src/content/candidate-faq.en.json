@@ -1,0 +1,58 @@
+{
+  "header": { "title": "Help Center" },
+  "hero": {
+    "title": "Frequently asked questions",
+    "subtitle": "Find answers to the questions our candidates ask most often."
+  },
+  "sections": [
+    {
+      "title": "My profile",
+      "items": [
+        {
+          "question": "How do I edit my personal information?",
+          "answer": "Go to the Profile tab and tap “Edit” to update your occupation, city, or other details."
+        },
+        {
+          "question": "Can I add another language?",
+          "answer": "Yes. During the “Language skills” step of profile creation, use the “Add another language” selector to extend the list beyond German, English, and French."
+        }
+      ]
+    },
+    {
+      "title": "Application & documents",
+      "items": [
+        {
+          "question": "Which documents do I need to provide?",
+          "answer": "A CV, a copy of your passport, and your diplomas are required. You can upload them from the Documents tab."
+        },
+        {
+          "question": "How long does document verification take?",
+          "answer": "Our team usually verifies your documents within 48 to 72 business hours."
+        }
+      ]
+    },
+    {
+      "title": "Training & language test",
+      "items": [
+        {
+          "question": "Is the language test mandatory?",
+          "answer": "It isn't mandatory, but it's strongly recommended: it builds German employers' confidence in your profile."
+        },
+        {
+          "question": "How do I access the German lessons?",
+          "answer": "From the home screen, the “German lessons” section offers free daily lessons."
+        }
+      ]
+    },
+    {
+      "title": "After recruitment",
+      "items": [
+        {
+          "question": "Who helps me with the visa and departure?",
+          "answer": "An Amud Skills advisor contacts you as soon as an employer confirms your recruitment, to support you through the administrative steps and your departure."
+        }
+      ]
+    }
+  ],
+  "contactSupport": "Couldn't find your answer? Contact support"
+}

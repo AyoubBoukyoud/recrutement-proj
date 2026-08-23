@@ -1,0 +1,31 @@
+{
+  "header": {
+    "title": "Identitätsprüfung"
+  },
+  "status": {
+    "pending": "Wird von einem Administrator geprüft.",
+    "approved": "Identität bestätigt.",
+    "rejected": "Prüfung abgelehnt — bitte machen Sie ein neues Foto."
+  },
+  "loading": "Wird geladen…",
+  "errors": {
+    "network": "Die API ist nicht erreichbar. Überprüfen Sie Ihre Verbindung.",
+    "camera": "Kein Zugriff auf die Kamera möglich. Überprüfen Sie die Berechtigungen.",
+    "upload": "Der Upload ist fehlgeschlagen. Bitte versuchen Sie es erneut."
+  },
+  "capture": {
+    "instructions": "Machen Sie ein Foto von sich, auf dem Sie Ihren Ausweis neben Ihr Gesicht halten.",
+    "previousRejectedPrefix": "Vorheriges Foto abgelehnt",
+    "previousRejectedSeparator": ": ",
+    "previousRejectedEnd": ".",
+    "capturedAlt": "Aufgenommenes Foto",
+    "toggleFlashAriaLabel": "Blitz ein- oder ausschalten",
+    "retake": "Erneut aufnehmen",
+    "send": "Senden",
+    "sending": "Wird gesendet…"
+  },
+  "footer": {
+    "backToProfile": "Zurück zum Profil",
+    "privacyNotice": "Ihre Daten werden verschlüsselt und gemäß der europäischen Datenschutz-Grundverordnung (DSGVO) verarbeitet."
+  }
+}

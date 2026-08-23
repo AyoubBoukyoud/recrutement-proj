@@ -1,0 +1,58 @@
+{
+  "header": { "title": "Centre d'aide" },
+  "hero": {
+    "title": "Questions fréquentes",
+    "subtitle": "Retrouvez les réponses aux questions les plus posées par nos candidats."
+  },
+  "sections": [
+    {
+      "title": "Mon profil",
+      "items": [
+        {
+          "question": "Comment modifier mes informations personnelles ?",
+          "answer": "Rendez-vous sur l’onglet Profil puis appuyez sur « Modifier » pour mettre à jour votre métier, votre ville ou vos autres informations."
+        },
+        {
+          "question": "Puis-je ajouter une langue supplémentaire ?",
+          "answer": "Oui. Lors de l’étape « Compétences linguistiques » de la création de profil, utilisez le sélecteur « Ajouter une autre langue » pour compléter la liste au-delà de l’allemand, l’anglais et le français."
+        }
+      ]
+    },
+    {
+      "title": "Candidature & documents",
+      "items": [
+        {
+          "question": "Quels documents dois-je fournir ?",
+          "answer": "Un CV, une copie de passeport et vos diplômes sont requis. Vous pouvez les téléverser depuis l’onglet Documents."
+        },
+        {
+          "question": "Combien de temps prend la vérification de mes documents ?",
+          "answer": "Nos équipes vérifient généralement vos documents sous 48 à 72 heures ouvrées."
+        }
+      ]
+    },
+    {
+      "title": "Formation & test de langue",
+      "items": [
+        {
+          "question": "Le test de langue est-il obligatoire ?",
+          "answer": "Il n’est pas obligatoire mais fortement recommandé : il renforce la confiance des employeurs allemands envers votre profil."
+        },
+        {
+          "question": "Comment accéder aux cours d’allemand ?",
+          "answer": "Depuis l’accueil, la section « Cours d’allemand » vous propose des leçons quotidiennes gratuites."
+        }
+      ]
+    },
+    {
+      "title": "Après le recrutement",
+      "items": [
+        {
+          "question": "Qui m’accompagne pour le visa et le départ ?",
+          "answer": "Un conseiller Amud Skills vous contacte dès qu’un employeur confirme votre recrutement pour vous accompagner dans les démarches administratives et le départ."
+        }
+      ]
+    }
+  ],
+  "contactSupport": "Je n'ai pas trouvé ma réponse, contacter le support"
+}

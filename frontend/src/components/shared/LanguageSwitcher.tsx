@@ -3,34 +3,53 @@
 import { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { LANGUAGES } from '@/lib/i18n';
-import { Button } from '@/components/shared/Button';
+import { Button, IconButton } from '@/components/shared/Button';
 
-export function LanguageSwitcher() {
+/**
+ * `compact` : icône seule (globe), pour les headers étroits (candidat mobile,
+ * TopBar ops) où la version pilule flag+libellé déborderait. Même menu
+ * déroulant dans les deux cas.
+ */
+export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
   const { language, setLanguage } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const current = LANGUAGES.find((l) => l.code === language) ?? LANGUAGES[0];
 
   return (
     <div className="relative">
-      <Button
-        variant="outline"
-        size="sm"
-        pill
-        onClick={() => setIsOpen((v) => !v)}
-        aria-expanded={isOpen}
-        className="gap-1.5 border-outline-variant bg-surface-lowest px-3 text-onSurface shadow-sm"
-      >
-        <span className="material-symbols-outlined" style={{ fontSize: 14 }}>
-          language
-        </span>
-        <span>{current.flag} {current.label}</span>
-        <span
-          className={`material-symbols-outlined transition-transform ${isOpen ? 'rotate-180' : ''}`}
-          style={{ fontSize: 14 }}
+      {compact ? (
+        <IconButton
+          variant="ghost"
+          aria-label="Changer de langue"
+          aria-expanded={isOpen}
+          aria-haspopup="menu"
+          onClick={() => setIsOpen((v) => !v)}
         >
-          expand_more
-        </span>
-      </Button>
+          <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
+            language
+          </span>
+        </IconButton>
+      ) : (
+        <Button
+          variant="outline"
+          size="sm"
+          pill
+          onClick={() => setIsOpen((v) => !v)}
+          aria-expanded={isOpen}
+          className="gap-1.5 border-outline-variant bg-surface-lowest px-3 text-onSurface shadow-sm"
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>
+            language
+          </span>
+          <span>{current.flag} {current.label}</span>
+          <span
+            className={`material-symbols-outlined transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            style={{ fontSize: 14 }}
+          >
+            expand_more
+          </span>
+        </Button>
+      )}
 
       {isOpen && (
         <>

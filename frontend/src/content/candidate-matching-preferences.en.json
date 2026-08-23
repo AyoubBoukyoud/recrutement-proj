@@ -1,0 +1,46 @@
+{
+  "header": {
+    "backAria": "Back",
+    "title": "My preferences",
+    "profileAria": "My profile"
+  },
+  "intro": {
+    "title": "Personalize your opportunities",
+    "body": "Set your criteria so we can offer you the best matches in Germany."
+  },
+  "loading": "Loading…",
+  "regionsSection": {
+    "title": "Preferred region in Germany"
+  },
+  "regionLabels": {
+    "Berlin": "Berlin",
+    "Bavière": "Bavaria",
+    "Hambourg": "Hamburg",
+    "Saxe": "Saxony",
+    "Bade-Wurtemberg": "Baden-Württemberg",
+    "Hesse": "Hesse"
+  },
+  "sectorsSection": {
+    "title": "Industry sectors",
+    "removeAriaPrefix": "Remove"
+  },
+  "sectorLabels": {
+    "Santé": "Healthcare",
+    "Logistique": "Logistics",
+    "Électricité": "Electrical",
+    "Hôtellerie": "Hospitality",
+    "Construction": "Construction"
+  },
+  "salarySection": {
+    "title": "Minimum salary (annual)"
+  },
+  "errors": {
+    "networkUnreachable": "The API is unreachable. Check your connection.",
+    "saveFailed": "Saving failed. Please try again."
+  },
+  "savedToast": "Your matching preferences have been saved successfully!",
+  "saveButton": {
+    "label": "Save preferences",
+    "loadingLabel": "Saving…"
+  }
+}

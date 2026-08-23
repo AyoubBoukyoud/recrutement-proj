@@ -1,0 +1,19 @@
+{
+  "header": { "title": "الألمانية اليومية" },
+  "streak": { "label": "{count} أيام متتالية" },
+  "progress": { "label": "التقدّم الأسبوعي" },
+  "lesson": {
+    "listenAria": "استمع إلى النطق",
+    "frenchLabel": "الفرنسية",
+    "arabicLabel": "العربية",
+    "listen": "استماع",
+    "repeat": "أعِد النطق",
+    "repeating": "جارٍ الاستماع…",
+    "feedback": "نطق ممتاز! 🎉"
+  },
+  "quiz": {
+    "title": "اختبار قصير",
+    "question": "كيف تقول «Bonjour» بالألمانية؟"
+  },
+  "finish": "تم"
+}

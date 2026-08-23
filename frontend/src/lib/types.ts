@@ -4,6 +4,8 @@ export type UserRole = 'candidate' | 'employer' | 'admin' | 'agent';
 
 export type Language = 'fr' | 'ar' | 'en' | 'de';
 
+export type ThemeMode = 'light' | 'dark' | 'system';
+
 export interface AuthUser {
   id: string;
   role: UserRole;

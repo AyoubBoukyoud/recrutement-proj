@@ -1,0 +1,46 @@
+{
+  "header": {
+    "backAria": "Zurück",
+    "title": "Meine Präferenzen",
+    "profileAria": "Mein Profil"
+  },
+  "intro": {
+    "title": "Passe deine Angebote an",
+    "body": "Lege deine Kriterien fest, damit wir dir die besten Stellenangebote in Deutschland vorschlagen können."
+  },
+  "loading": "Wird geladen…",
+  "regionsSection": {
+    "title": "Bevorzugte Region in Deutschland"
+  },
+  "regionLabels": {
+    "Berlin": "Berlin",
+    "Bavière": "Bayern",
+    "Hambourg": "Hamburg",
+    "Saxe": "Sachsen",
+    "Bade-Wurtemberg": "Baden-Württemberg",
+    "Hesse": "Hessen"
+  },
+  "sectorsSection": {
+    "title": "Branchen",
+    "removeAriaPrefix": "Entfernen"
+  },
+  "sectorLabels": {
+    "Santé": "Gesundheitswesen",
+    "Logistique": "Logistik",
+    "Électricité": "Elektrotechnik",
+    "Hôtellerie": "Gastgewerbe",
+    "Construction": "Bauwesen"
+  },
+  "salarySection": {
+    "title": "Mindestgehalt (jährlich)"
+  },
+  "errors": {
+    "networkUnreachable": "Die API ist nicht erreichbar. Überprüfe deine Verbindung.",
+    "saveFailed": "Speichern fehlgeschlagen. Bitte versuche es erneut."
+  },
+  "savedToast": "Deine Matching-Präferenzen wurden erfolgreich gespeichert!",
+  "saveButton": {
+    "label": "Präferenzen speichern",
+    "loadingLabel": "Wird gespeichert…"
+  }
+}

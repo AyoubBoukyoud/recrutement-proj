@@ -1,0 +1,33 @@
+{
+  "header": { "title": "Quiz Métier", "backAria": "Retour" },
+  "jobTitle": "Électricien Bâtiment",
+  "questionOf": "Question {index} sur {total}",
+  "questions": [
+    {
+      "question": "Quel est l'appareil utilisé pour mesurer la tension électrique dans un circuit ?",
+      "tag": "Technique de mesure",
+      "options": ["Ampèremètre", "Voltmètre", "Ohmmètre", "Wattmètre"],
+      "correctIndex": 1
+    },
+    {
+      "question": "Quelle norme régit les installations électriques basse tension en Allemagne ?",
+      "tag": "Réglementation",
+      "options": ["VDE 0100", "ISO 9001", "DIN EN 12464", "RGE"],
+      "correctIndex": 0
+    },
+    {
+      "question": "Que signifie le sigle « EPI » sur un chantier ?",
+      "tag": "Sécurité",
+      "options": ["Équipement Portable Intégré", "Équipement de Protection Individuelle", "Étude Préalable Industrielle", "Aucune de ces réponses"],
+      "correctIndex": 1
+    }
+  ],
+  "nextButton": "Question suivante",
+  "resultButton": "Voir mon résultat",
+  "finished": {
+    "scoreTemplate": "{score} / {total} bonnes réponses",
+    "description": "Ce résultat sera visible par les recruteurs intéressés par votre profil technique.",
+    "backToOffers": "Retour aux offres",
+    "restart": "Recommencer"
+  }
+}

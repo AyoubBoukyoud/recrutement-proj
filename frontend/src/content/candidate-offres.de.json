@@ -1,0 +1,32 @@
+{
+  "header": {
+    "profileAlt": "Profilbild des Kandidaten",
+    "notificationsAria": "Benachrichtigungen"
+  },
+  "search": {
+    "title": "Stellenangebote für dich",
+    "srLabel": "Nach Beruf oder Stadt suchen",
+    "placeholder": "Nach Beruf oder Stadt suchen..."
+  },
+  "filters": {
+    "button": "Filter",
+    "labels": {
+      "Tous": "Alle",
+      "Santé": "Gesundheitswesen",
+      "Électricité": "Elektrotechnik",
+      "Hôtellerie": "Gastgewerbe",
+      "Logistique": "Logistik",
+      "Disponibilité immédiate": "Sofort verfügbar"
+    }
+  },
+  "job": {
+    "removeFavoriteAria": "Aus Favoriten entfernen",
+    "addFavoriteAria": "Zu Favoriten hinzufügen",
+    "interestedButton": "Ich bin interessiert"
+  },
+  "banner": {
+    "title": "Steigere deine Sichtbarkeit",
+    "body": "Vervollständige dein Profil zu 100 %, um bei deutschen Personalvermittlern bevorzugt angezeigt zu werden.",
+    "cta": "Mein Profil optimieren"
+  }
+}

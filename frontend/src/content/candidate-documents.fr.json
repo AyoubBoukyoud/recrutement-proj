@@ -1,0 +1,81 @@
+{
+  "header": {
+    "title": "Ajouter un document"
+  },
+  "notices": {
+    "loginRequired": "Connectez-vous pour envoyer un document et faire remplir votre profil automatiquement.",
+    "offline": "Hors ligne — l'analyse d'un document demande une connexion. Réessayez une fois reconnecté."
+  },
+  "upload": {
+    "sending": "Envoi en cours…",
+    "prompt": "Prenez une photo ou importez un fichier",
+    "hint": "PDF, JPG, PNG — Max 10 Mo",
+    "cvHint": "Votre CV remplit tout seul votre nom, votre métier, vos formations et vos langues.",
+    "takePhoto": "Prendre une photo",
+    "import": "Importer"
+  },
+  "scanning": {
+    "notice": "La lecture demande une quinzaine de secondes. Vous pouvez laisser cet écran ouvert."
+  },
+  "failed": {
+    "notice": "Rien de lisible n'est ressorti de cette page. Une nouvelle photo suffit le plus souvent : posez le document à plat, cadrez-le entièrement, évitez les ombres et le flash.",
+    "retryAnalysis": "Relancer l'analyse",
+    "replaceFile": "Remplacer le fichier"
+  },
+  "review": {
+    "completed": "Analyse terminée",
+    "toReview": "À vérifier",
+    "confidence": "Fiabilité {value}%",
+    "needsReviewNotice": "Une partie du document était difficile à lire. Corrigez ce qui est faux et complétez ce qui manque : ce que vous confirmez ici est ce qui sera enregistré sur votre profil.",
+    "fields": {
+      "full_name": { "label": "Nom complet" },
+      "date_of_birth": { "label": "Date de naissance" },
+      "profession": { "label": "Métier", "placeholder": "Infirmier, électricien…" },
+      "specialization": { "label": "Spécialisation", "placeholder": "Soins intensifs…" },
+      "years_of_experience": { "label": "Années d'expérience" },
+      "email": { "label": "E-mail" },
+      "phone": { "label": "Téléphone" }
+    },
+    "educationsRead": "Formations lues",
+    "languagesRead": "Langues lues",
+    "educationLevels": {
+      "general_school": "Enseignement général",
+      "vocational": "Formation professionnelle",
+      "professional_training": "Formation qualifiante",
+      "bachelor": "Licence",
+      "master": "Master",
+      "other": "Autre"
+    },
+    "languageNames": {
+      "fr": "Français",
+      "ar": "Arabe",
+      "en": "Anglais",
+      "de": "Allemand"
+    },
+    "documentSaved": "Document enregistré. Votre profil contenait déjà ces informations.",
+    "addedToProfile": "Ajouté à votre profil : {value}.",
+    "keptAsEntered": "Conservé tel que vous l'aviez saisi : {value}. Le document indique autre chose.",
+    "useDocumentValues": "Utiliser plutôt les valeurs du document",
+    "addAnotherDocument": "Ajouter un autre document",
+    "confirmButton": "Confirmer et compléter mon profil",
+    "savingLabel": "Enregistrement…"
+  },
+  "toast": {
+    "profileCompleted": "Profil complété : {value}.",
+    "documentSavedNothingNew": "Document enregistré — rien de nouveau à ajouter au profil."
+  },
+  "errors": {
+    "networkUnreachable": "L'API est injoignable. Vérifiez votre connexion.",
+    "sessionExpired": "Votre session a expiré — reconnectez-vous.",
+    "fileRejected": "Fichier refusé : PDF, JPG ou PNG, 10 Mo maximum.",
+    "uploadFailed": "L'envoi a échoué. Réessayez.",
+    "applyFailed": "Impossible d'appliquer ces informations à votre profil.",
+    "retryFailed": "La nouvelle analyse n'a pas pu démarrer.",
+    "replaceFailed": "Le remplacement a échoué."
+  },
+  "list": {
+    "title": "Documents importés ({value})",
+    "empty": "Aucun document pour le moment.",
+    "verify": "Vérifier"
+  }
+}

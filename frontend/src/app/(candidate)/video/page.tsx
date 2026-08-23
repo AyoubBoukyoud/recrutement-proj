@@ -12,10 +12,12 @@ import { candidateProfileRepository } from '@/data/candidateProfile';
 import { VideoPlayer } from '@/components/shared/VideoPlayer';
 import { Button } from '@/components/shared/Button';
 import { ApiError } from '@/lib/api';
+import { useLanguage } from '@/context/LanguageContext';
+import { candidateVideoContentFor } from '@/lib/candidateVideoContent';
 
-function messageOf(error: unknown, fallback: string): string {
+function messageOf(error: unknown, fallback: string, networkMessage: string): string {
   if (error instanceof ApiError) {
-    if (error.isNetworkFailure) return "L'API est injoignable. Vérifiez votre connexion.";
+    if (error.isNetworkFailure) return networkMessage;
     return error.message || fallback;
   }
   return fallback;
@@ -26,6 +28,8 @@ export default function VideoRecordingPage() {
   const { data: profile } = useCandidateProfile();
   const invalidateProfile = useInvalidateCandidateProfile();
   const { isOnline } = useNetwork();
+  const { language } = useLanguage();
+  const content = candidateVideoContentFor(language);
 
   const liveVideoRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -78,7 +82,7 @@ export default function VideoRecordingPage() {
       setSeconds(0);
       intervalRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
     } catch {
-      setError('Impossible d\'accéder à la caméra. Vérifiez les autorisations.');
+      setError(content.errors.cameraUnavailable);
     }
   };
 
@@ -102,7 +106,7 @@ export default function VideoRecordingPage() {
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     } catch (cause) {
-      setError(messageOf(cause, "L'envoi a échoué. Réessayez."));
+      setError(messageOf(cause, content.errors.uploadFailed, content.errors.networkUnreachable));
     } finally {
       setIsSaving(false);
     }
@@ -113,15 +117,15 @@ export default function VideoRecordingPage() {
   return (
     <div>
       <header className="flex items-center gap-3 bg-primary p-6 pb-8 lg:px-10">
-        <Link href="/dashboard" className="text-white">
+        <Link href="/dashboard" className="text-onPrimary">
           <ChevronLeft size={22} />
         </Link>
-        <h1 className="text-lg font-bold text-white">Vidéo de présentation</h1>
+        <h1 className="text-lg font-bold text-onPrimary">{content.header.title}</h1>
       </header>
 
       <main className="mx-auto max-w-2xl space-y-5 p-6 lg:max-w-3xl lg:px-10 lg:py-8">
         <p className="text-sm text-onSurface-variant">
-          Enregistrez une courte vidéo (60 secondes) pour vous présenter aux employeurs.
+          {content.instructions}
         </p>
 
         {recordedUrl ? (
@@ -131,7 +135,7 @@ export default function VideoRecordingPage() {
             <video ref={liveVideoRef} muted playsInline className="h-full w-full object-cover" />
             {!isRecording && (
               <div className="absolute inset-0 flex items-center justify-center text-xs font-medium text-white/70">
-                Aperçu caméra
+                {content.cameraPreview}
               </div>
             )}
             {isRecording && (
@@ -143,7 +147,7 @@ export default function VideoRecordingPage() {
         )}
 
         {error && <p className="text-xs font-medium text-red-500">{error}</p>}
-        {saved && <p className="text-xs font-medium text-green-600">Vidéo enregistrée dans votre profil.</p>}
+        {saved && <p className="text-xs font-medium text-green-600">{content.saved}</p>}
 
         <div className="flex justify-center gap-3">
           {!recordedUrl && (
@@ -169,7 +173,7 @@ export default function VideoRecordingPage() {
               }}
               className="flex-1 gap-1.5 text-onSurface-variant"
             >
-              <RotateCcw size={16} /> Recommencer
+              <RotateCcw size={16} /> {content.restart}
             </Button>
             {recordedBlob && (
               <Button
@@ -177,17 +181,17 @@ export default function VideoRecordingPage() {
                 onClick={() => void handleSave()}
                 disabled={isSaving || !isOnline}
                 isLoading={isSaving}
-                loadingLabel="Envoi…"
+                loadingLabel={content.sending}
                 className="flex-1 gap-1.5"
               >
-                <Check size={16} /> Valider
+                <Check size={16} /> {content.validate}
               </Button>
             )}
           </div>
         )}
         {!isOnline && recordedBlob && (
           <p className="text-xs font-medium text-tertiary">
-            Hors ligne — l&apos;envoi de la vidéo demande une connexion.
+            {content.offlineNotice}
           </p>
         )}
       </main>

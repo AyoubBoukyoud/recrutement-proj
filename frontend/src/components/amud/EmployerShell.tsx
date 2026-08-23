@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { InertNavItem, NavItem, Toggle, isNavActive, useDropdown } from '@/components/amud/ui';
+import { HeaderLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
 import { ToastProvider } from '@/components/amud/Toast';
 import { DemoBanner } from '@/components/amud/DemoBanner';
 import { CURRENT_EMPLOYER } from '@/data/amud/currentEmployer';
@@ -270,6 +271,7 @@ export function EmployerShell({ children }: { children: ReactNode }) {
                 </div>
               ) : null}
             </div>
+            <HeaderLanguageThemeControls iconButtonClassName="rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-high" />
             <div className="hidden h-8 w-[1px] bg-amud-outline-variant sm:block" />
             <div ref={profileMenu.ref} className="relative">
               <button

@@ -1,0 +1,58 @@
+{
+  "header": {
+    "title": "Simulate my salary"
+  },
+  "intro": {
+    "title": "Simulate my salary",
+    "body": "Estimate your future standard of living in Germany and plan ahead for your career move."
+  },
+  "form": {
+    "professionLabel": "Profession",
+    "professionPlaceholder": "e.g. Nurse",
+    "regionLabel": "Region in Germany",
+    "experienceLabel": "Years of experience",
+    "submit": "Calculate",
+    "submitting": "Calculating…"
+  },
+  "regions": [
+    "Berlin",
+    "Bavaria (Munich)",
+    "Baden-Württemberg (Stuttgart)",
+    "Hesse (Frankfurt)",
+    "North Rhine-Westphalia"
+  ],
+  "migrationCosts": [
+    "Work visa (Consulate)",
+    "Flight ticket (Casablanca → Germany)",
+    "Travel insurance (90 days)",
+    "First month's rent + deposit (estimate)",
+    "Certified document translation"
+  ],
+  "results": {
+    "grossTitle": "Estimated gross monthly salary",
+    "perMonth": "/ month",
+    "low": "Low",
+    "high": "High",
+    "netLabel": "Estimated net salary",
+    "resteAVivreLabel": "Disposable income",
+    "resteAVivreNote": "After rent and expenses",
+    "migrationTitle": "Migration: estimated costs",
+    "migrationBadge": "2026 estimate",
+    "tableExpenseHeader": "Expense",
+    "tableAmountHeader": "Amount",
+    "totalLabel": "Estimated total cost",
+    "aidLabel": "Possible assistance:",
+    "aidProgram": "THAMM Program",
+    "aidBody": "You may be eligible for a partial reimbursement of these costs through the Morocco–Germany bilateral agreements."
+  },
+  "sidebar": {
+    "optimizeTitle": "Optimize your profile",
+    "optimizeBody": "Salaries can vary by up to 20% depending on your certified German level (B1/B2).",
+    "languageCoursesLink": "View language courses",
+    "supportTitle": "Need support?",
+    "supportBody": "Our advisors can help you prepare your visa file and find your first home.",
+    "tags": ["Housing search", "Visa assistance", "Bank account opening"],
+    "contactLink": "Contact an advisor"
+  },
+  "downloadPdf": "Download the estimate (PDF)"
+}

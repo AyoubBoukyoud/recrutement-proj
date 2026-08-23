@@ -7,7 +7,7 @@
 // n'a pas lieu, les valeurs lues restent scellées dans l'extraction.
 
 import { apiGet, apiGetList, apiPatch, apiPost } from '@/lib/api';
-import type { DocumentEntry } from '@/lib/types';
+import type { DocumentEntry, Language } from '@/lib/types';
 
 /** Les quatre seuls types acceptés par la validation du back. */
 export type BackendDocumentType = 'cv' | 'certificate' | 'diploma' | 'identity';
@@ -84,34 +84,96 @@ export interface ProfileUpdateResult {
 
 export type ReviewResponse = CandidateDocument & { profile_update: ProfileUpdateResult };
 
-export const DOCUMENT_TYPE_LABELS: Record<BackendDocumentType, string> = {
-  cv: 'CV',
-  diploma: 'Diplôme',
-  certificate: 'Certificat de langue',
-  identity: "Pièce d'identité",
+const DOCUMENT_TYPE_LABELS: Record<Language, Record<BackendDocumentType, string>> = {
+  fr: { cv: 'CV', diploma: 'Diplôme', certificate: 'Certificat de langue', identity: "Pièce d'identité" },
+  en: { cv: 'CV', diploma: 'Diploma', certificate: 'Language certificate', identity: 'ID document' },
+  de: { cv: 'Lebenslauf', diploma: 'Diplom', certificate: 'Sprachzertifikat', identity: 'Ausweisdokument' },
+  ar: { cv: 'السيرة الذاتية', diploma: 'الشهادة الجامعية', certificate: 'شهادة لغة', identity: 'وثيقة الهوية' },
 };
+
+export const documentTypeLabel = (type: BackendDocumentType, language: Language): string =>
+  (DOCUMENT_TYPE_LABELS[language] ?? DOCUMENT_TYPE_LABELS.fr)[type];
 
 /** Colonnes du profil telles que l'API les nomme, dans les mots du candidat. */
-const FIELD_LABELS: Record<string, string> = {
-  first_name: 'prénom',
-  last_name: 'nom',
-  date_of_birth: 'date de naissance',
-  profession: 'métier',
-  specialization: 'spécialisation',
-  years_of_experience: "années d'expérience",
-  educations: 'formation',
-  languages: 'langues',
+const FIELD_LABELS: Record<Language, Record<string, string>> = {
+  fr: {
+    first_name: 'prénom',
+    last_name: 'nom',
+    date_of_birth: 'date de naissance',
+    profession: 'métier',
+    specialization: 'spécialisation',
+    years_of_experience: "années d'expérience",
+    educations: 'formation',
+    languages: 'langues',
+  },
+  en: {
+    first_name: 'first name',
+    last_name: 'last name',
+    date_of_birth: 'date of birth',
+    profession: 'occupation',
+    specialization: 'specialization',
+    years_of_experience: 'years of experience',
+    educations: 'education',
+    languages: 'languages',
+  },
+  de: {
+    first_name: 'Vorname',
+    last_name: 'Nachname',
+    date_of_birth: 'Geburtsdatum',
+    profession: 'Beruf',
+    specialization: 'Spezialisierung',
+    years_of_experience: 'Berufserfahrung',
+    educations: 'Ausbildung',
+    languages: 'Sprachen',
+  },
+  ar: {
+    first_name: 'الاسم الشخصي',
+    last_name: 'الاسم العائلي',
+    date_of_birth: 'تاريخ الميلاد',
+    profession: 'المهنة',
+    specialization: 'التخصص',
+    years_of_experience: 'سنوات الخبرة',
+    educations: 'التكوين',
+    languages: 'اللغات',
+  },
 };
 
-export const fieldLabel = (key: string): string => FIELD_LABELS[key] ?? key.replace(/_/g, ' ');
+export const fieldLabel = (key: string, language: Language): string =>
+  (FIELD_LABELS[language] ?? FIELD_LABELS.fr)[key] ?? key.replace(/_/g, ' ');
 
-export const STATUS_LABELS: Record<OcrStatus, string> = {
-  pending: "En attente d'analyse…",
-  processing: 'Analyse en cours…',
-  completed: 'Analyse terminée',
-  needs_review: 'Analysé — vérifiez les informations',
-  failed: 'Page illisible',
+const STATUS_LABELS: Record<Language, Record<OcrStatus, string>> = {
+  fr: {
+    pending: "En attente d'analyse…",
+    processing: 'Analyse en cours…',
+    completed: 'Analyse terminée',
+    needs_review: 'Analysé — vérifiez les informations',
+    failed: 'Page illisible',
+  },
+  en: {
+    pending: 'Waiting to be analyzed…',
+    processing: 'Analyzing…',
+    completed: 'Analysis complete',
+    needs_review: 'Analyzed — please check the information',
+    failed: 'Page unreadable',
+  },
+  de: {
+    pending: 'Wartet auf Analyse…',
+    processing: 'Analyse läuft…',
+    completed: 'Analyse abgeschlossen',
+    needs_review: 'Analysiert — bitte Angaben prüfen',
+    failed: 'Seite nicht lesbar',
+  },
+  ar: {
+    pending: 'في انتظار التحليل…',
+    processing: 'جارٍ التحليل…',
+    completed: 'اكتمل التحليل',
+    needs_review: 'تم التحليل — يرجى مراجعة المعلومات',
+    failed: 'تعذّرت قراءة الصفحة',
+  },
 };
+
+export const ocrStatusLabel = (status: OcrStatus, language: Language): string =>
+  (STATUS_LABELS[language] ?? STATUS_LABELS.fr)[status];
 
 export const isScanning = (status: OcrStatus): boolean => status === 'pending' || status === 'processing';
 

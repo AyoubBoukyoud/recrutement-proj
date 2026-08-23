@@ -64,5 +64,6 @@
   "otp_error_delivery": "Impossible d’envoyer le code pour le moment. Réessayez dans un instant.",
   "otp_error_network": "Connexion impossible. Vérifiez votre connexion internet.",
   "otp_resend_cta": "Renvoyer le code",
-  "otp_resend_countdown_prefix": "Renvoyer le code dans"
+  "otp_resend_countdown_prefix": "Renvoyer le code dans",
+  "nav_candidate_aria_label": "Navigation candidat"
 }

@@ -1,0 +1,67 @@
+{
+  "header": {
+    "greeting": "مرحبًا، {name}",
+    "greetingEmoji": "👋",
+    "fallbackName": "المرشح",
+    "spaceLabel": "فضاء المرشح",
+    "notificationsAriaLabel": "الإشعارات"
+  },
+  "profileProgress": {
+    "title": "نسبة اكتمال الملف الشخصي",
+    "description": "أكمل ملفك الشخصي لتظهر في الأولوية لدى موظفي التوظيف الألمان."
+  },
+  "visibility": {
+    "visible": "مرئي لموظفي التوظيف",
+    "hidden": "غير مرئي بعد — يرجى قبول الشروط في الخطوة 6"
+  },
+  "checklist": {
+    "title": "عناصر يجب إكمالها",
+    "items": {
+      "personal": { "label": "الملف الشخصي مكتمل", "action": "إكمال" },
+      "education": { "label": "المسار التعليمي محدَّد", "action": "إكمال" },
+      "languages": { "label": "تقييم لغة واحدة على الأقل", "action": "إكمال" },
+      "cv": { "label": "السيرة الذاتية مرفوعة", "action": "إضافة" },
+      "diploma": { "label": "الشهادات / الدبلومات", "action": "إضافة" },
+      "video": { "label": "فيديو تقديمي", "action": "تسجيل" },
+      "test": { "label": "اختبار اللغة", "action": "اجتياز الاختبار" },
+      "identity": { "label": "الهوية موثّقة", "action": "توثيق" }
+    }
+  },
+  "quickActions": {
+    "title": "إجراءات سريعة",
+    "items": {
+      "addDocument": "إضافة وثيقة",
+      "recordVideo": "تسجيل فيديو",
+      "languageTest": "اجتياز اختبار اللغة",
+      "publicProfile": "عرض ملفي الشخصي العام",
+      "germanLesson": "درس الألمانية اليومي",
+      "jobOffers": "عرض فرص العمل",
+      "salarySimulator": "محاكاة راتبي",
+      "visibility": "مدى ظهوري",
+      "referral": "دعوة صديق",
+      "verifyIdentity": "توثيق هويتي",
+      "matchingPreferences": "تفضيلات المطابقة"
+    }
+  },
+  "applications": {
+    "title": "متابعة الترشيحات",
+    "viewOffers": "عرض فرص العمل",
+    "stages": ["مُرسلة", "الاختيار الأولي", "المقابلة", "القرار"],
+    "updatedOn": "آخر تحديث في {date}",
+    "items": [
+      { "id": 1, "title": "ممرض مؤهَّل", "statusLabel": "مقابلة مبرمجة", "updatedAt": "18 غشت" },
+      { "id": 2, "title": "كهربائي مباني", "statusLabel": "قيد الاختيار الأولي", "updatedAt": "15 غشت" },
+      { "id": 3, "title": "سائق شاحنة", "statusLabel": "تم إرسال الترشيح", "updatedAt": "12 غشت" }
+    ]
+  },
+  "recommendations": {
+    "title": "توصيات",
+    "matchBadge": "تطابق {value}%",
+    "applyButton": "التقديم",
+    "appliedButton": "تم إرسال الترشيح",
+    "items": [
+      { "id": 1, "title": "موظف استقبال", "location": "ميونخ، ألمانيا", "contract": "عقد دائم" },
+      { "id": 2, "title": "مساعد رعاية", "location": "هامبورغ، ألمانيا", "contract": "دوام كامل" }
+    ]
+  }
+}

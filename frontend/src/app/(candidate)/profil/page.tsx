@@ -5,8 +5,12 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button, IconButton } from '@/components/shared/Button';
+import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { profilContentFor } from '@/lib/candidateProfilContent';
 import { useCandidateProfile, useInvalidateCandidateProfile } from '@/lib/useCandidateProfile';
 import { candidateProfileRepository } from '@/data/candidateProfile';
 import { getProfileTimeline, LANGUAGE_LABELS, AVAILABILITY_LABELS, type TimelineMilestone } from '@/lib/candidateProfile';
@@ -19,6 +23,18 @@ import { QRCodeGenerator } from '@/components/shared/QRCodeGenerator';
 import { Timeline } from '@/components/shared/Timeline';
 import { SkeletonLoader } from '@/components/shared/SkeletonLoader';
 import type { TimelineStep } from '@/lib/types';
+
+// Métadonnées fixes des raccourcis "Outils & Certifications" — alignées
+// positionnellement avec `content.tools` (même ordre dans les 4 traductions).
+const TOOLS_META: { href: string; icon: string }[] = [
+  { href: '/visibilite', icon: 'insights' },
+  { href: '/verification-identite', icon: 'verified_user' },
+  { href: '/parrainage', icon: 'group_add' },
+  { href: '/matching-preferences', icon: 'tune' },
+  { href: '/salaire', icon: 'payments' },
+  { href: '/quiz-metier', icon: 'quiz' },
+  { href: '/lecon-jour', icon: 'translate' },
+];
 
 /** Le premier jalon sans date est « en cours » ; tout ce qui suit est « à venir ». */
 function toTimelineSteps(milestones: TimelineMilestone[]): TimelineStep[] {
@@ -41,6 +57,8 @@ function toTimelineSteps(milestones: TimelineMilestone[]): TimelineStep[] {
 export default function ProfilPage() {
   const router = useRouter();
   const { token, logout } = useAuth();
+  const { language } = useLanguage();
+  const content = profilContentFor(language);
   const { data: profile, isLoading } = useCandidateProfile();
   const invalidateProfile = useInvalidateCandidateProfile();
 
@@ -107,17 +125,21 @@ export default function ProfilPage() {
   return (
     <div className="min-h-screen bg-surface pb-32">
       <header className="sticky top-0 z-20 flex items-center justify-between border-b border-outline-variant/20 bg-surface/80 px-6 py-4 backdrop-blur-md lg:px-10">
-        <Link href="/dashboard" aria-label="Retour au tableau de bord" className="flex items-center text-primary hover:opacity-80 transition-opacity">
+        <Link href="/dashboard" aria-label={content.header.backAriaLabel} className="flex items-center text-primary hover:opacity-80 transition-opacity">
           <span className="material-symbols-outlined text-primary" style={{ fontSize: 22 }}>arrow_back</span>
         </Link>
-        <h1 className="text-lg font-semibold text-primary">Mon profil public</h1>
-        <IconButton variant="ghost" onClick={() => setShowQr((v) => !v)} aria-label="Partager" className="text-primary">
-          <span className="material-symbols-outlined text-primary" style={{ fontSize: 22 }}>ios_share</span>
-        </IconButton>
+        <h1 className="text-lg font-semibold text-primary">{content.header.title}</h1>
+        <div className="flex items-center gap-1">
+          <LanguageSwitcher compact />
+          <ThemeToggle />
+          <IconButton variant="ghost" onClick={() => setShowQr((v) => !v)} aria-label={content.header.shareAriaLabel} className="text-primary">
+            <span className="material-symbols-outlined text-primary" style={{ fontSize: 22 }}>ios_share</span>
+          </IconButton>
+        </div>
       </header>
 
       {isLoading ? (
-        <main className="mx-auto max-w-xl px-6 pt-6"><p className="helper-text">Chargement…</p></main>
+        <main className="mx-auto max-w-xl px-6 pt-6"><p className="helper-text">{content.loading}</p></main>
       ) : (
       <main className="mx-auto max-w-xl space-y-6 px-6 pt-6 lg:max-w-6xl lg:px-10 lg:pt-8">
         <div className="space-y-6 lg:grid lg:grid-cols-5 lg:items-start lg:gap-8 lg:space-y-0">
@@ -130,7 +152,7 @@ export default function ProfilPage() {
                 <div className="absolute bottom-1 right-1 h-7 w-7 rounded-full border-4 border-surface-lowest bg-primary" />
               </div>
               <div className="space-y-1">
-                <h2 className="text-3xl font-extrabold tracking-tight text-primary">{profile?.first_name || 'Candidat'}</h2>
+                <h2 className="text-3xl font-extrabold tracking-tight text-primary">{profile?.first_name || content.fallbackName}</h2>
                 {profile?.availability_status && (
                   <div className="mt-2 inline-flex items-center rounded-full bg-primary-light px-3 py-1 text-xs font-bold uppercase tracking-wider text-onPrimary-container">
                     {AVAILABILITY_LABELS[profile.availability_status]}
@@ -145,29 +167,29 @@ export default function ProfilPage() {
               </div>
               {isEditing ? (
                 <div className="flex-1 space-y-2">
-                  <label htmlFor="profil-profession" className="sr-only">Secteur</label>
+                  <label htmlFor="profil-profession" className="sr-only">{content.professionCard.professionSrLabel}</label>
                   <input
                     id="profil-profession"
                     value={form.profession}
                     onChange={(e) => setForm((p) => ({ ...p, profession: e.target.value }))}
-                    placeholder="Secteur"
+                    placeholder={content.professionCard.professionPlaceholder}
                     className="w-full rounded-lg border border-outline px-3 py-2 text-sm outline-none focus:border-primary"
                   />
-                  <label htmlFor="profil-specialization" className="sr-only">Spécialisation</label>
+                  <label htmlFor="profil-specialization" className="sr-only">{content.professionCard.specializationSrLabel}</label>
                   <input
                     id="profil-specialization"
                     value={form.specialization}
                     onChange={(e) => setForm((p) => ({ ...p, specialization: e.target.value }))}
-                    placeholder="Spécialisation"
+                    placeholder={content.professionCard.specializationPlaceholder}
                     className="w-full rounded-lg border border-outline px-3 py-2 text-sm outline-none focus:border-primary"
                   />
                 </div>
               ) : (
                 <div className="flex-1">
-                  <h3 className="text-lg font-bold text-primary">{profile?.specialization || 'Spécialisation non renseignée'}</h3>
+                  <h3 className="text-lg font-bold text-primary">{profile?.specialization || content.professionCard.specializationFallback}</h3>
                   <p className="text-sm text-onSurface-variant">
                     {profile?.profession || '—'}
-                    {profile?.years_of_experience != null ? ` · ${profile.years_of_experience} ans d'expérience` : ''}
+                    {profile?.years_of_experience != null ? ` · ${profile.years_of_experience}${content.professionCard.yearsExperienceSuffix}` : ''}
                   </p>
                 </div>
               )}
@@ -179,17 +201,17 @@ export default function ProfilPage() {
                 className="shrink-0 gap-1 font-semibold"
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 14 }}>{isEditing ? 'check' : 'edit'}</span>
-                {isEditing ? 'Enregistrer' : 'Modifier'}
+                {isEditing ? content.professionCard.save : content.professionCard.edit}
               </Button>
             </section>
           </div>
 
           <div className="space-y-6 lg:col-span-3">
         <section className="space-y-3">
-          <h3 className="px-1 text-lg font-bold text-primary">Langues</h3>
+          <h3 className="px-1 text-lg font-bold text-primary">{content.sections.languagesTitle}</h3>
           {!profile || profile.languages.length === 0 ? (
             <p className="rounded-xl bg-surface-container p-4 text-center text-sm text-onSurface-variant">
-              Aucune langue renseignée.
+              {content.sections.languagesEmpty}
             </p>
           ) : (
             <div className="-mx-6 flex gap-4 overflow-x-auto px-6 pb-2">
@@ -214,12 +236,12 @@ export default function ProfilPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="px-1 text-lg font-bold text-primary">Ma présentation</h3>
+          <h3 className="px-1 text-lg font-bold text-primary">{content.sections.presentationTitle}</h3>
           <VideoPlayer src={profile?.video_url ?? null} />
         </section>
 
         <section className="space-y-3">
-          <h3 className="px-1 text-lg font-bold text-primary">Parcours</h3>
+          <h3 className="px-1 text-lg font-bold text-primary">{content.sections.timelineTitle}</h3>
           <div className="rounded-xl border border-outline-variant/30 bg-surface-lowest p-4 shadow-soft">
             {timeline.length > 0 ? (
               <Timeline steps={timeline.slice(0, 2)} />
@@ -230,17 +252,9 @@ export default function ProfilPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="px-1 text-lg font-bold text-primary">Outils & Certifications</h3>
+          <h3 className="px-1 text-lg font-bold text-primary">{content.sections.toolsTitle}</h3>
           <div className="grid grid-cols-1 gap-2.5">
-            {[
-              { href: '/visibilite', icon: 'insights', label: 'Score de visibilité candidat' },
-              { href: '/verification-identite', icon: 'verified_user', label: "Vérification d'identité" },
-              { href: '/parrainage', icon: 'group_add', label: 'Programme de Parrainage' },
-              { href: '/matching-preferences', icon: 'tune', label: 'Préférences de matching' },
-              { href: '/salaire', icon: 'payments', label: 'Simuler mon salaire' },
-              { href: '/quiz-metier', icon: 'quiz', label: 'Quiz métier' },
-              { href: '/lecon-jour', icon: 'translate', label: 'Allemand du quotidien' },
-            ].map((item) => (
+            {TOOLS_META.map((item, i) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -250,7 +264,7 @@ export default function ProfilPage() {
                   <span className="material-symbols-outlined text-primary" style={{ fontSize: 20 }}>
                     {item.icon}
                   </span>
-                  <span className="text-xs font-bold text-onSurface">{item.label}</span>
+                  <span className="text-xs font-bold text-onSurface">{content.tools[i]?.label}</span>
                 </div>
                 <span className="material-symbols-outlined text-outline" style={{ fontSize: 18 }}>
                   chevron_right
@@ -261,11 +275,11 @@ export default function ProfilPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="px-1 text-lg font-bold text-primary">Documents ({documents.length})</h3>
+          <h3 className="px-1 text-lg font-bold text-primary">{content.sections.documentsTitle} ({documents.length})</h3>
           <div className="space-y-2.5 lg:grid lg:grid-cols-2 lg:gap-2.5 lg:space-y-0">
             {documents.length === 0 ? (
               <p className="rounded-xl bg-surface-container p-4 text-center text-sm text-onSurface-variant lg:col-span-2">
-                Aucun document ajouté.
+                {content.sections.documentsEmpty}
               </p>
             ) : (
               documents.map((doc) => (
@@ -287,7 +301,7 @@ export default function ProfilPage() {
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
               logout
             </span>
-            Se déconnecter
+            {content.logout}
           </Button>
         </section>
       </main>
@@ -298,15 +312,15 @@ export default function ProfilPage() {
           <IconButton
             variant="ghost"
             onClick={() => setShowQr(false)}
-            aria-label="Fermer"
+            aria-label={content.qr.closeAriaLabel}
             className="absolute right-6 top-6 text-primary"
           >
             <span className="material-symbols-outlined text-primary" style={{ fontSize: 28 }}>close</span>
           </IconButton>
-          <h2 className="text-lg font-bold text-primary">Partager mon profil</h2>
+          <h2 className="text-lg font-bold text-primary">{content.qr.title}</h2>
           <div className="flex flex-col items-center gap-3 rounded-xl border border-outline-variant/20 bg-surface-lowest p-6 shadow-lg">
             <QRCodeGenerator value={shareUrl} size={220} />
-            <span className="text-xs font-bold text-primary">SCAN ME</span>
+            <span className="text-xs font-bold text-primary">{content.qr.scanMe}</span>
           </div>
         </div>
       )}

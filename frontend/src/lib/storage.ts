@@ -34,6 +34,7 @@ export const STORAGE_KEYS = {
   token: 'as_auth_token',
   profile: 'as_candidate_profile',
   language: 'as_language',
+  theme: 'as_theme',
   syncQueue: 'as_sync_queue',
   installPromptDismissedAt: 'as_install_prompt_dismissed_at',
 } as const;
