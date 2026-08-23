@@ -1,32 +1,31 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Modal } from '@/components/amud/ui';
+import { ConfirmDialog, Modal } from '@/components/amud/ui';
 import { useToast } from '@/components/amud/Toast';
 import { ROLES, STATUT_DOT, STATUT_TEXT, utilisateursSeed, type Role, type Statut, type Utilisateur } from '@/data/amud/utilisateurs';
-import { addLocalUtilisateur, loadLocalUtilisateurs } from '@/lib/amud/localUtilisateurs';
+import { utilisateursCollection } from '@/lib/amud/localUtilisateurs';
+import { useCollection } from '@/lib/amud/storage/useCollection';
+import { generateId } from '@/lib/amud/storage/ids';
+import { logAudit } from '@/lib/amud/storage/audit';
 
 export default function AmudAdminUtilisateursPage() {
   const notify = useToast();
   const searchParams = useSearchParams();
-  const [users, setUsers] = useState<Utilisateur[]>(utilisateursSeed);
+  const [users, { add: addUser, update: updateUser, remove: removeUser }] = useCollection(utilisateursCollection, utilisateursSeed);
   const [search, setSearch] = useState(() => searchParams.get('q') ?? '');
   const [roleFilter, setRoleFilter] = useState('Rôle');
   const [statutFilter, setStatutFilter] = useState('Statut');
   const [selected, setSelected] = useState<string[]>([]);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const [addOpen, setAddOpen] = useState(false);
   const [nom, setNom] = useState('');
   const [email, setEmail] = useState('');
   const [addRole, setAddRole] = useState<Role>('Candidat');
   const [ville, setVille] = useState('');
-
-  useEffect(() => {
-    const extra = loadLocalUtilisateurs();
-    if (extra.length) setUsers([...utilisateursSeed, ...extra]);
-  }, []);
 
   const filtered = useMemo(() => {
     return users.filter((u) => {
@@ -47,16 +46,35 @@ export default function AmudAdminUtilisateursPage() {
     setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   }
   function bulkSetStatut(statut: Statut) {
-    setUsers((prev) => prev.map((u) => (selected.includes(u.id) ? { ...u, statut } : u)));
+    for (const id of selected) updateUser(id, { statut });
     notify(`${selected.length} utilisateur(s) mis à jour.`);
   }
   function toggleStatut(id: string) {
-    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, statut: u.statut === 'Actif' ? 'Bloqué' : 'Actif' } : u)));
+    const u = users.find((x) => x.id === id);
+    if (!u) return;
+    const next = u.statut === 'Actif' ? 'Bloqué' : 'Actif';
+    updateUser(id, { statut: next });
+    logAudit({
+      utilisateur: 'Administrateur',
+      role: 'Admin',
+      action: next === 'Bloqué' ? 'Désactivation de compte' : 'Réactivation de compte',
+      actionType: next === 'Bloqué' ? 'disable' : 'update',
+      module: 'Utilisateurs',
+      reference: `${u.nom} (#${u.id})`,
+    });
   }
   function cycleRole(id: string) {
-    setUsers((prev) =>
-      prev.map((u) => (u.id === id ? { ...u, role: ROLES[(ROLES.indexOf(u.role) + 1) % ROLES.length] } : u)),
-    );
+    const u = users.find((x) => x.id === id);
+    if (!u) return;
+    updateUser(id, { role: ROLES[(ROLES.indexOf(u.role) + 1) % ROLES.length] });
+  }
+  function removeRow(id: string) {
+    const u = users.find((x) => x.id === id);
+    removeUser(id);
+    if (u) logAudit({ utilisateur: 'Administrateur', role: 'Admin', action: 'Suppression utilisateur', actionType: 'delete', module: 'Utilisateurs', reference: `${u.nom} (#${u.id})` });
+    setSelected((prev) => prev.filter((x) => x !== id));
+    setOpenMenu(null);
+    notify('Utilisateur supprimé.', 'info');
   }
 
   function resetAddForm() {
@@ -70,7 +88,7 @@ export default function AmudAdminUtilisateursPage() {
     e.preventDefault();
     if (!nom.trim() || !email.trim()) return;
     const user: Utilisateur = {
-      id: `utilisateur-${Date.now()}`,
+      id: generateId('utilisateur'),
       nom: nom.trim(),
       email: email.trim(),
       role: addRole,
@@ -79,8 +97,8 @@ export default function AmudAdminUtilisateursPage() {
       dernierAcces: 'À l’instant',
       creeLe: new Date().toLocaleDateString('fr-FR'),
     };
-    setUsers((prev) => [user, ...prev]);
-    addLocalUtilisateur(user);
+    addUser(user);
+    logAudit({ utilisateur: 'Administrateur', role: 'Admin', action: 'Création utilisateur', actionType: 'create', module: 'Utilisateurs', reference: `${user.nom} (#${user.id})` });
     notify(`« ${user.nom} » ajouté en tant que ${user.role}.`);
     setAddOpen(false);
     resetAddForm();
@@ -294,6 +312,15 @@ export default function AmudAdminUtilisateursPage() {
                         >
                           Changer de rôle
                         </button>
+                        <button
+                          onClick={() => {
+                            setConfirmDeleteId(u.id);
+                            setOpenMenu(null);
+                          }}
+                          className="block w-full px-4 py-2 text-left text-label-md text-amud-error hover:bg-amud-surface-container-low"
+                        >
+                          Supprimer
+                        </button>
                       </div>
                     ) : null}
                   </td>
@@ -375,6 +402,15 @@ export default function AmudAdminUtilisateursPage() {
           </div>
         </form>
       </Modal>
+
+      <ConfirmDialog
+        open={!!confirmDeleteId}
+        onClose={() => setConfirmDeleteId(null)}
+        onConfirm={() => confirmDeleteId && removeRow(confirmDeleteId)}
+        title="Supprimer cet utilisateur ?"
+        description="Cette action est irréversible."
+        confirmLabel="Supprimer"
+      />
     </div>
   );
 }

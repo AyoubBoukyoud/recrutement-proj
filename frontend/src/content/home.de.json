@@ -2,8 +2,8 @@
   "_note": "Deutsche Startseiten-Texte. Gleiche Struktur wie home.fr.json — TypeScript bricht den Build ab, wenn ein Schlüssel fehlt. Deutsche Labels sind rund 30 % länger als die französischen: Button-Umbrüche prüfen.",
   "nav": {
     "links": [
-      { "label": "Berufe", "href": "/#sectors" },
-      { "label": "So funktioniert es", "href": "/#methodology" },
+      { "label": "Berufe", "href": "/accueil-public#sectors" },
+      { "label": "So funktioniert es", "href": "/accueil-public#methodology" },
       { "label": "Arbeitgeber", "href": "/employeurs" }
     ],
     "signIn": "Ich habe bereits ein Profil",
@@ -210,8 +210,8 @@
         "title": "Bewerber",
         "links": [
           { "label": "Profil erstellen", "href": "/auth-phone" },
-          { "label": "Gesuchte Berufe", "href": "/#sectors" },
-          { "label": "So funktioniert es", "href": "/#methodology" }
+          { "label": "Gesuchte Berufe", "href": "/accueil-public#sectors" },
+          { "label": "So funktioniert es", "href": "/accueil-public#methodology" }
         ]
       },
       {
@@ -246,6 +246,63 @@
     "ctaTitle": "Starten Sie Ihr Profil für diesen Beruf",
     "ctaBody": "Fügen Sie Ihren Lebenslauf hinzu: Er wird automatisch gelesen und füllt die meisten Felder aus.",
     "othersTitle": "Weitere Berufe"
+  },
+  "product": {
+    "hero": {
+      "badge": "Echtzeit-Marktplatz",
+      "headline": ["Echtzeit-Matching:", "Ihre zukünftigen Talente sind bereits auf Amud Skills."],
+      "subheadline": "Eine reibungslose Matching-Erfahrung im Tinder-Stil, die marokkanische Fachkräfte mit deutschen Chancen verbindet. Mobile-first, kostenlos für Bewerber und ultraschnell.",
+      "ctaPrimary": "Jetzt Talente finden",
+      "ctaSecondary": "Als Bewerber beitreten",
+      "card": {
+        "matchTitle": "Match gefunden!",
+        "matchSubtitle": "Senior Developer, Berlin"
+      },
+      "imageAlt1": "Videoprofil eines marokkanischen Bewerbers in der mobilen App.",
+      "imageAlt2": "Matching-Oberfläche im Tinder-Stil zwischen einem Bewerber und einem deutschen Stellenangebot."
+    },
+    "features": {
+      "title": "Optimierter Ablauf",
+      "subtitle": "Unsere Technologie nimmt die Reibung heraus, damit Sie sich auf die Verbindung konzentrieren können. Vollautomatisch, mobile-first und auf Geschwindigkeit ausgelegt.",
+      "items": {
+        "pitch": {
+          "title": "Der 45-Sekunden-Pitch",
+          "body": "Kein Anschreiben mehr. Bewerber stellen sich über kurze, strukturierte Videoprofile vor. Authentizität und Kommunikationsfähigkeit auf den ersten Blick.",
+          "imageAlt": "Abstrakte Darstellung einer Videoaufnahme auf dem Smartphone."
+        },
+        "zeroCost": {
+          "title": "Kostenlos für Bewerber",
+          "body": "Chancen demokratisieren. Wir beseitigen finanzielle Hürden, um allen Talenten unabhängig von ihrer Herkunft Zugang zu garantieren."
+        },
+        "ocr": {
+          "title": "Intelligente Texterkennung",
+          "body": "Sofortige Dokumentenprüfung und Datenextraktion. Vom Personalausweis bis zum Zertifikat, in Millisekunden verarbeitet mit deutscher Präzision."
+        },
+        "tracking": {
+          "title": "Echtzeit-Verfolgung",
+          "body": "Bewerber und Arbeitgeber wissen jederzeit genau, wo sie stehen. Transparenter Fortschritt von der Bewerbung bis zur Integration über unser visuelles Brückensystem."
+        }
+      }
+    },
+    "sectors": {
+      "title": "4 strategische Branchen",
+      "subtitle": "Gezielte Rekrutierung für kritische deutsche Branchen.",
+      "items": {
+        "btp": { "title": "Bau & Ingenieurwesen", "imageAlt": "Moderne Baustelle in Deutschland, Kräne und Stahlkonstruktionen." },
+        "sante": { "title": "Gesundheitswesen", "subtitle": "Fachkräfte im Gesundheitswesen" },
+        "logistique": { "title": "Logistik", "subtitle": "Experten für Lieferketten" },
+        "gastro": { "title": "Gastronomie", "imageAlt": "Hochwertige deutsche Profiküche, Köche bei der Arbeit." }
+      }
+    },
+    "methodology": {
+      "title": "KI-geprüfte Präzisions-Pipeline",
+      "subtitle": "Unsere proprietäre „Bridge“-Methodik stellt sicher, dass jeder Bewerber vor der Vorstellung strenge deutsche Standards erfüllt.",
+      "steps": [
+        { "title": "Sourcing & Vorauswahl", "desc": "Gezielte Ansprache innerhalb des marokkanischen Talentpools." },
+        { "title": "KI-Verifizierung", "desc": "Automatisierte Kompetenzbewertung und Sprachniveauprüfung." },
+        { "title": "Kulturelle Integration", "desc": "Schulung zur Integration in den deutschen Arbeitsplatz." }
+      ]
+    }
   },
   "mobileBar": {
     "cta": "Profil erstellen"

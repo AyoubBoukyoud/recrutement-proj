@@ -12,18 +12,8 @@ import { Button } from '@/components/shared/Button';
 import { AuthShell } from '@/components/AuthShell';
 import { USE_MOCKS } from '@/data/config';
 import { authRepository } from '@/data/auth';
-import { MOCK_ACCOUNTS, MOCK_OTP_CODE } from '@/data/fixtures/auth';
-import type { UserRole } from '@/lib/types';
-
-/** Numéros seedés côté back (`php artisan migrate --seed`, voir SETUP.md) —
- *  utilisés par le raccourci dev quand l'API réelle est active. */
-const REAL_DEMO_PHONE_BY_ROLE: Record<UserRole, string> = {
-  admin: '+212600000001',
-  employer: '+212600000002',
-  agent: '+212600000003',
-  // Non seedé : le back crée un compte candidat au premier code vérifié.
-  candidate: '+212600000099',
-};
+import { MOCK_OTP_CODE } from '@/data/fixtures/auth';
+import { destinationForRole } from '@/lib/roleDestination';
 
 /** Le menu dev ne doit jamais atterrir dans un build de production, mocks ou non. */
 const SHOW_DEV_MENU = process.env.NODE_ENV !== 'production';
@@ -34,14 +24,12 @@ const COUNTRY_CODES = [
 ];
 
 type DevMenuItem = { path: string; label: string };
-type DevMenuGroup = { role: UserRole; label: string; items: DevMenuItem[] };
 type DevLinkGroup = { key: string; label: string; items: DevMenuItem[] };
 
 /**
  * Pages publiques du mini-site marketing `/amud/marketing/*` (portées depuis
- * 3 maquettes indépendantes des dashboards par rôle). Contrairement aux
- * groupes ci-dessous, elles ne passent pas par `devSignInAs` : ce sont des
- * pages publiques, sans connexion, donc de simples liens.
+ * 3 maquettes indépendantes des dashboards par rôle). Pages publiques, sans
+ * connexion, donc de simples liens.
  */
 const DEV_MARKETING_LINKS: DevMenuItem[] = [
   { path: '/amud/marketing/home', label: 'Accueil — Le pont professionnel' },
@@ -49,46 +37,28 @@ const DEV_MARKETING_LINKS: DevMenuItem[] = [
   { path: '/amud/marketing/product', label: 'Produit — Matching en temps réel' },
 ];
 
+type DevRealAccount = { phone: string; label: string; path: string };
+
 /**
- * Menu du raccourci dev : un groupe par compte de démo, chacun listant les
- * pages maquette intégrées sous `/amud` (cf. module amud) pour ce rôle — pas
- * l'espace réel, qui reste accessible via le vrai flux OTP
- * (`destinationForRole`, dans /otp). "Agent" y correspond à l'espace
- * commercial (`/amud/commercial`), pas à `/agent` (parrainage) qui est un
- * espace différent dans l'app réelle.
+ * Comptes de démo dont la destination réelle (`/admin/apercu`) est protégée
+ * par `middleware.ts` : un simple `Link`, comme dans `DEV_REAL_APP_LINKS`, y
+ * serait aussitôt renvoyé vers `/auth-phone` faute de cookie `as_role`. Ces
+ * boutons passent donc par `devSignInReal`, qui rejoue la vérification OTP
+ * réelle (même téléphone que `MOCK_ACCOUNTS`) avant de naviguer vers
+ * `destinationForRole`.
  */
-const DEV_LOGIN_MENU: DevMenuGroup[] = [
-  { role: 'candidate', label: 'Candidat', items: [{ path: '/amud/candidate', label: 'Tableau de bord' }] },
-  { role: 'employer', label: 'Recruteur', items: [{ path: '/amud/employer', label: 'Tableau de bord' }] },
-  {
-    role: 'admin',
-    label: 'Admin',
-    items: [
-      { path: '/amud/admin', label: 'Tableau de bord' },
-      { path: '/amud/admin/parametres', label: 'Paramètres généraux' },
-      { path: '/amud/admin/utilisateurs', label: 'Utilisateurs' },
-      { path: '/amud/admin/entreprises', label: 'Entreprises' },
-      { path: '/amud/admin/offres', label: 'Offres' },
-      { path: '/amud/admin/candidatures', label: 'Candidatures (Kanban)' },
-      { path: '/amud/admin/commerciaux', label: 'Commerciaux' },
-      { path: '/amud/admin/commerciaux/nouveau', label: 'Ajouter un commercial' },
-      { path: '/amud/admin/commerciaux/jean-dupont', label: 'Profil commercial 360°' },
-      { path: '/amud/admin/objectifs', label: 'Objectifs commerciaux' },
-      { path: '/amud/admin/activites', label: 'Activités commerciales' },
-      { path: '/amud/admin/roles-permissions', label: 'Rôles & permissions' },
-      { path: '/amud/admin/journal-activite', label: "Journal d'activité" },
-    ],
-  },
-  {
-    role: 'agent',
-    label: 'Agent',
-    items: [
-      { path: '/amud/commercial', label: 'Espace de travail' },
-      { path: '/amud/commercial/rendez-vous', label: 'Mes rendez-vous' },
-      { path: '/amud/commercial/contacts', label: 'Mes contacts' },
-    ],
-  },
+const DEV_REAL_OTP_ACCOUNTS: DevRealAccount[] = [
+  { phone: '+212600000004', label: 'Admin — 06 00 00 00 04', path: '/admin/apercu' },
 ];
+
+/**
+ * Contrairement à `DEV_REAL_OTP_ACCOUNTS` (qui saute l'écran OTP en appelant
+ * `verifyOtp` directement), ce lien mène au véritable écran `/otp` — numéro
+ * déjà rempli — pour tester ce parcours-là. Compte candidat 101
+ * (`incompleteProfileStep: null`), donc `destinationForRole` atterrit sur
+ * `/dashboard` une fois le code `000000` saisi.
+ */
+const DEV_CANDIDATE_OTP_LINK = { phone: '+212600000001', label: 'Candidat — écran OTP → /dashboard' };
 
 /**
  * Pages réelles de l'app (hors `/amud`, hors ce menu) qui n'ont pas encore de
@@ -107,7 +77,6 @@ const DEV_REAL_APP_LINKS: DevLinkGroup[] = [
     items: [
       { path: '/', label: 'Accueil' },
       { path: '/employeurs', label: 'Employeurs' },
-      { path: '/produit', label: 'Produit' },
       { path: '/language', label: 'Choix de la langue' },
       { path: '/splash', label: 'Splash screen' },
       { path: '/otp', label: 'Vérification OTP' },
@@ -144,18 +113,12 @@ const DEV_REAL_APP_LINKS: DevLinkGroup[] = [
       { path: '/admin/apercu', label: 'Aperçu (métriques)' },
       { path: '/admin/candidats', label: 'Candidats' },
       { path: '/admin/candidats/1', label: 'Dossier candidat (exemple : id 1)' },
+      { path: '/admin/recruteurs', label: 'Recruteurs' },
+      { path: '/admin/recruteurs/201', label: 'Dossier recruteur (exemple : id 201)' },
       { path: '/admin/parrainage', label: 'Commissions de parrainage' },
       { path: '/admin/reclamations', label: 'Réclamations' },
       { path: '/admin/stage', label: 'Catalogue du stage' },
       { path: '/admin/utilisateurs', label: 'Utilisateurs' },
-    ],
-  },
-  {
-    key: 'agent-recruiter-real',
-    label: 'Agent & recruteur (réel)',
-    items: [
-      { path: '/agent', label: 'Agent (parrainage & commissions)' },
-      { path: '/recruiter', label: 'Recruteur (recherche de candidats)' },
     ],
   },
 ];
@@ -230,31 +193,26 @@ export default function AuthPhonePage() {
   // Chemin en cours de connexion (pas juste le rôle : plusieurs pages
   // partagent un même rôle, chacune a son propre état de chargement).
   const [devLoadingPath, setDevLoadingPath] = useState<string | null>(null);
-  // Groupe dont le sous-menu de pages est déplié — un seul à la fois.
-  const [expandedRole, setExpandedRole] = useState<UserRole | null>(null);
   // Idem pour les groupes de DEV_REAL_APP_LINKS — état séparé, ce sont deux menus distincts.
   const [expandedRealGroup, setExpandedRealGroup] = useState<string | null>(null);
 
-  // Raccourci dev : ouvre directement un compte de démo sur une page /amud
-  // précise, sans numéro ni code. En mock, le code accepté est fixe
-  // (`MOCK_OTP_CODE`) ; contre l'API réelle, on redemande un vrai code au
-  // back et on se sert du `debug_otp_code` qu'il renvoie en local — jamais
-  // disponible hors `APP_ENV=local`, donc sans effet en production.
-  const devSignInAs = async (role: UserRole, path: string) => {
+  // Se connecte avec le vrai téléphone du compte puis suit la même
+  // redirection que l'écran OTP (`destinationForRole`), pour atterrir sur la
+  // vraie page protégée (`/admin/apercu`) plutôt que sur une maquette `/amud`.
+  // En mock, le code accepté est fixe (`MOCK_OTP_CODE`) ; contre l'API réelle,
+  // on redemande un vrai code au back et on se sert du `debug_otp_code` qu'il
+  // renvoie en local — jamais disponible hors `APP_ENV=local`, donc sans
+  // effet en production.
+  const devSignInReal = async (account: DevRealAccount) => {
     setError(null);
-    setDevLoadingPath(path);
+    setDevLoadingPath(account.path);
     try {
-      let demoPhone: string;
       let demoCode: string;
 
       if (USE_MOCKS) {
-        const account = MOCK_ACCOUNTS.find((a) => a.role === role);
-        if (!account) return;
-        demoPhone = account.phone;
         demoCode = MOCK_OTP_CODE;
       } else {
-        demoPhone = REAL_DEMO_PHONE_BY_ROLE[role];
-        const otpResponse = await authRepository.requestOtp(demoPhone);
+        const otpResponse = await authRepository.requestOtp(account.phone);
         if (!otpResponse.debug_otp_code) {
           setError('Connexion rapide indisponible : le back ne renvoie pas de code de démonstration (APP_ENV != local ?).');
           return;
@@ -262,17 +220,14 @@ export default function AuthPhonePage() {
         demoCode = otpResponse.debug_otp_code;
       }
 
-      const result = await verifyOtp(demoCode, demoPhone);
+      const result = await verifyOtp(demoCode, account.phone);
       if (!result.ok) {
         setError(otpFailureMessage(result, t));
         return;
       }
-      router.push(path);
+      router.push(destinationForRole(result.role, null));
     } catch (err) {
-      // Un échec inattendu ici ne doit jamais laisser le bouton bloqué en
-      // silence sur son spinner : on le signale, y compris en console pour
-      // le diagnostic, plutôt que de rendre le raccourci muet.
-      console.error('devSignInAs a échoué', err);
+      console.error('devSignInReal a échoué', err);
       setError(otpFailureMessage({ ok: false, reason: 'unknown' }, t));
     } finally {
       setDevLoadingPath(null);
@@ -410,71 +365,34 @@ export default function AuthPhonePage() {
       {SHOW_DEV_MENU && (
         <div className="fade-in-entry opacity-0 mx-6 mb-4 rounded-pillar border border-dashed border-outline-variant bg-surface-container-low p-3">
           <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-onSurface-variant">
-            Dev — connexion rapide
+            Espace réel (via OTP)
           </p>
           <div className="space-y-1.5">
-            {DEV_LOGIN_MENU.map((group) => {
-              // Un seul écran pour ce rôle : un bouton direct suffit, un
-              // sous-menu à une seule entrée n'aurait rien d'un menu.
-              if (group.items.length === 1) {
-                const item = group.items[0];
-                return (
-                  <Button
-                    key={group.role}
-                    variant="outline"
-                    size="sm"
-                    fullWidth
-                    className="justify-start"
-                    onClick={() => devSignInAs(group.role, item.path)}
-                    disabled={devLoadingPath !== null}
-                    isLoading={devLoadingPath === item.path}
-                  >
-                    {group.label}
-                  </Button>
-                );
-              }
-
-              const isOpen = expandedRole === group.role;
-              return (
-                <div key={group.role} className="overflow-hidden rounded-pillar border border-outline-variant bg-surface-container-lowest">
-                  <button
-                    type="button"
-                    onClick={() => setExpandedRole(isOpen ? null : group.role)}
-                    aria-expanded={isOpen}
-                    className="flex w-full items-center justify-between px-3.5 py-2.5 text-xs font-bold text-primary transition-colors hover:bg-primary/5"
-                  >
-                    {group.label}
-                    <span
-                      className="material-symbols-outlined transition-transform duration-150"
-                      style={{ fontSize: 18, transform: isOpen ? 'rotate(180deg)' : undefined }}
-                    >
-                      expand_more
-                    </span>
-                  </button>
-                  {isOpen && (
-                    <div className="max-h-56 divide-y divide-outline-variant/60 overflow-y-auto border-t border-outline-variant">
-                      {group.items.map((item) => (
-                        <button
-                          key={item.path}
-                          type="button"
-                          onClick={() => devSignInAs(group.role, item.path)}
-                          disabled={devLoadingPath !== null}
-                          className="flex w-full items-center justify-between px-4 py-2 text-left text-xs text-onSurface-variant transition-colors hover:bg-primary/5 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          {item.label}
-                          {devLoadingPath === item.path && (
-                            <span className="material-symbols-outlined animate-spin text-primary" style={{ fontSize: 14 }}>
-                              progress_activity
-                            </span>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+            {DEV_REAL_OTP_ACCOUNTS.map((account) => (
+              <Button
+                key={account.path}
+                variant="outline"
+                size="sm"
+                fullWidth
+                className="justify-start"
+                onClick={() => devSignInReal(account)}
+                disabled={devLoadingPath !== null}
+                isLoading={devLoadingPath === account.path}
+              >
+                {account.label}
+              </Button>
+            ))}
           </div>
+
+          <p className="mb-2 mt-4 text-[10px] font-bold uppercase tracking-wider text-onSurface-variant">
+            Parcours OTP réel (candidat)
+          </p>
+          <Link
+            href={`/otp?phone=${encodeURIComponent(DEV_CANDIDATE_OTP_LINK.phone)}&intent=job_seeker`}
+            className="flex h-10 w-full items-center justify-start gap-2 rounded-pillar border border-outline bg-transparent px-4 text-xs font-bold text-primary transition-colors hover:bg-primary/5"
+          >
+            {DEV_CANDIDATE_OTP_LINK.label}
+          </Link>
 
           <p className="mb-2 mt-4 text-[10px] font-bold uppercase tracking-wider text-onSurface-variant">
             Site public (sans connexion)

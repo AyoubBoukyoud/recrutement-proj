@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -15,6 +16,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 #[Fillable(['user_id', 'candidate_profile_id', 'stage', 'notes', 'contact_revealed_at'])]
 class RecruiterShortlist extends Model
 {
+    use HasFactory;
+
     public const STAGES = ['saved', 'contacted', 'interviewing', 'placed', 'rejected'];
 
     protected function casts(): array

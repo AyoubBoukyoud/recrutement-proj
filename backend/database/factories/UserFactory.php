@@ -30,6 +30,12 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'phone' => fake()->unique()->numerify('+2126########'),
             'phone_verified_at' => now(),
+            // Matches the DB column default, but explicit here too: the DB
+            // default only applies once a row round-trips through a real
+            // INSERT — a freshly created in-memory model (as `actingAs()`
+            // uses directly in tests, with no re-fetch) would otherwise see
+            // `status === null` and get refused by EnsureAccountIsActive.
+            'status' => 'active',
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];

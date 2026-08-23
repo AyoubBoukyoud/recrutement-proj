@@ -7,21 +7,30 @@ import { Drawer, Modal, Tabs } from '@/components/amud/ui';
 import { useToast } from '@/components/amud/Toast';
 import { CURRENT_COMMERCIAL } from '@/data/amud/currentCommercial';
 import { STATUT_CLASS as ENTREPRISE_STATUT_CLASS, entreprisesSeed, type Entreprise } from '@/data/amud/entreprises';
-import { loadLocalEntreprises } from '@/lib/amud/localEntreprises';
+import { entreprisesCollection } from '@/lib/amud/localEntreprises';
+import { offresCollection } from '@/lib/amud/localOffres';
+import { useCollection } from '@/lib/amud/storage/useCollection';
 import {
   RESULTAT_CLASS,
   STATUT_CLASS as ACTIVITE_STATUT_CLASS,
   TYPE_ICON,
+  activitesSeed,
   getActivitesForEntreprise,
   type Activite,
   type ResultatActivite,
   type TypeActivite,
 } from '@/data/amud/commercialActivites';
-import { addLocalActivite, loadLocalActivites } from '@/lib/amud/localCommercialActivites';
+import { activitesCollection } from '@/lib/amud/localCommercialActivites';
 import { PRIORITE_CLASS, STATUT_CLASS as TACHE_STATUT_CLASS, tachesSeed, type PrioriteTache, type StatutTache, type Tache } from '@/data/amud/commercialTaches';
-import { addLocalTache, loadLocalOverrides, loadLocalTaches, setLocalOverride } from '@/lib/amud/localCommercialTaches';
-import { STATUT_CLASS as CONTACT_STATUT_CLASS, getContactsForEntreprise, type ContactEntreprise } from '@/data/amud/commercialContacts';
-import { STATUT_STYLE, rdvsSeed, type Rdv, type StatutRdv } from '@/data/amud/commercialRdv';
+import { tachesCollection } from '@/lib/amud/localCommercialTaches';
+import { STATUT_CLASS as CONTACT_STATUT_CLASS, contactsEntrepriseSeed, type ContactEntreprise, type StatutContact } from '@/data/amud/commercialContacts';
+import { companyContactsCollection } from '@/lib/amud/localCompanyContacts';
+import { generateId } from '@/lib/amud/storage/ids';
+import { logAudit } from '@/lib/amud/storage/audit';
+import { pushNotification } from '@/lib/amud/storage/notify';
+import { STATUT_STYLE, TYPE_ICON as RDV_TYPE_ICON, buildSeedRdvs, type Rdv } from '@/data/amud/commercialRdv';
+import { rendezVousCollection } from '@/lib/amud/localRendezVous';
+import { fullDayLabel, minutesToTime, timeToMinutes } from '@/lib/amud/weekDates';
 import { STATUT_CLASS as OFFRE_STATUT_CLASS, offresSeed, type Offre } from '@/data/amud/offres';
 
 const TABS = [
@@ -50,13 +59,14 @@ export default function AmudCommercialEntrepriseDetailPage() {
   const router = useRouter();
   const notify = useToast();
 
-  const [entreprise, setEntreprise] = useState<Entreprise | null | undefined>(undefined);
+  const [entreprises] = useCollection(entreprisesCollection, entreprisesSeed);
+  const [offresAll] = useCollection(offresCollection, offresSeed);
+  const entreprise = useMemo<Entreprise | null>(() => entreprises.find((x) => x.id === params.id) ?? null, [entreprises, params.id]);
   const [tab, setTab] = useState('overview');
 
-  const [activites, setActivites] = useState<Activite[]>([]);
-  const [taches, setTaches] = useState<Tache[]>([]);
-  const [rdvsExtra, setRdvsExtra] = useState<Rdv[]>([]);
-  const [rdvOverrides, setRdvOverrides] = useState<Record<string, StatutRdv>>({});
+  const [allActivites, { add: addActivite }] = useCollection(activitesCollection, activitesSeed);
+  const [allTaches, { add: addTache, update: updateTache }] = useCollection(tachesCollection, tachesSeed);
+  const [rdvsAll, { replace: replaceRdvs }] = useCollection(rendezVousCollection, buildSeedRdvs());
   const [notes, setNotes] = useState<Note[]>([
     { id: 'n1', texte: 'Client historique, très réactif — privilégier le téléphone plutôt que l’email.', auteur: 'Ahmed Benali', date: '02/08/2026' },
   ]);
@@ -67,40 +77,28 @@ export default function AmudCommercialEntrepriseDetailPage() {
   const [rdvModalOpen, setRdvModalOpen] = useState(false);
   const [noteModalOpen, setNoteModalOpen] = useState(false);
 
-  useEffect(() => {
-    const fromSeed = entreprisesSeed.find((e) => e.id === params.id);
-    if (fromSeed) {
-      setEntreprise(fromSeed);
-      return;
-    }
-    const fromLocal = loadLocalEntreprises().find((e) => e.id === params.id);
-    setEntreprise(fromLocal ?? null);
-  }, [params.id]);
+  const activites = useMemo(() => getActivitesForEntreprise(params.id, allActivites), [params.id, allActivites]);
+  const taches = useMemo(() => allTaches.filter((t) => t.entrepriseId === params.id), [allTaches, params.id]);
 
-  useEffect(() => {
-    if (!params.id) return;
-    setActivites(getActivitesForEntreprise(params.id, loadLocalActivites()));
-    const overrides = loadLocalOverrides();
-    const merged = [...tachesSeed, ...loadLocalTaches()].map((t) => (overrides[t.id] ? { ...t, ...overrides[t.id] } : t));
-    setTaches(merged.filter((t) => t.entrepriseId === params.id));
-  }, [params.id]);
+  function persistRdvs(next: Rdv[]) {
+    replaceRdvs(next);
+  }
 
-  const contacts = useMemo<ContactEntreprise[]>(() => (entreprise ? getContactsForEntreprise(entreprise.id) : []), [entreprise]);
-  const rdvs = useMemo(() => {
-    if (!entreprise) return [];
-    return [...rdvsSeed, ...rdvsExtra]
-      .filter((r) => r.entrepriseId === entreprise.id)
-      .map((r) => (rdvOverrides[r.id] ? { ...r, statut: rdvOverrides[r.id] } : r));
-  }, [entreprise, rdvsExtra, rdvOverrides]);
-  const offres = useMemo<Offre[]>(() => (entreprise ? offresSeed.filter((o) => o.entreprise === entreprise.nom) : []), [entreprise]);
+  const [allCompanyContacts, { add: addCompanyContact, update: updateCompanyContact }] = useCollection(companyContactsCollection, contactsEntrepriseSeed);
+  const contacts = useMemo<ContactEntreprise[]>(() => (entreprise ? allCompanyContacts.filter((c) => c.entrepriseId === entreprise.id) : []), [entreprise, allCompanyContacts]);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [editingContact, setEditingContact] = useState<ContactEntreprise | null>(null);
+  const rdvs = useMemo(() => (entreprise ? rdvsAll.filter((r) => r.entrepriseId === entreprise.id) : []), [entreprise, rdvsAll]);
+  const offres = useMemo<Offre[]>(
+    () => (entreprise ? offresAll.filter((o) => o.entrepriseId === entreprise.id || o.entreprise === entreprise.nom) : []),
+    [entreprise, offresAll],
+  );
 
   const historiqueContacts = useMemo(
     () => activites.filter((a): a is Activite => ['Appel', 'Email', 'Rendez-vous', 'Follow-up'].includes(a.type)),
     [activites],
   );
   const appels = useMemo(() => activites.filter((a) => a.type === 'Appel'), [activites]);
-
-  if (entreprise === undefined) return null;
 
   if (entreprise === null) {
     return (
@@ -144,8 +142,7 @@ export default function AmudCommercialEntrepriseDetailPage() {
       statut: 'Terminé',
       rdvId: input.rdvId,
     };
-    addLocalActivite(activite);
-    setActivites((prev) => [activite, ...prev]);
+    addActivite(activite);
     return activite;
   }
 
@@ -286,6 +283,18 @@ export default function AmudCommercialEntrepriseDetailPage() {
       {/* ------------------------------------------------------------ Contacts */}
       {tab === 'contacts' ? (
         <div className="rounded-xl border border-amud-outline-variant/30 bg-amud-surface-container-lowest p-lg">
+          <div className="mb-md flex items-center justify-between">
+            <h3 className="text-title-lg text-amud-on-surface">Contacts</h3>
+            <button
+              onClick={() => {
+                setEditingContact(null);
+                setContactModalOpen(true);
+              }}
+              className="flex items-center gap-xs rounded-lg bg-amud-primary px-3 py-1.5 text-label-sm text-white hover:bg-amud-primary-dark"
+            >
+              <span className="material-symbols-outlined text-[18px]">person_add</span> Ajouter un contact
+            </button>
+          </div>
           {contacts.length === 0 ? (
             <EmptyState icon="person_off" text="Aucun contact enregistré pour cette entreprise." />
           ) : (
@@ -330,7 +339,10 @@ export default function AmudCommercialEntrepriseDetailPage() {
                       <span className="material-symbols-outlined text-[16px]">add_task</span> Activité
                     </button>
                     <button
-                      onClick={() => notify('Modification du contact (à venir).', 'info')}
+                      onClick={() => {
+                        setEditingContact(c);
+                        setContactModalOpen(true);
+                      }}
                       className="flex items-center justify-center rounded-lg border border-amud-outline-variant px-2 py-1.5 text-amud-on-surface-variant hover:bg-amud-surface-container-low"
                     >
                       <span className="material-symbols-outlined text-[16px]">edit</span>
@@ -389,8 +401,7 @@ export default function AmudCommercialEntrepriseDetailPage() {
                     {t.statut !== 'Terminée' ? (
                       <button
                         onClick={() => {
-                          setLocalOverride(t.id, { statut: 'Terminée' });
-                          setTaches((prev) => prev.map((x) => (x.id === t.id ? { ...x, statut: 'Terminée' } : x)));
+                          updateTache(t.id, { statut: 'Terminée' });
                           notify(`« ${t.titre} » marquée terminée.`);
                         }}
                         className="rounded-lg border border-amud-outline-variant px-3 py-1.5 text-label-sm text-amud-primary hover:bg-amud-surface-container-low"
@@ -430,20 +441,21 @@ export default function AmudCommercialEntrepriseDetailPage() {
                         {STATUT_STYLE[r.statut].label}
                       </span>
                     </div>
-                    <p className="mt-1 text-label-sm text-amud-on-surface-variant">
-                      {r.detail.date} · {r.detail.type}
+                    <p className="mt-1 flex items-center gap-1 text-label-sm text-amud-on-surface-variant">
+                      <span className="material-symbols-outlined text-[16px]">{RDV_TYPE_ICON[r.type]}</span>
+                      {fullDayLabel(new Date(`${r.date}T00:00:00`))} · {r.debut}-{r.fin} · {r.type}
                     </p>
-                    <p className="mt-1 text-label-sm text-amud-on-surface-variant">{r.detail.objectif}</p>
+                    <p className="mt-1 text-label-sm text-amud-on-surface-variant">{r.objectif}</p>
                   </div>
                   <div className="flex shrink-0 flex-wrap gap-xs">
-                    <button onClick={() => notify('Modification du rendez-vous (à venir).', 'info')} className="rounded-lg border border-amud-outline-variant px-3 py-1.5 text-label-sm text-amud-on-surface-variant hover:bg-amud-surface-container-low">
+                    <Link href="/amud/commercial/rendez-vous" className="rounded-lg border border-amud-outline-variant px-3 py-1.5 text-label-sm text-amud-on-surface-variant hover:bg-amud-surface-container-low">
                       Modifier
-                    </button>
+                    </Link>
                     {r.statut !== 'termine' && r.statut !== 'annule' ? (
                       <>
                         <button
                           onClick={() => {
-                            setRdvOverrides((prev) => ({ ...prev, [r.id]: 'reporte' }));
+                            persistRdvs(rdvsAll.map((x) => (x.id === r.id ? { ...x, statut: 'reporte' } : x)));
                             notify('Rendez-vous reporté.');
                           }}
                           className="rounded-lg border border-amud-outline-variant px-3 py-1.5 text-label-sm text-amud-on-surface-variant hover:bg-amud-surface-container-low"
@@ -452,7 +464,7 @@ export default function AmudCommercialEntrepriseDetailPage() {
                         </button>
                         <button
                           onClick={() => {
-                            setRdvOverrides((prev) => ({ ...prev, [r.id]: 'annule' }));
+                            persistRdvs(rdvsAll.map((x) => (x.id === r.id ? { ...x, statut: 'annule' } : x)));
                             notify('Rendez-vous annulé.', 'info');
                           }}
                           className="rounded-lg border border-amud-outline-variant px-3 py-1.5 text-label-sm text-amud-error hover:bg-amud-surface-container-low"
@@ -461,7 +473,7 @@ export default function AmudCommercialEntrepriseDetailPage() {
                         </button>
                         <button
                           onClick={() => {
-                            setRdvOverrides((prev) => ({ ...prev, [r.id]: 'termine' }));
+                            persistRdvs(rdvsAll.map((x) => (x.id === r.id ? { ...x, statut: 'termine' } : x)));
                             logActivite({ type: 'Rendez-vous', contact: r.nom, resultat: 'Positif', resume: `Rendez-vous avec ${r.nom} terminé.`, prochaineAction: 'Faire le compte-rendu', rdvId: r.id });
                             notify('Rendez-vous marqué terminé.');
                           }}
@@ -509,11 +521,11 @@ export default function AmudCommercialEntrepriseDetailPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-xs">
-                        <button onClick={() => notify(`Fiche « ${o.titre} » (aperçu à venir).`, 'info')} className="text-label-sm text-amud-primary hover:underline">
+                        <button onClick={() => router.push(`/amud/admin/offres?q=${encodeURIComponent(o.titre)}`)} className="text-label-sm text-amud-primary hover:underline">
                           Voir l&apos;offre
                         </button>
                         <span className="text-amud-outline-variant">·</span>
-                        <button onClick={() => notify(`${o.candidatures ?? 0} candidature(s) pour « ${o.titre} ».`, 'info')} className="text-label-sm text-amud-primary hover:underline">
+                        <button onClick={() => router.push(`/amud/admin/candidatures?q=${encodeURIComponent(o.titre)}`)} className="text-label-sm text-amud-primary hover:underline">
                           Voir les candidatures
                         </button>
                       </div>
@@ -587,8 +599,7 @@ export default function AmudCommercialEntrepriseDetailPage() {
             echeance: input.echeance || todayFr(),
             statut: 'À faire',
           };
-          addLocalTache(tache);
-          setTaches((prev) => [tache, ...prev]);
+          addTache(tache);
           notify('Tâche créée.');
           setTacheModalOpen(false);
         }}
@@ -604,18 +615,20 @@ export default function AmudCommercialEntrepriseDetailPage() {
           const rdv: Rdv = {
             id: `rdv-${Date.now()}`,
             entrepriseId: e.id,
-            jour: 0,
-            top: 0,
-            height: 58,
-            hourRow: 0,
+            date: input.date,
+            debut: input.heure,
+            fin: minutesToTime(timeToMinutes(input.heure) + 60),
             nom: input.contact,
             entreprise: e.nom,
             statut: 'programme',
-            horaire: input.heure,
-            detail: { date: `${input.date} ${input.heure}`, type: 'Sur site', objectif: input.objectif, notes: [] },
+            type: 'Sur site',
+            objectif: input.objectif,
+            notes: [],
           };
-          setRdvsExtra((prev) => [rdv, ...prev]);
+          persistRdvs([...rdvsAll, rdv]);
           logActivite({ type: 'Rendez-vous', contact: input.contact, resultat: 'En cours', resume: `Rendez-vous planifié : ${input.objectif}`, prochaineAction: `Rendez-vous le ${input.date} à ${input.heure}`, rdvId: rdv.id });
+          logAudit({ utilisateur: CURRENT_COMMERCIAL.nom, role: 'Commercial', action: 'Rendez-vous créé', actionType: 'create', module: 'CRM', reference: `${input.contact} — ${e.nom} (#${rdv.id})` });
+          pushNotification({ scope: 'commercial', title: `Rendez-vous planifié avec ${input.contact} (${e.nom}).`, category: 'Rendez-vous', href: `/amud/commercial/entreprises/${e.id}` });
           notify('Rendez-vous planifié.');
           setRdvModalOpen(false);
         }}
@@ -631,6 +644,23 @@ export default function AmudCommercialEntrepriseDetailPage() {
           }}
         />
       </Modal>
+
+      {/* ------------------------------------------------------------ Modal: Ajouter/Modifier un contact d'entreprise */}
+      <CompanyContactModal
+        open={contactModalOpen}
+        onClose={() => setContactModalOpen(false)}
+        contact={editingContact}
+        onSubmit={(input) => {
+          if (editingContact) {
+            updateCompanyContact(editingContact.id, input);
+            notify('Contact mis à jour.');
+          } else {
+            addCompanyContact({ id: generateId('contact-ent'), entrepriseId: e.id, dernierContact: todayFr(), commercialResponsable: CURRENT_COMMERCIAL.nom, ...input });
+            notify('Contact ajouté.');
+          }
+          setContactModalOpen(false);
+        }}
+      />
     </div>
   );
 }
@@ -1069,7 +1099,7 @@ function RdvModal({
         </div>
         <div>
           <label className="mb-1 block text-label-md text-amud-on-surface-variant">Date</label>
-          <input value={date} onChange={(e) => setDate(e.target.value)} required placeholder="jj/mm/aaaa" className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary" />
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary" />
         </div>
         <div>
           <label className="mb-1 block text-label-md text-amud-on-surface-variant">Heure</label>
@@ -1078,6 +1108,84 @@ function RdvModal({
         <div className="sm:col-span-2">
           <label className="mb-1 block text-label-md text-amud-on-surface-variant">Objectif</label>
           <textarea value={objectif} onChange={(e) => setObjectif(e.target.value)} required rows={2} className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary" />
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
+function CompanyContactModal({
+  open,
+  onClose,
+  contact,
+  onSubmit,
+}: {
+  open: boolean;
+  onClose: () => void;
+  contact: ContactEntreprise | null;
+  onSubmit: (input: { nom: string; poste: string; telephone: string; email: string; statut: StatutContact }) => void;
+}) {
+  const [nom, setNom] = useState(contact?.nom ?? '');
+  const [poste, setPoste] = useState(contact?.poste ?? '');
+  const [telephone, setTelephone] = useState(contact?.telephone ?? '');
+  const [email, setEmail] = useState(contact?.email ?? '');
+  const [statut, setStatut] = useState<StatutContact>(contact?.statut ?? 'Actif');
+
+  useEffect(() => {
+    if (!open) return;
+    setNom(contact?.nom ?? '');
+    setPoste(contact?.poste ?? '');
+    setTelephone(contact?.telephone ?? '');
+    setEmail(contact?.email ?? '');
+    setStatut(contact?.statut ?? 'Actif');
+  }, [open, contact]);
+
+  function submit(ev: React.FormEvent) {
+    ev.preventDefault();
+    if (!nom.trim()) return;
+    onSubmit({ nom: nom.trim(), poste: poste.trim(), telephone: telephone.trim(), email: email.trim(), statut });
+  }
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={contact ? 'Modifier le contact' : 'Ajouter un contact'}
+      footer={
+        <div className="flex justify-end gap-sm">
+          <button type="button" onClick={onClose} className="rounded-lg border border-amud-outline-variant px-lg py-2 text-label-md text-amud-on-surface hover:bg-amud-surface-container-low">
+            Annuler
+          </button>
+          <button type="submit" form="company-contact-form" className="rounded-lg bg-amud-primary px-lg py-2 text-label-md font-medium text-white hover:bg-amud-primary-dark">
+            {contact ? 'Enregistrer' : 'Ajouter'}
+          </button>
+        </div>
+      }
+    >
+      <form id="company-contact-form" onSubmit={submit} className="grid grid-cols-1 gap-md sm:grid-cols-2">
+        <div className="sm:col-span-2">
+          <label className="mb-1 block text-label-md text-amud-on-surface-variant">Nom</label>
+          <input autoFocus value={nom} onChange={(e) => setNom(e.target.value)} required className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary" />
+        </div>
+        <div>
+          <label className="mb-1 block text-label-md text-amud-on-surface-variant">Poste</label>
+          <input value={poste} onChange={(e) => setPoste(e.target.value)} className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary" />
+        </div>
+        <div>
+          <label className="mb-1 block text-label-md text-amud-on-surface-variant">Statut</label>
+          <select value={statut} onChange={(e) => setStatut(e.target.value as StatutContact)} className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary">
+            <option>Actif</option>
+            <option>À relancer</option>
+            <option>Inactif</option>
+          </select>
+        </div>
+        <div>
+          <label className="mb-1 block text-label-md text-amud-on-surface-variant">Téléphone</label>
+          <input value={telephone} onChange={(e) => setTelephone(e.target.value)} className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary" />
+        </div>
+        <div>
+          <label className="mb-1 block text-label-md text-amud-on-surface-variant">Email</label>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary" />
         </div>
       </form>
     </Modal>

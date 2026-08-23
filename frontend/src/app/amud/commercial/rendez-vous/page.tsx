@@ -5,7 +5,9 @@ import { Drawer, Modal } from '@/components/amud/ui';
 import { useToast } from '@/components/amud/Toast';
 import { STATUTS, STATUT_STYLE, TYPES, TYPE_ICON, buildSeedRdvs, type Rdv, type StatutRdv, type TypeRdv } from '@/data/amud/commercialRdv';
 import { entreprisesSeed } from '@/data/amud/entreprises';
-import { loadLocalRendezVous, saveLocalRendezVous } from '@/lib/amud/localRendezVous';
+import { entreprisesCollection } from '@/lib/amud/localEntreprises';
+import { useCollection } from '@/lib/amud/storage/useCollection';
+import { rendezVousCollection } from '@/lib/amud/localRendezVous';
 import { addDays, dayLabel, fullDayLabel, getMonday, isoDate, minutesToTime, sameDay, timeToMinutes, weekLabel } from '@/lib/amud/weekDates';
 
 const HEURES = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
@@ -112,7 +114,8 @@ function formFromRdv(rdv: Rdv): FormState {
 
 export default function AmudCommercialRendezVousPage() {
   const notify = useToast();
-  const [rdvs, setRdvs] = useState<Rdv[]>(() => loadLocalRendezVous() ?? buildSeedRdvs());
+  const [rdvs, { replace: replaceRdvs }] = useCollection(rendezVousCollection, buildSeedRdvs());
+  const [entreprises] = useCollection(entreprisesCollection, entreprisesSeed);
   const [weekOffset, setWeekOffset] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -134,8 +137,7 @@ export default function AmudCommercialRendezVousPage() {
   const selected = rdvs.find((r) => r.id === selectedId) ?? null;
 
   function persist(next: Rdv[]) {
-    setRdvs(next);
-    saveLocalRendezVous(next);
+    replaceRdvs(next);
   }
 
   function selectRdv(id: string) {
@@ -206,7 +208,7 @@ export default function AmudCommercialRendezVousPage() {
 
   function onEntrepriseLinkChange(id: string) {
     if (!modal) return;
-    const match = entreprisesSeed.find((e) => e.id === id);
+    const match = entreprises.find((e) => e.id === id);
     setModal({ ...modal, form: { ...modal.form, entrepriseId: id, entreprise: match ? match.nom : modal.form.entreprise } });
   }
 
@@ -435,7 +437,7 @@ export default function AmudCommercialRendezVousPage() {
                 className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
               >
                 <option value="">Aucune fiche liée</option>
-                {entreprisesSeed.map((e) => (
+                {entreprises.map((e) => (
                   <option key={e.id} value={e.id}>
                     {e.nom}
                   </option>

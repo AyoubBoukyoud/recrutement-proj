@@ -1,3 +1,5 @@
+'use client';
+
 /*
  * Le kit d'interface de l'espace ops, écrit avec les tokens partagés de
  * packages/design-tokens : même vert sarcelle, même or, même Inter que
@@ -6,9 +8,19 @@
  *
  * L'API exportée est inchangée depuis la version CSS : les pages n'ont pas
  * à bouger.
+ *
+ * `'use client'` depuis l'ajout de `DropdownMenu` (useState/useRef/useEffect)
+ * — dès qu'un seul export a besoin de hooks, tout le module doit franchir la
+ * frontière client, y compris les composants purement présentationnels
+ * (`Card`, `SectionHeader`…) qu'une page serveur comme `admin/[...slug]`
+ * importe seule : Next rend alors ce sous-arbre côté client, ce qui reste
+ * correct pour un fragment aussi statique.
  */
 import {
   Fragment,
+  useEffect,
+  useRef,
+  useState,
   type ButtonHTMLAttributes,
   type InputHTMLAttributes,
   type ReactNode,
@@ -276,6 +288,227 @@ export function StepLedger({ step, total, label }: { step: number; total: number
       {label && (
         <Eyebrow>{`Step ${String(step + 1).padStart(2, '0')} of ${String(total).padStart(2, '0')} · ${label}`}</Eyebrow>
       )}
+    </div>
+  )
+}
+
+/**
+ * Superposition centrée pour un formulaire court ou une confirmation — le kit
+ * n'avait ni Modal ni Drawer avant le module Candidats/Recruteurs. `Drawer`
+ * n'existe que dans le kit maquette `/amud` ; celui-ci vit dans les vrais
+ * tokens (`surface`, `outline`…) pour rester natif à la console réelle.
+ */
+export function Modal({
+  open,
+  onClose,
+  title,
+  children,
+}: {
+  open: boolean
+  onClose: () => void
+  title: string
+  children: ReactNode
+}) {
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col items-center bg-on-surface/40 p-4" onClick={onClose}>
+      <div className="grow-[3]" aria-hidden="true" />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-card border border-outline-variant bg-surface-lowest p-6 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <h2 className="subtitle">{title}</h2>
+          <button
+            onClick={onClose}
+            aria-label="Fermer"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-element text-on-surface-variant hover:bg-surface-container"
+          >
+            ✕
+          </button>
+        </div>
+        {children}
+      </div>
+      <div className="grow-[17]" aria-hidden="true" />
+    </div>
+  )
+}
+
+/**
+ * Onglets contrôlés par le parent, sans état interne — pour qu'une page
+ * puisse garder l'onglet actif dans l'URL (`?tab=`) si elle le souhaite,
+ * comme `CandidatesPanel` le fait déjà pour `status`.
+ */
+export function Tabs({
+  tabs,
+  active,
+  onChange,
+}: {
+  tabs: { key: string; label: string }[]
+  active: string
+  onChange: (key: string) => void
+}) {
+  return (
+    <div className="-mx-6 mb-6 overflow-x-auto border-b border-outline-variant px-6">
+      <div className="flex gap-1">
+        {tabs.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => onChange(tab.key)}
+            className={cx(
+              'shrink-0 whitespace-nowrap border-b-2 px-3 py-2.5 text-[13px] font-semibold transition-colors',
+              active === tab.key
+                ? 'border-primary text-primary'
+                : 'border-transparent text-on-surface-variant hover:text-on-surface'
+            )}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/** Case à cocher de ligne ou d'en-tête (avec état indéterminé pour « tout sélectionner »). */
+export function Checkbox({
+  checked,
+  indeterminate,
+  onChange,
+  label,
+}: {
+  checked: boolean
+  indeterminate?: boolean
+  onChange: (checked: boolean) => void
+  label: string
+}) {
+  return (
+    <input
+      type="checkbox"
+      checked={checked}
+      aria-label={label}
+      ref={(el) => {
+        if (el) el.indeterminate = Boolean(indeterminate)
+      }}
+      onChange={(e) => onChange(e.target.checked)}
+      className="h-4 w-4 shrink-0 cursor-pointer rounded border-outline text-primary focus:ring-2 focus:ring-primary/20"
+    />
+  )
+}
+
+/**
+ * Menu d'actions contextuel (⋮) pour une ligne de table. Ferme au clic
+ * extérieur ou à Échap ; les actions dangereuses restent la confirmation de
+ * l'appelant (même patron inline déjà utilisé dans CandidatesPanel), ce menu
+ * ne fait que les marquer visuellement via `tone: 'danger'`.
+ */
+export function DropdownMenu({
+  label = 'Actions',
+  items,
+}: {
+  label?: string
+  items: { label: string; onClick: () => void; tone?: 'default' | 'danger'; disabled?: boolean }[]
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+
+    const onClickOutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    const onEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false)
+    }
+
+    document.addEventListener('mousedown', onClickOutside)
+    document.addEventListener('keydown', onEscape)
+    return () => {
+      document.removeEventListener('mousedown', onClickOutside)
+      document.removeEventListener('keydown', onEscape)
+    }
+  }, [open])
+
+  return (
+    <div className="relative inline-block" ref={ref}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        aria-label={label}
+        aria-expanded={open}
+        className="inline-flex h-8 w-8 items-center justify-center rounded-element border border-outline-variant bg-surface-lowest text-on-surface-variant transition-colors hover:border-primary hover:text-primary"
+      >
+        ⋮
+      </button>
+      {open && (
+        <div className="absolute right-0 z-40 mt-1 w-56 overflow-hidden rounded-element border border-outline-variant bg-surface-lowest py-1 shadow-lg">
+          {items.map((item) => (
+            <button
+              key={item.label}
+              disabled={item.disabled}
+              onClick={() => {
+                setOpen(false)
+                item.onClick()
+              }}
+              className={cx(
+                'block w-full px-3.5 py-2 text-left text-[13px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+                item.tone === 'danger'
+                  ? 'text-error hover:bg-error-light'
+                  : 'text-on-surface hover:bg-surface-container'
+              )}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** Barre flottante d'actions groupées, affichée quand des lignes sont sélectionnées. */
+export function BulkActionBar({
+  count,
+  actions,
+  onClear,
+  noun = 'sélectionné',
+}: {
+  count: number
+  actions: { label: string; onClick: () => void; tone?: 'default' | 'danger'; disabled?: boolean }[]
+  onClear: () => void
+  noun?: string
+}) {
+  if (count === 0) return null
+
+  return (
+    <div className="sticky bottom-4 z-30 flex flex-wrap items-center gap-3 rounded-element border border-outline-variant bg-surface-lowest px-4 py-3 shadow-lg">
+      <span className="text-[13px] font-semibold text-on-surface">
+        {count} {noun}
+        {count > 1 ? 's' : ''}
+      </span>
+      <div className="flex flex-wrap gap-2">
+        {actions.map((action) => (
+          <Button
+            key={action.label}
+            size="compact"
+            variant={action.tone === 'danger' ? 'danger' : 'ghost'}
+            disabled={action.disabled}
+            onClick={action.onClick}
+          >
+            {action.label}
+          </Button>
+        ))}
+      </div>
+      <button
+        onClick={onClear}
+        className="ml-auto text-[13px] font-medium text-on-surface-variant hover:text-on-surface"
+      >
+        Annuler
+      </button>
     </div>
   )
 }

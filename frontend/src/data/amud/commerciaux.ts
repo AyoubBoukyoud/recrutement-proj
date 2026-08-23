@@ -31,6 +31,8 @@ export type Commercial = {
   conversionsMois: number;
   objectifConversionsMois: number;
   tauxConversion: number;
+  /** Absent = actif par défaut (tous les commerciaux du seed le sont) ; permet au bouton "Désactiver/Réactiver" du profil de persister un état qui n'existait auparavant nulle part. */
+  actif?: boolean;
 };
 
 export const commerciaux: Commercial[] = [

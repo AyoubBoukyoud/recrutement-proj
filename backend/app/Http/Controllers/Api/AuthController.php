@@ -30,7 +30,19 @@ class AuthController extends Controller
             'phone.regex' => 'Enter your number in international format, for example +212600000000.',
         ]);
 
-        $user = User::firstOrCreate(['phone' => $data['phone']]);
+        // `status` is passed explicitly rather than left to the column's DB
+        // default: on the create path, the in-memory model returned here
+        // would otherwise carry `status === null` until a fresh SELECT — and
+        // the isActive() check right below reads this same in-memory object,
+        // so every brand-new candidate would be rejected on their first ever
+        // OTP request.
+        $user = User::firstOrCreate(['phone' => $data['phone']], ['status' => 'active']);
+
+        // Blocked/deactivated accounts don't even get an OTP: no point paying
+        // to send one to a number that can't reach `verifyOtp` anyway.
+        if (! $user->isActive()) {
+            return response()->json(['message' => 'This account cannot sign in.'], 403);
+        }
 
         if (! $user->hasAnyRole(['User', 'Administrator', 'Commercial Agent', 'Company'])) {
             $user->assignRole('User');
@@ -74,6 +86,12 @@ class AuthController extends Controller
 
         if (! $user) {
             return response()->json(['message' => 'Invalid or expired code.'], 422);
+        }
+
+        // Re-checked here, not only at requestOtp: an admin can block an
+        // account in the window between a code being sent and being typed in.
+        if (! $user->isActive()) {
+            return response()->json(['message' => 'This account cannot sign in.'], 403);
         }
 
         $user->forceFill(['phone_verified_at' => Carbon::now()])->save();

@@ -1,40 +1,30 @@
 'use client';
 
+import { createCollection } from './storage/collection';
+import { AMUD_KEYS } from './storage/keys';
 import type { Tache } from '@/data/amud/commercialTaches';
 
-/** Persistance légère (localStorage) des tâches ajoutées/modifiées depuis `/amud/commercial/*`. */
-const KEY = 'amud:commercial:taches:extra';
-const OVERRIDES_KEY = 'amud:commercial:taches:overrides';
+/**
+ * Wrapper de compatibilité au-dessus de la collection centralisée
+ * `AMUD_KEYS.tasks`. Remplace le double système "extras + patch-map
+ * d'overrides" par une seule collection : éditer une tâche du seed
+ * fonctionne maintenant exactement comme éditer une tâche ajoutée, via
+ * `updateLocalTache`.
+ */
+export const tachesCollection = createCollection<Tache>(AMUD_KEYS.tasks);
 
 export function loadLocalTaches(): Tache[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const raw = window.localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as Tache[]) : [];
-  } catch {
-    return [];
-  }
+  return tachesCollection.getAll();
 }
 
 export function addLocalTache(t: Tache) {
-  if (typeof window === 'undefined') return;
-  const current = loadLocalTaches();
-  window.localStorage.setItem(KEY, JSON.stringify([t, ...current]));
+  tachesCollection.add(t);
 }
 
-/** Sur-couche { id: Partial<Tache> } pour les modifications d'une tâche du seed (statut, échéance…) sans dupliquer l'enregistrement. */
-export function loadLocalOverrides(): Record<string, Partial<Tache>> {
-  if (typeof window === 'undefined') return {};
-  try {
-    const raw = window.localStorage.getItem(OVERRIDES_KEY);
-    return raw ? (JSON.parse(raw) as Record<string, Partial<Tache>>) : {};
-  } catch {
-    return {};
-  }
+export function updateLocalTache(id: string, patch: Partial<Tache>) {
+  return tachesCollection.update(id, patch);
 }
 
-export function setLocalOverride(id: string, patch: Partial<Tache>) {
-  if (typeof window === 'undefined') return;
-  const current = loadLocalOverrides();
-  window.localStorage.setItem(OVERRIDES_KEY, JSON.stringify({ ...current, [id]: { ...current[id], ...patch } }));
+export function removeLocalTache(id: string) {
+  tachesCollection.remove(id);
 }

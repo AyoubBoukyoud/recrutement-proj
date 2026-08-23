@@ -1,12 +1,23 @@
 'use client';
 
 import { useState } from 'react';
-import { Toggle } from '@/components/amud/ui';
+import { ConfirmDialog, Toggle } from '@/components/amud/ui';
 import { useToast } from '@/components/amud/Toast';
+import { objectivesSeed } from '@/data/amud/objectives';
+import { objectivesCollection } from '@/lib/amud/localObjectives';
+import { useCollection } from '@/lib/amud/storage/useCollection';
+import { resetAmudDemoData } from '@/lib/amud/storage/init';
+
+function average(values: number[]): number {
+  if (values.length === 0) return 0;
+  return Math.round(values.reduce((s, v) => s + v, 0) / values.length);
+}
 
 /** `/amud/admin/parametres` — doc1: configuration_syst_me_param_tres_g_n_raux.html. */
 export default function AmudAdminParametresPage() {
   const notify = useToast();
+  const [objectives, { update: updateObjective }] = useCollection(objectivesCollection, objectivesSeed);
+  const [confirmResetOpen, setConfirmResetOpen] = useState(false);
   const [nomPlateforme, setNomPlateforme] = useState('Amud Skills');
   const [email, setEmail] = useState('admin@amudskills.com');
   const [telephone, setTelephone] = useState('');
@@ -19,7 +30,7 @@ export default function AmudAdminParametresPage() {
   const [expirationJours, setExpirationJours] = useState(30);
   const [sensibiliteMatching, setSensibiliteMatching] = useState(75);
 
-  const [objectifsAppels, setObjectifsAppels] = useState(40);
+  const [objectifsAppels, setObjectifsAppels] = useState(() => average(objectivesSeed.map((o) => o.appelsJour)));
   const [dureeRelance, setDureeRelance] = useState('3 jours');
   const [typesActivites, setTypesActivites] = useState(['Appel', 'Email', 'Réunion']);
   const [nouvelleActivite, setNouvelleActivite] = useState('');
@@ -71,7 +82,7 @@ export default function AmudAdminParametresPage() {
               <div>
                 <label className="mb-2 block text-label-md text-amud-on-surface">Logo Principal</label>
                 <div className="flex items-center gap-4">
-                  <div className="flex h-16 w-16 items-center justify-center rounded border border-amud-outline-variant bg-amud-surface-container-low p-2">
+                  <div className="flex h-16 w-16 items-center justify-center rounded border border-amud-outline-variant bg-transparent p-2">
                     <img src="/assets/images/logo-mark.png" alt="Logo Amud Skills" className="h-full w-full object-contain" />
                   </div>
                   <button className="rounded-lg border border-amud-outline-variant px-4 py-2 text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
@@ -324,15 +335,53 @@ export default function AmudAdminParametresPage() {
         </div>
       </section>
 
+      {/* SECTION 5 */}
+      <section className="overflow-hidden rounded-xl border border-amud-error/40 bg-amud-surface-container-lowest shadow-sm">
+        <div className="border-b border-amud-error/40 bg-amud-error-container/20 p-lg">
+          <h3 className="flex items-center gap-sm text-title-lg text-amud-on-surface">
+            <span className="material-symbols-outlined text-amud-error">restart_alt</span>
+            Zone de développement
+          </h3>
+          <p className="mt-1 text-sm text-amud-on-surface-variant">Outils de démonstration — n&apos;affectent que les données stockées dans ce navigateur.</p>
+        </div>
+        <div className="flex flex-col items-start justify-between gap-md p-lg sm:flex-row sm:items-center">
+          <div>
+            <p className="text-label-md text-amud-on-surface">Réinitialiser les données de démonstration</p>
+            <p className="text-sm text-amud-on-surface-variant">Efface toutes les données créées dans ce navigateur et régénère le jeu de données initial.</p>
+          </div>
+          <button
+            onClick={() => setConfirmResetOpen(true)}
+            className="flex shrink-0 items-center gap-xs rounded-lg border border-amud-error px-md py-sm text-label-md font-medium text-amud-error transition-colors hover:bg-amud-error-container/20"
+          >
+            <span className="material-symbols-outlined text-[18px]">restart_alt</span> Réinitialiser
+          </button>
+        </div>
+      </section>
+
       <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex flex-wrap justify-end gap-md bg-gradient-to-t from-amud-surface to-transparent p-6 pb-[max(24px,env(safe-area-inset-bottom))] md:left-64">
         <button
-          onClick={() => notify('Modifications enregistrées.')}
+          onClick={() => {
+            for (const o of objectives) updateObjective(o.id, { appelsJour: objectifsAppels });
+            notify('Modifications enregistrées.');
+          }}
           className="pointer-events-auto flex items-center gap-sm rounded-lg bg-amud-primary px-6 py-3 font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-amud-primary-dark hover:shadow-xl"
         >
           <span className="material-symbols-outlined">save</span>
           <span className="text-label-md font-bold">Enregistrer les modifications</span>
         </button>
       </div>
+
+      <ConfirmDialog
+        open={confirmResetOpen}
+        onClose={() => setConfirmResetOpen(false)}
+        onConfirm={() => {
+          resetAmudDemoData();
+          notify('Données de démonstration réinitialisées.', 'info');
+        }}
+        title="Réinitialiser les données de démonstration ?"
+        description="Toutes les données créées ou modifiées dans ce navigateur seront perdues et remplacées par le jeu de données initial. Cette action est irréversible."
+        confirmLabel="Réinitialiser"
+      />
     </div>
   );
 }

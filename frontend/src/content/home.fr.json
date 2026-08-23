@@ -2,8 +2,8 @@
   "_note": "Contenu de la page d'accueil publique. Aucune chaîne ne doit être codée en dur dans les composants (plan §6). Règle §7.3 : aucun chiffre, logo ou témoignage non vérifié.",
   "nav": {
     "links": [
-      { "label": "Métiers", "href": "/#sectors" },
-      { "label": "Comment ça marche", "href": "/#methodology" },
+      { "label": "Métiers", "href": "/accueil-public#sectors" },
+      { "label": "Comment ça marche", "href": "/accueil-public#methodology" },
       { "label": "Recruteurs", "href": "/employeurs" }
     ],
     "signIn": "J'ai déjà un dossier",
@@ -210,8 +210,8 @@
         "title": "Candidats",
         "links": [
           { "label": "Créer mon dossier", "href": "/auth-phone" },
-          { "label": "Les métiers qui recrutent", "href": "/#sectors" },
-          { "label": "Comment ça marche", "href": "/#methodology" }
+          { "label": "Les métiers qui recrutent", "href": "/accueil-public#sectors" },
+          { "label": "Comment ça marche", "href": "/accueil-public#methodology" }
         ]
       },
       {
@@ -246,6 +246,63 @@
     "ctaTitle": "Commencez votre dossier pour ce métier",
     "ctaBody": "Ajoutez votre CV : il est lu automatiquement et remplit la majorité des champs.",
     "othersTitle": "Autres métiers"
+  },
+  "product": {
+    "hero": {
+      "badge": "Marketplace en temps réel",
+      "headline": ["Matching en temps réel :", "Vos futurs talents sont déjà sur Amud Skills."],
+      "subheadline": "Une expérience de mise en relation fluide, façon Tinder, connectant les professionnels marocains aux opportunités allemandes. Mobile d'abord, gratuit pour les candidats, et ultra-rapide.",
+      "ctaPrimary": "Trouver des talents",
+      "ctaSecondary": "Rejoindre en tant que candidat",
+      "card": {
+        "matchTitle": "Match trouvé !",
+        "matchSubtitle": "Développeur Senior, Berlin"
+      },
+      "imageAlt1": "Profil vidéo d'un candidat marocain sur l'application mobile.",
+      "imageAlt2": "Interface de matching façon Tinder entre un candidat et une offre allemande."
+    },
+    "features": {
+      "title": "Un parcours simplifié",
+      "subtitle": "Notre technologie absorbe la friction pour que vous puissiez vous concentrer sur la connexion. Entièrement automatisé, mobile d'abord, et pensé pour la vitesse.",
+      "items": {
+        "pitch": {
+          "title": "Le pitch de 45 secondes",
+          "body": "Fini la lettre de motivation. Les candidats se présentent via de courts profils vidéo structurés. Authenticité et compétences de communication d'emblée.",
+          "imageAlt": "Représentation abstraite d'un enregistrement vidéo sur mobile."
+        },
+        "zeroCost": {
+          "title": "Gratuit pour les candidats",
+          "body": "Démocratiser l'opportunité. Nous supprimons les barrières financières pour garantir l'accès aux meilleurs talents, quel que soit leur parcours."
+        },
+        "ocr": {
+          "title": "OCR intelligent",
+          "body": "Vérification instantanée des documents et extraction de données. Des cartes d'identité aux certifications, traités en millisecondes avec la précision allemande."
+        },
+        "tracking": {
+          "title": "Suivi en temps réel",
+          "body": "Candidats et employeurs savent exactement où ils en sont. Progression transparente de la candidature à l'intégration via notre système de pont visuel."
+        }
+      }
+    },
+    "sectors": {
+      "title": "4 secteurs stratégiques",
+      "subtitle": "Un recrutement ciblé pour les secteurs clés de l'économie allemande.",
+      "items": {
+        "btp": { "title": "BTP & Ingénierie", "imageAlt": "Chantier de construction moderne en Allemagne, grues et structures métalliques." },
+        "sante": { "title": "Santé", "subtitle": "Professionnels de santé" },
+        "logistique": { "title": "Logistique", "subtitle": "Experts logistique" },
+        "gastro": { "title": "Gastronomie", "imageAlt": "Cuisine professionnelle allemande haut de gamme, chefs au travail." }
+      }
+    },
+    "methodology": {
+      "title": "Un pipeline de précision vérifié par IA",
+      "subtitle": "Notre méthodologie propriétaire « Bridge » garantit que chaque candidat répond aux standards allemands stricts avant présentation.",
+      "steps": [
+        { "title": "Sourcing et présélection", "desc": "Approche ciblée au sein du vivier de talents marocain." },
+        { "title": "Vérification par IA", "desc": "Évaluation automatisée des compétences et du niveau de langue." },
+        { "title": "Alignement culturel", "desc": "Formation à l'intégration en entreprise allemande." }
+      ]
+    }
   },
   "mobileBar": {
     "cta": "Créer mon dossier"

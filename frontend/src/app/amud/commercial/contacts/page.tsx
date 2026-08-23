@@ -1,36 +1,15 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
-
-type TypeContact = 'Candidat' | 'Recruteur' | 'Entreprise';
-type Priorite = 'Haute' | 'Normale' | 'Basse';
-type Resultat = 'Positif' | 'À relancer' | 'Sans suite';
-
-type Contact = {
-  id: string;
-  nom: string;
-  poste: string;
-  type: TypeContact;
-  telephone: string;
-  ville: string;
-  dernierContact: string;
-  resultat: Resultat;
-  resultatDate: string;
-  prochaineAction: string;
-  prochaineDate: string;
-  priorite: Priorite;
-  aRappeler: boolean;
-};
-
-const SEED: Contact[] = [
-  { id: 'c1', nom: 'Thomas Dubois', poste: 'Développeur Full-Stack', type: 'Candidat', telephone: '06 12 34 56 78', ville: 'Paris', dernierContact: '12 Oct 2023, 14:30', resultat: 'Positif', resultatDate: 'Le 12 Oct (Appel)', prochaineAction: 'Envoyer CV au client', prochaineDate: "Aujourd'hui", priorite: 'Haute', aRappeler: false },
-  { id: 'c2', nom: 'Sophie Laurent', poste: 'Chef de Projet IT', type: 'Candidat', telephone: '06 98 76 54 32', ville: 'Lyon', dernierContact: '05 Oct 2023, 09:15', resultat: 'À relancer', resultatDate: 'Le 05 Oct (Email)', prochaineAction: 'Point téléphonique', prochaineDate: '15 Oct 2023', priorite: 'Normale', aRappeler: true },
-  { id: 'c3', nom: 'Léa Martin', poste: 'Data Analyst', type: 'Candidat', telephone: '06 45 67 89 01', ville: 'Nantes', dernierContact: '01 Oct 2023, 11:00', resultat: 'Sans suite', resultatDate: 'Le 01 Oct (Entretien)', prochaineAction: 'Aucune action prévue', prochaineDate: '', priorite: 'Basse', aRappeler: false },
-  { id: 'c4', nom: 'Youssef Amrani', poste: 'Ingénieur Cloud Senior', type: 'Candidat', telephone: '06 61 22 33 44', ville: 'Casablanca', dernierContact: '12 Oct 2023, 14:30', resultat: 'Positif', resultatDate: 'Le 12 Oct (Appel)', prochaineAction: 'Entretien technique', prochaineDate: 'Demain', priorite: 'Haute', aRappeler: true },
-  { id: 'c5', nom: 'Nadia Mansouri', poste: 'UX Designer', type: 'Candidat', telephone: '06 65 88 99 00', ville: 'Marrakech', dernierContact: '10 Oct 2023, 09:15', resultat: 'À relancer', resultatDate: 'Le 10 Oct (Email)', prochaineAction: 'Relance portfolio', prochaineDate: '18 Oct 2023', priorite: 'Normale', aRappeler: true },
-  { id: 'c6', nom: 'Sophie Martin', poste: 'Recruteuse Senior', type: 'Recruteur', telephone: '06 11 22 33 44', ville: 'Casablanca', dernierContact: '11 Oct 2023, 10:00', resultat: 'Positif', resultatDate: 'Le 11 Oct (Appel)', prochaineAction: 'Envoyer short-list', prochaineDate: 'Demain', priorite: 'Haute', aRappeler: false },
-  { id: 'c7', nom: 'BuildIt Construction', poste: 'Compte entreprise', type: 'Entreprise', telephone: '05 22 00 00 00', ville: 'Berlin', dernierContact: '08 Oct 2023, 16:00', resultat: 'À relancer', resultatDate: 'Le 08 Oct (Email)', prochaineAction: 'Point trimestriel', prochaineDate: '20 Oct 2023', priorite: 'Normale', aRappeler: false },
-];
+import { useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Drawer, Modal, Toggle } from '@/components/amud/ui';
+import { useToast } from '@/components/amud/Toast';
+import { mesContactsCollection } from '@/lib/amud/localMesContacts';
+import { useCollection } from '@/lib/amud/storage/useCollection';
+import { generateId } from '@/lib/amud/storage/ids';
+import { createCallTicket } from '@/lib/amud/callTicketCascade';
+import { CURRENT_COMMERCIAL } from '@/data/amud/currentCommercial';
+import { mesContactsSeed, type Contact, type Priorite, type Resultat, type TypeContact } from '@/data/amud/mesContacts';
 
 const RESULTAT_CLASS: Record<Resultat, string> = {
   Positif: 'bg-amud-primary-container text-white',
@@ -46,17 +25,30 @@ const PRIORITE_ICON: Record<Priorite, string> = { Haute: 'keyboard_double_arrow_
 
 const TABS: TypeContact[] = ['Candidat', 'Recruteur', 'Entreprise'];
 
+function initiales(nom: string) {
+  return nom
+    .split(' ')
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join('');
+}
+
 export default function AmudCommercialContactsPage() {
-  const [contacts, setContacts] = useState(SEED);
+  const notify = useToast();
+  const searchParams = useSearchParams();
+  const [contacts, { update: updateContact, add: addContact }] = useCollection(mesContactsCollection, mesContactsSeed);
   const [tab, setTab] = useState<TypeContact>('Candidat');
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(() => searchParams.get('q') ?? '');
   const [onlyRappel, setOnlyRappel] = useState(false);
   const [onlyHaute, setOnlyHaute] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
+  const [profil, setProfil] = useState<Contact | null>(null);
+
   const [nouveauNom, setNouveauNom] = useState('');
+  const [nouveauPoste, setNouveauPoste] = useState('');
   const [nouveauTel, setNouveauTel] = useState('');
-  const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [nouveauVille, setNouveauVille] = useState('');
+  const [nouveauType, setNouveauType] = useState<TypeContact>('Candidat');
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -69,76 +61,95 @@ export default function AmudCommercialContactsPage() {
     );
   }, [contacts, tab, search, onlyRappel, onlyHaute]);
 
-  function notify(msg: string) {
-    setNotice(msg);
-    if (noticeTimer.current) clearTimeout(noticeTimer.current);
-    noticeTimer.current = setTimeout(() => setNotice(null), 2200);
+  function toggleRappel(id: string) {
+    const c = contacts.find((x) => x.id === id);
+    if (!c) return;
+    updateContact(id, { aRappeler: !c.aRappeler });
+    notify(c.aRappeler ? 'Rappel annulé.' : 'Rappel planifié.');
+    setProfil((p) => (p && p.id === id ? { ...p, aRappeler: !p.aRappeler } : p));
   }
 
-  function ajouterContact() {
+  function ajouterActivite(contact: Contact) {
+    createCallTicket({
+      commercialId: CURRENT_COMMERCIAL.id,
+      commercialNom: CURRENT_COMMERCIAL.nom,
+      contactId: contact.id,
+      contactNom: contact.nom,
+      contactType: 'Portefeuille',
+      entrepriseId: contact.entrepriseId,
+      durationSeconds: 0,
+      result: 'Répondu',
+      summary: `Note ajoutée depuis « Mes contacts » pour ${contact.nom}.`,
+      followUpRequired: false,
+    });
+    updateContact(contact.id, { dernierContact: new Date().toLocaleString('fr-FR') });
+    notify(`Activité ajoutée pour ${contact.nom}.`);
+  }
+
+  function appeler(contact: Contact) {
+    createCallTicket({
+      commercialId: CURRENT_COMMERCIAL.id,
+      commercialNom: CURRENT_COMMERCIAL.nom,
+      contactId: contact.id,
+      contactNom: contact.nom,
+      contactType: 'Portefeuille',
+      entrepriseId: contact.entrepriseId,
+      durationSeconds: 0,
+      result: 'Répondu',
+      summary: `Appel sortant vers ${contact.nom}.`,
+      followUpRequired: false,
+    });
+    updateContact(contact.id, { dernierContact: new Date().toLocaleString('fr-FR') });
+    notify(`Appel avec ${contact.nom} enregistré.`);
+  }
+
+  function openNouveau() {
+    setNouveauType(tab);
+    setFormOpen(true);
+  }
+
+  function ajouterContact(e: React.FormEvent) {
+    e.preventDefault();
     if (!nouveauNom.trim()) return;
-    setContacts((prev) => [
-      {
-        id: `c${Date.now()}`,
-        nom: nouveauNom,
-        poste: '—',
-        type: tab,
-        telephone: nouveauTel || '—',
-        ville: '—',
-        dernierContact: '—',
-        resultat: 'À relancer',
-        resultatDate: '—',
-        prochaineAction: 'Premier contact à planifier',
-        prochaineDate: '—',
-        priorite: 'Normale',
-        aRappeler: true,
-      },
-      ...prev,
-    ]);
+    const contact: Contact = {
+      id: generateId('contact'),
+      nom: nouveauNom.trim(),
+      poste: nouveauPoste.trim() || '—',
+      type: nouveauType,
+      telephone: nouveauTel.trim() || '—',
+      ville: nouveauVille.trim() || '—',
+      dernierContact: '—',
+      resultat: 'À relancer',
+      resultatDate: '—',
+      prochaineAction: 'Premier contact à planifier',
+      prochaineDate: '—',
+      priorite: 'Normale',
+      aRappeler: true,
+    };
+    addContact(contact);
     setNouveauNom('');
+    setNouveauPoste('');
     setNouveauTel('');
+    setNouveauVille('');
     setFormOpen(false);
     notify('Contact ajouté.');
   }
 
   return (
     <div>
-      {notice ? (
-        <div className="mb-md flex items-center gap-2 rounded-lg border border-amud-primary-fixed-dim bg-amud-primary-fixed p-md text-body-md text-amud-on-primary-fixed">
-          <span className="material-symbols-outlined">check_circle</span>
-          {notice}
-        </div>
-      ) : null}
-
       <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="m-0 text-headline-lg text-amud-on-background">Mes contacts</h2>
           <p className="mt-1 text-amud-on-surface-variant">Gérez et suivez l&apos;évolution de votre portefeuille.</p>
         </div>
         <button
-          onClick={() => setFormOpen((v) => !v)}
+          onClick={openNouveau}
           className="flex w-fit shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-amud-primary px-6 py-2.5 text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-container"
         >
           <span className="material-symbols-outlined text-[20px]">person_add</span>
           Nouveau contact
         </button>
       </div>
-
-      {formOpen ? (
-        <div className="mb-6 flex flex-col gap-3 rounded-lg border border-amud-outline-variant bg-amud-surface-container-lowest p-4 shadow-sm sm:flex-row sm:items-end">
-          <div className="flex-1">
-            <label htmlFor="contact-nouveau-nom" className="mb-1 block text-label-sm text-amud-on-surface-variant">Nom</label>
-            <input id="contact-nouveau-nom" value={nouveauNom} onChange={(e) => setNouveauNom(e.target.value)} className="w-full rounded-lg border border-amud-outline-variant px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary" />
-          </div>
-          <div className="flex-1">
-            <label htmlFor="contact-nouveau-tel" className="mb-1 block text-label-sm text-amud-on-surface-variant">Téléphone</label>
-            <input id="contact-nouveau-tel" value={nouveauTel} onChange={(e) => setNouveauTel(e.target.value)} className="w-full rounded-lg border border-amud-outline-variant px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary" />
-          </div>
-          <button onClick={ajouterContact} className="rounded-lg bg-amud-primary px-4 py-2 text-label-md font-medium text-white hover:bg-amud-primary-dark">
-            Ajouter
-          </button>
-        </div>
-      ) : null}
 
       <div className="flex flex-col gap-6">
         <div className="hide-scrollbar flex overflow-x-auto border-b border-amud-outline-variant">
@@ -188,21 +199,15 @@ export default function AmudCommercialContactsPage() {
 
         <div className="flex flex-col gap-3 lg:hidden">
           {filtered.map((c) => (
-            <div key={c.id} className="rounded-lg border border-amud-outline-variant bg-amud-surface-container-lowest p-4 shadow-sm">
+            <div key={c.id} className="animate-amud-rise-in rounded-lg border border-amud-outline-variant bg-amud-surface-container-lowest p-4 shadow-sm">
               <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amud-primary-container font-bold text-white">
-                    {c.nom
-                      .split(' ')
-                      .map((p) => p[0])
-                      .slice(0, 2)
-                      .join('')}
-                  </div>
+                <button onClick={() => setProfil(c)} className="flex items-center gap-3 text-left">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amud-primary-container font-bold text-white">{initiales(c.nom)}</div>
                   <div>
                     <p className="text-[16px] leading-tight text-amud-on-surface">{c.nom}</p>
                     <p className="mt-0.5 text-label-sm text-amud-on-surface-variant">{c.poste}</p>
                   </div>
-                </div>
+                </button>
                 <span className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${PRIORITE_CLASS[c.priorite]}`} title={c.priorite}>
                   <span className="material-symbols-outlined text-[16px]">{PRIORITE_ICON[c.priorite]}</span>
                 </span>
@@ -237,22 +242,19 @@ export default function AmudCommercialContactsPage() {
 
               <div className="mt-3 flex items-center gap-2 border-t border-amud-outline-variant/60 pt-3">
                 <button
-                  onClick={() => notify(`Appel vers ${c.nom} lancé.`)}
+                  onClick={() => appeler(c)}
                   className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-amud-outline-variant py-2 text-label-sm text-amud-primary transition-colors hover:bg-amud-surface-container"
                 >
                   <span className="material-symbols-outlined text-[18px]">call</span> Appeler
                 </button>
                 <button
-                  onClick={() => notify('Activité ajoutée.')}
+                  onClick={() => ajouterActivite(c)}
                   className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-amud-outline-variant py-2 text-label-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container"
                 >
                   <span className="material-symbols-outlined text-[18px]">add_task</span> Activité
                 </button>
                 <button
-                  onClick={() => {
-                    setContacts((prev) => prev.map((x) => (x.id === c.id ? { ...x, aRappeler: !x.aRappeler } : x)));
-                    notify(c.aRappeler ? 'Rappel annulé.' : 'Rappel planifié.');
-                  }}
+                  onClick={() => toggleRappel(c.id)}
                   title="Planifier un rappel"
                   className={`flex items-center justify-center rounded-lg border border-amud-outline-variant p-2 transition-colors hover:bg-amud-surface-container ${
                     c.aRappeler ? 'text-amud-primary' : 'text-amud-on-surface-variant'
@@ -287,21 +289,15 @@ export default function AmudCommercialContactsPage() {
               </thead>
               <tbody className="divide-y divide-amud-outline-variant bg-amud-surface-container-lowest">
                 {filtered.map((c) => (
-                  <tr key={c.id} className="group transition-colors hover:bg-amud-surface-container-low">
+                  <tr key={c.id} className="group animate-amud-rise-in transition-colors hover:bg-amud-surface-container-low">
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amud-primary-container font-bold text-white">
-                          {c.nom
-                            .split(' ')
-                            .map((p) => p[0])
-                            .slice(0, 2)
-                            .join('')}
-                        </div>
+                      <button onClick={() => setProfil(c)} className="flex items-center gap-3 text-left">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amud-primary-container font-bold text-white">{initiales(c.nom)}</div>
                         <div>
                           <p className="text-[16px] leading-tight text-amud-on-surface">{c.nom}</p>
                           <p className="mt-0.5 text-label-sm text-amud-on-surface-variant">{c.poste}</p>
                         </div>
-                      </div>
+                      </button>
                     </td>
                     <td className="px-4 py-4 text-amud-on-surface">{c.telephone}</td>
                     <td className="px-4 py-4 text-amud-on-surface">{c.ville}</td>
@@ -328,20 +324,17 @@ export default function AmudCommercialContactsPage() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-1 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
-                        <button onClick={() => notify(`Appel vers ${c.nom} lancé.`)} title="Appeler" className="rounded p-1.5 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container hover:text-amud-primary">
+                        <button onClick={() => appeler(c)} title="Appeler" className="rounded p-1.5 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container hover:text-amud-primary">
                           <span className="material-symbols-outlined text-[20px]">call</span>
                         </button>
-                        <button title="Profil" className="rounded p-1.5 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container hover:text-amud-primary">
+                        <button onClick={() => setProfil(c)} title="Profil" className="rounded p-1.5 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container hover:text-amud-primary">
                           <span className="material-symbols-outlined text-[20px]">person</span>
                         </button>
-                        <button onClick={() => notify('Activité ajoutée.')} title="Ajouter une activité" className="rounded p-1.5 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container hover:text-amud-primary">
+                        <button onClick={() => ajouterActivite(c)} title="Ajouter une activité" className="rounded p-1.5 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container hover:text-amud-primary">
                           <span className="material-symbols-outlined text-[20px]">add_task</span>
                         </button>
                         <button
-                          onClick={() => {
-                            setContacts((prev) => prev.map((x) => (x.id === c.id ? { ...x, aRappeler: !x.aRappeler } : x)));
-                            notify(c.aRappeler ? 'Rappel annulé.' : 'Rappel planifié.');
-                          }}
+                          onClick={() => toggleRappel(c.id)}
                           title="Planifier un rappel"
                           className={`rounded p-1.5 transition-colors hover:bg-amud-surface-container hover:text-amud-primary ${c.aRappeler ? 'text-amud-primary' : 'text-amud-on-surface-variant'}`}
                         >
@@ -368,6 +361,116 @@ export default function AmudCommercialContactsPage() {
           </div>
         </div>
       </div>
+
+      <Modal
+        open={formOpen}
+        onClose={() => setFormOpen(false)}
+        title="Nouveau contact"
+        footer={
+          <div className="flex justify-end gap-sm">
+            <button type="button" onClick={() => setFormOpen(false)} className="rounded-lg border border-amud-outline-variant px-lg py-2 text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
+              Annuler
+            </button>
+            <button type="submit" form="add-contact-form" className="rounded-lg bg-amud-primary px-lg py-2 text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark">
+              Ajouter
+            </button>
+          </div>
+        }
+      >
+        <form id="add-contact-form" onSubmit={ajouterContact} className="grid grid-cols-1 gap-md sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Nom</label>
+            <input
+              autoFocus
+              value={nouveauNom}
+              onChange={(e) => setNouveauNom(e.target.value)}
+              required
+              className="w-full rounded-lg border border-amud-outline-variant px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+              type="text"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Poste</label>
+            <input value={nouveauPoste} onChange={(e) => setNouveauPoste(e.target.value)} className="w-full rounded-lg border border-amud-outline-variant px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary" type="text" />
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Type</label>
+            <select value={nouveauType} onChange={(e) => setNouveauType(e.target.value as TypeContact)} className="w-full rounded-lg border border-amud-outline-variant px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary">
+              {TABS.map((t) => (
+                <option key={t}>{t}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Téléphone</label>
+            <input value={nouveauTel} onChange={(e) => setNouveauTel(e.target.value)} className="w-full rounded-lg border border-amud-outline-variant px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary" type="text" />
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Ville</label>
+            <input value={nouveauVille} onChange={(e) => setNouveauVille(e.target.value)} className="w-full rounded-lg border border-amud-outline-variant px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary" type="text" />
+          </div>
+        </form>
+      </Modal>
+
+      <Drawer open={!!profil} onClose={() => setProfil(null)} title={profil?.nom ?? ''} subtitle={profil?.poste}>
+        {profil ? (
+          <div className="flex flex-col gap-lg">
+            <div className="flex items-center gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amud-primary-container text-title-lg font-bold text-white">{initiales(profil.nom)}</div>
+              <div>
+                <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${RESULTAT_CLASS[profil.resultat]}`}>
+                  <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                  {profil.resultat}
+                </span>
+                <p className="mt-1 text-label-sm text-amud-on-surface-variant">{profil.resultatDate}</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-md">
+              <div className="rounded-lg border border-amud-outline-variant bg-amud-surface-container-low p-md">
+                <p className="text-label-sm text-amud-on-surface-variant">Téléphone</p>
+                <a href={`tel:${profil.telephone}`} className="font-medium text-amud-primary">
+                  {profil.telephone}
+                </a>
+              </div>
+              <div className="rounded-lg border border-amud-outline-variant bg-amud-surface-container-low p-md">
+                <p className="text-label-sm text-amud-on-surface-variant">Ville</p>
+                <p className="font-medium text-amud-on-background">{profil.ville}</p>
+              </div>
+              <div className="rounded-lg border border-amud-outline-variant bg-amud-surface-container-low p-md">
+                <p className="text-label-sm text-amud-on-surface-variant">Dernier contact</p>
+                <p className="font-medium text-amud-on-background">{profil.dernierContact}</p>
+              </div>
+              <div className="rounded-lg border border-amud-outline-variant bg-amud-surface-container-low p-md">
+                <p className="text-label-sm text-amud-on-surface-variant">Priorité</p>
+                <span className={`mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${PRIORITE_CLASS[profil.priorite]}`}>{profil.priorite}</span>
+              </div>
+            </div>
+            <div className="rounded-lg border border-amud-outline-variant bg-amud-surface-container-low p-md">
+              <p className="text-label-sm text-amud-on-surface-variant">Prochaine action</p>
+              <p className="mt-1 font-medium text-amud-on-background">{profil.prochaineAction}</p>
+              {profil.prochaineDate ? <p className="mt-0.5 text-label-sm text-amud-on-surface-variant">{profil.prochaineDate}</p> : null}
+            </div>
+            <div className="flex items-center justify-between rounded-lg border border-amud-outline-variant p-md">
+              <span className="text-label-md text-amud-on-surface">Rappel planifié</span>
+              <Toggle checked={profil.aRappeler} onChange={() => toggleRappel(profil.id)} />
+            </div>
+            <div className="flex gap-sm">
+              <button
+                onClick={() => appeler(profil)}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-amud-primary py-2 text-label-md text-white shadow-sm transition-colors hover:bg-amud-primary-dark"
+              >
+                <span className="material-symbols-outlined text-[18px]">call</span> Appeler
+              </button>
+              <button
+                onClick={() => ajouterActivite(profil)}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-amud-outline-variant py-2 text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container"
+              >
+                <span className="material-symbols-outlined text-[18px]">add_task</span> Activité
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </Drawer>
     </div>
   );
 }

@@ -6,6 +6,7 @@ use App\Services\FileAccess;
 use Illuminate\Database\Eloquent\Attributes\Appends;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'profession',
     'specialization',
     'years_of_experience',
+    'city',
     'date_of_birth',
     'availability_status',
     'matching_preferences',
@@ -31,6 +33,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 ])]
 class CandidateProfile extends Model
 {
+    use HasFactory;
+
     protected function casts(): array
     {
         return [
@@ -56,6 +60,11 @@ class CandidateProfile extends Model
     public function languages(): HasMany
     {
         return $this->hasMany(CandidateLanguage::class);
+    }
+
+    public function skills(): HasMany
+    {
+        return $this->hasMany(CandidateSkill::class);
     }
 
     public function documents(): HasMany

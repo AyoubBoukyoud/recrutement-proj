@@ -302,8 +302,9 @@ export const activitesSeed: Activite[] = [
   },
 ];
 
-export function getActivitesForEntreprise(entrepriseId: string, extra: Activite[] = []) {
-  return [...activitesSeed, ...extra]
+/** `all` doit déjà être la collection complète (seed + ajouts) — voir `lib/amud/localCommercialActivites.ts`. */
+export function getActivitesForEntreprise(entrepriseId: string, all: Activite[] = activitesSeed) {
+  return all
     .filter((a) => a.entrepriseId === entrepriseId)
     .sort((a, b) => (a.date === b.date ? b.heureDebut.localeCompare(a.heureDebut) : b.date.localeCompare(a.date)));
 }

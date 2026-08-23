@@ -2,8 +2,8 @@
   "_note": "English homepage copy. Same shape as home.fr.json — TypeScript fails the build if a key is missing.",
   "nav": {
     "links": [
-      { "label": "Trades", "href": "/#sectors" },
-      { "label": "How it works", "href": "/#methodology" },
+      { "label": "Trades", "href": "/accueil-public#sectors" },
+      { "label": "How it works", "href": "/accueil-public#methodology" },
       { "label": "Recruiters", "href": "/employeurs" }
     ],
     "signIn": "I already have a file",
@@ -210,8 +210,8 @@
         "title": "Candidates",
         "links": [
           { "label": "Create my file", "href": "/auth-phone" },
-          { "label": "Trades that are hiring", "href": "/#sectors" },
-          { "label": "How it works", "href": "/#methodology" }
+          { "label": "Trades that are hiring", "href": "/accueil-public#sectors" },
+          { "label": "How it works", "href": "/accueil-public#methodology" }
         ]
       },
       {
@@ -246,6 +246,63 @@
     "ctaTitle": "Start your file for this trade",
     "ctaBody": "Add your CV: it is read automatically and fills in most of the fields.",
     "othersTitle": "Other trades"
+  },
+  "product": {
+    "hero": {
+      "badge": "Real-Time Marketplace",
+      "headline": ["Real-time matching:", "Your future talent is already on Amud Skills."],
+      "subheadline": "A smooth, Tinder-style matching experience connecting Moroccan professionals with German opportunities. Mobile-first, free for candidates, and ultra-fast.",
+      "ctaPrimary": "Find Talent Now",
+      "ctaSecondary": "Join as Candidate",
+      "card": {
+        "matchTitle": "Match Found!",
+        "matchSubtitle": "Senior Developer, Berlin"
+      },
+      "imageAlt1": "Video profile of a Moroccan candidate on the mobile app.",
+      "imageAlt2": "Tinder-style matching interface between a candidate and a German job offer."
+    },
+    "features": {
+      "title": "Streamlined Pipeline",
+      "subtitle": "Our technology removes the friction so you can focus on the connection. Fully automated, mobile-first, and built for speed.",
+      "items": {
+        "pitch": {
+          "title": "The 45-Second Pitch",
+          "body": "No more cover letters. Candidates introduce themselves through short, structured video profiles. Authenticity and communication skills, right away.",
+          "imageAlt": "Abstract representation of a video recording on mobile."
+        },
+        "zeroCost": {
+          "title": "Zero Cost for Candidates",
+          "body": "Democratizing opportunity. We remove financial barriers to guarantee access to the best talent, whatever their background."
+        },
+        "ocr": {
+          "title": "Intelligent OCR",
+          "body": "Instant document verification and data extraction. From ID cards to certifications, processed in milliseconds with German precision."
+        },
+        "tracking": {
+          "title": "Real-Time Tracking",
+          "body": "Candidates and employers always know where they stand. Transparent progress from application to onboarding through our visual bridge system."
+        }
+      }
+    },
+    "sectors": {
+      "title": "4 Strategic Sectors",
+      "subtitle": "Focused recruitment for critical German industries.",
+      "items": {
+        "btp": { "title": "Construction & Engineering", "imageAlt": "Modern construction site in Germany, cranes and steel structures." },
+        "sante": { "title": "Healthcare", "subtitle": "Healthcare Professionals" },
+        "logistique": { "title": "Logistics", "subtitle": "Supply Chain Experts" },
+        "gastro": { "title": "Hospitality", "imageAlt": "High-end German professional kitchen, chefs at work." }
+      }
+    },
+    "methodology": {
+      "title": "AI-Verified Precision Pipeline",
+      "subtitle": "Our proprietary \"Bridge\" methodology ensures every candidate meets strict German standards before presentation.",
+      "steps": [
+        { "title": "Sourcing & Pre-screening", "desc": "Targeted outreach within the Moroccan talent pool." },
+        { "title": "AI Verification", "desc": "Automated skills assessment and language proficiency checks." },
+        { "title": "Cultural Alignment", "desc": "German workplace integration training." }
+      ]
+    }
   },
   "mobileBar": {
     "cta": "Create my file"

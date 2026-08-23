@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { AdminCandidateDetail } from '@/components/admin/AdminCandidateDetail';
 
@@ -17,9 +18,16 @@ import { AdminCandidateDetail } from '@/components/admin/AdminCandidateDetail';
  * passerait `params` directement au panneau) parce qu'elle a besoin de
  * `useRouter()` pour construire `onBack` — une fonction ne peut pas
  * traverser la frontière serveur/client comme prop.
+ *
+ * `AdminCandidateDetail` lit `useSearchParams()` (pour `?tab=`), d'où la
+ * frontière `<Suspense>` — même motif que `/admin/candidats`.
  */
 export default function AdminCandidateDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
 
-  return <AdminCandidateDetail id={Number(params.id)} onBack={() => router.push('/admin/candidats')} />;
+  return (
+    <Suspense fallback={null}>
+      <AdminCandidateDetail id={Number(params.id)} onBack={() => router.push('/admin/candidats')} />
+    </Suspense>
+  );
 }

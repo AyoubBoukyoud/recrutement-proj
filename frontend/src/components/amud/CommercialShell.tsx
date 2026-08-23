@@ -1,12 +1,19 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { ReactNode, useEffect, useState } from 'react';
-import { InertNavItem, NavItem, isNavActive } from '@/components/amud/ui';
+import { usePathname, useRouter } from 'next/navigation';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
+import { InertNavItem, NavItem, Toggle, isNavActive, useDropdown } from '@/components/amud/ui';
 import { ToastProvider } from '@/components/amud/Toast';
 import { DemoBanner } from '@/components/amud/DemoBanner';
 import { CURRENT_COMMERCIAL } from '@/data/amud/currentCommercial';
+import { loadLocalEntreprises } from '@/lib/amud/localEntreprises';
+import { loadLocalMesContacts } from '@/lib/amud/localMesContacts';
+import { loadLocalTaches } from '@/lib/amud/localCommercialTaches';
+import { loadLocalCentres } from '@/lib/amud/localCentres';
+import { notificationsSeed } from '@/data/amud/notifications';
+import { notifications as notificationsCollection, markNotificationRead, markAllNotificationsRead } from '@/lib/amud/storage/notify';
+import { useCollection } from '@/lib/amud/storage/useCollection';
 
 /**
  * Coquille des pages `/amud/commercial/*` — espace self-service d'un
@@ -25,6 +32,7 @@ import { CURRENT_COMMERCIAL } from '@/data/amud/currentCommercial';
 const NAV = [
   { href: '/amud/commercial', icon: 'dashboard', label: 'Vue d’ensemble' },
   { href: '/amud/commercial/entreprises', icon: 'domain', label: 'Entreprises' },
+  { href: '/amud/commercial/centres', icon: 'school', label: 'Centres partenaires' },
   { href: '/amud/commercial/activites', icon: 'history', label: 'Activités' },
   { href: '/amud/commercial/taches', icon: 'assignment', label: 'Tâches' },
   { href: '/amud/commercial/rendez-vous', icon: 'calendar_month', label: 'Rendez-vous' },
@@ -37,22 +45,87 @@ const INERT = [
   { icon: 'account_circle', label: 'Profile' },
 ];
 
+type SearchResult = { id: string; label: string; sub: string; href: string; icon: string };
+
+/** Recherche header réelle (façon `useGlobalSearchResults` d'AdminShell), bornée aux entreprises/contacts/tâches du commercial connecté. */
+function useCommercialSearchResults(query: string): SearchResult[] {
+  return useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (q.length < 2) return [];
+    const results: SearchResult[] = [];
+
+    for (const e of loadLocalEntreprises()) {
+      if (results.filter((r) => r.sub === 'Entreprise').length >= 3) break;
+      if (e.nom.toLowerCase().includes(q)) {
+        results.push({ id: `ent-${e.id}`, label: e.nom, sub: 'Entreprise', href: `/amud/commercial/entreprises/${e.id}`, icon: 'domain' });
+      }
+    }
+    for (const c of loadLocalMesContacts()) {
+      if (results.filter((r) => r.sub === 'Contact').length >= 3) break;
+      if (c.nom.toLowerCase().includes(q) || c.poste.toLowerCase().includes(q)) {
+        results.push({ id: `con-${c.id}`, label: c.nom, sub: 'Contact', href: `/amud/commercial/contacts?q=${encodeURIComponent(c.nom)}`, icon: 'group' });
+      }
+    }
+    for (const t of loadLocalTaches().filter((t) => t.commercialId === CURRENT_COMMERCIAL.id)) {
+      if (results.filter((r) => r.sub === 'Tâche').length >= 3) break;
+      if (t.titre.toLowerCase().includes(q)) {
+        results.push({ id: `tac-${t.id}`, label: t.titre, sub: 'Tâche', href: `/amud/commercial/taches?open=${t.id}`, icon: 'assignment' });
+      }
+    }
+    for (const c of loadLocalCentres()) {
+      if (results.filter((r) => r.sub === 'Centre de formation').length >= 3) break;
+      if (c.nom.toLowerCase().includes(q) || c.ville.toLowerCase().includes(q)) {
+        results.push({ id: `centre-${c.id}`, label: c.nom, sub: 'Centre de formation', href: `/amud/commercial/centres/${c.id}`, icon: 'school' });
+      }
+    }
+
+    return results.slice(0, 8);
+  }, [query]);
+}
+
 export function CommercialShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [navOpen, setNavOpen] = useState(false);
   // Rail réduite (icônes seules) sur desktop, dépliée au survol — indépendante
   // du tiroir mobile `navOpen` ci-dessus, qui reste un panneau plein écran.
   const [collapsed, setCollapsed] = useState(false);
+  const notifMenu = useDropdown<HTMLDivElement>();
+  const settingsMenu = useDropdown<HTMLDivElement>();
+  const profileMenu = useDropdown<HTMLDivElement>();
+  const searchMenu = useDropdown<HTMLDivElement>();
+  const [query, setQuery] = useState('');
+  const [emailNotif, setEmailNotif] = useState(true);
+  const [pushNotif, setPushNotif] = useState(true);
+
+  const [allNotifications] = useCollection(notificationsCollection, notificationsSeed);
+  const commercialNotifications = useMemo(
+    () => allNotifications.filter((n) => n.scope === 'commercial').sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    [allNotifications],
+  );
+  const totalAlerts = commercialNotifications.filter((n) => !n.read).length;
+  const results = useCommercialSearchResults(query);
 
   useEffect(() => {
     setNavOpen(false);
+    notifMenu.setOpen(false);
+    settingsMenu.setOpen(false);
+    profileMenu.setOpen(false);
+    searchMenu.setOpen(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
+
+  function goToResult(href: string) {
+    searchMenu.setOpen(false);
+    setQuery('');
+    router.push(href);
+  }
 
   const hiddenWhenCollapsed = collapsed ? 'md:hidden md:group-hover:block' : '';
 
   return (
     <ToastProvider>
-    <div className="flex min-h-screen bg-amud-background text-amud-on-background">
+    <div className="amud-ops-scale flex min-h-screen bg-amud-background text-amud-on-background">
       {navOpen ? (
         <div
           className="fixed inset-0 z-30 bg-amud-on-surface/40 md:hidden"
@@ -66,7 +139,7 @@ export function CommercialShell({ children }: { children: ReactNode }) {
         } ${collapsed ? 'md:w-20 md:px-2 md:hover:w-64 md:hover:px-md' : 'md:w-64'}`}
       >
         <div className="mb-xl flex items-center gap-md px-sm">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amud-primary font-title-lg font-bold text-white">A</div>
+          <img src="/assets/images/logo.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
           <div className={hiddenWhenCollapsed}>
             <h1 className="text-title-lg font-black text-amud-primary">Amud Skills</h1>
             <p className="text-label-sm text-amud-on-surface-variant">Espace Commercial</p>
@@ -124,25 +197,156 @@ export function CommercialShell({ children }: { children: ReactNode }) {
               <span className="material-symbols-outlined">menu</span>
             </button>
           </div>
-          <div className="relative hidden w-64 md:block">
+          <div ref={searchMenu.ref} className="relative hidden w-64 md:block">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-amud-on-surface-variant">search</span>
             <input
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                searchMenu.setOpen(true);
+              }}
+              onFocus={() => searchMenu.setOpen(true)}
               className="w-full rounded-lg border-none bg-amud-surface-container-low py-2 pl-10 pr-4 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
               placeholder="Rechercher…"
               aria-label="Rechercher"
               type="text"
             />
+            {searchMenu.open && query.trim().length >= 2 ? (
+              <div className="absolute left-0 right-0 top-full z-40 mt-2 max-h-80 overflow-y-auto rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
+                {results.length === 0 ? (
+                  <p className="p-md text-label-sm text-amud-on-surface-variant">Aucun résultat pour « {query} ».</p>
+                ) : (
+                  results.map((r) => (
+                    <button
+                      key={r.id}
+                      onClick={() => goToResult(r.href)}
+                      className="flex w-full items-center gap-sm px-md py-sm text-left transition-colors hover:bg-amud-surface-container-low"
+                    >
+                      <span className="material-symbols-outlined text-amud-primary">{r.icon}</span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-label-md text-amud-on-surface">{r.label}</span>
+                        <span className="block truncate text-label-sm text-amud-on-surface-variant">{r.sub}</span>
+                      </span>
+                    </button>
+                  ))
+                )}
+              </div>
+            ) : null}
           </div>
           <div className="ml-auto flex items-center gap-2 md:gap-4">
-            <button className="relative rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary">
-              <span className="material-symbols-outlined">notifications</span>
-              <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-amud-error" />
-            </button>
-            <button className="hidden rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary sm:block">
-              <span className="material-symbols-outlined">settings</span>
-            </button>
-            <div className="h-8 w-8 cursor-pointer overflow-hidden rounded-full border border-amud-outline-variant bg-amud-primary-container flex items-center justify-center font-bold text-white text-sm">
-              {CURRENT_COMMERCIAL.initiales}
+            <div ref={notifMenu.ref} className="relative">
+              <button
+                onClick={() => notifMenu.setOpen((v) => !v)}
+                className="relative rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary"
+                aria-label="Notifications"
+                aria-haspopup="menu"
+                aria-expanded={notifMenu.open}
+              >
+                <span className="material-symbols-outlined">notifications</span>
+                {totalAlerts > 0 ? (
+                  <span className="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-amud-error px-1 text-[10px] font-bold text-white">
+                    {totalAlerts}
+                  </span>
+                ) : null}
+              </button>
+              {notifMenu.open ? (
+                <div className="absolute right-0 top-full z-40 mt-2 w-80 overflow-hidden rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
+                  <div className="flex items-center justify-between border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm text-label-md font-semibold text-amud-on-surface">
+                    <span>Notifications</span>
+                    {totalAlerts > 0 ? (
+                      <button onClick={() => markAllNotificationsRead('commercial')} className="text-label-sm font-normal text-amud-primary hover:underline">
+                        Tout marquer comme lu
+                      </button>
+                    ) : null}
+                  </div>
+                  <div className="flex max-h-96 flex-col overflow-y-auto">
+                    {commercialNotifications.length === 0 ? (
+                      <p className="px-md py-lg text-center text-label-sm text-amud-on-surface-variant">Aucune notification.</p>
+                    ) : (
+                      commercialNotifications.slice(0, 10).map((n) => (
+                        <button
+                          key={n.id}
+                          onClick={() => {
+                            markNotificationRead(n.id);
+                            notifMenu.setOpen(false);
+                            if (n.href) router.push(n.href);
+                          }}
+                          className={`flex w-full items-start gap-sm px-md py-sm text-left transition-colors hover:bg-amud-surface-container-low ${n.read ? 'opacity-60' : ''}`}
+                        >
+                          <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${n.read ? 'bg-amud-outline-variant' : 'bg-amud-secondary'}`} />
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-body-md text-amud-on-surface">{n.title}</span>
+                            <span className="block text-label-sm text-amud-on-surface-variant">{n.category}</span>
+                          </span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+            <div ref={settingsMenu.ref} className="relative hidden sm:block">
+              <button
+                onClick={() => settingsMenu.setOpen((v) => !v)}
+                className="rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary"
+                aria-label="Réglages"
+                aria-haspopup="menu"
+                aria-expanded={settingsMenu.open}
+              >
+                <span className="material-symbols-outlined">settings</span>
+              </button>
+              {settingsMenu.open ? (
+                <div className="absolute right-0 top-full z-40 mt-2 w-72 overflow-hidden rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
+                  <div className="border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm text-label-md font-semibold text-amud-on-surface">
+                    Réglages rapides
+                  </div>
+                  <div className="flex flex-col gap-sm p-md">
+                    <div className="flex items-center justify-between">
+                      <span className="text-label-md text-amud-on-surface">Notifications par email</span>
+                      <Toggle checked={emailNotif} onChange={setEmailNotif} size="sm" label="Notifications par email" />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-label-md text-amud-on-surface">Notifications push</span>
+                      <Toggle checked={pushNotif} onChange={setPushNotif} size="sm" label="Notifications push" />
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+            <div ref={profileMenu.ref} className="relative">
+              <button
+                onClick={() => profileMenu.setOpen((v) => !v)}
+                className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-amud-outline-variant bg-amud-primary-container text-sm font-bold text-white transition-opacity hover:opacity-90"
+                aria-label="Menu du compte"
+                aria-haspopup="menu"
+                aria-expanded={profileMenu.open}
+              >
+                {CURRENT_COMMERCIAL.initiales}
+              </button>
+              {profileMenu.open ? (
+                <div className="absolute right-0 top-full z-40 mt-2 w-56 overflow-hidden rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
+                  <div className="border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm">
+                    <div className="text-label-md font-semibold text-amud-on-surface">{CURRENT_COMMERCIAL.nom}</div>
+                    <div className="text-label-sm text-amud-on-surface-variant">Espace Commercial</div>
+                  </div>
+                  <div className="flex flex-col py-1">
+                    <Link
+                      href="/amud"
+                      onClick={() => profileMenu.setOpen(false)}
+                      className="flex items-center gap-sm px-md py-sm text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">apps</span> Changer d&apos;espace
+                    </Link>
+                    <Link
+                      href="/amud"
+                      onClick={() => profileMenu.setOpen(false)}
+                      className="flex items-center gap-sm px-md py-sm text-label-md text-amud-error transition-colors hover:bg-amud-surface-container-low"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">logout</span> Déconnexion
+                    </Link>
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
         </header>

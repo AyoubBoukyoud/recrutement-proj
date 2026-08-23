@@ -3,20 +3,18 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { InertNavItem, NavItem, isNavActive } from '@/components/amud/ui';
+import { InertNavItem, NavItem, isNavActive, useDropdown } from '@/components/amud/ui';
 import { ToastProvider } from '@/components/amud/Toast';
 import { DemoBanner } from '@/components/amud/DemoBanner';
-import { ADMIN_ALERTS } from '@/data/amud/alerts';
-import { commerciaux as commerciauxSeed } from '@/data/amud/commerciaux';
-import { candidaturesSeed } from '@/data/amud/candidatures';
-import { entreprisesSeed } from '@/data/amud/entreprises';
-import { offresSeed } from '@/data/amud/offres';
-import { utilisateursSeed } from '@/data/amud/utilisateurs';
+import { notificationsSeed } from '@/data/amud/notifications';
+import { notifications as notificationsCollection, markNotificationRead, markAllNotificationsRead } from '@/lib/amud/storage/notify';
+import { useCollection } from '@/lib/amud/storage/useCollection';
 import { loadLocalCommerciaux } from '@/lib/amud/localCommerciaux';
-import { loadLocalCandidats } from '@/lib/amud/localCandidatures';
+import { loadLocalApplications } from '@/lib/amud/localApplications';
 import { loadLocalEntreprises } from '@/lib/amud/localEntreprises';
 import { loadLocalOffres } from '@/lib/amud/localOffres';
 import { loadLocalUtilisateurs } from '@/lib/amud/localUtilisateurs';
+import { loadLocalCentres } from '@/lib/amud/localCentres';
 
 /**
  * Coquille commune aux 13 pages admin du module `/amud` (portées depuis les
@@ -37,8 +35,8 @@ const NAV_GROUPS: {
   {
     label: 'Utilisateurs',
     items: [
-      { icon: 'person', label: 'Candidats' },
-      { icon: 'badge', label: 'Recruteurs' },
+      { href: '/amud/admin/candidats', icon: 'person', label: 'Candidats' },
+      { href: '/amud/admin/recruteurs', icon: 'badge', label: 'Recruteurs' },
       { href: '/amud/admin/commerciaux', icon: 'support_agent', label: 'Commerciaux' },
     ],
   },
@@ -56,6 +54,10 @@ const NAV_GROUPS: {
       { href: '/amud/admin/objectifs', icon: 'target', label: 'Objectifs' },
       { href: '/amud/admin/activites', icon: 'call', label: 'Activités' },
     ],
+  },
+  {
+    label: 'Centres de formation',
+    items: [{ href: '/amud/admin/centres', icon: 'school', label: 'Centres de formation' }],
   },
   {
     label: 'Sécurité',
@@ -78,35 +80,41 @@ function useGlobalSearchResults(query: string): SearchResult[] {
     if (q.length < 2) return [];
     const results: SearchResult[] = [];
 
-    for (const c of [...commerciauxSeed, ...loadLocalCommerciaux()]) {
+    for (const c of loadLocalCommerciaux()) {
       if (results.filter((r) => r.sub === 'Commercial').length >= 3) break;
       const nom = `${c.prenom} ${c.nom}`;
       if (nom.toLowerCase().includes(q)) {
         results.push({ id: `com-${c.id}`, label: nom, sub: 'Commercial', href: `/amud/admin/commerciaux/${c.id}`, icon: 'support_agent' });
       }
     }
-    for (const cand of [...Object.values(candidaturesSeed).flat(), ...loadLocalCandidats()]) {
-      if (results.filter((r) => r.sub === 'Candidat').length >= 3) break;
-      if (cand.nom.toLowerCase().includes(q) || cand.poste.toLowerCase().includes(q)) {
-        results.push({ id: `cand-${cand.id}`, label: cand.nom, sub: `Candidat · ${cand.poste}`, href: `/amud/admin/candidatures?q=${encodeURIComponent(cand.nom)}`, icon: 'person' });
+    for (const app of loadLocalApplications()) {
+      if (results.filter((r) => r.sub === 'Candidature').length >= 3) break;
+      if (app.candidateNom.toLowerCase().includes(q) || app.offerTitre.toLowerCase().includes(q)) {
+        results.push({ id: `cand-${app.id}`, label: app.candidateNom, sub: `Candidature · ${app.offerTitre}`, href: `/amud/admin/candidatures?q=${encodeURIComponent(app.candidateNom)}`, icon: 'person' });
       }
     }
-    for (const o of [...offresSeed, ...loadLocalOffres()]) {
+    for (const o of loadLocalOffres()) {
       if (results.filter((r) => r.sub === 'Offre').length >= 3) break;
       if (o.titre.toLowerCase().includes(q) || o.entreprise.toLowerCase().includes(q)) {
         results.push({ id: `off-${o.id}`, label: o.titre, sub: `Offre · ${o.entreprise}`, href: '/amud/admin/offres', icon: 'work' });
       }
     }
-    for (const e of [...entreprisesSeed, ...loadLocalEntreprises()]) {
+    for (const e of loadLocalEntreprises()) {
       if (results.filter((r) => r.sub === 'Entreprise').length >= 3) break;
       if (e.nom.toLowerCase().includes(q)) {
         results.push({ id: `ent-${e.id}`, label: e.nom, sub: 'Entreprise', href: `/amud/admin/entreprises?q=${encodeURIComponent(e.nom)}`, icon: 'domain' });
       }
     }
-    for (const u of [...utilisateursSeed, ...loadLocalUtilisateurs()]) {
+    for (const u of loadLocalUtilisateurs()) {
       if (results.filter((r) => r.sub === 'Utilisateur').length >= 3) break;
       if (u.nom.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)) {
         results.push({ id: `usr-${u.id}`, label: u.nom, sub: `Utilisateur · ${u.role}`, href: `/amud/admin/utilisateurs?q=${encodeURIComponent(u.nom)}`, icon: 'group' });
+      }
+    }
+    for (const c of loadLocalCentres()) {
+      if (results.filter((r) => r.sub === 'Centre de formation').length >= 3) break;
+      if (c.nom.toLowerCase().includes(q) || c.ville.toLowerCase().includes(q) || c.telephone.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || c.contactNom.toLowerCase().includes(q) || c.assignedCommercialNom.toLowerCase().includes(q)) {
+        results.push({ id: `centre-${c.id}`, label: c.nom, sub: 'Centre de formation', href: `/amud/admin/centres/${c.id}`, icon: 'school' });
       }
     }
     return results.slice(0, 8);
@@ -125,15 +133,23 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const bellRef = useRef<HTMLDivElement>(null);
+  const profileMenu = useDropdown<HTMLDivElement>();
 
   const results = useGlobalSearchResults(query);
-  const totalAlerts = ADMIN_ALERTS.reduce((s, a) => s + a.count, 0);
+  const [allNotifications] = useCollection(notificationsCollection, notificationsSeed);
+  const adminNotifications = useMemo(
+    () => allNotifications.filter((n) => n.scope === 'admin').sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    [allNotifications],
+  );
+  const totalAlerts = adminNotifications.filter((n) => !n.read).length;
   const hiddenWhenCollapsed = collapsed ? 'md:hidden md:group-hover:block' : '';
 
   useEffect(() => {
     setNavOpen(false);
     setBellOpen(false);
     setSearchOpen(false);
+    profileMenu.setOpen(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   useEffect(() => {
@@ -153,7 +169,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
   return (
     <ToastProvider>
-      <div className="flex min-h-screen bg-amud-background text-amud-on-surface">
+      <div className="amud-ops-scale flex min-h-screen bg-amud-background text-amud-on-surface">
         {navOpen ? (
           <div
             className="fixed inset-0 z-30 bg-amud-on-surface/40 md:hidden"
@@ -167,9 +183,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
           } ${collapsed ? 'md:w-20 md:hover:w-64' : 'md:w-64'}`}
         >
           <div className={`flex items-center gap-sm border-b border-amud-outline-variant p-lg ${collapsed ? 'md:px-md' : ''}`}>
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded bg-amud-primary-container">
-              <img src="/assets/images/logo-mark.png" alt="Amud Skills" className="h-full w-full object-cover" />
-            </div>
+            <img src="/assets/images/logo.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
             <div className={hiddenWhenCollapsed}>
               <h1 className="text-title-lg font-bold text-amud-primary">Amud Skills</h1>
               <p className="text-label-sm text-amud-on-surface-variant">Enterprise Admin</p>
@@ -300,30 +314,95 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 </button>
                 {bellOpen ? (
                   <div className="absolute right-0 top-full z-40 mt-2 w-80 overflow-hidden rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
-                    <div className="border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm text-label-md font-semibold text-amud-on-surface">Alertes requises</div>
-                    <div className="flex flex-col">
-                      {ADMIN_ALERTS.map((a) => (
-                        <Link
-                          key={a.id}
-                          href={a.href}
-                          onClick={() => setBellOpen(false)}
-                          className="flex items-center justify-between px-md py-sm transition-colors hover:bg-amud-surface-container-low"
+                    <div className="flex items-center justify-between border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm text-label-md font-semibold text-amud-on-surface">
+                      <span>Notifications</span>
+                      {totalAlerts > 0 ? (
+                        <button
+                          onClick={() => markAllNotificationsRead('admin')}
+                          className="text-label-sm font-normal text-amud-primary hover:underline"
                         >
-                          <span className="flex items-center gap-sm text-body-md text-amud-on-surface">
-                            <span className={`h-2 w-2 rounded-full ${a.dot}`} />
-                            {a.label}
-                          </span>
-                          <span className="rounded-full bg-amud-error-container px-2 py-1 text-label-sm text-amud-on-error-container">{a.count}</span>
-                        </Link>
-                      ))}
+                          Tout marquer comme lu
+                        </button>
+                      ) : null}
+                    </div>
+                    <div className="flex max-h-96 flex-col overflow-y-auto">
+                      {adminNotifications.length === 0 ? (
+                        <p className="px-md py-lg text-center text-label-sm text-amud-on-surface-variant">Aucune notification.</p>
+                      ) : (
+                        adminNotifications.slice(0, 10).map((n) => (
+                          <button
+                            key={n.id}
+                            onClick={() => {
+                              markNotificationRead(n.id);
+                              setBellOpen(false);
+                              if (n.href) router.push(n.href);
+                            }}
+                            className={`flex w-full items-start gap-sm px-md py-sm text-left transition-colors hover:bg-amud-surface-container-low ${n.read ? 'opacity-60' : ''}`}
+                          >
+                            <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${n.read ? 'bg-amud-outline-variant' : 'bg-amud-secondary'}`} />
+                            <span className="min-w-0 flex-1">
+                              <span className="block text-body-md text-amud-on-surface">{n.title}</span>
+                              <span className="block text-label-sm text-amud-on-surface-variant">{n.category}</span>
+                            </span>
+                          </button>
+                        ))
+                      )}
                     </div>
                   </div>
                 ) : null}
               </div>
+              <Link
+                href="/amud/admin/parametres"
+                className="rounded-full p-2 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary"
+                aria-label="Paramètres"
+              >
+                <span className="material-symbols-outlined">settings</span>
+              </Link>
               <button className="rounded-full p-2 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary" aria-label="Aide">
                 <span className="material-symbols-outlined">help</span>
               </button>
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amud-primary-container font-bold text-white">A</div>
+              <div ref={profileMenu.ref} className="relative">
+                <button
+                  onClick={() => profileMenu.setOpen((v) => !v)}
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-amud-primary-container font-bold text-white transition-opacity hover:opacity-90"
+                  aria-label="Menu du compte"
+                  aria-haspopup="menu"
+                  aria-expanded={profileMenu.open}
+                >
+                  A
+                </button>
+                {profileMenu.open ? (
+                  <div className="absolute right-0 top-full z-40 mt-2 w-56 overflow-hidden rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
+                    <div className="border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm">
+                      <div className="text-label-md font-semibold text-amud-on-surface">Admin Pillar</div>
+                      <div className="text-label-sm text-amud-on-surface-variant">Gestionnaire Principal</div>
+                    </div>
+                    <div className="flex flex-col py-1">
+                      <Link
+                        href="/amud/admin/parametres"
+                        onClick={() => profileMenu.setOpen(false)}
+                        className="flex items-center gap-sm px-md py-sm text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">settings</span> Paramètres
+                      </Link>
+                      <Link
+                        href="/amud"
+                        onClick={() => profileMenu.setOpen(false)}
+                        className="flex items-center gap-sm px-md py-sm text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">apps</span> Changer d&apos;espace
+                      </Link>
+                      <Link
+                        href="/amud"
+                        onClick={() => profileMenu.setOpen(false)}
+                        className="flex items-center gap-sm px-md py-sm text-label-md text-amud-error transition-colors hover:bg-amud-surface-container-low"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">logout</span> Déconnexion
+                      </Link>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
             </div>
           </header>
           <main key={pathname} className="min-w-0 flex-1 animate-amud-rise-in p-margin-mobile md:p-margin-desktop">

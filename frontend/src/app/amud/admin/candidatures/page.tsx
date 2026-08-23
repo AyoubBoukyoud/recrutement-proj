@@ -1,104 +1,125 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Modal } from '@/components/amud/ui';
 import { useToast } from '@/components/amud/Toast';
-import { COLONNES, candidaturesSeed, type Candidat, type ColonneId } from '@/data/amud/candidatures';
-import { addLocalCandidat, loadLocalCandidats } from '@/lib/amud/localCandidatures';
+import {
+  KANBAN_COLUMNS,
+  STATUS_LABEL,
+  applicationsSeed,
+  colonneForStatus,
+  isDecided,
+  type Application,
+  type ColonneId,
+} from '@/data/amud/applications';
+import { applicationsCollection } from '@/lib/amud/localApplications';
+import { useCollection } from '@/lib/amud/storage/useCollection';
+import { generateId } from '@/lib/amud/storage/ids';
+import { logAudit } from '@/lib/amud/storage/audit';
+import { pushNotification } from '@/lib/amud/storage/notify';
+import { offresSeed } from '@/data/amud/offres';
+import { offresCollection } from '@/lib/amud/localOffres';
 
 export default function AmudAdminCandidaturesPage() {
   const notify = useToast();
   const searchParams = useSearchParams();
-  const [colonnes, setColonnes] = useState(candidaturesSeed);
+  const [applications, { add: addApplication, update: updateApplication }] = useCollection(applicationsCollection, applicationsSeed);
+  const [offres] = useCollection(offresCollection, offresSeed);
   const [search, setSearch] = useState(() => searchParams.get('q') ?? '');
   const [vue, setVue] = useState<'kanban' | 'table'>('kanban');
   const [dragCard, setDragCard] = useState<{ id: string; from: ColonneId } | null>(null);
+  const [decisionsTab, setDecisionsTab] = useState<'ACCEPTED' | 'REJECTED' | 'WITHDRAWN'>('ACCEPTED');
 
   const [addOpen, setAddOpen] = useState(false);
   const [nom, setNom] = useState('');
-  const [poste, setPoste] = useState('');
+  const [offerId, setOfferId] = useState('');
   const [tagsInput, setTagsInput] = useState('');
   const [score, setScore] = useState(80);
-  const [colonneChoisie, setColonneChoisie] = useState<ColonneId>('nouvelle');
-
-  useEffect(() => {
-    const extra = loadLocalCandidats();
-    if (!extra.length) return;
-    // Recalculé à partir de `candidaturesSeed` (pas de `prev`) pour rester
-    // idempotent sous StrictMode, qui double-invoque les effets en dev.
-    const next = (Object.keys(candidaturesSeed) as ColonneId[]).reduce((acc, k) => {
-      acc[k] = [...candidaturesSeed[k]];
-      return acc;
-    }, {} as Record<ColonneId, Candidat[]>);
-    for (const c of extra) next[c.colonne] = [...next[c.colonne], c];
-    setColonnes(next);
-  }, []);
-
-  function moveCard(id: string, from: ColonneId, to: ColonneId) {
-    if (from === to) return;
-    setColonnes((prev) => {
-      const card = prev[from].find((c) => c.id === id);
-      if (!card) return prev;
-      return { ...prev, [from]: prev[from].filter((c) => c.id !== id), [to]: [...prev[to], card] };
-    });
-  }
+  const [colonneChoisie, setColonneChoisie] = useState<ColonneId>('NEW');
 
   function resetAddForm() {
     setNom('');
-    setPoste('');
+    setOfferId('');
     setTagsInput('');
     setScore(80);
-    setColonneChoisie('nouvelle');
+    setColonneChoisie('NEW');
   }
 
-  function handleAddCandidat(e: React.FormEvent) {
+  function handleAddCandidature(e: React.FormEvent) {
     e.preventDefault();
-    if (!nom.trim() || !poste.trim()) return;
-    const initiales = nom
-      .trim()
-      .split(/\s+/)
-      .map((w) => w[0])
-      .join('')
-      .slice(0, 2)
-      .toUpperCase();
-    const candidat: Candidat = {
-      id: `candidat-${Date.now()}`,
-      nom: nom.trim(),
-      poste: poste.trim(),
+    const offre = offres.find((o) => o.id === offerId);
+    if (!nom.trim() || !offre) return;
+    const now = new Date().toISOString();
+    const application: Application = {
+      id: generateId('application'),
+      candidateId: generateId('candidate'),
+      candidateNom: nom.trim(),
+      offerId: offre.id,
+      offerTitre: offre.titre,
+      entrepriseId: offre.entrepriseId ?? '',
+      entrepriseNom: offre.entreprise,
       tags: tagsInput
         .split(',')
         .map((t) => t.trim())
         .filter(Boolean),
       score: Math.min(100, Math.max(0, score)),
-      date: new Date().toLocaleDateString('fr-FR'),
-      depuis: 'À l’instant',
-      initiales,
+      createdAt: now,
+      updatedAt: now,
+      status: colonneChoisie,
     };
-    setColonnes((prev) => ({ ...prev, [colonneChoisie]: [...prev[colonneChoisie], candidat] }));
-    addLocalCandidat({ ...candidat, colonne: colonneChoisie });
-    notify(`« ${candidat.nom} » ajouté à ${COLONNES.find((c) => c.id === colonneChoisie)?.label}.`);
+    addApplication(application);
+    logAudit({ utilisateur: 'Administrateur', role: 'Admin', action: 'Création de candidature', actionType: 'create', module: 'Candidatures', reference: `${application.candidateNom} — ${application.offerTitre} (#${application.id})` });
+    pushNotification({ scope: 'admin', title: `Nouvelle candidature : ${application.candidateNom} pour « ${application.offerTitre} ».`, category: 'Candidatures', href: '/amud/admin/candidatures' });
+    notify(`« ${application.candidateNom} » ajouté(e) à ${KANBAN_COLUMNS.find((c) => c.id === colonneChoisie)?.label}.`);
     setAddOpen(false);
     resetAddForm();
   }
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return colonnes;
-    const out = {} as Record<ColonneId, Candidat[]>;
-    (Object.keys(colonnes) as ColonneId[]).forEach((k) => {
-      out[k] = colonnes[k].filter((c) => c.nom.toLowerCase().includes(q) || c.poste.toLowerCase().includes(q));
-    });
+    if (!q) return applications;
+    return applications.filter((a) => a.candidateNom.toLowerCase().includes(q) || a.offerTitre.toLowerCase().includes(q));
+  }, [applications, search]);
+
+  const colonnes = useMemo(() => {
+    const out = {} as Record<ColonneId, Application[]>;
+    for (const col of KANBAN_COLUMNS) out[col.id] = filtered.filter((a) => colonneForStatus(a.status) === col.id);
     return out;
-  }, [colonnes, search]);
+  }, [filtered]);
+
+  const decisions = useMemo(() => filtered.filter((a) => isDecided(a.status)), [filtered]);
+  const accepted = decisions.filter((a) => a.status === 'ACCEPTED');
+  const rejected = decisions.filter((a) => a.status === 'REJECTED');
+  const withdrawn = decisions.filter((a) => a.status === 'WITHDRAWN');
+  const decisionsByTab: Record<'ACCEPTED' | 'REJECTED' | 'WITHDRAWN', Application[]> = { ACCEPTED: accepted, REJECTED: rejected, WITHDRAWN: withdrawn };
 
   const totals = {
-    total: Object.values(colonnes).reduce((s, arr) => s + arr.length, 0),
-    nouvelle: colonnes.nouvelle.length,
-    preselection: colonnes.preselection.length,
-    entretien: colonnes.entretien.length,
-    shortlist: colonnes.shortlist.length,
-  };
+    total: applications.length,
+    ...Object.fromEntries(KANBAN_COLUMNS.map((c) => [c.id, applications.filter((a) => colonneForStatus(a.status) === c.id).length])),
+  } as Record<'total' | ColonneId, number>;
+
+  function moveCard(id: string, from: ColonneId, to: ColonneId) {
+    if (from === to) return;
+    updateApplication(id, { status: to, updatedAt: new Date().toISOString() });
+  }
+
+  function decide(id: string, status: 'ACCEPTED' | 'REJECTED') {
+    const a = applications.find((x) => x.id === id);
+    updateApplication(id, { status, updatedAt: new Date().toISOString() });
+    if (a) {
+      logAudit({
+        utilisateur: 'Administrateur',
+        role: 'Admin',
+        action: 'Changement de statut de candidature',
+        actionType: 'update',
+        module: 'Candidatures',
+        reference: `${a.candidateNom} — ${a.offerTitre} (#${a.id})`,
+        diff: { before: `"status": "${a.status}"`, after: `"status": "${status}"` },
+      });
+    }
+    notify(status === 'ACCEPTED' ? 'Candidature acceptée.' : 'Candidature refusée.');
+  }
 
   return (
     <div className="flex min-h-[calc(100vh-96px)] flex-col md:min-h-[calc(100vh-160px)]">
@@ -130,17 +151,14 @@ export default function AmudAdminCandidaturesPage() {
               className="flex items-center gap-xs whitespace-nowrap rounded-lg bg-amud-primary px-md py-sm text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark"
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
-              Ajouter un candidat
+              Ajouter une candidature
             </button>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-sm md:grid-cols-5">
           {[
             { label: 'Total', value: totals.total },
-            { label: 'Nouvelles', value: totals.nouvelle },
-            { label: 'Présélection', value: totals.preselection },
-            { label: 'Entretiens', value: totals.entretien },
-            { label: 'Shortlist', value: totals.shortlist },
+            ...KANBAN_COLUMNS.map((c) => ({ label: c.label, value: totals[c.id] })),
           ].map((k) => (
             <div key={k.label} className="flex flex-col items-center justify-center rounded-lg border border-amud-surface-container-high bg-amud-surface-container-lowest p-sm">
               <span className="text-label-sm uppercase tracking-wider text-amud-outline">{k.label}</span>
@@ -159,14 +177,14 @@ export default function AmudAdminCandidaturesPage() {
               type="text"
             />
           </div>
-          <span className="text-label-sm text-amud-on-surface-variant">{Object.values(filtered).reduce((s, a) => s + a.length, 0)} résultat(s)</span>
+          <span className="text-label-sm text-amud-on-surface-variant">{filtered.length} résultat(s)</span>
         </div>
       </header>
 
       {vue === 'kanban' ? (
         <div className="snap-x snap-mandatory overflow-x-auto rounded-lg bg-amud-surface-container-low">
           <div className="flex w-max gap-md p-md">
-            {COLONNES.map((col) => (
+            {KANBAN_COLUMNS.map((col) => (
               <div
                 key={col.id}
                 onDragOver={(e) => e.preventDefault()}
@@ -181,49 +199,70 @@ export default function AmudAdminCandidaturesPage() {
                     <div className={`h-3 w-3 rounded-full ${col.dot}`} />
                     {col.label}
                   </h3>
-                  <span className="rounded bg-amud-surface px-xs py-[2px] text-label-sm text-amud-outline">{filtered[col.id].length}</span>
+                  <span className="rounded bg-amud-surface px-xs py-[2px] text-label-sm text-amud-outline">{colonnes[col.id].length}</span>
                 </div>
                 <div className="flex flex-1 flex-col gap-sm p-sm">
-                  {filtered[col.id].map((c) => (
+                  {colonnes[col.id].map((a) => (
                     <div
-                      key={c.id}
+                      key={a.id}
                       draggable
-                      onDragStart={() => setDragCard({ id: c.id, from: col.id })}
+                      onDragStart={() => setDragCard({ id: a.id, from: col.id })}
                       className="group relative cursor-grab rounded-lg border border-amud-outline-variant bg-amud-surface p-sm shadow-sm transition-all animate-amud-rise-in hover:-translate-y-0.5 hover:border-amud-primary hover:shadow-md active:cursor-grabbing"
                     >
                       <div className="mb-sm flex items-start justify-between">
                         <div className="flex items-center gap-sm">
                           <div className="flex h-10 w-10 items-center justify-center rounded-full border border-amud-surface-container-highest bg-amud-surface-container-highest font-bold text-amud-primary">
-                            {c.initiales}
+                            {a.candidateNom
+                              .split(/\s+/)
+                              .map((w) => w[0])
+                              .join('')
+                              .slice(0, 2)
+                              .toUpperCase()}
                           </div>
                           <div>
-                            <h4 className="text-label-md font-semibold text-amud-on-surface">{c.nom}</h4>
-                            <p className="text-label-sm text-amud-outline">{c.poste}</p>
+                            <h4 className="text-label-md font-semibold text-amud-on-surface">{a.candidateNom}</h4>
+                            <p className="text-label-sm text-amud-outline">{a.offerTitre}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-[2px] rounded bg-amud-primary-fixed px-xs py-[2px] text-label-sm font-semibold text-amud-on-primary-fixed">
                           <span className="material-symbols-outlined text-[14px]">bolt</span>
-                          {c.score}%
+                          {a.score}%
                         </div>
                       </div>
                       <div className="mb-sm flex flex-wrap gap-xs">
-                        {c.tags.map((t) => (
+                        {a.tags.map((t) => (
                           <span key={t} className="rounded bg-amud-surface-container-highest px-xs py-[2px] text-[11px] font-medium text-amud-on-surface-variant">
                             {t}
                           </span>
                         ))}
                       </div>
-                      <div className="flex items-center justify-between text-[11px] text-amud-outline">
+                      <div className="mb-sm flex items-center justify-between text-[11px] text-amud-outline">
                         <span className="flex items-center gap-[2px]">
-                          <span className="material-symbols-outlined text-[14px]">calendar_today</span> {c.date}
+                          <span className="material-symbols-outlined text-[14px]">domain</span> {a.entrepriseNom}
                         </span>
                         <span className="flex items-center gap-[2px]">
-                          <span className="material-symbols-outlined text-[14px]">history</span> {c.depuis}
+                          <span className="material-symbols-outlined text-[14px]">calendar_today</span> {new Date(a.createdAt).toLocaleDateString('fr-FR')}
                         </span>
+                      </div>
+                      <div className="flex items-center justify-end gap-xs border-t border-amud-outline-variant/50 pt-xs opacity-0 transition-opacity group-hover:opacity-100">
+                        <button
+                          onClick={() => decide(a.id, 'ACCEPTED')}
+                          title="Accepter"
+                          className="rounded p-1 text-amud-primary transition-colors hover:bg-amud-primary/10"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                        </button>
+                        <button
+                          onClick={() => decide(a.id, 'REJECTED')}
+                          title="Refuser"
+                          className="rounded p-1 text-amud-error transition-colors hover:bg-amud-error/10"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">cancel</span>
+                        </button>
                       </div>
                     </div>
                   ))}
-                  {filtered[col.id].length === 0 ? (
+                  {colonnes[col.id].length === 0 ? (
                     <div className="flex min-h-[140px] flex-1 flex-col items-center justify-center p-md text-center text-amud-outline">
                       <span className="material-symbols-outlined mb-sm text-display-lg">inbox</span>
                       <p className="text-label-sm">Glissez une carte ici.</p>
@@ -240,62 +279,90 @@ export default function AmudAdminCandidaturesPage() {
             <thead className="sticky top-0 bg-amud-surface-container-low text-label-sm text-amud-on-surface-variant">
               <tr>
                 <th className="p-sm">Candidat</th>
-                <th className="p-sm">Poste</th>
+                <th className="p-sm">Offre</th>
                 <th className="p-sm">Statut</th>
                 <th className="p-sm">Score</th>
                 <th className="p-sm">Date</th>
               </tr>
             </thead>
             <tbody>
-              {COLONNES.flatMap((col) =>
-                filtered[col.id].map((c) => (
-                  <tr key={c.id} className="animate-amud-rise-in border-t border-amud-outline-variant hover:bg-amud-surface-container-low">
-                    <td className="p-sm font-medium text-amud-on-surface">{c.nom}</td>
-                    <td className="p-sm text-amud-on-surface-variant">{c.poste}</td>
-                    <td className="p-sm">
-                      <span className="inline-flex items-center gap-1 text-label-sm text-amud-on-surface-variant">
-                        <span className={`h-2 w-2 rounded-full ${col.dot}`} /> {col.label}
-                      </span>
-                    </td>
-                    <td className="p-sm text-amud-primary">{c.score}%</td>
-                    <td className="p-sm text-amud-on-surface-variant">{c.date}</td>
-                  </tr>
-                )),
-              )}
+              {filtered.map((a) => (
+                <tr key={a.id} className="animate-amud-rise-in border-t border-amud-outline-variant hover:bg-amud-surface-container-low">
+                  <td className="p-sm font-medium text-amud-on-surface">{a.candidateNom}</td>
+                  <td className="p-sm text-amud-on-surface-variant">{a.offerTitre}</td>
+                  <td className="p-sm text-amud-on-surface-variant">{STATUS_LABEL[a.status]}</td>
+                  <td className="p-sm text-amud-primary">{a.score}%</td>
+                  <td className="p-sm text-amud-on-surface-variant">{new Date(a.createdAt).toLocaleDateString('fr-FR')}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       )}
 
+      {decisions.length > 0 ? (
+        <section className="mt-lg rounded-lg border border-amud-outline-variant bg-amud-surface-container-lowest p-md">
+          <div className="mb-sm flex items-center justify-between">
+            <h3 className="text-title-lg text-amud-on-surface">Décisions récentes</h3>
+            <div className="flex rounded-lg bg-amud-surface-container-low p-xs">
+              <button
+                onClick={() => setDecisionsTab('ACCEPTED')}
+                className={`rounded-md px-md py-xs text-label-md ${decisionsTab === 'ACCEPTED' ? 'bg-amud-surface text-amud-primary shadow-sm' : 'text-amud-on-surface-variant'}`}
+              >
+                Acceptées ({accepted.length})
+              </button>
+              <button
+                onClick={() => setDecisionsTab('REJECTED')}
+                className={`rounded-md px-md py-xs text-label-md ${decisionsTab === 'REJECTED' ? 'bg-amud-surface text-amud-primary shadow-sm' : 'text-amud-on-surface-variant'}`}
+              >
+                Refusées ({rejected.length})
+              </button>
+              <button
+                onClick={() => setDecisionsTab('WITHDRAWN')}
+                className={`rounded-md px-md py-xs text-label-md ${decisionsTab === 'WITHDRAWN' ? 'bg-amud-surface text-amud-primary shadow-sm' : 'text-amud-on-surface-variant'}`}
+              >
+                Retirées ({withdrawn.length})
+              </button>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 gap-sm sm:grid-cols-2 lg:grid-cols-3">
+            {decisionsByTab[decisionsTab].map((a) => (
+              <div key={a.id} className="rounded-lg border border-amud-outline-variant bg-amud-surface p-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-label-md font-semibold text-amud-on-surface">{a.candidateNom}</span>
+                  <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${a.status === 'ACCEPTED' ? 'bg-amud-primary-fixed text-amud-on-primary-fixed' : a.status === 'REJECTED' ? 'bg-amud-error-container text-amud-on-error-container' : 'bg-amud-surface-container-highest text-amud-on-surface-variant'}`}>
+                    {STATUS_LABEL[a.status]}
+                  </span>
+                </div>
+                <p className="text-label-sm text-amud-outline">
+                  {a.offerTitre} · {a.entrepriseNom}
+                </p>
+              </div>
+            ))}
+            {decisionsByTab[decisionsTab].length === 0 ? (
+              <p className="text-label-sm text-amud-on-surface-variant">Aucune décision pour l’instant.</p>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
+
       <Modal
         open={addOpen}
         onClose={() => setAddOpen(false)}
-        title="Ajouter un candidat"
+        title="Ajouter une candidature"
         subtitle="Le candidat rejoint la colonne sélectionnée du pipeline."
         footer={
           <div className="flex justify-end gap-sm">
-            <button
-              type="button"
-              onClick={() => setAddOpen(false)}
-              className="rounded-lg border border-amud-outline-variant px-lg py-2 text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low"
-            >
+            <button type="button" onClick={() => setAddOpen(false)} className="rounded-lg border border-amud-outline-variant px-lg py-2 text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
               Annuler
             </button>
-            <button
-              type="submit"
-              form="add-candidat-form"
-              className="rounded-lg bg-amud-primary px-lg py-2 text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark"
-            >
+            <button type="submit" form="add-candidat-form" className="rounded-lg bg-amud-primary px-lg py-2 text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark">
               Ajouter
             </button>
           </div>
         }
       >
-        <form
-          id="add-candidat-form"
-          onSubmit={handleAddCandidat}
-          className="grid grid-cols-1 gap-md sm:grid-cols-2"
-        >
+        <form id="add-candidat-form" onSubmit={handleAddCandidature} className="grid grid-cols-1 gap-md sm:grid-cols-2">
           <div className="sm:col-span-2">
             <label className="mb-1 block text-label-md text-amud-on-surface-variant">Nom complet</label>
             <input
@@ -309,15 +376,20 @@ export default function AmudAdminCandidaturesPage() {
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Poste visé</label>
-            <input
-              value={poste}
-              onChange={(e) => setPoste(e.target.value)}
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Offre visée</label>
+            <select
+              value={offerId}
+              onChange={(e) => setOfferId(e.target.value)}
               required
               className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
-              placeholder="Infirmier D.E."
-              type="text"
-            />
+            >
+              <option value="">Sélectionner une offre…</option>
+              {offres.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.titre} — {o.entreprise}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="mb-1 block text-label-md text-amud-on-surface-variant">Colonne</label>
@@ -326,7 +398,7 @@ export default function AmudAdminCandidaturesPage() {
               onChange={(e) => setColonneChoisie(e.target.value as ColonneId)}
               className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
             >
-              {COLONNES.map((c) => (
+              {KANBAN_COLUMNS.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.label}
                 </option>

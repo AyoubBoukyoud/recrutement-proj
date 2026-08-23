@@ -4,122 +4,58 @@ import { useMemo, useState } from 'react';
 import { Drawer } from '@/components/amud/ui';
 import { useToast } from '@/components/amud/Toast';
 import { exportCsv } from '@/lib/amud/csv';
+import { auditLogSeed, type AuditLog, type AuditRole } from '@/data/amud/auditLog';
+import { auditLogs as auditLogsCollection } from '@/lib/amud/storage/audit';
+import { useCollection } from '@/lib/amud/storage/useCollection';
 
-type Role = 'Admin' | 'Commercial' | 'Recruteur';
-type Resultat = 'Succès' | 'Échec';
-
-type LogEntry = {
-  id: string;
-  date: string;
-  heure: string;
-  utilisateur: string;
-  role: Role | 'N/A';
-  action: string;
-  actionType: 'create' | 'update' | 'disable' | 'login_failed';
-  module: string;
-  reference: string;
-  ip: string;
-  localisation: string;
-  resultat: Resultat;
-  diff?: { before: string; after: string };
-};
-
-const SEED: LogEntry[] = [
-  {
-    id: 'log1',
-    date: '12/10/2023',
-    heure: '14:30:22',
-    utilisateur: 'Admin Ahmed',
-    role: 'Admin',
-    action: 'Création de commercial',
-    actionType: 'create',
-    module: 'Utilisateurs',
-    reference: 'Jean Dupont (#492)',
-    ip: '192.168.1.1',
-    localisation: 'Casablanca, Maroc',
-    resultat: 'Succès',
-  },
-  {
-    id: 'log2',
-    date: '12/10/2023',
-    heure: '11:15:05',
-    utilisateur: 'Recruteur Mohamed',
-    role: 'Recruteur',
-    action: "Modification d'offre",
-    actionType: 'update',
-    module: 'Offres',
-    reference: 'Infirmier Berlin (#1042)',
-    ip: '172.16.0.42',
-    localisation: 'Paris, France',
-    resultat: 'Succès',
-    diff: { before: '"salary_max": 45000,\n"status": "draft"', after: '"salary_max": 52000,\n"status": "published"' },
-  },
-  {
-    id: 'log3',
-    date: '11/10/2023',
-    heure: '16:45:50',
-    utilisateur: 'Admin Sara',
-    role: 'Admin',
-    action: 'Désactivation de compte',
-    actionType: 'disable',
-    module: 'Utilisateurs',
-    reference: 'Lucas Renard (#221)',
-    ip: '82.10.4.15',
-    localisation: 'Lyon, France',
-    resultat: 'Succès',
-  },
-  {
-    id: 'log4',
-    date: '11/10/2023',
-    heure: '09:12:01',
-    utilisateur: 'Utilisateur Inconnu',
-    role: 'N/A',
-    action: 'Tentative de connexion',
-    actionType: 'login_failed',
-    module: 'Système',
-    reference: '-',
-    ip: '198.51.100.14',
-    localisation: 'Inconnue',
-    resultat: 'Échec',
-  },
-  {
-    id: 'log5',
-    date: '10/10/2023',
-    heure: '08:03:44',
-    utilisateur: 'Commercial Jean Dupont',
-    role: 'Commercial',
-    action: "Mise à jour d'activité CRM",
-    actionType: 'update',
-    module: 'CRM',
-    reference: 'Marie Laurent (#3312)',
-    ip: '90.12.4.201',
-    localisation: 'Paris, France',
-    resultat: 'Succès',
-    diff: { before: '"statut": "nouveau"', after: '"statut": "positif"' },
-  },
+const ROLE_CHIPS: AuditRole[] = ['Admin', 'Commercial', 'Recruteur', 'Candidat'];
+const PERIODES = [
+  { id: '', label: 'Toute la période' },
+  { id: '7j', label: '7 derniers jours' },
+  { id: '30j', label: '30 derniers jours' },
 ];
 
-const ROLE_CHIPS: Role[] = ['Admin', 'Commercial', 'Recruteur'];
-const MODULE_CHIPS = ['Utilisateurs', 'Offres', 'CRM'];
+function parseFr(d: string): Date | null {
+  const [day, month, year] = d.split('/').map(Number);
+  if (!day || !month || !year) return null;
+  return new Date(year, month - 1, day);
+}
 
 export default function AmudAdminJournalActivitePage() {
   const notify = useToast();
+  const [logs] = useCollection(auditLogsCollection, auditLogSeed);
   const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState<Role | null>(null);
+  const [roleFilter, setRoleFilter] = useState<AuditRole | null>(null);
   const [moduleFilter, setModuleFilter] = useState<string | null>(null);
   const [statutFilter, setStatutFilter] = useState('Tous les statuts');
-  const [selected, setSelected] = useState<LogEntry | null>(null);
+  const [periode, setPeriode] = useState('');
+  const [selected, setSelected] = useState<AuditLog | null>(null);
+
+  const moduleChips = useMemo(() => Array.from(new Set(logs.map((l) => l.module))).sort(), [logs]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return SEED.filter(
-      (l) =>
-        (!q || l.utilisateur.toLowerCase().includes(q) || l.action.toLowerCase().includes(q)) &&
-        (!roleFilter || l.role === roleFilter) &&
-        (!moduleFilter || l.module === moduleFilter) &&
-        (statutFilter === 'Tous les statuts' || l.resultat === statutFilter),
-    );
-  }, [search, roleFilter, moduleFilter, statutFilter]);
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    return [...logs]
+      .sort((a, b) => (a.date === b.date ? b.heure.localeCompare(a.heure) : b.date.localeCompare(a.date)))
+      .filter(
+        (l) =>
+          (!q || l.utilisateur.toLowerCase().includes(q) || l.action.toLowerCase().includes(q)) &&
+          (!roleFilter || l.role === roleFilter) &&
+          (!moduleFilter || l.module === moduleFilter) &&
+          (statutFilter === 'Tous les statuts' || l.resultat === statutFilter) &&
+          (() => {
+            if (!periode) return true;
+            const d = parseFr(l.date);
+            if (!d) return true;
+            const days = periode === '7j' ? 7 : 30;
+            const past = new Date(now);
+            past.setDate(past.getDate() - days);
+            return d >= past && d <= now;
+          })(),
+      );
+  }, [logs, search, roleFilter, moduleFilter, statutFilter, periode]);
 
   return (
     <div className="flex flex-col">
@@ -157,10 +93,16 @@ export default function AmudAdminJournalActivitePage() {
               type="text"
             />
           </div>
-          <select className="w-full appearance-none rounded-lg border border-amud-outline-variant bg-amud-surface-bright px-4 py-2 text-body-md text-amud-on-surface outline-none focus:border-amud-primary focus:ring-1 focus:ring-amud-primary">
-            <option>7 derniers jours</option>
-            <option>30 derniers jours</option>
-            <option>Ce mois-ci</option>
+          <select
+            value={periode}
+            onChange={(e) => setPeriode(e.target.value)}
+            className="w-full appearance-none rounded-lg border border-amud-outline-variant bg-amud-surface-bright px-4 py-2 text-body-md text-amud-on-surface outline-none focus:border-amud-primary focus:ring-1 focus:ring-amud-primary"
+          >
+            {PERIODES.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.label}
+              </option>
+            ))}
           </select>
           <select
             value={statutFilter}
@@ -192,7 +134,7 @@ export default function AmudAdminJournalActivitePage() {
           <div className="flex flex-wrap items-center gap-sm">
             <span className="text-label-sm uppercase tracking-wider text-amud-on-surface-variant">Module:</span>
             <div className="flex flex-wrap gap-2">
-              {MODULE_CHIPS.map((m) => (
+              {moduleChips.map((m) => (
                 <button
                   key={m}
                   onClick={() => setModuleFilter(moduleFilter === m ? null : m)}
@@ -261,7 +203,7 @@ export default function AmudAdminJournalActivitePage() {
           </table>
         </div>
         <div className="flex items-center justify-between border-t border-amud-outline-variant bg-amud-surface-container-lowest p-md">
-          <span className="text-label-sm text-amud-on-surface-variant">Affichage 1 à {filtered.length} sur {SEED.length} entrées</span>
+          <span className="text-label-sm text-amud-on-surface-variant">Affichage 1 à {filtered.length} sur {logs.length} entrées</span>
         </div>
       </div>
 

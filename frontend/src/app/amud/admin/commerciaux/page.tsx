@@ -1,9 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
-import { STATUT_LABEL, commerciaux as seedCommerciaux } from '@/data/amud/commerciaux';
-import { loadLocalCommerciaux } from '@/lib/amud/localCommerciaux';
+import { useMemo, useState } from 'react';
+import { Modal } from '@/components/amud/ui';
+import { useToast } from '@/components/amud/Toast';
+import { STATUT_LABEL, commerciaux as seedCommerciaux, type Commercial } from '@/data/amud/commerciaux';
+import { commerciauxCollection } from '@/lib/amud/localCommerciaux';
+import { useCollection } from '@/lib/amud/storage/useCollection';
+import { logAudit } from '@/lib/amud/storage/audit';
 
 const STATUT_CLASS: Record<string, string> = {
   en_ligne: 'bg-amud-primary-fixed text-amud-on-primary-fixed',
@@ -11,16 +15,88 @@ const STATUT_CLASS: Record<string, string> = {
   hors_ligne: 'bg-amud-surface-container-highest text-amud-on-surface-variant',
 };
 
+const RESPONSABLES = ['Marie Dubois - Directrice Commerciale', 'Paul Martin - Chef de Secteur'];
+const NIVEAUX = ['Junior (0-2 ans)', 'Intermédiaire (3-5 ans)', 'Senior (5+ ans)'];
+
+function todayFr() {
+  return new Date().toLocaleDateString('fr-FR');
+}
+
 export default function AmudAdminCommerciauxPage() {
+  const notify = useToast();
   const [search, setSearch] = useState('');
   const [statut, setStatut] = useState('');
   const [vue, setVue] = useState<'table' | 'grid'>('table');
-  const [commerciaux, setCommerciaux] = useState(seedCommerciaux);
+  const [commerciaux, { add: addCommercial }] = useCollection(commerciauxCollection, seedCommerciaux);
 
-  useEffect(() => {
-    const extra = loadLocalCommerciaux();
-    if (extra.length) setCommerciaux([...seedCommerciaux, ...extra]);
-  }, []);
+  const [addOpen, setAddOpen] = useState(false);
+  const [addPrenom, setAddPrenom] = useState('');
+  const [addNom, setAddNom] = useState('');
+  const [addEmail, setAddEmail] = useState('');
+  const [addTelephone, setAddTelephone] = useState('');
+  const [addVille, setAddVille] = useState('');
+  const [addDateEntree, setAddDateEntree] = useState('');
+  const [addResponsable, setAddResponsable] = useState('');
+  const [addNiveau, setAddNiveau] = useState(NIVEAUX[0]);
+  const [addZone, setAddZone] = useState('');
+  const [addSecteur, setAddSecteur] = useState('');
+
+  function resetAddForm() {
+    setAddPrenom('');
+    setAddNom('');
+    setAddEmail('');
+    setAddTelephone('');
+    setAddVille('');
+    setAddDateEntree('');
+    setAddResponsable('');
+    setAddNiveau(NIVEAUX[0]);
+    setAddZone('');
+    setAddSecteur('');
+  }
+
+  function buildCommercial(): Commercial {
+    const id = `${addPrenom}-${addNom}`
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+    return {
+      id: id || `commercial-${Date.now()}`,
+      prenom: addPrenom,
+      nom: addNom,
+      fonction: 'Agent Commercial',
+      ville: addVille || ' —',
+      email: addEmail,
+      telephone: addTelephone,
+      dateEntree: addDateEntree || todayFr(),
+      statut: 'hors_ligne',
+      avatarInitials: `${addPrenom[0] ?? ''}${addNom[0] ?? ''}`.toUpperCase(),
+      objectifAppelsJour: 40,
+      appelsJour: 0,
+      tauxReponse: 0,
+      rdvSemaine: 0,
+      objectifRdvSemaine: 12,
+      candidatsContactes: 0,
+      recruteursContactes: 0,
+      objectifMensuel: 400,
+      realiseMensuel: 0,
+      conversionsMois: 0,
+      objectifConversionsMois: 8,
+      tauxConversion: 0,
+    };
+  }
+
+  function handleAddCommercial(e: React.FormEvent) {
+    e.preventDefault();
+    if (!addPrenom.trim() || !addNom.trim() || !addEmail.trim() || !addEmail.includes('@')) return;
+    const c = buildCommercial();
+    addCommercial(c);
+    logAudit({ utilisateur: 'Administrateur', role: 'Admin', action: 'Création de commercial', actionType: 'create', module: 'Commerciaux', reference: `${c.prenom} ${c.nom} (#${c.id})` });
+    notify(`« ${c.prenom} ${c.nom} » créé, invitation envoyée.`);
+    setAddOpen(false);
+    resetAddForm();
+  }
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -44,13 +120,13 @@ export default function AmudAdminCommerciauxPage() {
           <h2 className="mb-2 border-l-4 border-amud-primary pl-4 text-headline-lg text-amud-on-surface">Commerciaux</h2>
           <p className="max-w-2xl pl-4 text-amud-on-surface-variant">Gérez votre équipe commerciale, leurs activités et leurs objectifs.</p>
         </div>
-        <Link
-          href="/amud/admin/commerciaux/nouveau"
+        <button
+          onClick={() => setAddOpen(true)}
           className="flex items-center gap-2 whitespace-nowrap rounded-lg bg-amud-primary px-6 py-3 text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark"
         >
           <span className="material-symbols-outlined">add</span>
           Ajouter un commercial
-        </Link>
+        </button>
       </div>
 
       <div className="mb-xl grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -243,6 +319,134 @@ export default function AmudAdminCommerciauxPage() {
           })}
         </div>
       )}
+
+      <Modal
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        title="Ajouter un commercial"
+        subtitle="Renseignez les informations pour créer un nouveau profil agent commercial."
+        footer={
+          <div className="flex justify-end gap-sm">
+            <button type="button" onClick={() => setAddOpen(false)} className="rounded-lg border border-amud-outline-variant px-lg py-2 text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
+              Annuler
+            </button>
+            <button type="submit" form="add-commercial-form" className="rounded-lg bg-amud-primary px-lg py-2 text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark">
+              Créer et envoyer les accès
+            </button>
+          </div>
+        }
+      >
+        <form id="add-commercial-form" onSubmit={handleAddCommercial} className="grid grid-cols-1 gap-md sm:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Prénom</label>
+            <input
+              autoFocus
+              value={addPrenom}
+              onChange={(e) => setAddPrenom(e.target.value)}
+              required
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+              placeholder="Jean"
+              type="text"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Nom</label>
+            <input
+              value={addNom}
+              onChange={(e) => setAddNom(e.target.value)}
+              required
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+              placeholder="Dupont"
+              type="text"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Email pro</label>
+            <input
+              value={addEmail}
+              onChange={(e) => setAddEmail(e.target.value)}
+              required
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+              placeholder="jean.dupont@amudskills.com"
+              type="email"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Téléphone</label>
+            <input
+              value={addTelephone}
+              onChange={(e) => setAddTelephone(e.target.value)}
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+              placeholder="+33 6 00 00 00 00"
+              type="tel"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Ville</label>
+            <input
+              value={addVille}
+              onChange={(e) => setAddVille(e.target.value)}
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+              placeholder="Paris"
+              type="text"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Date d&apos;entrée</label>
+            <input
+              value={addDateEntree}
+              onChange={(e) => setAddDateEntree(e.target.value)}
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+              type="date"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Responsable</label>
+            <select
+              value={addResponsable}
+              onChange={(e) => setAddResponsable(e.target.value)}
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+            >
+              <option value="">Sélectionner un responsable</option>
+              {RESPONSABLES.map((r) => (
+                <option key={r}>{r}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Niveau d&apos;expérience</label>
+            <select
+              value={addNiveau}
+              onChange={(e) => setAddNiveau(e.target.value)}
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+            >
+              {NIVEAUX.map((n) => (
+                <option key={n}>{n}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Zone géographique</label>
+            <input
+              value={addZone}
+              onChange={(e) => setAddZone(e.target.value)}
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+              placeholder="Ex: Île-de-France"
+              type="text"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-label-md text-amud-on-surface-variant">Secteur d&apos;activité cible</label>
+            <input
+              value={addSecteur}
+              onChange={(e) => setAddSecteur(e.target.value)}
+              className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+              placeholder="Ex: BTP, IT, Santé"
+              type="text"
+            />
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

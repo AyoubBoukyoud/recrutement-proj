@@ -10,6 +10,7 @@ import { StatusPill } from '@/components/ui';
 const SECTIONS = [
   { to: '/admin/apercu', label: 'Aperçu' },
   { to: '/admin/candidats', label: 'Candidats' },
+  { to: '/admin/recruteurs', label: 'Recruteurs' },
   { to: '/admin/reclamations', label: 'Réclamations' },
   { to: '/admin/stage', label: 'Stage' },
   { to: '/admin/utilisateurs', label: 'Utilisateurs' },
