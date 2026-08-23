@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
-import { InertNavItem, NavItem, isNavActive, useDropdown } from '@/components/amud/ui';
+import { Drawer, NavItem, isNavActive, useDropdown } from '@/components/amud/ui';
 import { ToastProvider } from '@/components/amud/Toast';
 import { useCurrentCenter } from '@/lib/amud/currentCentre';
 import { CENTER_ROLES, CENTER_ROLE_LABELS } from '@/data/amud/centerTypes';
@@ -13,22 +13,47 @@ import { notificationsSeed } from '@/data/amud/notifications';
 import { notifications as notificationsCollection, markNotificationRead, markAllNotificationsRead } from '@/lib/amud/storage/notify';
 import { useCollection } from '@/lib/amud/storage/useCollection';
 
-const NAV = [
-  { href: '/amud/centre/dashboard', icon: 'dashboard', label: 'Tableau de bord' },
-  { href: '/amud/centre/profil', icon: 'storefront', label: 'Profil du centre' },
-  { href: '/amud/centre/formations', icon: 'menu_book', label: 'Formations' },
-  { href: '/amud/centre/etudiants', icon: 'group', label: 'Étudiants' },
-  { href: '/amud/centre/enseignants', icon: 'cast_for_education', label: 'Enseignants' },
-  { href: '/amud/centre/groupes', icon: 'diversity_3', label: 'Groupes' },
-  { href: '/amud/centre/planning', icon: 'calendar_month', label: 'Planning' },
-  { href: '/amud/centre/presences', icon: 'fact_check', label: 'Présences' },
-  { href: '/amud/centre/paiements-etudiants', icon: 'payments', label: 'Paiements étudiants' },
-  { href: '/amud/centre/remuneration', icon: 'account_balance_wallet', label: 'Rémunération' },
-  { href: '/amud/centre/tarifs', icon: 'sell', label: 'Tarifs' },
-  { href: '/amud/centre/leads', icon: 'person_add', label: 'Leads' },
-  { href: '/amud/centre/site', icon: 'language', label: 'Site public' },
+type CentreNavItem = {
+  href: string;
+  icon: string;
+  label: string;
+  group: string;
+  /** Présent dans la barre de navigation basse mobile (les autres vont dans « Plus »). */
+  inBottomNav?: boolean;
+  bottomIcon?: string;
+  bottomLabel?: string;
+};
+
+/**
+ * Source unique des 15 entrées de l'espace Centre : sidebar desktop, barre
+ * basse mobile et tiroir « Plus » sont dérivés du même tableau — exactement
+ * comme `CompanyShell` le fait pour l'espace Entreprise, pour que passer
+ * d'un espace à l'autre ne change ni la structure ni les gestes.
+ */
+const NAV: CentreNavItem[] = [
+  { href: '/amud/centre/dashboard', icon: 'dashboard', label: 'Tableau de bord', group: '', inBottomNav: true, bottomLabel: 'Accueil' },
+  { href: '/amud/centre/etudiants', icon: 'group', label: 'Étudiants', group: 'Pédagogie', inBottomNav: true },
+  { href: '/amud/centre/planning', icon: 'calendar_month', label: 'Planning', group: 'Pédagogie', inBottomNav: true },
+  { href: '/amud/centre/paiements-etudiants', icon: 'payments', label: 'Paiements étudiants', group: 'Finances', inBottomNav: true, bottomLabel: 'Paiements' },
+  { href: '/amud/centre/formations', icon: 'menu_book', label: 'Formations', group: 'Pédagogie' },
+  { href: '/amud/centre/enseignants', icon: 'cast_for_education', label: 'Enseignants', group: 'Pédagogie' },
+  { href: '/amud/centre/groupes', icon: 'diversity_3', label: 'Groupes', group: 'Pédagogie' },
+  { href: '/amud/centre/presences', icon: 'fact_check', label: 'Présences', group: 'Pédagogie' },
+  { href: '/amud/centre/remuneration', icon: 'account_balance_wallet', label: 'Rémunération', group: 'Finances' },
+  { href: '/amud/centre/tarifs', icon: 'sell', label: 'Tarifs', group: 'Finances' },
+  { href: '/amud/centre/leads', icon: 'person_add', label: 'Leads', group: 'Développement' },
+  { href: '/amud/centre/site', icon: 'language', label: 'Site public', group: 'Développement' },
+  { href: '/amud/centre/statistiques', icon: 'bar_chart', label: 'Statistiques', group: 'Développement' },
+  { href: '/amud/centre/profil', icon: 'storefront', label: 'Profil du centre', group: 'Centre' },
+  { href: '/amud/centre/parametres', icon: 'settings', label: 'Paramètres', group: 'Centre' },
 ];
-const INERT = [{ icon: 'bar_chart', label: 'Statistiques' }, { icon: 'settings', label: 'Paramètres' }];
+
+const GROUP_LABELS = ['Pédagogie', 'Finances', 'Développement', 'Centre'];
+const SIDEBAR_GROUPS = [{ label: '', items: NAV.filter((i) => i.group === '') }].concat(
+  GROUP_LABELS.map((label) => ({ label, items: NAV.filter((i) => i.group === label) })),
+);
+const BOTTOM_ITEMS = NAV.filter((i) => i.inBottomNav);
+const PLUS_GROUPS = GROUP_LABELS.map((label) => ({ label, items: NAV.filter((i) => i.group === label && !i.inBottomNav) })).filter((g) => g.items.length > 0);
 
 /**
  * Coquille de l'espace self-service `/amud/centre/*` (cahier des charges
@@ -38,13 +63,17 @@ const INERT = [{ icon: 'bar_chart', label: 'Statistiques' }, { icon: 'settings',
  * "Rôle" dans le menu profil simule "je suis connecté à ce centre, avec ce
  * rôle" (`useCurrentCenter`) — indispensable ici puisque toutes les pages
  * ont besoin de savoir "mon" `centerId`, contrairement à Admin/Commercial
- * qui voient plusieurs centres à la fois.
+ * qui voient plusieurs centres à la fois. Chaque page applique en plus
+ * `canPerform(role, action)` (`centerPermissions.ts`) pour désactiver/bloquer
+ * réellement les actions que le rôle courant n'a pas le droit de faire — le
+ * menu de rôle ci-dessous ne change donc pas que l'affichage.
  */
 export function CentreShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [navOpen, setNavOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [plusOpen, setPlusOpen] = useState(false);
   const notifMenu = useDropdown<HTMLDivElement>();
   const profileMenu = useDropdown<HTMLDivElement>();
 
@@ -61,6 +90,7 @@ export function CentreShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setNavOpen(false);
+    setPlusOpen(false);
     notifMenu.setOpen(false);
     profileMenu.setOpen(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -85,13 +115,26 @@ export function CentreShell({ children }: { children: ReactNode }) {
             </div>
           </div>
 
-          <nav className="flex-1 overflow-y-auto px-sm py-md">
-            <div className="flex flex-col gap-0.5">
-              {NAV.map((item) => (
-                <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label} active={isNavActive(pathname, item.href)} collapsed={collapsed} />
-              ))}
-              {INERT.map((item) => (
-                <InertNavItem key={item.label} icon={item.icon} label={item.label} collapsed={collapsed} />
+          <nav className="flex-1 overflow-y-auto px-sm py-md" aria-label="Navigation de l’espace Centre">
+            <div className="flex flex-col gap-md">
+              {SIDEBAR_GROUPS.map((group) => (
+                <div key={group.label || 'root'}>
+                  {group.label ? (
+                    <div className={`px-4 pb-1 text-label-sm font-semibold uppercase tracking-wider text-amud-outline ${hiddenWhenCollapsed}`}>{group.label}</div>
+                  ) : null}
+                  <div className="flex flex-col gap-0.5">
+                    {group.items.map((item) => (
+                      <NavItem
+                        key={item.href}
+                        href={item.href}
+                        icon={item.icon}
+                        label={item.label}
+                        active={isNavActive(pathname, item.href, item.href === '/amud/centre/dashboard')}
+                        collapsed={collapsed}
+                      />
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           </nav>
@@ -207,8 +250,58 @@ export function CentreShell({ children }: { children: ReactNode }) {
               </div>
             </div>
           </header>
-          <main key={pathname} className="min-w-0 flex-1 animate-amud-rise-in p-margin-mobile md:p-margin-desktop">{children}</main>
+          <main key={pathname} className="min-w-0 flex-1 animate-amud-rise-in p-margin-mobile pb-24 md:p-margin-desktop md:pb-margin-desktop">
+            {children}
+          </main>
         </div>
+
+        {/* Barre de navigation basse — remplace la sidebar en dessous de md. */}
+        <nav
+          className="fixed inset-x-0 bottom-0 z-40 flex h-16 items-stretch border-t border-amud-outline-variant bg-amud-surface-container-lowest md:hidden"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+          aria-label="Navigation principale"
+        >
+          {BOTTOM_ITEMS.map((item) => {
+            const active = isNavActive(pathname, item.href, item.href === '/amud/centre/dashboard');
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={active ? 'page' : undefined}
+                className={`flex flex-1 flex-col items-center justify-center gap-0.5 px-1 text-[11px] font-medium transition-colors ${active ? 'text-amud-primary' : 'text-amud-on-surface-variant'}`}
+              >
+                <span className="material-symbols-outlined text-[22px]" style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}>
+                  {item.bottomIcon ?? item.icon}
+                </span>
+                <span className="truncate">{item.bottomLabel ?? item.label}</span>
+              </Link>
+            );
+          })}
+          <button
+            onClick={() => setPlusOpen(true)}
+            className="flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium text-amud-on-surface-variant"
+            aria-haspopup="menu"
+            aria-expanded={plusOpen}
+          >
+            <span className="material-symbols-outlined text-[22px]">more_horiz</span>
+            Plus
+          </button>
+        </nav>
+
+        <Drawer open={plusOpen} onClose={() => setPlusOpen(false)} anchor="bottom" title="Plus d’options">
+          <div className="flex flex-col gap-lg">
+            {PLUS_GROUPS.map((group) => (
+              <div key={group.label}>
+                <div className="px-1 pb-1 text-label-sm font-semibold uppercase tracking-wider text-amud-outline">{group.label}</div>
+                <div className="flex flex-col gap-0.5">
+                  {group.items.map((item) => (
+                    <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label} active={isNavActive(pathname, item.href)} />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Drawer>
       </div>
     </ToastProvider>
   );

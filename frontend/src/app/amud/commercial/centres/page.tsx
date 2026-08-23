@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { EmptyState, FilterBar, PageHeader, ReadOnlyNotice, SelectFilter, StatCard } from '@/components/amud/ui';
 import { useCollection } from '@/lib/amud/storage/useCollection';
 import { centresCollection } from '@/lib/amud/localCentres';
 import { centresSeed, PARTNERSHIP_LABELS, PARTNERSHIP_CLASS, PARTNERSHIP_STATUSES } from '@/data/amud/centres';
@@ -12,6 +13,8 @@ import { centerTeachersSeed } from '@/data/amud/centerTeachers';
 import { centerFormationsCollection } from '@/lib/amud/localCenterFormations';
 import { centerFormationsSeed } from '@/data/amud/centerFormations';
 import { CURRENT_COMMERCIAL } from '@/data/amud/currentCommercial';
+import { auditLogs } from '@/lib/amud/storage/audit';
+import { auditLogSeed } from '@/data/amud/auditLog';
 
 /**
  * Espace Commercial, lecture seule (cahier des charges §13-17) : recherche,
@@ -25,6 +28,7 @@ export default function AmudCommercialCentresPage() {
   const [students] = useCollection(centerStudentsCollection, centerStudentsSeed);
   const [teachers] = useCollection(centerTeachersCollection, centerTeachersSeed);
   const [formations] = useCollection(centerFormationsCollection, centerFormationsSeed);
+  const [logs] = useCollection(auditLogs, auditLogSeed);
 
   const [search, setSearch] = useState('');
   const [ville, setVille] = useState('');
@@ -32,6 +36,18 @@ export default function AmudCommercialCentresPage() {
   const [onlyMine, setOnlyMine] = useState(false);
 
   const villes = useMemo(() => Array.from(new Set(centres.map((c) => c.ville))).sort(), [centres]);
+
+  /** Dernière activité par centre — colonne demandée dans la vue Commercial. */
+  const lastActivity = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const l of logs) {
+      if (!l.centerId) continue;
+      const stamp = `${l.date} ${l.heure}`;
+      const current = map.get(l.centerId);
+      if (!current || stamp > current) map.set(l.centerId, stamp);
+    }
+    return map;
+  }, [logs]);
   const counts = useMemo(() => {
     const byCenterCount = (arr: { centerId: string }[]) => {
       const map = new Map<string, number>();
@@ -59,55 +75,52 @@ export default function AmudCommercialCentresPage() {
     { label: 'En négociation', value: centres.filter((c) => c.partnershipStatus === 'NEGOCIATION' || c.partnershipStatus === 'ESSAI').length, accent: 'bg-amud-tertiary-fixed-dim' },
   ];
 
+  const activeFilterCount = [ville, partnership, onlyMine ? 'x' : ''].filter(Boolean).length;
+
   return (
     <div>
-      <div className="mb-6">
-        <h2 className="text-headline-lg text-amud-on-surface">Centres partenaires</h2>
-        <p className="mt-1 text-body-md text-amud-on-surface-variant">Consultez les centres de formation partenaires (lecture seule).</p>
-      </div>
+      <PageHeader title="Centres partenaires" subtitle="Consultez les centres de formation partenaires." />
 
-      <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+      <ReadOnlyNotice>Espace Commercial en lecture seule : consultation uniquement, aucune modification n’est possible ici.</ReadOnlyNotice>
+
+      <div className="mb-lg grid grid-cols-2 gap-md md:grid-cols-4">
         {kpis.map((k) => (
-          <div key={k.label} className="relative flex flex-col items-start justify-center overflow-hidden rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
-            <div className={`absolute bottom-0 left-0 top-0 w-1 ${k.accent}`} />
-            <span className="mb-2 text-label-sm uppercase tracking-wider text-amud-on-surface-variant">{k.label}</span>
-            <span className="text-headline-lg text-amud-on-surface">{k.value}</span>
-          </div>
+          <StatCard key={k.label} label={k.label} value={k.value} accent={k.accent} />
         ))}
       </div>
 
-      <div className="mb-6 flex flex-col items-center gap-4 rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-4 shadow-[0_4px_12px_rgba(0,0,0,0.02)] md:flex-row">
-        <div className="relative w-full flex-1">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-amud-on-surface-variant">search</span>
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface py-2 pl-10 pr-4 text-body-md text-amud-on-surface outline-none focus:border-transparent focus:ring-2 focus:ring-amud-primary focus:ring-offset-2"
-            placeholder="Rechercher par nom, ville, téléphone, email, contact…"
-            type="text"
-          />
-        </div>
-        <div className="flex w-full items-center gap-2 overflow-x-auto pb-2 md:w-auto md:pb-0">
-          <select value={ville} onChange={(e) => setVille(e.target.value)} className="rounded-lg border border-amud-outline-variant bg-amud-surface px-4 py-2 text-label-md text-amud-on-surface focus:outline-none focus:ring-2 focus:ring-amud-primary">
-            <option value="">Ville</option>
-            {villes.map((v) => (
-              <option key={v}>{v}</option>
-            ))}
-          </select>
-          <select value={partnership} onChange={(e) => setPartnership(e.target.value)} className="rounded-lg border border-amud-outline-variant bg-amud-surface px-4 py-2 text-label-md text-amud-on-surface focus:outline-none focus:ring-2 focus:ring-amud-primary">
-            <option value="">Partenariat</option>
-            {PARTNERSHIP_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {PARTNERSHIP_LABELS[s]}
-              </option>
-            ))}
-          </select>
-          <label className="flex shrink-0 items-center gap-2 rounded-lg border border-amud-outline-variant px-4 py-2 text-label-md text-amud-on-surface">
-            <input type="checkbox" checked={onlyMine} onChange={(e) => setOnlyMine(e.target.checked)} className="h-4 w-4 rounded border-amud-outline text-amud-primary focus:ring-amud-primary" />
-            Mes centres
-          </label>
-        </div>
-      </div>
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Rechercher par nom, ville, téléphone, email, contact…"
+        activeFilterCount={activeFilterCount}
+        onReset={() => {
+          setSearch('');
+          setVille('');
+          setPartnership('');
+          setOnlyMine(false);
+        }}
+        filters={
+          <>
+            <SelectFilter label="Ville" value={ville} onChange={setVille} options={villes.map((v) => ({ value: v, label: v }))} />
+            <SelectFilter
+              label="Partenariat"
+              value={partnership}
+              onChange={setPartnership}
+              options={PARTNERSHIP_STATUSES.map((st) => ({ value: st, label: PARTNERSHIP_LABELS[st] }))}
+            />
+            <label className="flex min-h-[44px] shrink-0 items-center gap-2 rounded-lg border border-amud-outline-variant px-4 text-label-md text-amud-on-surface">
+              <input
+                type="checkbox"
+                checked={onlyMine}
+                onChange={(e) => setOnlyMine(e.target.checked)}
+                className="h-4 w-4 rounded border-amud-outline text-amud-primary focus:ring-amud-primary"
+              />
+              Mes centres
+            </label>
+          </>
+        }
+      />
 
       <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((c) => (
@@ -145,12 +158,16 @@ export default function AmudCommercialCentresPage() {
                 </div>
               </div>
               <p className="mt-auto pt-sm text-label-sm text-amud-on-surface-variant">Commercial : {c.assignedCommercialNom || '—'}</p>
+              <p className="text-label-sm text-amud-on-surface-variant">Dernière activité : {lastActivity.get(c.id) ?? '—'}</p>
+              <span className="mt-sm flex min-h-[44px] items-center justify-center gap-2 rounded-lg border border-amud-outline-variant text-label-md font-medium text-amud-primary transition-colors group-hover:bg-amud-primary/5">
+                <span className="material-symbols-outlined text-[18px]">visibility</span> Voir
+              </span>
             </div>
           </Link>
         ))}
         {filtered.length === 0 ? (
-          <div className="col-span-full rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-xl text-center text-body-md text-amud-on-surface-variant">
-            Aucun centre ne correspond à ces filtres.
+          <div className="col-span-full rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest shadow-sm">
+            <EmptyState icon="search_off" title="Aucun centre trouvé" description="Aucun centre ne correspond à votre recherche ou à vos filtres." />
           </div>
         ) : null}
       </div>

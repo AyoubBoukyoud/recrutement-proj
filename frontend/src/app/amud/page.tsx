@@ -20,6 +20,12 @@ const ESPACES = [
     titre: 'Espace Entreprise',
     description: 'Profil entreprise, offres, candidatures, candidats, entretiens, messages, statistiques — l’espace recruteur complet.',
   },
+  {
+    href: '/amud/centre/dashboard',
+    icon: 'school',
+    titre: 'Espace Centre',
+    description: 'Auto-gestion d’un centre de formation : étudiants, enseignants, planning, présences, paiements, site public.',
+  },
 ];
 
 const MARKETING = [

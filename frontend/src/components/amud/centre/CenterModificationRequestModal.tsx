@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Modal } from '@/components/amud/ui';
+import { Modal, ModalActions } from '@/components/amud/ui';
 import { useToast } from '@/components/amud/Toast';
 import { useCollection } from '@/lib/amud/storage/useCollection';
 import { generateId } from '@/lib/amud/storage/ids';
@@ -9,6 +9,7 @@ import { centerModificationRequestsCollection } from '@/lib/amud/localCenterModi
 import { centerModificationRequestsSeed } from '@/data/amud/centerModificationRequests';
 import type { Centre } from '@/data/amud/centres';
 import { CURRENT_COMMERCIAL } from '@/data/amud/currentCommercial';
+import { canPerform, PERMISSION_DENIED_MESSAGE } from '@/lib/amud/centerPermissions';
 
 /**
  * "Demander une modification" (cahier des charges §22) — le Commercial ne
@@ -24,6 +25,13 @@ export function CenterModificationRequestModal({ open, onClose, centre }: { open
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!centre || !message.trim()) return;
+    // Le Commercial n'a droit qu'à CETTE action sur un centre (cahier des
+    // charges §19) — vérifiée ici, pas seulement par l'absence de tout
+    // autre bouton côté `/amud/commercial/*`.
+    if (!canPerform('COMMERCIAL', 'request-modification')) {
+      notify(PERMISSION_DENIED_MESSAGE, 'error');
+      return;
+    }
     add({
       id: generateId('modreq'),
       centerId: centre.id,
@@ -46,16 +54,7 @@ export function CenterModificationRequestModal({ open, onClose, centre }: { open
       title="Demander une modification"
       subtitle={centre?.nom}
       widthClassName="max-w-md"
-      footer={
-        <div className="flex justify-end gap-sm">
-          <button type="button" onClick={onClose} className="rounded-lg border border-amud-outline-variant px-lg py-2 text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
-            Annuler
-          </button>
-          <button type="submit" form="modreq-form" className="rounded-lg bg-amud-primary px-lg py-2 text-label-md font-medium text-white shadow-sm hover:brightness-110">
-            Envoyer
-          </button>
-        </div>
-      }
+      footer={<ModalActions onCancel={onClose} form="modreq-form" submitLabel="Envoyer" />}
     >
       <form id="modreq-form" onSubmit={handleSubmit} className="flex flex-col gap-md">
         <p className="text-body-md text-amud-on-surface-variant">Décrivez l&apos;information à corriger. Votre demande sera transmise à l&apos;administrateur, qui reste seul habilité à modifier la fiche du centre.</p>
@@ -66,7 +65,7 @@ export function CenterModificationRequestModal({ open, onClose, centre }: { open
           required
           rows={4}
           placeholder="Ex : Le numéro de téléphone semble incorrect."
-          className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
+          className="min-h-[44px] w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
         />
       </form>
     </Modal>

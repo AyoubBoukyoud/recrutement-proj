@@ -165,11 +165,30 @@ export type CenterGroup = {
   niveau: GermanLevel;
   enseignantId: string;
   salle: string;
-  studentIds: string[];
   capaciteMax: number;
   dateDebut: string;
   dateFin: string;
   statut: GroupStatus;
+};
+
+export type EnrollmentStatus = 'ACTIF' | 'TERMINE' | 'ABANDONNE';
+
+/**
+ * Rattachement étudiant ↔ groupe comme entité de première classe (cahier
+ * des charges §17, clé `amud_enrollments`) — remplace le champ
+ * `CenterGroup.studentIds` qui dupliquait cette relation dans la ligne du
+ * groupe. Un étudiant peut avoir plusieurs inscriptions dans le temps
+ * (`TERMINE`/`ABANDONNE` puis réinscription), donc pas de contrainte
+ * d'unicité forte au-delà de "un étudiant n'est ACTIF que dans une seule
+ * ligne par groupe" (appliquée par `enrollStudent`, pas par le stockage).
+ */
+export type CenterEnrollment = {
+  id: string;
+  centerId: string;
+  groupId: string;
+  studentId: string;
+  enrolledAt: string;
+  statut: EnrollmentStatus;
 };
 
 export type CenterSchedule = {
@@ -308,6 +327,24 @@ export type CenterModificationRequest = {
   statut: ModificationRequestStatus;
 };
 
+/**
+ * Un membre de l'équipe d'un centre, avec son rôle dans la matrice de
+ * permissions (`centerPermissions.ts`) — remplace la simple simulation
+ * "je suis connecté en tant que <rôle>" par un vrai répertoire d'équipe que
+ * `CENTER_OWNER`/`CENTER_ADMIN` gère depuis `/amud/centre/parametres`
+ * (cahier des charges : clé `amud_center_users`).
+ */
+export type CenterUser = {
+  id: string;
+  centerId: string;
+  nom: string;
+  email: string;
+  telephone?: string;
+  role: CenterRole;
+  actif: boolean;
+  createdAt: string;
+};
+
 /** Rôles du workspace `/amud/centre/*` (cahier des charges §49-50) — un seul espace, le rôle change les permissions, pas l'UI. */
 export type CenterRole = 'CENTER_OWNER' | 'CENTER_ADMIN' | 'COORDINATOR' | 'TEACHER' | 'ACCOUNTANT' | 'STUDENT';
 export const CENTER_ROLES: CenterRole[] = ['CENTER_OWNER', 'CENTER_ADMIN', 'COORDINATOR', 'TEACHER', 'ACCOUNTANT', 'STUDENT'];
@@ -318,4 +355,62 @@ export const CENTER_ROLE_LABELS: Record<CenterRole, string> = {
   TEACHER: 'Enseignant',
   ACCOUNTANT: 'Comptable',
   STUDENT: 'Étudiant',
+};
+
+/**
+ * Les 8 rôles du cahier des charges (§19) : les 6 `CenterRole` ci-dessus
+ * (internes à *un* centre, simulés via le sélecteur `useCurrentCenter`) plus
+ * `ADMIN`/`COMMERCIAL`, qui opèrent au niveau plateforme, sur potentiellement
+ * tous les centres. Ces deux-là restent identifiés par l'espace où l'on se
+ * trouve (`/amud/admin/*`, `/amud/commercial/*`) plutôt que par un
+ * sélecteur — il n'existe qu'un seul Admin et qu'un seul Commercial "vous",
+ * pas un choix parmi plusieurs — mais `canPerform`/`actionsFor` les
+ * acceptent désormais au même titre que les autres, pour que les actions
+ * Admin/Commercial sur les centres soient elles aussi vérifiées en fonction
+ * (pas seulement en façade) plutôt que par convention de route seule.
+ */
+export type AppRole = CenterRole | 'ADMIN' | 'COMMERCIAL';
+
+/** Les 13 événements métier typés du cahier des charges (§20) — un centre_activities distinct de l'audit log libre (`amud_audit_logs`) : feed léger pour tableau de bord / notifications, pas la trace de conformité. */
+export type CenterActivityType =
+  | 'CENTER_CREATED'
+  | 'CENTER_UPDATED'
+  | 'PARTNERSHIP_UPDATED'
+  | 'STUDENT_CREATED'
+  | 'TEACHER_CREATED'
+  | 'FORMATION_CREATED'
+  | 'GROUP_CREATED'
+  | 'SCHEDULE_CREATED'
+  | 'ATTENDANCE_RECORDED'
+  | 'PAYMENT_RECEIVED'
+  | 'WEBSITE_UPDATED'
+  | 'THEME_CHANGED'
+  | 'LEAD_CREATED';
+
+export type CenterActivity = {
+  id: string;
+  centerId: string;
+  type: CenterActivityType;
+  message: string;
+  utilisateur: string;
+  role: string;
+  createdAt: string;
+};
+
+/**
+ * Historique des heures d'enseignement comptées à chaque versement de
+ * rémunération (clé `amud_teacher_hours`) — PAS la source du nombre
+ * d'heures "actuel" (ça reste `computeTeacherHours()`, calculé en direct
+ * depuis `amud_schedules` pour ne jamais coder les statistiques en dur,
+ * cahier des charges §21). C'est un instantané horodaté : "à la date où ce
+ * paiement a été enregistré, l'enseignant avait X heures à son crédit" —
+ * utile pour l'historique/audit, sans dupliquer la vérité courante.
+ */
+export type CenterTeacherHoursRecord = {
+  id: string;
+  centerId: string;
+  enseignantId: string;
+  periode: string;
+  heures: number;
+  recordedAt: string;
 };

@@ -11,6 +11,9 @@ import type {
   CenterTarif,
   CenterLead,
   CenterModificationRequest,
+  CenterUser,
+  CenterEnrollment,
+  CenterTeacherHoursRecord,
   GermanLevel,
   PartnershipStatus,
   ThemeId,
@@ -234,7 +237,12 @@ function buildCenter(bp: CenterBlueprint, index: number) {
     dateValidite: fmtFr(addDays(monday, 90)),
   }));
 
-  const groups: CenterGroup[] = formations.map((f, gi) => ({
+  // `studentIds` n'existe plus sur `CenterGroup` (rattachement devenu
+  // l'entité `CenterEnrollment` de première classe, amud_enrollments) — ce
+  // type élargi reste local au générateur pour suivre "quel étudiant va
+  // dans quel groupe" pendant la construction des présences/paiements,
+  // avant d'être dépouillé à la sortie de `buildCenter`.
+  const groups: (CenterGroup & { studentIds: string[] })[] = formations.map((f, gi) => ({
     id: `${centerId}_group_${gi + 1}`,
     centerId,
     nom: `Groupe ${f.niveau}-${gi + 1}`,
@@ -454,7 +462,66 @@ function buildCenter(bp: CenterBlueprint, index: number) {
     updatedAt: addDays(TODAY, -2).toISOString(),
   };
 
-  return { centre, teachers, formations, tarifs, groups, students, schedules, attendance, studentPayments, teacherPayments, leads };
+  const users: CenterUser[] = [
+    {
+      id: `${centerId}_user_owner`,
+      centerId,
+      nom: centre.contactNom,
+      email: centre.contactEmail,
+      telephone: centre.contactTelephone,
+      role: 'CENTER_OWNER',
+      actif: true,
+      createdAt: centre.createdAt,
+    },
+    {
+      id: `${centerId}_user_admin`,
+      centerId,
+      nom: `${teachers[1]?.prenom ?? 'Fatima'} Zahra`,
+      email: `admin@${bp.slug.split('-')[0]}-${bp.ville.toLowerCase()}.example`,
+      telephone: `+212 6 ${65 + index}${11} ${21}${31} ${41}${51}`,
+      role: 'CENTER_ADMIN',
+      actif: true,
+      createdAt: centre.createdAt,
+    },
+    {
+      id: `${centerId}_user_accountant`,
+      centerId,
+      nom: 'Rachid Alaoui',
+      email: `compta@${bp.slug.split('-')[0]}-${bp.ville.toLowerCase()}.example`,
+      telephone: `+212 6 ${66 + index}${12} ${22}${32} ${42}${52}`,
+      role: 'ACCOUNTANT',
+      actif: true,
+      createdAt: centre.createdAt,
+    },
+  ];
+
+  const enrollments: CenterEnrollment[] = groups.flatMap((g) =>
+    g.studentIds.map((studentId) => ({
+      id: `${g.id}_enr_${studentId}`,
+      centerId,
+      groupId: g.id,
+      studentId,
+      enrolledAt: students.find((s) => s.id === studentId)?.dateInscription ?? fmtFr(addDays(monday, -60)),
+      statut: 'ACTIF' as const,
+    })),
+  );
+  const cleanGroups: CenterGroup[] = groups.map(({ studentIds: _studentIds, ...rest }) => rest);
+
+  // Historique "heures comptées au moment du versement" (amud_teacher_hours,
+  // cf. docblock de `CenterTeacherHoursRecord`) — un instantané par
+  // enseignant payé dans ce jeu de démo, pas une nouvelle source de vérité.
+  const teacherHoursRecords: CenterTeacherHoursRecord[] = teacherPayments
+    .filter((p) => p.statut === 'PAYE')
+    .map((p) => ({
+      id: `${p.id}_hours`,
+      centerId,
+      enseignantId: p.enseignantId,
+      periode: p.periode,
+      heures: p.nombreHeures,
+      recordedAt: new Date(`${p.date.split('/').reverse().join('-')}`).toISOString(),
+    }));
+
+  return { centre, teachers, formations, tarifs, groups: cleanGroups, students, schedules, attendance, studentPayments, teacherPayments, teacherHoursRecords, leads, users, enrollments };
 }
 
 function buildDemoData() {
@@ -495,7 +562,10 @@ function buildDemoData() {
     attendance: built.flatMap((b) => b.attendance),
     studentPayments: built.flatMap((b) => b.studentPayments),
     teacherPayments: built.flatMap((b) => b.teacherPayments),
+    teacherHoursRecords: built.flatMap((b) => b.teacherHoursRecords),
     leads: built.flatMap((b) => b.leads),
+    users: built.flatMap((b) => b.users),
+    enrollments: built.flatMap((b) => b.enrollments),
     modificationRequests,
   };
 }

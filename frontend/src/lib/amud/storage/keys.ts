@@ -31,17 +31,25 @@ export const AMUD_KEYS = {
   conversations: 'amud_conversations',
   candidateNotes: 'amud_candidate_notes',
   centres: 'amud_centres',
-  centerStudents: 'amud_center_students',
-  centerTeachers: 'amud_center_teachers',
-  centerFormations: 'amud_center_formations',
-  centerGroups: 'amud_center_groups',
-  centerSchedules: 'amud_center_schedules',
-  centerAttendance: 'amud_center_attendance',
-  centerStudentPayments: 'amud_center_student_payments',
-  centerTeacherPayments: 'amud_center_teacher_payments',
+  // Alignées sur les noms EXACTS du cahier des charges (§17) — le préfixe
+  // `center_` reste réservé aux collections "méta" du module
+  // (`amud_center_users`, `amud_center_activities`, `amud_center_audit_logs`,
+  // `amud_center_modification_requests`), pas aux entités elles-mêmes.
+  centerStudents: 'amud_students',
+  centerTeachers: 'amud_teachers',
+  centerFormations: 'amud_formations',
+  centerGroups: 'amud_groups',
+  centerEnrollments: 'amud_enrollments',
+  centerSchedules: 'amud_schedules',
+  centerAttendance: 'amud_attendance',
+  centerStudentPayments: 'amud_student_payments',
+  centerTeacherPayments: 'amud_teacher_payments',
+  centerTeacherHours: 'amud_teacher_hours',
   centerTarifs: 'amud_center_tarifs',
-  centerLeads: 'amud_center_leads',
+  centerLeads: 'amud_leads',
   centerModificationRequests: 'amud_center_modification_requests',
+  centerUsers: 'amud_center_users',
+  centerActivities: 'amud_center_activities',
 } as const;
 
 export type AmudKey = (typeof AMUD_KEYS)[keyof typeof AMUD_KEYS];

@@ -2,10 +2,11 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ConfirmDialog, Drawer } from '@/components/amud/ui';
+import { ConfirmDialog, EmptyState, FilterBar, PageHeader, SelectFilter, StatCard } from '@/components/amud/ui';
 import { useToast } from '@/components/amud/Toast';
 import { useCollection } from '@/lib/amud/storage/useCollection';
 import { logAudit } from '@/lib/amud/storage/audit';
+import { canPerform, PERMISSION_DENIED_MESSAGE } from '@/lib/amud/centerPermissions';
 import { centresCollection } from '@/lib/amud/localCentres';
 import { centresSeed, PARTNERSHIP_LABELS, PARTNERSHIP_CLASS, PARTNERSHIP_STATUSES, type Centre } from '@/data/amud/centres';
 import { centerStudentsCollection } from '@/lib/amud/localCenterStudents';
@@ -37,7 +38,6 @@ export default function AmudAdminCentresPage() {
   const [commercialFilter, setCommercialFilter] = useState('');
   const [page, setPage] = useState(1);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editCentre, setEditCentre] = useState<Centre | undefined>(undefined);
@@ -90,6 +90,10 @@ export default function AmudAdminCentresPage() {
   ];
 
   function removeRow(id: string) {
+    if (!canPerform('ADMIN', 'manage-centers')) {
+      notify(PERMISSION_DENIED_MESSAGE, 'error');
+      return;
+    }
     const c = centres.find((x) => x.id === id);
     removeCentre(id);
     if (c) logAudit({ utilisateur: 'Administrateur', role: 'Admin', action: 'Suppression centre', actionType: 'delete', module: 'Centres de formation', reference: `${c.nom} (#${c.id})`, centerId: c.id });
@@ -99,92 +103,174 @@ export default function AmudAdminCentresPage() {
 
   const FilterFields = (
     <>
-      <select value={ville} onChange={(e) => { setVille(e.target.value); setPage(1); }} className="rounded-lg border border-amud-outline-variant bg-amud-surface px-4 py-2 text-label-md text-amud-on-surface focus:outline-none focus:ring-2 focus:ring-amud-primary">
-        <option value="">Ville</option>
-        {villes.map((v) => (
-          <option key={v}>{v}</option>
-        ))}
-      </select>
-      <select value={statut} onChange={(e) => { setStatut(e.target.value); setPage(1); }} className="rounded-lg border border-amud-outline-variant bg-amud-surface px-4 py-2 text-label-md text-amud-on-surface focus:outline-none focus:ring-2 focus:ring-amud-primary">
-        <option value="">Statut</option>
-        <option>Actif</option>
-        <option>Inactif</option>
-        <option>En attente</option>
-      </select>
-      <select value={partnership} onChange={(e) => { setPartnership(e.target.value); setPage(1); }} className="rounded-lg border border-amud-outline-variant bg-amud-surface px-4 py-2 text-label-md text-amud-on-surface focus:outline-none focus:ring-2 focus:ring-amud-primary">
-        <option value="">Partenariat</option>
-        {PARTNERSHIP_STATUSES.map((s) => (
-          <option key={s} value={s}>
-            {PARTNERSHIP_LABELS[s]}
-          </option>
-        ))}
-      </select>
-      <select value={commercialFilter} onChange={(e) => { setCommercialFilter(e.target.value); setPage(1); }} className="rounded-lg border border-amud-outline-variant bg-amud-surface px-4 py-2 text-label-md text-amud-on-surface focus:outline-none focus:ring-2 focus:ring-amud-primary">
-        <option value="">Commercial</option>
-        {commerciaux.map((c) => (
-          <option key={c.id} value={c.id}>
-            {c.prenom} {c.nom}
-          </option>
-        ))}
-      </select>
+      <SelectFilter label="Ville" value={ville} onChange={(v) => { setVille(v); setPage(1); }} options={villes.map((v) => ({ value: v, label: v }))} />
+      <SelectFilter
+        label="Statut"
+        value={statut}
+        onChange={(v) => { setStatut(v); setPage(1); }}
+        options={[
+          { value: 'Actif', label: 'Actif' },
+          { value: 'Inactif', label: 'Inactif' },
+          { value: 'En attente', label: 'En attente' },
+        ]}
+      />
+      <SelectFilter
+        label="Partenariat"
+        value={partnership}
+        onChange={(v) => { setPartnership(v); setPage(1); }}
+        options={PARTNERSHIP_STATUSES.map((st) => ({ value: st, label: PARTNERSHIP_LABELS[st] }))}
+      />
+      <SelectFilter
+        label="Commercial"
+        value={commercialFilter}
+        onChange={(v) => { setCommercialFilter(v); setPage(1); }}
+        options={commerciaux.map((c) => ({ value: c.id, label: `${c.prenom} ${c.nom}` }))}
+      />
     </>
   );
 
-  return (
-    <div>
-      <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <h2 className="text-headline-lg text-amud-on-surface">Centres de formation</h2>
-          <p className="mt-1 text-body-md text-amud-on-surface-variant">Gérez les centres partenaires spécialisés dans l&apos;enseignement de l&apos;allemand.</p>
-        </div>
-        <button
-          onClick={() => {
-            setEditCentre(undefined);
-            setFormOpen(true);
-          }}
-          className="flex items-center gap-2 rounded-lg bg-amud-primary px-6 py-3 text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark"
-        >
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
-            add
-          </span>
-          Ajouter un centre
-        </button>
-      </div>
+  const activeFilterCount = [ville, statut, partnership, commercialFilter].filter(Boolean).length;
 
-      <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-5 md:gap-gutter">
+  function resetFilters() {
+    setVille('');
+    setStatut('');
+    setPartnership('');
+    setCommercialFilter('');
+    setSearch('');
+    setPage(1);
+  }
+
+  /** Actions d'une ligne — mêmes libellés en menu desktop et en cartes mobiles. */
+  function rowActions(c: Centre) {
+    return [
+      { label: 'Voir la fiche', icon: 'visibility', href: `/amud/admin/centres/${c.id}` },
+      { label: 'Modifier', icon: 'edit', onClick: () => { setEditCentre(c); setFormOpen(true); setOpenMenu(null); } },
+      { label: 'Gérer le partenariat', icon: 'handshake', onClick: () => { setPartnershipCentre(c); setOpenMenu(null); } },
+      { label: 'Affecter un commercial', icon: 'badge', onClick: () => { setPartnershipCentre(c); setOpenMenu(null); } },
+      { label: 'Supprimer', icon: 'delete', danger: true, onClick: () => { setConfirmDeleteId(c.id); setOpenMenu(null); } },
+    ];
+  }
+
+  return (
+    <div className="pb-20 md:pb-0">
+      <PageHeader
+        title="Centres de formation"
+        subtitle="Gérez les centres partenaires spécialisés dans l’enseignement de l’allemand."
+        actionLabel="Ajouter un centre"
+        onAction={() => {
+          setEditCentre(undefined);
+          setFormOpen(true);
+        }}
+      />
+
+      <div className="mb-lg grid grid-cols-2 gap-md md:grid-cols-5">
         {kpis.map((k) => (
-          <div key={k.label} className="relative flex flex-col items-start justify-center overflow-hidden rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
-            <div className={`absolute bottom-0 left-0 top-0 w-1 ${k.accent}`} />
-            <span className="mb-2 text-label-sm uppercase tracking-wider text-amud-on-surface-variant">{k.label}</span>
-            <span className="text-headline-lg text-amud-on-surface">{k.value}</span>
-          </div>
+          <StatCard key={k.label} label={k.label} value={k.value} accent={k.accent} />
         ))}
       </div>
 
-      <div className="mb-6 flex flex-col items-center gap-4 rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-4 shadow-[0_4px_12px_rgba(0,0,0,0.02)] md:flex-row">
-        <div className="relative w-full flex-1">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-amud-on-surface-variant">search</span>
-          <input
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface py-2 pl-10 pr-4 text-body-md text-amud-on-surface outline-none focus:border-transparent focus:ring-2 focus:ring-amud-primary focus:ring-offset-2"
-            placeholder="Rechercher par nom, ville, téléphone, email, contact, commercial…"
-            type="text"
+      <FilterBar
+        search={search}
+        onSearchChange={(v) => {
+          setSearch(v);
+          setPage(1);
+        }}
+        searchPlaceholder="Rechercher par nom, ville, téléphone, email, contact, commercial…"
+        filters={FilterFields}
+        activeFilterCount={activeFilterCount}
+        onReset={resetFilters}
+      />
+
+      {paged.length === 0 ? (
+        <div className="rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest shadow-sm">
+          <EmptyState
+            icon={search || activeFilterCount ? 'search_off' : 'storefront'}
+            title={search || activeFilterCount ? 'Aucun résultat' : 'Aucun centre trouvé'}
+            description={
+              search || activeFilterCount
+                ? 'Aucun centre ne correspond à votre recherche ou à vos filtres.'
+                : 'Ajoutez un premier centre partenaire pour commencer.'
+            }
+            actionLabel={search || activeFilterCount ? undefined : 'Ajouter un centre'}
+            onAction={
+              search || activeFilterCount
+                ? undefined
+                : () => {
+                    setEditCentre(undefined);
+                    setFormOpen(true);
+                  }
+            }
           />
         </div>
-        <button
-          onClick={() => setFiltersOpen(true)}
-          className="flex w-full items-center justify-center gap-2 rounded-lg border border-amud-outline-variant px-4 py-2 text-label-md text-amud-on-surface md:hidden"
-        >
-          <span className="material-symbols-outlined text-[18px]">filter_list</span> Filtres
-        </button>
-        <div className="hidden w-full gap-2 overflow-x-auto pb-2 md:flex md:w-auto md:pb-0">{FilterFields}</div>
-      </div>
+      ) : null}
 
-      <div className="overflow-x-auto rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
+      {/* ---- Cartes (mobile) ---- */}
+      {paged.length > 0 ? (
+        <ul className="flex flex-col gap-md md:hidden">
+          {paged.map((c) => (
+            <li key={c.id} className="animate-amud-rise-in overflow-hidden rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest shadow-sm">
+              <div className="flex items-start gap-md p-md">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-amud-outline-variant bg-amud-surface">
+                  <span className="material-symbols-outlined text-amud-primary">{c.logo}</span>
+                </span>
+                <div className="min-w-0 flex-1">
+                  <Link href={`/amud/admin/centres/${c.id}`} className="block truncate text-label-md font-semibold text-amud-on-surface hover:text-amud-primary">
+                    {c.nom}
+                  </Link>
+                  <span className="text-label-sm text-amud-on-surface-variant">{c.ville}</span>
+                </div>
+                <span className={`inline-flex shrink-0 items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${PARTNERSHIP_CLASS[c.partnershipStatus]}`}>
+                  {PARTNERSHIP_LABELS[c.partnershipStatus]}
+                </span>
+              </div>
+              <dl className="grid grid-cols-3 gap-sm border-t border-amud-outline-variant px-md py-sm text-center">
+                <div>
+                  <dt className="text-label-sm text-amud-on-surface-variant">Étudiants</dt>
+                  <dd className="text-title-lg text-amud-on-surface">{counts.students.get(c.id) ?? 0}</dd>
+                </div>
+                <div>
+                  <dt className="text-label-sm text-amud-on-surface-variant">Enseignants</dt>
+                  <dd className="text-title-lg text-amud-on-surface">{counts.teachers.get(c.id) ?? 0}</dd>
+                </div>
+                <div>
+                  <dt className="text-label-sm text-amud-on-surface-variant">Formations</dt>
+                  <dd className="text-title-lg text-amud-on-surface">{counts.formations.get(c.id) ?? 0}</dd>
+                </div>
+              </dl>
+              <p className="border-t border-amud-outline-variant px-md py-sm text-label-sm text-amud-on-surface-variant">
+                Commercial : {c.assignedCommercialNom || '—'}
+              </p>
+              <div className="flex flex-wrap divide-x divide-amud-outline-variant border-t border-amud-outline-variant">
+                {rowActions(c).map((a) =>
+                  a.href ? (
+                    <Link
+                      key={a.label}
+                      href={a.href}
+                      className="flex min-h-[44px] flex-1 basis-1/3 items-center justify-center gap-1 px-2 text-label-sm text-amud-on-surface-variant active:bg-amud-surface-container-low"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">{a.icon}</span>
+                      Voir
+                    </Link>
+                  ) : (
+                    <button
+                      key={a.label}
+                      onClick={a.onClick}
+                      className={`flex min-h-[44px] flex-1 basis-1/3 items-center justify-center gap-1 px-2 text-label-sm active:bg-amud-surface-container-low ${
+                        a.danger ? 'text-amud-error' : 'text-amud-on-surface-variant'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[18px]">{a.icon}</span>
+                      {a.label.replace('Gérer le ', '').replace('Affecter un ', '')}
+                    </button>
+                  ),
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      <div className="hidden overflow-x-auto rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest shadow-sm md:block">
         <table className="w-full border-collapse text-left">
           <thead>
             <tr className="border-b border-amud-outline-variant bg-amud-surface-container-low/50">
@@ -278,13 +364,6 @@ export default function AmudAdminCentresPage() {
                 </td>
               </tr>
             ))}
-            {paged.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="px-6 py-10 text-center text-body-md text-amud-on-surface-variant">
-                  Aucun centre ne correspond à ces filtres.
-                </td>
-              </tr>
-            ) : null}
           </tbody>
         </table>
       </div>
@@ -325,10 +404,6 @@ export default function AmudAdminCentresPage() {
         description="Cette action est irréversible. Le centre et sa fiche seront retirés de la liste."
         confirmLabel="Supprimer"
       />
-
-      <Drawer open={filtersOpen} onClose={() => setFiltersOpen(false)} title="Filtres" anchor="bottom">
-        <div className="flex flex-col gap-md">{FilterFields}</div>
-      </Drawer>
     </div>
   );
 }
