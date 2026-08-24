@@ -50,9 +50,12 @@ export const AMUD_KEYS = {
   centerModificationRequests: 'amud_center_modification_requests',
   centerUsers: 'amud_center_users',
   centerActivities: 'amud_center_activities',
+  // Nouvelles collections pour les espaces Étudiant et Enseignant
+  studentResults: 'amud_student_results',
+  teacherResources: 'amud_teacher_resources',
 } as const;
 
 export type AmudKey = (typeof AMUD_KEYS)[keyof typeof AMUD_KEYS];
 
 /** Bump cette valeur pour forcer un reseed propre (ex. changement de schéma incompatible). */
-export const AMUD_INIT_FLAG = 'amud_init_v1';
+export const AMUD_INIT_FLAG = 'amud_init_v2';

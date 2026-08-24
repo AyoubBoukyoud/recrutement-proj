@@ -37,6 +37,8 @@ import { centerTeacherPaymentsSeed } from '@/data/amud/centerTeacherPayments';
 import { centerTarifsSeed } from '@/data/amud/centerTarifs';
 import { centerLeadsSeed } from '@/data/amud/centerLeads';
 import { centerModificationRequestsSeed } from '@/data/amud/centerModificationRequests';
+import { centerStudentResultsSeed } from '@/data/amud/centerStudentResults';
+import { teacherResourcesSeed } from '@/data/amud/teacherResources';
 
 /**
  * Initialise chaque collection manquante avec un jeu de données de
@@ -95,6 +97,8 @@ export function initAmudDemoData() {
   seedIfMissing(AMUD_KEYS.centerTarifs, () => centerTarifsSeed);
   seedIfMissing(AMUD_KEYS.centerLeads, () => centerLeadsSeed);
   seedIfMissing(AMUD_KEYS.centerModificationRequests, () => centerModificationRequestsSeed);
+  seedIfMissing(AMUD_KEYS.studentResults, () => centerStudentResultsSeed);
+  seedIfMissing(AMUD_KEYS.teacherResources, () => teacherResourcesSeed);
 }
 
 /**

@@ -27,89 +27,95 @@ const palette = require('./colors.json');
 /* ------------------------------------------------------------------ *
  * Thème Tailwind
  * ------------------------------------------------------------------ */
+/*
+ * Les couleurs référencent des variables CSS (`var(--x)`) plutôt que les
+ * valeurs `palette.x` en dur : c'est ce qui permet au dark mode de repeindre
+ * toute l'app en ne redéfinissant que les variables (cf. `.dark` dans
+ * globals.css), sans toucher aux classes Tailwind elles-mêmes.
+ */
 const preset = {
   theme: {
     extend: {
       colors: {
         primary: {
-          DEFAULT: palette.primary,
-          dark: palette.primaryDark,
-          light: palette.primaryLight,
+          DEFAULT: 'var(--primary)',
+          dark: 'var(--primary-dark)',
+          light: 'var(--primary-light)',
         },
         secondary: {
-          DEFAULT: palette.secondary,
-          dark: palette.secondaryDark,
-          light: palette.secondaryLight,
+          DEFAULT: 'var(--secondary)',
+          dark: 'var(--secondary-dark)',
+          light: 'var(--secondary-light)',
         },
         tertiary: {
-          DEFAULT: palette.tertiary,
-          dark: palette.tertiaryDark,
-          light: palette.tertiaryLight,
+          DEFAULT: 'var(--tertiary)',
+          dark: 'var(--tertiary-dark)',
+          light: 'var(--tertiary-light)',
         },
         gold: {
-          DEFAULT: palette.secondary,
-          dark: palette.secondaryDark,
-          light: palette.secondaryLight,
+          DEFAULT: 'var(--secondary)',
+          dark: 'var(--secondary-dark)',
+          light: 'var(--secondary-light)',
         },
         error: {
-          DEFAULT: palette.error,
-          light: palette.errorLight,
+          DEFAULT: 'var(--error)',
+          light: 'var(--error-light)',
         },
         success: {
-          DEFAULT: palette.success,
-          light: palette.successLight,
+          DEFAULT: 'var(--success)',
+          light: 'var(--success-light)',
         },
         attention: {
-          DEFAULT: palette.attention,
-          light: palette.attentionLight,
+          DEFAULT: 'var(--attention)',
+          light: 'var(--attention-light)',
         },
 
         /* Conteneurs et « on- » en notation plate, telle qu'employée par les
            classes existantes de l'espace candidat. */
-        'primary-container': palette.primary,
-        'on-primary': palette.onPrimary,
-        'on-primary-container': palette.onPrimaryContainer,
-        'secondary-container': palette.secondary,
-        'on-secondary': palette.onSecondary,
-        'on-secondary-container': palette.onSecondaryContainer,
-        'tertiary-container': palette.tertiary,
-        'on-tertiary': palette.onTertiary,
-        'on-tertiary-container': palette.onTertiaryContainer,
-        'on-error': palette.onError,
-        'on-error-container': palette.onErrorContainer,
-        'on-attention-container': palette.onAttentionContainer,
+        'primary-container': 'var(--primary)',
+        'on-primary': 'var(--on-primary)',
+        'on-primary-container': 'var(--on-primary-container)',
+        'secondary-container': 'var(--secondary)',
+        'on-secondary': 'var(--on-secondary)',
+        'on-secondary-container': 'var(--on-secondary-container)',
+        'tertiary-container': 'var(--tertiary)',
+        'on-tertiary': 'var(--on-tertiary)',
+        'on-tertiary-container': 'var(--on-tertiary-container)',
+        'on-error': 'var(--on-error)',
+        'on-error-container': 'var(--on-error-container)',
+        'on-attention-container': 'var(--on-attention-container)',
 
         /* Et en notation imbriquée, pour `text-onSurface-variant` & co. */
-        onPrimary: { DEFAULT: palette.onPrimary, container: palette.onPrimaryContainer },
-        onSecondary: { DEFAULT: palette.onSecondary, container: palette.onSecondaryContainer },
-        onTertiary: { DEFAULT: palette.onTertiary, container: palette.onTertiaryContainer },
-        onError: { DEFAULT: palette.onError, container: palette.onErrorContainer },
-        onGold: { DEFAULT: palette.onSecondaryContainer },
+        onPrimary: { DEFAULT: 'var(--on-primary)', container: 'var(--on-primary-container)' },
+        onSecondary: { DEFAULT: 'var(--on-secondary)', container: 'var(--on-secondary-container)' },
+        onTertiary: { DEFAULT: 'var(--on-tertiary)', container: 'var(--on-tertiary-container)' },
+        onError: { DEFAULT: 'var(--on-error)', container: 'var(--on-error-container)' },
+        onGold: { DEFAULT: 'var(--on-secondary-container)' },
 
         surface: {
-          DEFAULT: palette.surface,
-          bright: palette.surfaceBright,
-          dim: palette.surfaceDim,
-          lowest: palette.surfaceLowest,
-          low: palette.surfaceLow,
-          container: palette.surfaceContainer,
-          high: palette.surfaceHigh,
-          highest: palette.surfaceHighest,
+          DEFAULT: 'var(--surface)',
+          bright: 'var(--surface-bright)',
+          dim: 'var(--surface-dim)',
+          lowest: 'var(--surface-lowest)',
+          low: 'var(--surface-low)',
+          container: 'var(--surface-container)',
+          high: 'var(--surface-high)',
+          highest: 'var(--surface-highest)',
         },
-        'surface-container-lowest': palette.surfaceLowest,
-        'surface-container-low': palette.surfaceLow,
-        'surface-container': palette.surfaceContainer,
-        'surface-container-high': palette.surfaceHigh,
-        'surface-container-highest': palette.surfaceHighest,
-        'surface-bright': palette.surfaceBright,
-        'surface-dim': palette.surfaceDim,
+        'surface-container-lowest': 'var(--surface-lowest)',
+        'surface-container-low': 'var(--surface-low)',
+        'surface-container': 'var(--surface-container)',
+        'surface-container-high': 'var(--surface-high)',
+        'surface-container-highest': 'var(--surface-highest)',
+        'surface-bright': 'var(--surface-bright)',
+        'surface-dim': 'var(--surface-dim)',
 
-        onSurface: { DEFAULT: palette.onSurface, variant: palette.onSurfaceVariant },
-        'on-surface': palette.onSurface,
-        'on-surface-variant': palette.onSurfaceVariant,
+        onSurface: { DEFAULT: 'var(--on-surface)', variant: 'var(--on-surface-variant)' },
+        'on-surface': 'var(--on-surface)',
+        'on-surface-variant': 'var(--on-surface-variant)',
 
-        outline: { DEFAULT: palette.outline, variant: palette.outlineVariant },
-        'outline-variant': palette.outlineVariant,
+        outline: { DEFAULT: 'var(--outline)', variant: 'var(--outline-variant)' },
+        'outline-variant': 'var(--outline-variant)',
       },
 
       fontFamily: {
@@ -175,23 +181,42 @@ const cssVars = {
   '--primary-light': palette.primaryLight,
   '--primary-container': palette.primary,
   '--on-primary': palette.onPrimary,
+  '--on-primary-container': palette.onPrimaryContainer,
 
   '--secondary': palette.secondary,
   '--secondary-dark': palette.secondaryDark,
+  '--secondary-light': palette.secondaryLight,
   '--gold': palette.secondary,
+  '--on-secondary': palette.onSecondary,
+  '--on-secondary-container': palette.onSecondaryContainer,
 
   '--tertiary': palette.tertiary,
+  '--tertiary-dark': palette.tertiaryDark,
+  '--tertiary-light': palette.tertiaryLight,
+  '--on-tertiary': palette.onTertiary,
+  '--on-tertiary-container': palette.onTertiaryContainer,
 
   '--error': palette.error,
   '--error-light': palette.errorLight,
+  '--on-error': palette.onError,
+  '--on-error-container': palette.onErrorContainer,
+
   '--success': palette.success,
+  '--success-light': palette.successLight,
+
   '--attention': palette.attention,
   '--attention-light': palette.attentionLight,
+  '--on-attention-container': palette.onAttentionContainer,
 
   '--background': palette.surface,
   '--surface': palette.surface,
+  '--surface-bright': palette.surfaceBright,
+  '--surface-dim': palette.surfaceDim,
   '--surface-lowest': palette.surfaceLowest,
+  '--surface-low': palette.surfaceLow,
   '--surface-container': palette.surfaceContainer,
+  '--surface-high': palette.surfaceHigh,
+  '--surface-highest': palette.surfaceHighest,
 
   '--on-surface': palette.onSurface,
   '--on-surface-variant': palette.onSurfaceVariant,

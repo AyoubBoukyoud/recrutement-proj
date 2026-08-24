@@ -26,6 +26,18 @@ const ESPACES = [
     titre: 'Espace Centre',
     description: 'Auto-gestion d’un centre de formation : étudiants, enseignants, planning, présences, paiements, site public.',
   },
+  {
+    href: '/amud/student/dashboard',
+    icon: 'menu_book',
+    titre: 'Espace Étudiant',
+    description: 'Tableau de bord personnel, ma formation, mon planning, mes présences, mes paiements, mes résultats.',
+  },
+  {
+    href: '/amud/teacher/dashboard',
+    icon: 'cast_for_education',
+    titre: 'Espace Enseignant',
+    description: 'Mes groupes, mes étudiants, planning, saisie des présences, mes heures, rémunération, ressources pédagogiques.',
+  },
 ];
 
 const MARKETING = [

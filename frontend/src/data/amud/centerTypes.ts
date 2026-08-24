@@ -258,6 +258,16 @@ export type CenterStudentPayment = {
   statut: PaymentStatus;
 };
 
+export type TeacherPaymentStatus = 'PAYE' | 'EN_ATTENTE';
+export const TEACHER_PAYMENT_STATUS_LABELS: Record<TeacherPaymentStatus, string> = {
+  PAYE: 'Payé',
+  EN_ATTENTE: 'En attente',
+};
+export const TEACHER_PAYMENT_STATUS_CLASS: Record<TeacherPaymentStatus, string> = {
+  PAYE: 'bg-amud-primary/10 text-amud-primary border-amud-primary/20',
+  EN_ATTENTE: 'bg-amud-tertiary-fixed text-amud-on-tertiary-fixed-variant border-amud-tertiary-fixed-dim',
+};
+
 export type CenterTeacherPayment = {
   id: string;
   centerId: string;
@@ -267,8 +277,9 @@ export type CenterTeacherPayment = {
   tauxHoraire: number;
   montant: number;
   date: string;
-  statut: 'PAYE' | 'EN_ATTENTE';
+  statut: TeacherPaymentStatus;
 };
+
 
 export type CenterTarif = {
   id: string;
@@ -414,3 +425,35 @@ export type CenterTeacherHoursRecord = {
   heures: number;
   recordedAt: string;
 };
+
+/** Résultat / évaluation d'un étudiant (clé `amud_student_results`). */
+export type StudentResult = {
+  id: string;
+  centerId: string;
+  studentId: string;
+  formationId: string;
+  module: string;
+  date: string;
+  note: number; // 0-20
+  noteMax: number;
+  observation?: string;
+};
+
+/** Catégories de ressources pédagogiques disponibles pour les enseignants. */
+export type ResourceCategory = 'PDF' | 'Document' | 'Lien' | 'Exercice' | 'Vidéo' | 'Support';
+export const RESOURCE_CATEGORIES: ResourceCategory[] = ['PDF', 'Document', 'Lien', 'Exercice', 'Vidéo', 'Support'];
+
+/** Ressource pédagogique partagée avec les enseignants (clé `amud_teacher_resources`). */
+export type TeacherResource = {
+  id: string;
+  centerId: string;
+  /** Si null, disponible pour tous les enseignants du centre. */
+  teacherId?: string;
+  titre: string;
+  description?: string;
+  categorie: ResourceCategory;
+  /** URL ou chemin fictif (demo) */
+  url?: string;
+  createdAt: string;
+};
+
