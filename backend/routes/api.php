@@ -7,10 +7,18 @@ use App\Http\Controllers\Api\AdminReferralController;
 use App\Http\Controllers\Api\AdminRecruiterController;
 use App\Http\Controllers\Api\AdminTaskController;
 use App\Http\Controllers\Api\AdminUserController;
+use App\Http\Controllers\Api\AdminMarketplaceController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CandidateLanguageController;
 use App\Http\Controllers\Api\CandidateProfileController;
 use App\Http\Controllers\Api\CandidateTaskController;
+use App\Http\Controllers\Api\CandidateVisibilityController;
+use App\Http\Controllers\Api\CandidateApplicationController;
+use App\Http\Controllers\Api\CandidateFavoriteController;
+use App\Http\Controllers\Api\CandidateNotificationController;
+use App\Http\Controllers\Api\CandidateReferralController;
+use App\Http\Controllers\Api\CandidateAccountController;
+use App\Http\Controllers\Api\JobOfferController;
 use App\Http\Controllers\Api\ComplaintController;
 use App\Http\Controllers\Api\DeviceSessionController;
 use App\Http\Controllers\Api\DocumentController;
@@ -50,6 +58,26 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
     Route::get('/candidate/profile/preview', [CandidateProfileController::class, 'preview']);
     Route::post('/candidate/profile/submit', [CandidateProfileController::class, 'submit']);
     Route::get('/candidate/profile/timeline', [CandidateProfileController::class, 'timeline']);
+    Route::get('/candidate/visibility', [CandidateVisibilityController::class, 'show']);
+    Route::post('/candidate/visibility/pause', [CandidateVisibilityController::class, 'pause']);
+    Route::post('/candidate/visibility/resume', [CandidateVisibilityController::class, 'resume']);
+    Route::post('/candidate/consent/withdraw', [CandidateVisibilityController::class, 'withdraw']);
+    Route::post('/candidate/consent/grant', [CandidateVisibilityController::class, 'grant']);
+    Route::get('/referrals/me', [CandidateReferralController::class, 'show']);
+
+    Route::get('/offers', [JobOfferController::class, 'index']);
+    Route::get('/offers/{offer}', [JobOfferController::class, 'show']);
+    Route::post('/offers/{offer}/apply', [CandidateApplicationController::class, 'apply']);
+    Route::get('/candidate/applications', [CandidateApplicationController::class, 'index']);
+    Route::delete('/candidate/applications/{application}', [CandidateApplicationController::class, 'withdraw']);
+    Route::get('/candidate/favorites', [CandidateFavoriteController::class, 'index']);
+    Route::post('/offers/{offer}/favorite', [CandidateFavoriteController::class, 'store']);
+    Route::delete('/offers/{offer}/favorite', [CandidateFavoriteController::class, 'destroy']);
+    Route::get('/candidate/notifications', [CandidateNotificationController::class, 'index']);
+    Route::patch('/candidate/notifications/read-all', [CandidateNotificationController::class, 'readAll']);
+    Route::patch('/candidate/notifications/{notification}/read', [CandidateNotificationController::class, 'read']);
+    Route::get('/candidate/account/export', [CandidateAccountController::class, 'export']);
+    Route::delete('/candidate/account', [CandidateAccountController::class, 'destroy']);
 
     Route::get('/candidate/educations', [EducationController::class, 'index']);
     Route::post('/candidate/educations', [EducationController::class, 'store']);
@@ -94,6 +122,10 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
     Route::middleware('role:Administrator')->group(function () {
         Route::get('/admin/ping', fn () => response()->json(['message' => 'pong', 'role' => 'Administrator']));
         Route::get('/admin/metrics', [AdminMetricsController::class, 'index']);
+        Route::get('/admin/offers', [AdminMarketplaceController::class, 'offers']);
+        Route::patch('/admin/offers/{offer}', [AdminMarketplaceController::class, 'updateOffer']);
+        Route::get('/admin/applications', [AdminMarketplaceController::class, 'applications']);
+        Route::get('/admin/activity', [AdminMarketplaceController::class, 'activity']);
 
         Route::get('/admin/candidates', [AdminCandidateController::class, 'index']);
         Route::post('/admin/candidates/bulk', [AdminCandidateController::class, 'bulk']);
@@ -150,7 +182,13 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
     Route::middleware('role:Company')->group(function () {
         Route::get('/recruiter/ping', fn () => response()->json(['message' => 'pong', 'role' => 'Company']));
         Route::get('/recruiter/candidates', [RecruiterCandidateController::class, 'index'])->middleware('throttle:recruiter-search');
+        Route::get('/recruiter/offers', [JobOfferController::class, 'mine']);
+        Route::get('/recruiter/applications', [CandidateApplicationController::class, 'recruiterIndex']);
         Route::get('/recruiter/candidates/{candidateProfile}', [RecruiterCandidateController::class, 'show']);
+        Route::post('/recruiter/offers', [JobOfferController::class, 'store']);
+        Route::patch('/recruiter/offers/{offer}', [JobOfferController::class, 'update']);
+        Route::delete('/recruiter/offers/{offer}', [JobOfferController::class, 'destroy']);
+        Route::patch('/recruiter/applications/{application}', [CandidateApplicationController::class, 'updateStatus']);
 
         // What a recruiter does with a candidate once they have found them.
         // `export` sits above the parameterised routes so "export" is never

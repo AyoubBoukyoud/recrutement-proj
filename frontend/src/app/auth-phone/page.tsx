@@ -48,7 +48,9 @@ type DevRealAccount = { phone: string; label: string; path: string };
  * `destinationForRole`.
  */
 const DEV_REAL_OTP_ACCOUNTS: DevRealAccount[] = [
-  { phone: '+212600000004', label: 'Admin — 06 00 00 00 04', path: '/admin/apercu' },
+  { phone: '+212600000001', label: 'Admin — 06 00 00 00 01', path: '/admin/apercu' },
+  { phone: '+212600000002', label: 'Recruteur — 06 00 00 00 02', path: '/recruiter' },
+  { phone: '+212600000003', label: 'Agent — 06 00 00 00 03', path: '/agent' },
 ];
 
 /**
@@ -58,7 +60,7 @@ const DEV_REAL_OTP_ACCOUNTS: DevRealAccount[] = [
  * (`incompleteProfileStep: null`), donc `destinationForRole` atterrit sur
  * `/dashboard` une fois le code `000000` saisi.
  */
-const DEV_CANDIDATE_OTP_LINK = { phone: '+212600000001', label: 'Candidat — écran OTP → /dashboard' };
+const DEV_CANDIDATE_OTP_LINK = { phone: '+212600000004', label: 'Candidat — écran OTP → /dashboard' };
 
 /**
  * Pages réelles de l'app (hors `/amud`, hors ce menu) qui n'ont pas encore de
@@ -234,6 +236,21 @@ export default function AuthPhonePage() {
     }
   };
 
+  const openCandidateOtp = async () => {
+    setError(null);
+    setDevLoadingPath('/otp');
+    try {
+      const response = await authRepository.requestOtp(DEV_CANDIDATE_OTP_LINK.phone);
+      const query = new URLSearchParams({ phone: DEV_CANDIDATE_OTP_LINK.phone, intent: 'job_seeker' });
+      if (response.debug_otp_code) query.set('debug_code', response.debug_otp_code);
+      router.push(`/otp?${query.toString()}`);
+    } catch {
+      setError('Impossible de préparer le code candidat. Réessayez après le délai indiqué.');
+    } finally {
+      setDevLoadingPath(null);
+    }
+  };
+
   const submit = async () => {
     const digits = phone.replace(/\D/g, '');
     if (digits.length < 6) {
@@ -387,12 +404,7 @@ export default function AuthPhonePage() {
           <p className="mb-2 mt-4 text-[10px] font-bold uppercase tracking-wider text-onSurface-variant">
             Parcours OTP réel (candidat)
           </p>
-          <Link
-            href={`/otp?phone=${encodeURIComponent(DEV_CANDIDATE_OTP_LINK.phone)}&intent=job_seeker`}
-            className="flex h-10 w-full items-center justify-start gap-2 rounded-pillar border border-outline bg-transparent px-4 text-xs font-bold text-primary transition-colors hover:bg-primary/5"
-          >
-            {DEV_CANDIDATE_OTP_LINK.label}
-          </Link>
+          <Button variant="outline" size="sm" fullWidth className="justify-start" onClick={openCandidateOtp} isLoading={devLoadingPath === '/otp'}>{DEV_CANDIDATE_OTP_LINK.label}</Button>
 
           <p className="mb-2 mt-4 text-[10px] font-bold uppercase tracking-wider text-onSurface-variant">
             Site public (sans connexion)
@@ -444,4 +456,3 @@ export default function AuthPhonePage() {
     </AuthShell>
   );
 }
-

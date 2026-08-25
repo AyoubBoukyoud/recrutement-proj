@@ -130,6 +130,7 @@ export default function ProfilPage() {
         </Link>
         <h1 className="text-lg font-semibold text-primary">{content.header.title}</h1>
         <div className="flex items-center gap-1">
+          <Link href="/compte" aria-label="Mon compte" className="flex h-10 w-10 items-center justify-center rounded-full text-primary hover:bg-surface-container"><span className="material-symbols-outlined">manage_accounts</span></Link>
           <LanguageSwitcher compact />
           <ThemeToggle />
           <IconButton variant="ghost" onClick={() => setShowQr((v) => !v)} aria-label={content.header.shareAriaLabel} className="text-primary">

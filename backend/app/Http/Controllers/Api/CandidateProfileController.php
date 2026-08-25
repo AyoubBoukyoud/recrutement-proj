@@ -40,6 +40,8 @@ class CandidateProfileController extends Controller
             'matching_preferences.sectors' => ['sometimes', 'array'],
             'matching_preferences.sectors.*' => ['string', 'max:255'],
             'matching_preferences.min_salary' => ['sometimes', 'nullable', 'integer', 'min:0'],
+            'orientation_result' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'orientation_score' => ['sometimes', 'nullable', 'integer', 'min:0', 'max:100'],
             'terms_accepted' => ['sometimes', 'boolean'],
             'cndp_accepted' => ['sometimes', 'boolean'],
             // Optimistic concurrency: what the client believed the dossier

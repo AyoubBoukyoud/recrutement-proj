@@ -9,6 +9,8 @@ import { useAuth } from '@/context/AuthContext';
 import { useCandidateProfile } from '@/lib/useCandidateProfile';
 import { REQUIRED_SECTION_TO_STEP } from '@/lib/candidateProfile';
 import { useLanguage } from '@/context/LanguageContext';
+import { useQuery } from '@tanstack/react-query';
+import { marketplaceApi } from '@/lib/candidateMarketplace';
 
 export default function CandidateLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -16,6 +18,9 @@ export default function CandidateLayout({ children }: { children: React.ReactNod
   const { isLoading } = useAuth();
   const { data: profile, isLoading: profileLoading } = useCandidateProfile();
   const { t } = useLanguage();
+  const { token } = useAuth();
+  const notifications = useQuery({ queryKey: ['candidate-notifications'], queryFn: () => marketplaceApi.notifications(token as string), enabled: Boolean(token), refetchInterval: 60000 });
+  const unread = notifications.data?.data.filter((item) => !item.read_at).length ?? 0;
 
   const TABS = [
     { href: '/dashboard', label: t('nav_dashboard'), icon: 'home' },
@@ -43,6 +48,7 @@ export default function CandidateLayout({ children }: { children: React.ReactNod
           <img src="/assets/images/logo.png" alt="" className="h-8 w-8 object-contain" />
           <span className="text-base font-extrabold text-primary-dark">Amud Skills</span>
         </Link>
+        <Link href="/notifications" className="mx-4 mb-3 flex items-center justify-between rounded-xl border border-outline-variant px-3 py-2 text-sm font-bold text-primary"><span>Notifications</span>{unread>0&&<span className="rounded-full bg-error px-2 py-0.5 text-xs text-onError">{unread}</span>}</Link>
 
         <nav className="flex-1 space-y-1 px-3" aria-label={t('nav_candidate_aria_label')}>
           {TABS.map(({ href, label, icon }) => {
@@ -97,4 +103,3 @@ export default function CandidateLayout({ children }: { children: React.ReactNod
     </div>
   );
 }
-

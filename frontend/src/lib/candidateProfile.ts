@@ -133,6 +133,8 @@ export interface CandidateProfileData {
   submitted_at: string | null;
   verified_at: string | null;
   admin_notes: string | null;
+  orientation_result: string | null;
+  orientation_score: number | null;
   updated_at: string;
   educations: EducationEntry[];
   languages: CandidateLanguageEntry[];
@@ -150,6 +152,8 @@ export interface UpdateProfileInput {
   matching_preferences?: MatchingPreferences;
   terms_accepted?: boolean;
   cndp_accepted?: boolean;
+  orientation_result?: string | null;
+  orientation_score?: number | null;
   /** Concurrence optimiste : `updated_at` tel que connu du client avant l'édition. */
   base_updated_at?: string;
   /** « Je sais, applique quand même » — la résolution d'un 409. */

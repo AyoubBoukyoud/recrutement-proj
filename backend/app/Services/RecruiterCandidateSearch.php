@@ -35,6 +35,7 @@ class RecruiterCandidateSearch
             // Only candidates who've completed the compliance step are discoverable.
             ->whereNotNull('terms_consent_at')
             ->whereNotNull('cndp_consent_at');
+        $query->whereNull('cndp_withdrawn_at')->whereNull('visibility_paused_at');
 
         if ($recruiterId) {
             $query->with(['shortlistEntries' => fn ($q) => $q->where('user_id', $recruiterId)]);

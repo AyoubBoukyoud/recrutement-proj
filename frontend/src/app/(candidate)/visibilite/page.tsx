@@ -14,6 +14,8 @@ import { useCandidateProfile } from '@/lib/useCandidateProfile';
 import { documentsRepository } from '@/data/documents';
 import { useLanguage } from '@/context/LanguageContext';
 import { candidateVisibiliteContentFor } from '@/lib/candidateVisibiliteContent';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { marketplaceApi } from '@/lib/candidateMarketplace';
 
 const CIRCUMFERENCE = 263.89;
 
@@ -24,6 +26,12 @@ export default function VisibilitePage() {
   const { data: profile, isLoading } = useCandidateProfile();
   const [identityVerified, setIdentityVerified] = useState(false);
   const [dashOffset, setDashOffset] = useState(CIRCUMFERENCE);
+  const queryClient = useQueryClient();
+  const visibility = useQuery({ queryKey: ['candidate-visibility'], queryFn: () => marketplaceApi.visibility(token as string), enabled: Boolean(token) });
+  const changeVisibility = useMutation({
+    mutationFn: (action: 'pause' | 'resume' | 'withdraw') => action === 'pause' ? marketplaceApi.pause(token as string) : action === 'resume' ? marketplaceApi.resume(token as string) : marketplaceApi.withdraw(token as string),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['candidate-visibility'] }); queryClient.invalidateQueries({ queryKey: ['candidate-profile'] }); },
+  });
 
   const percent = profile?.completeness.percent ?? 0;
   const visible = Boolean(profile?.terms_consent_at && profile?.cndp_consent_at);
@@ -62,6 +70,17 @@ export default function VisibilitePage() {
       </header>
 
       <main className="mx-auto mt-6 max-w-xl px-4 lg:max-w-6xl lg:px-10">
+        {visibility.data && (
+          <section className="mb-6 rounded-xl border border-outline-variant bg-surface-container-lowest p-5 shadow-soft">
+            <h2 className="font-bold text-onSurface">Contrôle de la visibilité</h2>
+            <p className="mt-1 text-sm text-onSurface-variant">{visibility.data.visible ? 'Votre dossier est visible par les recruteurs.' : visibility.data.withdrawn ? 'Votre consentement CNDP a été retiré.' : 'Votre visibilité est actuellement en pause.'}</p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              {visibility.data.visible ? <button onClick={() => changeVisibility.mutate('pause')} className="rounded-full border border-primary px-4 py-2 text-sm font-bold text-primary">Mettre en pause</button> : !visibility.data.withdrawn && <button onClick={() => changeVisibility.mutate('resume')} className="rounded-full bg-primary px-4 py-2 text-sm font-bold text-onPrimary">Réactiver</button>}
+              {!visibility.data.withdrawn && <button onClick={() => window.confirm('Retirer votre consentement CNDP masque immédiatement votre dossier aux recruteurs. Continuer ?') && changeVisibility.mutate('withdraw')} className="rounded-full px-4 py-2 text-sm font-bold text-error">Retirer mon consentement</button>}
+            </div>
+            {changeVisibility.isError && <p role="alert" className="mt-3 text-sm text-error">La modification a échoué.</p>}
+          </section>
+        )}
         <div className="lg:grid lg:grid-cols-[320px_1fr] lg:items-start lg:gap-10">
         <section className="mb-10 flex flex-col items-center">
           <div className="relative flex h-48 w-48 items-center justify-center">

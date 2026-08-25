@@ -15,6 +15,10 @@ const SECTIONS = [
   { to: '/admin/stage', label: 'Stage' },
   { to: '/admin/utilisateurs', label: 'Utilisateurs' },
   { to: '/admin/parrainage', label: 'Parrainage' },
+  { to: '/admin/offres', label: 'Offres' },
+  { to: '/admin/candidatures', label: 'Candidatures' },
+  { to: '/admin/journal', label: 'Journal' },
+  { to: '/admin/notifications', label: 'Notifications' },
 ] as const;
 
 const NAV_BASE =

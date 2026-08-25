@@ -1,10 +1,10 @@
 import { redirect } from 'next/navigation';
 
 /**
- * `/` redirige vers le hub `/amud`, désormais page d'accueil de l'app. Le
- * vrai site public (ex-contenu de cette route) a été déplacé vers
- * `/accueil-public`, accessible depuis le hub.
+ * L'entrée de production mène au site public réel. Le hub `/amud` est un
+ * catalogue de maquettes de conception et ne doit jamais être la porte
+ * d'entrée d'un utilisateur.
  */
 export default function RootPage() {
-  redirect('/amud');
+  redirect('/accueil-public');
 }

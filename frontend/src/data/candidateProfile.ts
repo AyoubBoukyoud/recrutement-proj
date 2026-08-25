@@ -123,6 +123,8 @@ function state(): CandidateProfileData {
       submitted_at: null,
       verified_at: null,
       admin_notes: null,
+      orientation_result: null,
+      orientation_score: null,
       updated_at: new Date().toISOString(),
       educations: [],
       languages: [],
@@ -180,6 +182,8 @@ const mockCandidateProfile: CandidateProfileRepository = {
     if (data.matching_preferences !== undefined) p.matching_preferences = data.matching_preferences;
     if (data.terms_accepted !== undefined) p.terms_consent_at = data.terms_accepted ? new Date().toISOString() : null;
     if (data.cndp_accepted !== undefined) p.cndp_consent_at = data.cndp_accepted ? new Date().toISOString() : null;
+    if (data.orientation_result !== undefined) p.orientation_result = data.orientation_result;
+    if (data.orientation_score !== undefined) p.orientation_score = data.orientation_score;
     p.updated_at = new Date().toISOString();
     recomputeCompleteness();
     return fakeLatency({ ...p, educations: [...educations], languages: [...languages] });

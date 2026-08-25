@@ -24,6 +24,10 @@ const CANDIDATE_PATHS = [
   '/salaire',
   '/parrainage',
   '/verification-identite',
+  '/candidatures',
+  '/favoris',
+  '/notifications',
+  '/compte',
 ];
 
 /**
@@ -37,6 +41,19 @@ const LEGACY_REDIRECTS: Record<string, string> = {
   '/simulateur-salaire': '/salaire',
   '/cours-allemand': '/lecon-jour',
 };
+
+/**
+ * Les portails `/amud` sont des prototypes localStorage. Ils restent dans le
+ * dépôt comme références de design, mais une URL de production ne doit pas
+ * donner l'impression que leurs données sont réelles.
+ */
+function realDestinationForAmud(pathname: string): string | null {
+  if (pathname === '/amud' || pathname.startsWith('/amud/centre')) return '/accueil-public';
+  if (pathname.startsWith('/amud/admin')) return '/admin/apercu';
+  if (pathname.startsWith('/amud/entreprise') || pathname === '/amud/employer') return '/recruiter';
+  if (pathname.startsWith('/amud/commercial')) return '/agent';
+  return null;
+}
 
 function isCandidatePath(pathname: string) {
   return CANDIDATE_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
@@ -64,6 +81,9 @@ function redirectTo(request: NextRequest, targetPathname: string) {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const role = request.cookies.get('as_role')?.value;
+
+  const amudDestination = realDestinationForAmud(pathname);
+  if (amudDestination) return redirectTo(request, amudDestination);
 
   if (pathname in LEGACY_REDIRECTS) {
     return redirectTo(request, LEGACY_REDIRECTS[pathname]);
@@ -129,8 +149,13 @@ export const config = {
     '/salaire/:path*',
     '/parrainage/:path*',
     '/verification-identite/:path*',
+    '/candidatures/:path*',
+    '/favoris/:path*',
+    '/notifications/:path*',
+    '/compte/:path*',
     '/recruiter/:path*',
     '/admin/:path*',
     '/agent/:path*',
+    '/amud/:path*',
   ],
 };

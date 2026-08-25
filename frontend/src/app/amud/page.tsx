@@ -81,10 +81,10 @@ const ACCES_DIRECT = [
     description: 'Écran de connexion réel : saisie du numéro, puis code envoyé par OTP.',
   },
   {
-    href: '/otp?phone=%2B212600000001&intent=job_seeker',
+    href: '/auth-phone',
     icon: 'password',
     titre: 'Candidat — écran OTP → /dashboard',
-    description: 'Numéro de démo pré-rempli ; code 000000 pour atteindre le vrai tableau de bord candidat.',
+    description: 'Utilisez le raccourci candidat : il demande un vrai OTP local avant d’ouvrir l’écran de vérification.',
   },
 ];
 

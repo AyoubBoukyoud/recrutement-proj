@@ -20,6 +20,7 @@ function OtpContent() {
   const searchParams = useSearchParams();
   const phone = searchParams.get('phone') ?? '';
   const intent = searchParams.get('intent') === 'recruiter' ? 'recruiter' : 'job_seeker';
+  const debugCode = searchParams.get('debug_code');
   const { verifyOtp, requestOtp, resendAvailableIn } = useAuth();
   const { getIncompleteStep } = useProfile();
   const { t } = useLanguage();
@@ -173,6 +174,7 @@ function OtpContent() {
           className="fade-in-entry stagger-1 opacity-0 flex w-full flex-col items-center gap-6"
           onSubmit={(e) => e.preventDefault()}
         >
+          {debugCode && <p className="rounded-full bg-primary/10 px-4 py-2 font-mono text-sm font-bold text-primary">Code local : {debugCode}</p>}
           <div className={`flex items-center justify-center gap-2 ${shake ? 'animate-[shake_0.4s]' : ''}`}>
             {digits.map((digit, index) => (
               <input
@@ -246,4 +248,3 @@ export default function OtpPage() {
     </Suspense>
   );
 }
-

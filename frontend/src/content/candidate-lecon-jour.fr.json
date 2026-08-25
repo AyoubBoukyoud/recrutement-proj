@@ -1,5 +1,5 @@
 {
-  "header": { "title": "Allemand du quotidien" },
+  "header": { "title": "Mon stage quotidien", "backAria": "Retour au tableau de bord" },
   "streak": { "label": "{count} jours" },
   "progress": { "label": "Progression hebdomadaire" },
   "lesson": {
@@ -15,5 +15,11 @@
     "title": "Mini Quiz",
     "question": "Comment dit-on « Bonjour » en allemand ?"
   },
-  "finish": "Terminé"
+  "finish": "Terminé",
+  "loading": "Chargement des activités",
+  "sections": { "today": "À faire aujourd’hui", "overdue": "À rattraper", "upcoming": "Prochainement" },
+  "stats": { "completed": "terminées", "minutes": "min / 7 jours", "overdue": "en retard" },
+  "tasks": { "minutes": "{count} min", "overdue": "Cette activité est en retard", "complete": "Marquer comme terminée", "saving": "Validation…" },
+  "empty": { "title": "Tout est à jour", "body": "Aucune activité ne vous est assignée aujourd’hui." },
+  "error": { "load": "Impossible de charger vos activités.", "update": "La validation a échoué. Réessayez.", "retry": "Réessayer" }
 }

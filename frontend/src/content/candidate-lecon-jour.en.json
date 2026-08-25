@@ -1,5 +1,5 @@
 {
-  "header": { "title": "Everyday German" },
+  "header": { "title": "My daily programme", "backAria": "Back to dashboard" },
   "streak": { "label": "{count}-day streak" },
   "progress": { "label": "Weekly progress" },
   "lesson": {
@@ -15,5 +15,11 @@
     "title": "Mini quiz",
     "question": "How do you say “Bonjour” in German?"
   },
-  "finish": "Done"
+  "finish": "Done",
+  "loading": "Loading activities",
+  "sections": { "today": "Due today", "overdue": "Catch up", "upcoming": "Coming up" },
+  "stats": { "completed": "completed", "minutes": "min / 7 days", "overdue": "overdue" },
+  "tasks": { "minutes": "{count} min", "overdue": "This activity is overdue", "complete": "Mark as completed", "saving": "Saving…" },
+  "empty": { "title": "You’re all caught up", "body": "No activity is assigned to you today." },
+  "error": { "load": "We couldn’t load your activities.", "update": "The update failed. Try again.", "retry": "Try again" }
 }

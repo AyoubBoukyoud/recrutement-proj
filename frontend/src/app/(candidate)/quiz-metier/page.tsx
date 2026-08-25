@@ -8,11 +8,16 @@ import { useRouter } from 'next/navigation';
 import { Button, IconButton } from '@/components/shared/Button';
 import { useLanguage } from '@/context/LanguageContext';
 import { candidateQuizMetierContentFor } from '@/lib/candidateQuizMetierContent';
+import { useAuth } from '@/context/AuthContext';
+import { candidateProfileRepository } from '@/data/candidateProfile';
+import { useInvalidateCandidateProfile } from '@/lib/useCandidateProfile';
 
 export default function QuizMetierPage() {
   const router = useRouter();
   const { language } = useLanguage();
   const content = candidateQuizMetierContentFor(language);
+  const { token } = useAuth();
+  const invalidateProfile = useInvalidateCandidateProfile();
   const QUESTIONS = content.questions;
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -22,11 +27,16 @@ export default function QuizMetierPage() {
   const question = QUESTIONS[index];
   const progress = Math.round(((index + (selected !== null ? 1 : 0)) / QUESTIONS.length) * 100);
 
-  const handleNext = () => {
+  const handleNext = async () => {
     const nextAnswers = [...answers, selected];
     if (index + 1 >= QUESTIONS.length) {
       setAnswers(nextAnswers);
       setFinished(true);
+      if (token) {
+        const finalScore = nextAnswers.filter((a, i) => a === QUESTIONS[i]?.correctIndex).length;
+        await candidateProfileRepository.update({ orientation_result: content.jobTitle, orientation_score: Math.round(finalScore / QUESTIONS.length * 100) }, token);
+        await invalidateProfile();
+      }
     } else {
       setAnswers(nextAnswers);
       setIndex((i) => i + 1);

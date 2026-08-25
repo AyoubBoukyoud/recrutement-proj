@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'date_of_birth',
     'availability_status',
     'matching_preferences',
+    'visibility_paused_at', 'cndp_withdrawn_at', 'orientation_result', 'orientation_score',
     'terms_consent_at',
     'cndp_consent_at',
     'presentation_video_path',
@@ -44,6 +45,7 @@ class CandidateProfile extends Model
             'cndp_consent_at' => 'datetime',
             'submitted_at' => 'datetime',
             'verified_at' => 'datetime',
+            'visibility_paused_at' => 'datetime', 'cndp_withdrawn_at' => 'datetime',
         ];
     }
 
@@ -93,6 +95,8 @@ class CandidateProfile extends Model
     {
         return $this->hasMany(TaskAssignment::class);
     }
+    public function jobApplications(): HasMany { return $this->hasMany(JobApplication::class); }
+    public function favoriteOffers() { return $this->belongsToMany(JobOffer::class, 'job_offer_favorites')->withTimestamps(); }
 
     /** The administrator who vouched for this dossier, if one has. */
     public function verifiedBy(): BelongsTo

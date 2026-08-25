@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\CandidateProfile;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -37,6 +38,14 @@ class DatabaseSeeder extends Seeder
             'phone' => '+212600000003',
         ]);
         $agent->assignRole('Commercial Agent');
+
+        $candidate = User::factory()->create([
+            'name' => 'Test Candidate',
+            'email' => 'candidate@example.com',
+            'phone' => '+212600000004',
+        ]);
+        $candidate->assignRole('User');
+        CandidateProfile::factory()->verified()->create(['user_id' => $candidate->id]);
 
         // Dev/demo volume for the admin Candidats/Recruteurs screens — see
         // DemoDataSeeder. Needs the admin above to already exist (it stamps

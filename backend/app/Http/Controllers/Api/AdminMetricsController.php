@@ -11,6 +11,8 @@ use App\Models\RecruiterShortlist;
 use App\Models\ReferralRegistration;
 use App\Models\TaskAssignment;
 use App\Models\User;
+use App\Models\JobOffer;
+use App\Models\JobApplication;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
@@ -34,6 +36,15 @@ class AdminMetricsController extends Controller
             'assessments' => $this->assessments(),
             'internship' => $this->internship(),
             'growth' => $this->growth(),
+            'marketplace' => [
+                'offers_total' => JobOffer::count(),
+                'offers_published' => JobOffer::where('status', 'published')->count(),
+                'offers_draft' => JobOffer::where('status', 'draft')->count(),
+                'applications_total' => JobApplication::count(),
+                'applications_pending' => JobApplication::whereIn('status', ['submitted', 'viewed'])->count(),
+                'interviews' => JobApplication::where('status', 'interview')->count(),
+                'accepted' => JobApplication::where('status', 'accepted')->count(),
+            ],
         ]);
     }
 

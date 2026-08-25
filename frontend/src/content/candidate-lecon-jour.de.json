@@ -1,5 +1,5 @@
 {
-  "header": { "title": "Alltagsdeutsch" },
+  "header": { "title": "Mein Tagesprogramm", "backAria": "Zurück zur Übersicht" },
   "streak": { "label": "{count} Tage in Folge" },
   "progress": { "label": "Wöchentlicher Fortschritt" },
   "lesson": {
@@ -15,5 +15,11 @@
     "title": "Mini-Quiz",
     "question": "Wie sagt man „Bonjour“ auf Deutsch?"
   },
-  "finish": "Fertig"
+  "finish": "Fertig",
+  "loading": "Aktivitäten werden geladen",
+  "sections": { "today": "Heute fällig", "overdue": "Nachholen", "upcoming": "Demnächst" },
+  "stats": { "completed": "erledigt", "minutes": "Min. / 7 Tage", "overdue": "überfällig" },
+  "tasks": { "minutes": "{count} Min.", "overdue": "Diese Aktivität ist überfällig", "complete": "Als erledigt markieren", "saving": "Speichern…" },
+  "empty": { "title": "Alles erledigt", "body": "Für heute sind keine Aktivitäten zugewiesen." },
+  "error": { "load": "Aktivitäten konnten nicht geladen werden.", "update": "Speichern fehlgeschlagen. Bitte erneut versuchen.", "retry": "Erneut versuchen" }
 }

@@ -66,6 +66,6 @@ class RecruiterProfileView
     /** A dossier is only discoverable once both compliance consents are on record. */
     public static function isVisible(CandidateProfile $profile): bool
     {
-        return (bool) ($profile->terms_consent_at && $profile->cndp_consent_at);
+        return (bool) ($profile->terms_consent_at && $profile->cndp_consent_at && ! $profile->cndp_withdrawn_at && ! $profile->visibility_paused_at);
     }
 }
