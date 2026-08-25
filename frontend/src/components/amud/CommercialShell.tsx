@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { DropdownMenu, InertNavItem, NavItem, Toggle, isNavActive, useDropdown } from '@/components/amud/ui';
+import { DropdownMenu, NavItem, Toggle, isNavActive, useDropdown } from '@/components/amud/ui';
 import { HeaderLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
 import { ToastProvider } from '@/components/amud/Toast';
 import { DemoBanner } from '@/components/amud/DemoBanner';
@@ -15,6 +15,8 @@ import { loadLocalEntreprises } from '@/lib/amud/localEntreprises';
 import { loadLocalMesContacts } from '@/lib/amud/localMesContacts';
 import { loadLocalTaches } from '@/lib/amud/localCommercialTaches';
 import { loadLocalCentres } from '@/lib/amud/localCentres';
+import { getCandidatesForCommercial } from '@/data/amud/candidates';
+import { loadLocalCandidates } from '@/lib/amud/localCandidates';
 
 /**
  * Coquille des pages `/amud/commercial/*` — espace self-service d'un
@@ -25,25 +27,22 @@ import { loadLocalCentres } from '@/lib/amud/localCentres';
  * Companies/Contacts/Tasks) plutôt que sur le sidebar générique "Commercial
  * Agents" recopié par erreur dans doc19/doc10/doc16.
  *
- * Entreprises / Activités / Tâches sont passées de `InertNavItem` (pas
- * encore livrées) à de vrais liens le jour où ces 3 pages ont été
- * construites — Candidats/Performance/Notifications/Profile restent inertes
- * : ce ne sont pas des pages de ce lot de travail.
+ * Candidats/Performance/Notifications/Profil sont passées de `InertNavItem`
+ * (pas encore livrées) à de vrais liens une fois ce dernier lot de pages
+ * construit — plus aucune entrée inerte dans cet espace.
  */
 const NAV: RoleNavItem[] = [
   { href: '/amud/commercial', icon: 'dashboard', label: 'Vue d’ensemble', inBottomNav: true, bottomLabel: 'Accueil' },
   { href: '/amud/commercial/entreprises', icon: 'domain', label: 'Entreprises', inBottomNav: true },
-  { href: '/amud/commercial/activites', icon: 'history', label: 'Activités', inBottomNav: true },
+  { href: '/amud/commercial/candidats', icon: 'person', label: 'Candidats', inBottomNav: true },
+  { href: '/amud/commercial/activites', icon: 'history', label: 'Activités', group: 'Suivi' },
+  { href: '/amud/commercial/taches', icon: 'assignment', label: 'Tâches', group: 'Suivi' },
   { href: '/amud/commercial/rendez-vous', icon: 'calendar_month', label: 'Rendez-vous', inBottomNav: true, bottomLabel: 'RDV' },
-  { href: '/amud/commercial/centres', icon: 'school', label: 'Centres partenaires' },
-  { href: '/amud/commercial/taches', icon: 'assignment', label: 'Tâches' },
-  { href: '/amud/commercial/contacts', icon: 'group', label: 'Contacts' },
-];
-const INERT = [
-  { icon: 'person', label: 'Candidats' },
-  { icon: 'trending_up', label: 'Performance' },
-  { icon: 'notifications', label: 'Notifications' },
-  { icon: 'account_circle', label: 'Profile' },
+  { href: '/amud/commercial/centres', icon: 'school', label: 'Centres partenaires', group: 'Suivi' },
+  { href: '/amud/commercial/contacts', icon: 'group', label: 'Contacts', group: 'Suivi' },
+  { href: '/amud/commercial/performance', icon: 'trending_up', label: 'Performance', group: 'Mon espace' },
+  { href: '/amud/commercial/notifications', icon: 'notifications', label: 'Notifications', group: 'Mon espace' },
+  { href: '/amud/commercial/profile', icon: 'account_circle', label: 'Profil', group: 'Mon espace' },
 ];
 
 /** Recherche header réelle (façon `useGlobalSearchResults` d'AdminShell), bornée aux entreprises/contacts/tâches du commercial connecté. */
@@ -75,6 +74,12 @@ function useCommercialSearchResults(query: string): GlobalSearchResult[] {
       if (results.filter((r) => r.sub === 'Centre de formation').length >= 3) break;
       if (c.nom.toLowerCase().includes(q) || c.ville.toLowerCase().includes(q)) {
         results.push({ id: `centre-${c.id}`, label: c.nom, sub: 'Centre de formation', href: `/amud/commercial/centres/${c.id}`, icon: 'school' });
+      }
+    }
+    for (const cand of getCandidatesForCommercial(CURRENT_COMMERCIAL.nom, loadLocalCandidates())) {
+      if (results.filter((r) => r.sub === 'Candidat').length >= 3) break;
+      if (cand.nom.toLowerCase().includes(q) || cand.posteRecherche.toLowerCase().includes(q) || cand.ville.toLowerCase().includes(q)) {
+        results.push({ id: `cand-${cand.id}`, label: cand.nom, sub: 'Candidat', href: `/amud/commercial/candidats/${cand.id}`, icon: 'person' });
       }
     }
 
@@ -141,9 +146,6 @@ export function CommercialShell({ children }: { children: ReactNode }) {
               collapsed={collapsed}
             />
           ))}
-          {INERT.map((item) => (
-            <InertNavItem key={item.label} icon={item.icon} label={item.label} collapsed={collapsed} />
-          ))}
         </div>
 
         <div className="flex flex-col gap-sm border-t border-amud-outline-variant pt-4">
@@ -194,6 +196,7 @@ export function CommercialShell({ children }: { children: ReactNode }) {
               key={`notif-${pathname}`}
               scope="commercial"
               buttonClassName="relative rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary"
+              viewAllHref="/amud/commercial/notifications"
             />
             <div ref={settingsMenu.ref} className="relative hidden sm:block">
               <button
@@ -244,6 +247,7 @@ export function CommercialShell({ children }: { children: ReactNode }) {
                 </button>
               )}
               items={[
+                { label: 'Voir mon profil', icon: 'account_circle', href: '/amud/commercial/profile' },
                 { label: "Changer d'espace", icon: 'apps', href: '/amud' },
                 { label: 'Déconnexion', icon: 'logout', href: '/amud', danger: true },
               ]}

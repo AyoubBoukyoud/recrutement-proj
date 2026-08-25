@@ -30,6 +30,9 @@ export const AMUD_KEYS = {
   favorites: 'amud_favorites',
   conversations: 'amud_conversations',
   candidateNotes: 'amud_candidate_notes',
+  commercialCandidatePrefs: 'amud_commercial_candidate_prefs',
+  commercialProfileSettings: 'amud_commercial_profile_settings',
+  commercialCandidateNotes: 'amud_commercial_candidate_notes',
   centres: 'amud_centres',
   // Alignées sur les noms EXACTS du cahier des charges (§17) — le préfixe
   // `center_` reste réservé aux collections "méta" du module

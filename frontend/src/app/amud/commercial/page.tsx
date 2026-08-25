@@ -31,6 +31,9 @@ import { entreprisesCollection } from '@/lib/amud/localEntreprises';
 import { entreprisesSeed } from '@/data/amud/entreprises';
 import { callTicketsCollection } from '@/lib/amud/localCallTickets';
 import { callTicketsSeed } from '@/data/amud/callTickets';
+import { candidatesCollection } from '@/lib/amud/localCandidates';
+import { candidatesSeed, getCandidatesForCommercial } from '@/data/amud/candidates';
+import { getCommercialCandidateStats } from '@/lib/amud/commercialServices';
 import { AnalyticsCard } from '@/components/amud/analytics/AnalyticsCard';
 import { ActivityHistogram } from '@/components/amud/analytics/ActivityHistogram';
 import { FunnelChartAmud } from '@/components/amud/analytics/FunnelChartAmud';
@@ -60,10 +63,14 @@ export default function AmudCommercialDashboardPage() {
   const [centerFormations] = useCollection(centerFormationsCollection, centerFormationsSeed);
   const [entreprises] = useCollection(entreprisesCollection, entreprisesSeed);
   const [callTickets] = useCollection(callTicketsCollection, callTicketsSeed);
+  const [candidates] = useCollection(candidatesCollection, candidatesSeed);
 
   const mesCentres = useMemo(() => centres.filter((c) => c.assignedCommercialNom === CURRENT_COMMERCIAL.nom), [centres]);
   const mesEntreprises = useMemo(() => entreprises.filter((e) => e.commercialResponsable === CURRENT_COMMERCIAL.nom), [entreprises]);
   const mesCallTickets = useMemo(() => callTickets.filter((c) => c.commercialId === CURRENT_COMMERCIAL.id), [callTickets]);
+  const mesCandidats = useMemo(() => getCandidatesForCommercial(CURRENT_COMMERCIAL.nom, candidates), [candidates]);
+  const mesFollowupsAll = useMemo(() => followups.filter((f) => f.commercialId === CURRENT_COMMERCIAL.id), [followups]);
+  const candidateStats = useMemo(() => getCommercialCandidateStats(mesCandidats, mesCallTickets, mesFollowupsAll), [mesCandidats, mesCallTickets, mesFollowupsAll]);
   const mesCentresIds = useMemo(() => new Set(mesCentres.map((c) => c.id)), [mesCentres]);
   const centresActifs = mesCentres.filter((c) => c.partnershipStatus === 'ACTIF').length;
   const centresNegociation = mesCentres.filter((c) => c.partnershipStatus === 'NEGOCIATION' || c.partnershipStatus === 'ESSAI').length;
@@ -257,7 +264,7 @@ export default function AmudCommercialDashboardPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-md md:grid-cols-3">
+          <div className="grid grid-cols-2 gap-md md:grid-cols-4">
             <div className="rounded-lg border border-amud-outline-variant bg-amud-surface-container-lowest p-md transition-shadow hover:shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
               <div className="mb-2 flex items-center gap-2 text-amud-on-surface-variant">
                 <span className="material-symbols-outlined text-xl">phone_in_talk</span>
@@ -285,6 +292,18 @@ export default function AmudCommercialDashboardPage() {
                 <CountUp value={mesFollowups.length} />
               </span>
             </div>
+            <Link
+              href="/amud/commercial/candidats"
+              className="rounded-lg border border-amud-outline-variant bg-amud-surface-container-lowest p-md transition-shadow hover:shadow-[0_4px_12px_rgba(0,0,0,0.02)]"
+            >
+              <div className="mb-2 flex items-center gap-2 text-amud-on-surface-variant">
+                <span className="material-symbols-outlined text-xl">person</span>
+                <span className="text-label-md">Candidats</span>
+              </div>
+              <span className="text-headline-md text-amud-on-surface">
+                <CountUp value={candidateStats.total} />
+              </span>
+            </Link>
           </div>
 
           <div className="grid grid-cols-2 gap-md md:grid-cols-4">
@@ -320,6 +339,27 @@ export default function AmudCommercialDashboardPage() {
         </div>
 
         <div className="space-y-gutter lg:col-span-4">
+          <div className="rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
+            <h3 className="mb-4 text-title-lg text-amud-on-surface">Mon espace</h3>
+            <div className="grid grid-cols-2 gap-md">
+              <Link href="/amud/commercial/candidats" className="flex flex-col items-center justify-center gap-2 rounded-lg border border-amud-outline-variant p-md text-center text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
+                <span className="material-symbols-outlined text-amud-primary">person</span>
+                <span className="text-label-sm">Mes candidats</span>
+              </Link>
+              <Link href="/amud/commercial/performance" className="flex flex-col items-center justify-center gap-2 rounded-lg border border-amud-outline-variant p-md text-center text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
+                <span className="material-symbols-outlined text-amud-primary">trending_up</span>
+                <span className="text-label-sm">Ma performance</span>
+              </Link>
+              <Link href="/amud/commercial/notifications" className="flex flex-col items-center justify-center gap-2 rounded-lg border border-amud-outline-variant p-md text-center text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
+                <span className="material-symbols-outlined text-amud-primary">notifications</span>
+                <span className="text-label-sm">Mes notifications</span>
+              </Link>
+              <Link href="/amud/commercial/profile" className="flex flex-col items-center justify-center gap-2 rounded-lg border border-amud-outline-variant p-md text-center text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
+                <span className="material-symbols-outlined text-amud-primary">account_circle</span>
+                <span className="text-label-sm">Mon profil</span>
+              </Link>
+            </div>
+          </div>
           <div className="rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
             <h3 className="mb-4 text-title-lg text-amud-on-surface">Contacts prioritaires</h3>
             <div className="flex flex-col gap-4">

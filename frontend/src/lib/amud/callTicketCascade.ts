@@ -130,6 +130,8 @@ export function createCallTicket(input: {
       entrepriseId: input.entrepriseId,
       entrepriseNom: input.entrepriseNom,
       contactNom: input.contactNom,
+      contactId: input.contactId,
+      contactType: input.contactType,
       commercialId: input.commercialId,
       commercialNom: input.commercialNom,
       dueDate: input.followUpDate || dateFr,
@@ -141,11 +143,17 @@ export function createCallTicket(input: {
     });
   }
 
+  const callHref = input.entrepriseId
+    ? `/amud/commercial/entreprises/${input.entrepriseId}`
+    : input.contactType === 'Candidat'
+      ? `/amud/commercial/candidats/${input.contactId}`
+      : '/amud/commercial/activites';
+
   pushNotification({
     scope: 'commercial',
     title: `Appel avec ${input.contactNom} enregistré (${input.result}).`,
     category: 'Appel',
-    href: input.entrepriseId ? `/amud/commercial/entreprises/${input.entrepriseId}` : '/amud/commercial/activites',
+    href: callHref,
   });
 
   logAudit({
