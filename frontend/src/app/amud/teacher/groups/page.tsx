@@ -68,7 +68,7 @@ export default function TeacherGroupsPage() {
                     { label: 'Niveau', value: group.niveau },
                     { label: 'Étudiants', value: `${activeCount}/${group.capaciteMax}` },
                     { label: 'Salle', value: group.salle },
-                    { label: 'Début', value: new Date(group.dateDebut).toLocaleDateString('fr-FR') },
+                    { label: 'Début', value: group.dateDebut },
                   ].map(({ label, value }) => (
                     <div key={label}>
                       <p className="text-label-sm text-amud-on-surface-variant">{label}</p>

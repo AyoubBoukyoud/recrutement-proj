@@ -11,6 +11,7 @@ import { centerTeacherPaymentsSeed } from '@/data/amud/centerTeacherPayments';
 import { centerSchedulesCollection } from '@/lib/amud/localCenterSchedules';
 import { centerSchedulesSeed } from '@/data/amud/centerSchedules';
 import { TEACHER_PAYMENT_STATUS_LABELS, TEACHER_PAYMENT_STATUS_CLASS } from '@/data/amud/centerTypes';
+import { parseAnyDate } from '@/lib/amud/analytics/period';
 
 function calcDuration(start: string, end: string): number {
   const [sh, sm] = start.split(':').map(Number);
@@ -89,7 +90,7 @@ export default function TeacherRemunerationPage() {
               <div key={p.id} className="flex flex-wrap items-center justify-between gap-md rounded-lg border border-amud-outline-variant px-md py-sm">
                 <div>
                   <p className="text-body-md font-semibold text-amud-on-surface">
-                    {new Date(p.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    {parseAnyDate(p.date)?.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) ?? p.date}
                   </p>
                   <p className="text-label-sm text-amud-on-surface-variant">
                     {p.periode}
