@@ -232,7 +232,7 @@ export function CompanyShell({ children }: { children: ReactNode }) {
                 Créer une offre
               </Link>
 
-              <NotificationCenter key={pathname} scope="employer" viewAllHref="/amud/entreprise/notifications" />
+              <NotificationCenter key={`notif-${pathname}`} scope="employer" viewAllHref="/amud/entreprise/notifications" />
 
               <div ref={settingsMenu.ref} className="relative hidden sm:block">
                 <button
@@ -266,7 +266,7 @@ export function CompanyShell({ children }: { children: ReactNode }) {
               <div className="hidden h-8 w-[1px] bg-amud-outline-variant sm:block" />
 
               <DropdownMenu
-                key={pathname}
+                key={`profile-${pathname}`}
                 header={
                   <div>
                     <div className="text-label-md font-semibold text-amud-on-surface">{CURRENT_EMPLOYER.userNom}</div>

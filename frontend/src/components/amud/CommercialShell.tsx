@@ -191,7 +191,7 @@ export function CommercialShell({ children }: { children: ReactNode }) {
           />
           <div className="ml-auto flex items-center gap-2 md:gap-4">
             <NotificationCenter
-              key={pathname}
+              key={`notif-${pathname}`}
               scope="commercial"
               buttonClassName="relative rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary"
             />
@@ -225,7 +225,7 @@ export function CommercialShell({ children }: { children: ReactNode }) {
             </div>
             <HeaderLanguageThemeControls iconButtonClassName="rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary" />
             <DropdownMenu
-              key={pathname}
+              key={`profile-${pathname}`}
               header={
                 <div>
                   <div className="text-label-md font-semibold text-amud-on-surface">{CURRENT_COMMERCIAL.nom}</div>

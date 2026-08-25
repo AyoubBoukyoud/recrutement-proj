@@ -223,7 +223,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
               placeholder="Rechercher un candidat, une offre, une entreprise…"
             />
             <div className="ml-auto flex items-center gap-sm">
-              <NotificationCenter key={pathname} scope="admin" />
+              <NotificationCenter key={`notif-${pathname}`} scope="admin" />
               <Link
                 href="/amud/admin/parametres"
                 className="rounded-full p-2 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary"
@@ -236,7 +236,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
               </button>
               <HeaderLanguageThemeControls />
               <DropdownMenu
-                key={pathname}
+                key={`profile-${pathname}`}
                 header={
                   <div>
                     <div className="text-label-md font-semibold text-amud-on-surface">Admin Pillar</div>

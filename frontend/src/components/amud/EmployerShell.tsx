@@ -138,7 +138,7 @@ export function EmployerShell({ children }: { children: ReactNode }) {
           </button>
           <div className="ml-auto flex items-center gap-sm md:gap-lg">
             <NotificationCenter
-              key={pathname}
+              key={`notif-${pathname}`}
               scope="employer"
               buttonClassName="relative rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-high"
             />
@@ -173,7 +173,7 @@ export function EmployerShell({ children }: { children: ReactNode }) {
             <HeaderLanguageThemeControls iconButtonClassName="rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-high" />
             <div className="hidden h-8 w-[1px] bg-amud-outline-variant sm:block" />
             <DropdownMenu
-              key={pathname}
+              key={`profile-${pathname}`}
               header={
                 <div>
                   <div className="text-label-md font-semibold text-amud-on-surface">Morocco-Germany Bridge</div>
