@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { Badge, BadgeTone, EmptyState, FilterBar, PageHeader, ReadOnlyNotice } from '@/components/amud/ui';
+import { Badge, BadgeTone, EmptyState, FilterBar, PageHeader, Pagination, ReadOnlyNotice, usePagination } from '@/components/amud/ui';
 
 /**
  * Vue de liste CRUD partagée par toutes les pages `/amud/centre/*`
@@ -53,6 +53,8 @@ export function CenterCrudTable({
   readOnlyMessage = 'Votre rôle actuel ne permet que la consultation de cette section.',
   /** Indices des colonnes à ne pas répéter dans la carte mobile (déjà en titre/sous-titre). */
   cardHiddenColumns = [0, 1],
+  /** Optionnel — sans cette prop la liste affiche tout, comme avant. */
+  pageSize,
 }: {
   title: string;
   subtitle?: string;
@@ -73,9 +75,11 @@ export function CenterCrudTable({
   stats?: ReactNode;
   readOnlyMessage?: string;
   cardHiddenColumns?: number[];
+  pageSize?: number;
 }) {
   const hasToolbar = typeof search === 'string' && !!onSearchChange;
   const isFiltered = (search ?? '').trim().length > 0 || activeFilterCount > 0;
+  const { page, pageCount, setPage, pageItems } = usePagination(rows, pageSize);
 
   return (
     <div className="pb-20 md:pb-0">
@@ -114,7 +118,7 @@ export function CenterCrudTable({
         <>
           {/* ---- Cartes (mobile / tablette étroite) ---- */}
           <ul className="flex flex-col gap-md md:hidden">
-            {rows.map((row) => {
+            {pageItems.map((row) => {
               const cardTitle = row.cardTitle ?? row.cells[0];
               const cardSubtitle = row.cardSubtitle ?? row.cells[1];
               const pairs = columns
@@ -194,7 +198,7 @@ export function CenterCrudTable({
                 </tr>
               </thead>
               <tbody className="divide-y divide-amud-outline-variant">
-                {rows.map((row) => (
+                {pageItems.map((row) => (
                   <tr key={row.id} className="transition-colors hover:bg-amud-surface-container-low/40">
                     {row.cells.map((cell, i) => (
                       <td key={i} className="px-6 py-3 text-body-md text-amud-on-surface-variant">
@@ -227,6 +231,7 @@ export function CenterCrudTable({
               </tbody>
             </table>
           </div>
+          {pageSize ? <Pagination page={page} pageCount={pageCount} onChange={setPage} totalItems={rows.length} pageSize={pageSize} /> : null}
         </>
       )}
 

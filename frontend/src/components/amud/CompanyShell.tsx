@@ -2,17 +2,18 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ReactNode, useEffect, useMemo, useState } from 'react';
-import { Drawer, NavItem, Toggle, isNavActive, useDropdown } from '@/components/amud/ui';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { DropdownMenu, NavItem, Toggle, isNavActive, useDropdown } from '@/components/amud/ui';
 import { HeaderLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
 import { ToastProvider } from '@/components/amud/Toast';
+import { GlobalSearch, useGlobalSearchShortcut, type GlobalSearchResult } from '@/components/amud/GlobalSearch';
+import { NotificationCenter } from '@/components/amud/NotificationCenter';
+import { RoleBottomNav } from '@/components/amud/RoleBottomNav';
 import { CURRENT_EMPLOYER } from '@/data/amud/currentEmployer';
 import { entreprisesSeed } from '@/data/amud/entreprises';
 import { entreprisesCollection } from '@/lib/amud/localEntreprises';
 import { loadLocalApplications } from '@/lib/amud/localApplications';
 import { loadLocalOffres } from '@/lib/amud/localOffres';
-import { notificationsSeed } from '@/data/amud/notifications';
-import { notifications as notificationsCollection, markNotificationRead, markAllNotificationsRead } from '@/lib/amud/storage/notify';
 import { useCollection } from '@/lib/amud/storage/useCollection';
 
 type NavEntry = {
@@ -48,17 +49,13 @@ const NAV: NavEntry[] = [
 ];
 
 const GROUP_LABELS = ['', 'Recrutement', 'Communication', 'Entreprise', 'Configuration'];
-const BOTTOM_ITEMS = NAV.filter((item) => item.inBottomNav);
-const PLUS_GROUPS = GROUP_LABELS.map((label) => ({ label, items: NAV.filter((item) => item.group === label && !item.inBottomNav) })).filter((g) => g.items.length > 0);
-
-type SearchResult = { id: string; label: string; sub: string; href: string; icon: string };
 
 /** Recherche header, bornée aux offres/candidatures de l'entreprise connectée (même pattern que `useEmployerSearchResults`). */
-function useCompanySearchResults(query: string): SearchResult[] {
+function useCompanySearchResults(query: string): GlobalSearchResult[] {
   return useMemo(() => {
     const q = query.trim().toLowerCase();
     if (q.length < 2) return [];
-    const results: SearchResult[] = [];
+    const results: GlobalSearchResult[] = [];
 
     const applications = loadLocalApplications().filter((a) => a.entrepriseId === CURRENT_EMPLOYER.entrepriseId);
     for (const a of applications) {
@@ -84,40 +81,34 @@ export function CompanyShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
-  const [plusOpen, setPlusOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [emailNotif, setEmailNotif] = useState(true);
   const [pushNotif, setPushNotif] = useState(true);
-  const searchMenu = useDropdown<HTMLDivElement>();
-  const notifMenu = useDropdown<HTMLDivElement>();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const settingsMenu = useDropdown<HTMLDivElement>();
-  const profileMenu = useDropdown<HTMLDivElement>();
 
   const [entreprises] = useCollection(entreprisesCollection, entreprisesSeed);
   const entreprise = useMemo(() => entreprises.find((e) => e.id === CURRENT_EMPLOYER.entrepriseId), [entreprises]);
 
-  const [allNotifications] = useCollection(notificationsCollection, notificationsSeed);
-  const companyNotifications = useMemo(
-    () => allNotifications.filter((n) => n.scope === 'employer').sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
-    [allNotifications],
-  );
-  const totalAlerts = companyNotifications.filter((n) => !n.read).length;
   const results = useCompanySearchResults(query);
   const hiddenWhenCollapsed = collapsed ? 'md:hidden md:group-hover:block' : '';
 
+  useGlobalSearchShortcut(() => {
+    setSearchOpen(true);
+    searchInputRef.current?.focus();
+  });
+
   useEffect(() => {
-    setPlusOpen(false);
     setMobileSearchOpen(false);
-    searchMenu.setOpen(false);
-    notifMenu.setOpen(false);
+    setSearchOpen(false);
     settingsMenu.setOpen(false);
-    profileMenu.setOpen(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   function goToResult(href: string) {
-    searchMenu.setOpen(false);
+    setSearchOpen(false);
     setMobileSearchOpen(false);
     setQuery('');
     router.push(href);
@@ -211,38 +202,17 @@ export function CompanyShell({ children }: { children: ReactNode }) {
               <span className="truncate text-title-lg font-bold text-amud-on-surface">{entreprise?.nom ?? 'Espace Entreprise'}</span>
             </div>
 
-            <div ref={searchMenu.ref} className="relative hidden max-w-md flex-1 md:block">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-amud-on-surface-variant">search</span>
-              <input
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  searchMenu.setOpen(true);
-                }}
-                onFocus={() => searchMenu.setOpen(true)}
-                className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface-container-low py-2 pl-10 pr-4 text-body-md outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-amud-primary"
-                placeholder="Rechercher une candidature, une offre…"
-                aria-label="Rechercher une candidature, une offre"
-                type="text"
-              />
-              {searchMenu.open && query.trim().length >= 2 ? (
-                <div className="absolute left-0 right-0 top-full z-40 mt-2 max-h-80 overflow-y-auto rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
-                  {results.length === 0 ? (
-                    <p className="p-md text-label-sm text-amud-on-surface-variant">Aucun résultat pour « {query} ».</p>
-                  ) : (
-                    results.map((r) => (
-                      <button key={r.id} onClick={() => goToResult(r.href)} className="flex w-full items-center gap-sm px-md py-sm text-left transition-colors hover:bg-amud-surface-container-low">
-                        <span className="material-symbols-outlined text-amud-primary">{r.icon}</span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-label-md text-amud-on-surface">{r.label}</span>
-                          <span className="block truncate text-label-sm text-amud-on-surface-variant">{r.sub}</span>
-                        </span>
-                      </button>
-                    ))
-                  )}
-                </div>
-              ) : null}
-            </div>
+            <GlobalSearch
+              query={query}
+              onQueryChange={setQuery}
+              results={results}
+              onSelect={goToResult}
+              open={searchOpen}
+              onOpenChange={setSearchOpen}
+              inputRef={searchInputRef}
+              placeholder="Rechercher une candidature, une offre…"
+              className="relative hidden max-w-md flex-1 md:block"
+            />
 
             <div className="ml-auto flex items-center gap-1 md:gap-sm">
               <button
@@ -262,60 +232,7 @@ export function CompanyShell({ children }: { children: ReactNode }) {
                 Créer une offre
               </Link>
 
-              <div ref={notifMenu.ref} className="relative">
-                <button
-                  onClick={() => notifMenu.setOpen((v) => !v)}
-                  className="relative rounded-full p-2 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary"
-                  aria-label="Notifications"
-                  aria-haspopup="menu"
-                  aria-expanded={notifMenu.open}
-                >
-                  <span className="material-symbols-outlined">notifications</span>
-                  {totalAlerts > 0 ? (
-                    <span className="absolute right-1 top-1 flex h-4 min-w-[16px] animate-pulse items-center justify-center rounded-full bg-amud-secondary px-1 text-[10px] font-bold text-white">
-                      {totalAlerts}
-                    </span>
-                  ) : null}
-                </button>
-                {notifMenu.open ? (
-                  <div className="absolute right-0 top-full z-40 mt-2 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
-                    <div className="flex items-center justify-between border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm text-label-md font-semibold text-amud-on-surface">
-                      <span>Notifications</span>
-                      {totalAlerts > 0 ? (
-                        <button onClick={() => markAllNotificationsRead('employer')} className="text-label-sm font-normal text-amud-primary hover:underline">
-                          Tout marquer comme lu
-                        </button>
-                      ) : null}
-                    </div>
-                    <div className="flex max-h-96 flex-col overflow-y-auto">
-                      {companyNotifications.length === 0 ? (
-                        <p className="px-md py-lg text-center text-label-sm text-amud-on-surface-variant">Aucune notification.</p>
-                      ) : (
-                        companyNotifications.slice(0, 10).map((n) => (
-                          <button
-                            key={n.id}
-                            onClick={() => {
-                              markNotificationRead(n.id);
-                              notifMenu.setOpen(false);
-                              if (n.href) router.push(n.href);
-                            }}
-                            className={`flex w-full items-start gap-sm px-md py-sm text-left transition-colors hover:bg-amud-surface-container-low ${n.read ? 'opacity-60' : ''}`}
-                          >
-                            <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${n.read ? 'bg-amud-outline-variant' : 'bg-amud-secondary'}`} />
-                            <span className="min-w-0 flex-1">
-                              <span className="block text-body-md text-amud-on-surface">{n.title}</span>
-                              <span className="block text-label-sm text-amud-on-surface-variant">{n.category}</span>
-                            </span>
-                          </button>
-                        ))
-                      )}
-                    </div>
-                    <Link href="/amud/entreprise/notifications" onClick={() => notifMenu.setOpen(false)} className="block border-t border-amud-outline-variant px-md py-sm text-center text-label-sm font-medium text-amud-primary hover:underline">
-                      Voir toutes les notifications
-                    </Link>
-                  </div>
-                ) : null}
-              </div>
+              <NotificationCenter key={pathname} scope="employer" viewAllHref="/amud/entreprise/notifications" />
 
               <div ref={settingsMenu.ref} className="relative hidden sm:block">
                 <button
@@ -348,36 +265,31 @@ export function CompanyShell({ children }: { children: ReactNode }) {
 
               <div className="hidden h-8 w-[1px] bg-amud-outline-variant sm:block" />
 
-              <div ref={profileMenu.ref} className="relative">
-                <button
-                  onClick={() => profileMenu.setOpen((v) => !v)}
-                  className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-amud-primary text-sm font-bold text-white transition-opacity hover:opacity-90"
-                  aria-label="Menu du compte"
-                  aria-haspopup="menu"
-                  aria-expanded={profileMenu.open}
-                >
-                  {CURRENT_EMPLOYER.userNom.charAt(0)}
-                </button>
-                {profileMenu.open ? (
-                  <div className="absolute right-0 top-full z-40 mt-2 w-56 overflow-hidden rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
-                    <div className="border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm">
-                      <div className="text-label-md font-semibold text-amud-on-surface">{CURRENT_EMPLOYER.userNom}</div>
-                      <div className="text-label-sm text-amud-on-surface-variant">{entreprise?.nom ?? CURRENT_EMPLOYER.entrepriseNom}</div>
-                    </div>
-                    <div className="flex flex-col py-1">
-                      <Link href="/amud/entreprise/profil" onClick={() => profileMenu.setOpen(false)} className="flex items-center gap-sm px-md py-sm text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
-                        <span className="material-symbols-outlined text-[18px]">apartment</span> Mon entreprise
-                      </Link>
-                      <Link href="/amud" onClick={() => profileMenu.setOpen(false)} className="flex items-center gap-sm px-md py-sm text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
-                        <span className="material-symbols-outlined text-[18px]">apps</span> Changer d&apos;espace
-                      </Link>
-                      <Link href="/amud" onClick={() => profileMenu.setOpen(false)} className="flex items-center gap-sm px-md py-sm text-label-md text-amud-error transition-colors hover:bg-amud-surface-container-low">
-                        <span className="material-symbols-outlined text-[18px]">logout</span> Déconnexion
-                      </Link>
-                    </div>
+              <DropdownMenu
+                key={pathname}
+                header={
+                  <div>
+                    <div className="text-label-md font-semibold text-amud-on-surface">{CURRENT_EMPLOYER.userNom}</div>
+                    <div className="text-label-sm text-amud-on-surface-variant">{entreprise?.nom ?? CURRENT_EMPLOYER.entrepriseNom}</div>
                   </div>
-                ) : null}
-              </div>
+                }
+                trigger={({ open, toggle }) => (
+                  <button
+                    onClick={toggle}
+                    className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-amud-primary text-sm font-bold text-white transition-opacity hover:opacity-90"
+                    aria-label="Menu du compte"
+                    aria-haspopup="menu"
+                    aria-expanded={open}
+                  >
+                    {CURRENT_EMPLOYER.userNom.charAt(0)}
+                  </button>
+                )}
+                items={[
+                  { label: 'Mon entreprise', icon: 'apartment', href: '/amud/entreprise/profil' },
+                  { label: "Changer d'espace", icon: 'apps', href: '/amud' },
+                  { label: 'Déconnexion', icon: 'logout', href: '/amud', danger: true },
+                ]}
+              />
             </div>
           </header>
 
@@ -421,47 +333,7 @@ export function CompanyShell({ children }: { children: ReactNode }) {
           </main>
         </div>
 
-        {/* Barre du bas — remplace la sidebar en dessous de md (cahier des charges §2). */}
-        <nav
-          className="fixed inset-x-0 bottom-0 z-40 flex h-16 items-stretch border-t border-amud-outline-variant bg-amud-surface-container-lowest md:hidden"
-          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-          aria-label="Navigation principale"
-        >
-          {BOTTOM_ITEMS.map((item) => {
-            const active = isNavActive(pathname, item.href, item.href === '/amud/entreprise/dashboard');
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium transition-colors ${active ? 'text-amud-primary' : 'text-amud-on-surface-variant'}`}
-              >
-                <span className="material-symbols-outlined text-[22px]" style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}>
-                  {item.bottomIcon ?? item.icon}
-                </span>
-                {item.bottomLabel ?? item.label}
-              </Link>
-            );
-          })}
-          <button onClick={() => setPlusOpen(true)} className="flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium text-amud-on-surface-variant" aria-haspopup="menu" aria-expanded={plusOpen}>
-            <span className="material-symbols-outlined text-[22px]">more_horiz</span>
-            Plus
-          </button>
-        </nav>
-
-        <Drawer open={plusOpen} onClose={() => setPlusOpen(false)} anchor="bottom" title="Plus d’options">
-          <div className="flex flex-col gap-lg">
-            {PLUS_GROUPS.map((group) => (
-              <div key={group.label || 'root'}>
-                {group.label ? <div className="px-1 pb-1 text-label-sm font-semibold uppercase tracking-wider text-amud-outline">{group.label}</div> : null}
-                <div className="flex flex-col gap-0.5">
-                  {group.items.map((item) => (
-                    <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label} active={isNavActive(pathname, item.href)} />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </Drawer>
+        <RoleBottomNav items={NAV} />
       </div>
     </ToastProvider>
   );

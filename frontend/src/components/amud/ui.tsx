@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { ButtonHTMLAttributes, ReactNode, useEffect, useRef, useState } from 'react';
 
 /**
  * Primitives partagées par le module `/amud` (Admin / Commercial / Employeur
@@ -834,6 +834,7 @@ export function StatCard({
   suffix,
   animate = true,
   onClick,
+  trend,
 }: {
   label: string;
   value: number;
@@ -843,6 +844,8 @@ export function StatCard({
   suffix?: string;
   animate?: boolean;
   onClick?: () => void;
+  /** Puce de tendance optionnelle (`TrendBadge`) affichée sous la valeur — cf. `components/amud/analytics`. */
+  trend?: ReactNode;
 }) {
   const body = (
     <>
@@ -858,6 +861,7 @@ export function StatCard({
       <span className="text-headline-md text-amud-on-surface sm:text-headline-lg">
         {animate ? <CountUp value={value} formatter={(v) => `${Math.round(v).toLocaleString('fr-FR')}${suffix ?? ''}`} /> : `${value.toLocaleString('fr-FR')}${suffix ?? ''}`}
       </span>
+      {trend ? <div className="mt-1">{trend}</div> : null}
     </>
   );
 
@@ -951,12 +955,17 @@ export function ResponsiveTable({
   rows,
   empty,
   caption,
+  pageSize,
 }: {
   columns: string[];
   rows: { id: string; cells: ReactNode[]; badge?: { label: string; tone: BadgeTone }; action?: ReactNode }[];
   empty: ReactNode;
   caption?: string;
+  /** Optionnel — sans cette prop le tableau affiche tout, comme avant. */
+  pageSize?: number;
 }) {
+  const { page, pageCount, setPage, pageItems } = usePagination(rows, pageSize);
+
   if (rows.length === 0) {
     return <div className="rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest shadow-sm">{empty}</div>;
   }
@@ -964,7 +973,7 @@ export function ResponsiveTable({
   return (
     <>
       <ul className="flex flex-col gap-md md:hidden">
-        {rows.map((row) => (
+        {pageItems.map((row) => (
           <li key={row.id} className="overflow-hidden rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest shadow-sm">
             <div className="flex items-start justify-between gap-sm p-md">
               <p className="min-w-0 flex-1 truncate text-label-md font-semibold text-amud-on-surface">{row.cells[0]}</p>
@@ -1001,7 +1010,7 @@ export function ResponsiveTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-amud-outline-variant">
-            {rows.map((row) => (
+            {pageItems.map((row) => (
               <tr key={row.id} className="transition-colors hover:bg-amud-surface-container-low/40">
                 {row.cells.map((cell, i) => (
                   <td key={i} className="px-6 py-3 text-body-md text-amud-on-surface-variant">
@@ -1014,6 +1023,7 @@ export function ResponsiveTable({
           </tbody>
         </table>
       </div>
+      {pageSize ? <Pagination page={page} pageCount={pageCount} onChange={setPage} totalItems={rows.length} pageSize={pageSize} /> : null}
     </>
   );
 }
@@ -1054,6 +1064,322 @@ export function SegmentedControl<T extends string>({
           </button>
         );
       })}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Button — bouton unique du module. Généralise les 4 styles déjà répétés à
+ * la main un peu partout (`ModalActions`, `EmptyState`, `PageHeader`…) :
+ * `primary` (action principale), `secondary` (bordure), `ghost` (icône
+ * seule / discret), `danger` (suppression). `loading` bascule l'icône pour
+ * un spinner et peut afficher un libellé différent ("Enregistrement…").
+ * ------------------------------------------------------------------ */
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
+export type ButtonSize = 'sm' | 'md';
+
+const BUTTON_VARIANT_CLASS: Record<ButtonVariant, string> = {
+  primary: 'bg-amud-primary text-white shadow-sm hover:bg-amud-primary-dark',
+  secondary: 'border border-amud-outline-variant text-amud-on-surface hover:bg-amud-surface-container-low',
+  ghost: 'text-amud-on-surface-variant hover:bg-amud-surface-container-high',
+  danger: 'bg-amud-error text-white shadow-sm hover:bg-amud-error/90',
+};
+
+const BUTTON_SIZE_CLASS: Record<ButtonSize, string> = {
+  sm: 'min-h-[36px] px-md text-label-sm',
+  md: 'min-h-[44px] px-lg text-label-md',
+};
+
+export function Button({
+  children,
+  variant = 'primary',
+  size = 'md',
+  icon,
+  loading = false,
+  loadingLabel,
+  fullWidth = false,
+  className = '',
+  type = 'button',
+  disabled,
+  ...rest
+}: {
+  children: ReactNode;
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  icon?: string;
+  loading?: boolean;
+  /** Libellé affiché pendant `loading` (ex. "Enregistrement…") ; sans ça, `children` reste affiché. */
+  loadingLabel?: string;
+  fullWidth?: boolean;
+  className?: string;
+} & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className' | 'children'>) {
+  return (
+    <button
+      type={type}
+      disabled={disabled || loading}
+      className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amud-primary disabled:cursor-not-allowed disabled:opacity-60 ${BUTTON_VARIANT_CLASS[variant]} ${BUTTON_SIZE_CLASS[size]} ${fullWidth ? 'w-full' : ''} ${className}`}
+      {...rest}
+    >
+      {loading ? (
+        <span className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden="true" />
+      ) : icon ? (
+        <span className="material-symbols-outlined shrink-0 text-[18px]" aria-hidden="true">
+          {icon}
+        </span>
+      ) : null}
+      {loading && loadingLabel ? loadingLabel : children}
+    </button>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Avatar — photo ou initiales, taille unique déclinée en 3 tailles.
+ * Extrait de la logique déjà écrite à la main dans `PhotoField` (form.tsx)
+ * et `CenterCrudTable` (avatar de carte mobile) pour ne pas la garder
+ * dupliquée une troisième fois dans `NotificationCenter`/`GlobalSearch`.
+ * ------------------------------------------------------------------ */
+export type AvatarSize = 'sm' | 'md' | 'lg';
+
+const AVATAR_SIZE_CLASS: Record<AvatarSize, string> = {
+  sm: 'h-8 w-8 text-[11px]',
+  md: 'h-10 w-10 text-label-md',
+  lg: 'h-14 w-14 text-title-lg',
+};
+
+export function initialsOf(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+export function Avatar({
+  name,
+  photo,
+  size = 'md',
+  className = '',
+}: {
+  name: string;
+  photo?: string;
+  size?: AvatarSize;
+  className?: string;
+}) {
+  return (
+    <span
+      className={`flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-amud-primary-container font-bold text-white ${AVATAR_SIZE_CLASS[size]} ${className}`}
+    >
+      {photo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={photo} alt="" className="h-full w-full object-cover" />
+      ) : (
+        initialsOf(name)
+      )}
+    </span>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Tooltip — bulle au survol/focus. Pensée pour les icônes de sidebar
+ * repliée (`collapsed` sur `NavItem`) et les boutons icône seule des
+ * headers, qui n'avaient jusqu'ici qu'un `title=` natif peu lisible.
+ * ------------------------------------------------------------------ */
+export function Tooltip({
+  label,
+  children,
+  side = 'right',
+}: {
+  label: string;
+  children: ReactNode;
+  side?: 'top' | 'right' | 'bottom' | 'left';
+}) {
+  const [visible, setVisible] = useState(false);
+  const sideCls: Record<typeof side, string> = {
+    top: 'bottom-full left-1/2 mb-2 -translate-x-1/2',
+    right: 'left-full top-1/2 ml-2 -translate-y-1/2',
+    bottom: 'top-full left-1/2 mt-2 -translate-x-1/2',
+    left: 'right-full top-1/2 mr-2 -translate-y-1/2',
+  };
+  return (
+    <span
+      className="relative inline-flex"
+      onMouseEnter={() => setVisible(true)}
+      onMouseLeave={() => setVisible(false)}
+      onFocus={() => setVisible(true)}
+      onBlur={() => setVisible(false)}
+    >
+      {children}
+      {visible ? (
+        <span
+          role="tooltip"
+          className={`pointer-events-none absolute z-50 whitespace-nowrap rounded-md bg-amud-inverse-surface px-2 py-1 text-[11px] font-medium text-amud-inverse-on-surface shadow-lg ${sideCls[side]}`}
+        >
+          {label}
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * DropdownMenu — habillage visuel de `useDropdown` (ouverture contrôlée +
+ * clic extérieur/Échap déjà géré par le hook). Remplace le menu
+ * profil/réglages réimplémenté à la main dans chaque coquille
+ * (`AdminShell`, `CommercialShell`, `EmployerShell`…) par un seul rendu.
+ * ------------------------------------------------------------------ */
+export type DropdownMenuItem = {
+  label: string;
+  icon?: string;
+  onClick?: () => void;
+  href?: string;
+  danger?: boolean;
+};
+
+export function DropdownMenu({
+  trigger,
+  items,
+  align = 'right',
+  header,
+  widthClassName = 'w-56',
+}: {
+  /** Rend le déclencheur ; reçoit `open`/`toggle` pour poser `aria-expanded` etc. */
+  trigger: (state: { open: boolean; toggle: () => void }) => ReactNode;
+  items: DropdownMenuItem[];
+  align?: 'left' | 'right';
+  header?: ReactNode;
+  widthClassName?: string;
+}) {
+  const { open, setOpen, ref } = useDropdown<HTMLDivElement>();
+  return (
+    <div ref={ref} className="relative">
+      {trigger({ open, toggle: () => setOpen((v) => !v) })}
+      {open ? (
+        <div
+          role="menu"
+          className={`absolute top-full z-40 mt-2 ${widthClassName} overflow-hidden rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in ${
+            align === 'right' ? 'right-0' : 'left-0'
+          }`}
+        >
+          {header ? <div className="border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm">{header}</div> : null}
+          <div className="flex flex-col py-1">
+            {items.map((item, i) =>
+              item.href ? (
+                <Link
+                  key={i}
+                  href={item.href}
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className={`flex items-center gap-sm px-md py-sm text-label-md transition-colors hover:bg-amud-surface-container-low ${
+                    item.danger ? 'text-amud-error' : 'text-amud-on-surface'
+                  }`}
+                >
+                  {item.icon ? <span className="material-symbols-outlined text-[18px]">{item.icon}</span> : null}
+                  {item.label}
+                </Link>
+              ) : (
+                <button
+                  key={i}
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    item.onClick?.();
+                    setOpen(false);
+                  }}
+                  className={`flex items-center gap-sm px-md py-sm text-left text-label-md transition-colors hover:bg-amud-surface-container-low ${
+                    item.danger ? 'text-amud-error' : 'text-amud-on-surface'
+                  }`}
+                >
+                  {item.icon ? <span className="material-symbols-outlined text-[18px]">{item.icon}</span> : null}
+                  {item.label}
+                </button>
+              ),
+            )}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Pagination — jusqu'ici absente : `CenterCrudTable`/`ResponsiveTable`
+ * affichaient toute la liste avec un simple "Affichage 1-N sur M" figé.
+ * Opt-in (voir `pageSize` sur ces deux composants) pour ne changer le
+ * comportement d'aucune page existante qui ne le demande pas explicitement.
+ * ------------------------------------------------------------------ */
+export function usePagination<T>(items: T[], pageSize?: number) {
+  const [page, setPage] = useState(1);
+  const pageCount = pageSize ? Math.max(1, Math.ceil(items.length / pageSize)) : 1;
+  const safePage = Math.min(page, pageCount);
+  const pageItems = pageSize ? items.slice((safePage - 1) * pageSize, safePage * pageSize) : items;
+
+  useEffect(() => {
+    setPage(1);
+  }, [items.length, pageSize]);
+
+  return { page: safePage, pageCount, setPage, pageItems };
+}
+
+export function Pagination({
+  page,
+  pageCount,
+  onChange,
+  totalItems,
+  pageSize,
+}: {
+  page: number;
+  pageCount: number;
+  onChange: (page: number) => void;
+  totalItems?: number;
+  pageSize?: number;
+}) {
+  if (pageCount <= 1) return null;
+
+  const windowStart = Math.max(1, Math.min(page - 2, pageCount - 4));
+  const windowEnd = Math.min(pageCount, windowStart + 4);
+  const pages = Array.from({ length: windowEnd - windowStart + 1 }, (_, i) => windowStart + i);
+
+  return (
+    <div className="flex flex-col items-center justify-between gap-sm border-t border-amud-outline-variant bg-amud-surface-container-lowest px-md py-sm sm:flex-row">
+      {totalItems != null && pageSize ? (
+        <span className="text-label-sm text-amud-on-surface-variant">
+          Affichage {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, totalItems)} sur {totalItems}
+        </span>
+      ) : null}
+      <div className="flex items-center gap-1" role="navigation" aria-label="Pagination">
+        <button
+          type="button"
+          onClick={() => onChange(page - 1)}
+          disabled={page <= 1}
+          aria-label="Page précédente"
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-high disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+        </button>
+        {windowStart > 1 ? <span className="px-1 text-label-sm text-amud-on-surface-variant">…</span> : null}
+        {pages.map((p) => (
+          <button
+            key={p}
+            type="button"
+            onClick={() => onChange(p)}
+            aria-current={p === page ? 'page' : undefined}
+            className={`flex h-9 w-9 items-center justify-center rounded-lg text-label-sm font-medium transition-colors ${
+              p === page ? 'bg-amud-primary text-white' : 'text-amud-on-surface-variant hover:bg-amud-surface-container-high'
+            }`}
+          >
+            {p}
+          </button>
+        ))}
+        {windowEnd < pageCount ? <span className="px-1 text-label-sm text-amud-on-surface-variant">…</span> : null}
+        <button
+          type="button"
+          onClick={() => onChange(page + 1)}
+          disabled={page >= pageCount}
+          aria-label="Page suivante"
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-high disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+        </button>
+      </div>
     </div>
   );
 }

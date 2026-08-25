@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useMemo } from 'react';
 import { commerciaux as commerciauxSeed } from '@/data/amud/commerciaux';
 import { commerciauxCollection } from '@/lib/amud/localCommerciaux';
 import { candidatesSeed } from '@/data/amud/candidates';
@@ -9,6 +10,10 @@ import { recruitersSeed } from '@/data/amud/recruiters';
 import { recruitersCollection } from '@/lib/amud/localRecruiters';
 import { offresSeed } from '@/data/amud/offres';
 import { offresCollection } from '@/lib/amud/localOffres';
+import { applicationsSeed } from '@/data/amud/applications';
+import { applicationsCollection } from '@/lib/amud/localApplications';
+import { entreprisesSeed } from '@/data/amud/entreprises';
+import { entreprisesCollection } from '@/lib/amud/localEntreprises';
 import { activitesSeed } from '@/data/amud/commercialActivites';
 import { activitesCollection } from '@/lib/amud/localCommercialActivites';
 import { buildSeedRdvs } from '@/data/amud/commercialRdv';
@@ -16,7 +21,6 @@ import { rendezVousCollection } from '@/lib/amud/localRendezVous';
 import { notificationsSeed } from '@/data/amud/notifications';
 import { notifications as notificationsCollection } from '@/lib/amud/storage/notify';
 import { useCollection } from '@/lib/amud/storage/useCollection';
-import { CountUp } from '@/components/amud/ui';
 import { centresCollection } from '@/lib/amud/localCentres';
 import { centresSeed } from '@/data/amud/centres';
 import { centerStudentsCollection } from '@/lib/amud/localCenterStudents';
@@ -29,6 +33,16 @@ import { centerGroupsCollection } from '@/lib/amud/localCenterGroups';
 import { centerGroupsSeed } from '@/data/amud/centerGroups';
 import { auditLogs } from '@/lib/amud/storage/audit';
 import { auditLogSeed } from '@/data/amud/auditLog';
+import { getAdminStats } from '@/lib/amud/analytics/adminStats';
+import { getCommercialComparisonStats } from '@/lib/amud/analytics/commercialStats';
+import { resolvePeriod } from '@/lib/amud/analytics/period';
+import { KpiCard } from '@/components/amud/analytics/KpiCard';
+import { AnalyticsCard } from '@/components/amud/analytics/AnalyticsCard';
+import { LineChartAmud } from '@/components/amud/analytics/LineChartAmud';
+import { BarChartAmud } from '@/components/amud/analytics/BarChartAmud';
+import { DonutChartAmud } from '@/components/amud/analytics/DonutChartAmud';
+import { FunnelChartAmud } from '@/components/amud/analytics/FunnelChartAmud';
+import { ActivityHistogram } from '@/components/amud/analytics/ActivityHistogram';
 
 function todayFr() {
   return new Date().toLocaleDateString('fr-FR');
@@ -43,6 +57,8 @@ export default function AmudAdminDashboardPage() {
   const [candidates] = useCollection(candidatesCollection, candidatesSeed);
   const [recruiters] = useCollection(recruitersCollection, recruitersSeed);
   const [offres] = useCollection(offresCollection, offresSeed);
+  const [applications] = useCollection(applicationsCollection, applicationsSeed);
+  const [entreprises] = useCollection(entreprisesCollection, entreprisesSeed);
   const [activites] = useCollection(activitesCollection, activitesSeed);
   const [rdvs] = useCollection(rendezVousCollection, buildSeedRdvs());
   const [allNotifications] = useCollection(notificationsCollection, notificationsSeed);
@@ -53,9 +69,16 @@ export default function AmudAdminDashboardPage() {
   const [centerGroups] = useCollection(centerGroupsCollection, centerGroupsSeed);
   const [auditEntries] = useCollection(auditLogs, auditLogSeed);
 
-  const leaderboard = [...commerciaux]
-    .sort((a, b) => b.realiseMensuel / b.objectifMensuel - a.realiseMensuel / a.objectifMensuel)
-    .slice(0, 4);
+  // Pas de sélecteur de période sur ce tableau de bord (contrairement à
+  // `/amud/admin/analytics`) — fenêtre par défaut fixe pour les tendances et
+  // l'évolution des inscriptions.
+  const range = useMemo(() => resolvePeriod('30d'), []);
+  const stats = useMemo(
+    () => getAdminStats(candidates, entreprises, centres, centerTeachers, centerStudents, centerFormations, offres, applications, activites, auditEntries, range),
+    [candidates, entreprises, centres, centerTeachers, centerStudents, centerFormations, offres, applications, activites, auditEntries, range],
+  );
+
+  const leaderboard = getCommercialComparisonStats(commerciaux).slice(0, 4);
 
   const appelsAuj = activites.filter((a) => a.type === 'Appel' && a.date === todayFr());
   const tauxReponse = appelsAuj.length > 0 ? Math.round((appelsAuj.filter((a) => a.resultat === 'Répondu' || a.resultat === 'Positif').length / appelsAuj.length) * 100) : 0;
@@ -66,21 +89,24 @@ export default function AmudAdminDashboardPage() {
     .slice(0, 5);
 
   const kpis = [
-    { label: 'Total candidats', value: candidates.length, icon: 'group', accent: 'bg-amud-primary' },
-    { label: 'Total recruteurs', value: recruiters.length, icon: 'badge', accent: 'bg-amud-primary' },
-    { label: 'Total commerciaux', value: commerciaux.length, icon: 'support_agent', accent: 'bg-amud-tertiary-container' },
-    { label: 'Offres actives', value: offres.filter((o) => o.statut === 'Publiée').length, icon: 'work', accent: 'bg-amud-tertiary-container' },
+    { label: 'Total candidats', value: candidates.length, icon: 'group', trend: stats.trends.totalCandidats },
+    { label: 'Total recruteurs', value: recruiters.length, icon: 'badge' },
+    { label: 'Total commerciaux', value: commerciaux.length, icon: 'support_agent' },
+    { label: 'Offres actives', value: offres.filter((o) => o.statut === 'Publiée').length, icon: 'work' },
+    { label: 'Total entreprises', value: stats.kpis.totalEntreprises, icon: 'domain' },
+    { label: 'Total offres', value: stats.kpis.totalOffres, icon: 'work_history' },
+    { label: "Appels commerciaux aujourd'hui", value: stats.kpis.appelsAujourdhui, icon: 'call' },
   ];
 
   const centreKpis = [
-    { label: 'Total centres', value: centres.length, icon: 'school', accent: 'bg-amud-primary' },
-    { label: 'Centres actifs', value: centres.filter((c) => c.statut === 'Actif').length, icon: 'check_circle', accent: 'bg-amud-primary-container' },
-    { label: 'En négociation', value: centres.filter((c) => c.partnershipStatus === 'NEGOCIATION' || c.partnershipStatus === 'ESSAI').length, icon: 'handshake', accent: 'bg-amud-tertiary-container' },
-    { label: 'Suspendus', value: centres.filter((c) => c.partnershipStatus === 'SUSPENDU' || c.partnershipStatus === 'EXPIRE').length, icon: 'pause_circle', accent: 'bg-amud-error' },
-    { label: 'Étudiants (centres)', value: centerStudents.length, icon: 'group', accent: 'bg-amud-primary' },
-    { label: 'Enseignants (centres)', value: centerTeachers.length, icon: 'cast_for_education', accent: 'bg-amud-primary' },
-    { label: 'Formations (centres)', value: centerFormations.length, icon: 'menu_book', accent: 'bg-amud-tertiary-container' },
-    { label: 'Groupes (centres)', value: centerGroups.length, icon: 'diversity_3', accent: 'bg-amud-tertiary-container' },
+    { label: 'Total centres', value: centres.length, icon: 'school', trend: stats.trends.totalCentres },
+    { label: 'Centres actifs', value: centres.filter((c) => c.statut === 'Actif').length, icon: 'check_circle' },
+    { label: 'En négociation', value: centres.filter((c) => c.partnershipStatus === 'NEGOCIATION' || c.partnershipStatus === 'ESSAI').length, icon: 'handshake' },
+    { label: 'Suspendus', value: centres.filter((c) => c.partnershipStatus === 'SUSPENDU' || c.partnershipStatus === 'EXPIRE').length, icon: 'pause_circle' },
+    { label: 'Étudiants (centres)', value: centerStudents.length, icon: 'group', trend: stats.trends.totalEtudiants },
+    { label: 'Enseignants (centres)', value: centerTeachers.length, icon: 'cast_for_education' },
+    { label: 'Formations (centres)', value: centerFormations.length, icon: 'menu_book' },
+    { label: 'Groupes (centres)', value: centerGroups.length, icon: 'diversity_3' },
   ];
 
   const centreActivity = [...auditEntries]
@@ -97,6 +123,13 @@ export default function AmudAdminDashboardPage() {
         </div>
         <div className="flex gap-sm">
           <Link
+            href="/amud/admin/analytics"
+            className="flex items-center gap-1 rounded-lg border border-amud-outline-variant px-lg py-sm text-label-md font-medium text-amud-on-surface shadow-sm transition-colors hover:bg-amud-surface-container-low"
+          >
+            <span className="material-symbols-outlined text-[18px]">analytics</span>
+            Analytique détaillée
+          </Link>
+          <Link
             href="/amud/admin/candidatures"
             className="rounded-lg bg-amud-primary px-lg py-sm text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark"
           >
@@ -112,44 +145,16 @@ export default function AmudAdminDashboardPage() {
       </div>
 
       <div className="mb-xl grid grid-cols-2 gap-lg lg:grid-cols-4">
-        {kpis.map((kpi, i) => (
-          <div
-            key={kpi.label}
-            style={{ animationDelay: `${i * 60}ms` }}
-            className="relative overflow-hidden rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg shadow-sm animate-amud-rise-in"
-          >
-            <div className={`absolute bottom-0 left-0 top-0 w-1 ${kpi.accent}`} />
-            <div className="mb-md flex items-start justify-between">
-              <div className="text-label-md text-amud-on-surface-variant">{kpi.label}</div>
-              <span className="material-symbols-outlined text-amud-primary">{kpi.icon}</span>
-            </div>
-            <div className="flex items-baseline gap-sm">
-              <div className="text-headline-lg text-amud-on-surface">
-                <CountUp value={kpi.value} />
-              </div>
-            </div>
-          </div>
+        {kpis.map((kpi) => (
+          <KpiCard key={kpi.label} label={kpi.label} value={kpi.value} icon={kpi.icon} trend={kpi.trend} />
         ))}
       </div>
 
       <div className="mb-xl">
         <h3 className="mb-md text-title-lg text-amud-on-surface">Centres de formation</h3>
         <div className="grid grid-cols-2 gap-lg lg:grid-cols-4">
-          {centreKpis.map((kpi, i) => (
-            <div
-              key={kpi.label}
-              style={{ animationDelay: `${i * 60}ms` }}
-              className="relative overflow-hidden rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg shadow-sm animate-amud-rise-in"
-            >
-              <div className={`absolute bottom-0 left-0 top-0 w-1 ${kpi.accent}`} />
-              <div className="mb-md flex items-start justify-between">
-                <div className="text-label-md text-amud-on-surface-variant">{kpi.label}</div>
-                <span className="material-symbols-outlined text-amud-primary">{kpi.icon}</span>
-              </div>
-              <div className="text-headline-lg text-amud-on-surface">
-                <CountUp value={kpi.value} />
-              </div>
-            </div>
+          {centreKpis.map((kpi) => (
+            <KpiCard key={kpi.label} label={kpi.label} value={kpi.value} icon={kpi.icon} trend={kpi.trend} />
           ))}
         </div>
       </div>
@@ -182,20 +187,17 @@ export default function AmudAdminDashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="text-body-md">
-                  {leaderboard.map((c, i) => {
-                    const pct = Math.round((c.realiseMensuel / c.objectifMensuel) * 100);
-                    return (
-                      <tr key={c.id} className="border-b border-amud-outline-variant transition-colors last:border-0 hover:bg-amud-surface-container-lowest">
-                        <td className="px-md py-sm">{i + 1}</td>
-                        <td className="px-md py-sm font-medium">
-                          <Link href={`/amud/admin/commerciaux/${c.id}`} className="hover:underline">
-                            {c.prenom} {c.nom}
-                          </Link>
-                        </td>
-                        <td className="px-md py-sm text-right font-bold text-amud-primary">{pct}%</td>
-                      </tr>
-                    );
-                  })}
+                  {leaderboard.map((c, i) => (
+                    <tr key={c.id} className="border-b border-amud-outline-variant transition-colors last:border-0 hover:bg-amud-surface-container-lowest">
+                      <td className="px-md py-sm">{i + 1}</td>
+                      <td className="px-md py-sm font-medium">
+                        <Link href={`/amud/admin/commerciaux/${c.id}`} className="hover:underline">
+                          {c.nom}
+                        </Link>
+                      </td>
+                      <td className="px-md py-sm text-right font-bold text-amud-primary">{c.progressionPct}%</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -253,6 +255,49 @@ export default function AmudAdminDashboardPage() {
               )}
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="mt-xl">
+        <div className="mb-md flex items-center justify-between">
+          <h3 className="text-title-lg text-amud-on-surface">Analytique de la plateforme</h3>
+          <Link href="/amud/admin/analytics" className="text-label-md font-medium text-amud-primary hover:underline">
+            Voir l&apos;analytique complète →
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 gap-md sm:grid-cols-2">
+          <AnalyticsCard title="Évolution des inscriptions" subtitle="Étudiants, candidats et nouveaux centres (30 derniers jours)">
+            <LineChartAmud
+              data={stats.inscriptions}
+              series={[
+                { key: 'candidats', label: 'Candidats' },
+                { key: 'etudiants', label: 'Étudiants (centres)' },
+                { key: 'centres', label: 'Nouveaux centres' },
+              ]}
+              ariaLabel="Évolution des inscriptions : candidats, étudiants et nouveaux centres"
+            />
+          </AnalyticsCard>
+          <AnalyticsCard title="Répartition des centres partenaires">
+            <DonutChartAmud data={stats.centresRepartition} ariaLabel="Répartition des centres partenaires" centerLabel={`${centres.length}`} />
+          </AnalyticsCard>
+          <AnalyticsCard title="Candidats par ville">
+            <BarChartAmud data={stats.candidatsParVille} ariaLabel="Candidats par ville" horizontal />
+          </AnalyticsCard>
+          <AnalyticsCard title="Activité commerciale par jour de semaine">
+            <ActivityHistogram data={stats.activiteCommercialeHebdo} ariaLabel="Activités commerciales par jour de semaine" />
+          </AnalyticsCard>
+          <AnalyticsCard title="Funnel de recrutement" subtitle="Sur l'ensemble des candidatures de la plateforme">
+            <FunnelChartAmud stages={stats.funnel} ariaLabel="Funnel de recrutement : candidatures, présélection, entretiens, finalistes, recrutements" />
+          </AnalyticsCard>
+          <AnalyticsCard title="Offres par statut">
+            <DonutChartAmud data={stats.offresParStatut} ariaLabel="Offres par statut" centerLabel={`${offres.length}`} />
+          </AnalyticsCard>
+          <AnalyticsCard title="Activité de la plateforme par jour de semaine" subtitle="Journal d'audit">
+            <ActivityHistogram data={stats.activitePlateformeHebdo} ariaLabel="Activité de la plateforme par jour de semaine" />
+          </AnalyticsCard>
+          <AnalyticsCard title="Heures les plus actives" subtitle="Journal d'audit">
+            <ActivityHistogram data={stats.activitePlateformeHoraire} ariaLabel="Activité de la plateforme par heure" />
+          </AnalyticsCard>
         </div>
       </div>
     </div>

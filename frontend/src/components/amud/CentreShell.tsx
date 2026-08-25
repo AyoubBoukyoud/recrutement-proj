@@ -2,17 +2,60 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ReactNode, useEffect, useMemo, useState } from 'react';
-import { Drawer, NavItem, isNavActive, useDropdown } from '@/components/amud/ui';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { NavItem, isNavActive, useDropdown } from '@/components/amud/ui';
 import { HeaderLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
 import { ToastProvider } from '@/components/amud/Toast';
+import { GlobalSearch, useGlobalSearchShortcut, type GlobalSearchResult } from '@/components/amud/GlobalSearch';
+import { NotificationCenter } from '@/components/amud/NotificationCenter';
+import { RoleBottomNav } from '@/components/amud/RoleBottomNav';
 import { useCurrentCenter } from '@/lib/amud/currentCentre';
 import { CENTER_ROLES, CENTER_ROLE_LABELS } from '@/data/amud/centerTypes';
 import { centresCollection } from '@/lib/amud/localCentres';
 import { centresSeed } from '@/data/amud/centres';
-import { notificationsSeed } from '@/data/amud/notifications';
-import { notifications as notificationsCollection, markNotificationRead, markAllNotificationsRead } from '@/lib/amud/storage/notify';
+import { loadLocalCenterStudents } from '@/lib/amud/localCenterStudents';
+import { loadLocalCenterTeachers } from '@/lib/amud/localCenterTeachers';
+import { loadLocalCenterFormations } from '@/lib/amud/localCenterFormations';
+import { loadLocalCenterGroups } from '@/lib/amud/localCenterGroups';
 import { useCollection } from '@/lib/amud/storage/useCollection';
+
+/** Recherche header, bornée aux données du centre actif (même pattern que `useGlobalSearchResults` d'AdminShell). */
+function useCentreSearchResults(query: string, centerId: string): GlobalSearchResult[] {
+  return useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (q.length < 2) return [];
+    const results: GlobalSearchResult[] = [];
+
+    for (const s of loadLocalCenterStudents().filter((s) => s.centerId === centerId)) {
+      if (results.filter((r) => r.icon === 'group').length >= 3) break;
+      const nom = `${s.prenom} ${s.nom}`;
+      if (nom.toLowerCase().includes(q)) {
+        results.push({ id: `etu-${s.id}`, label: nom, sub: 'Étudiant', href: '/amud/centre/etudiants', icon: 'group' });
+      }
+    }
+    for (const t of loadLocalCenterTeachers().filter((t) => t.centerId === centerId)) {
+      if (results.filter((r) => r.icon === 'cast_for_education').length >= 3) break;
+      const nom = `${t.prenom} ${t.nom}`;
+      if (nom.toLowerCase().includes(q)) {
+        results.push({ id: `ens-${t.id}`, label: nom, sub: 'Enseignant', href: '/amud/centre/enseignants', icon: 'cast_for_education' });
+      }
+    }
+    for (const f of loadLocalCenterFormations().filter((f) => f.centerId === centerId)) {
+      if (results.filter((r) => r.icon === 'menu_book').length >= 3) break;
+      if (f.nom.toLowerCase().includes(q)) {
+        results.push({ id: `for-${f.id}`, label: f.nom, sub: 'Formation', href: '/amud/centre/formations', icon: 'menu_book' });
+      }
+    }
+    for (const g of loadLocalCenterGroups().filter((g) => g.centerId === centerId)) {
+      if (results.filter((r) => r.icon === 'diversity_3').length >= 3) break;
+      if (g.nom.toLowerCase().includes(q)) {
+        results.push({ id: `grp-${g.id}`, label: g.nom, sub: 'Groupe', href: '/amud/centre/groupes', icon: 'diversity_3' });
+      }
+    }
+
+    return results.slice(0, 8);
+  }, [query, centerId]);
+}
 
 type CentreNavItem = {
   href: string;
@@ -53,8 +96,6 @@ const GROUP_LABELS = ['Pédagogie', 'Finances', 'Développement', 'Centre'];
 const SIDEBAR_GROUPS = [{ label: '', items: NAV.filter((i) => i.group === '') }].concat(
   GROUP_LABELS.map((label) => ({ label, items: NAV.filter((i) => i.group === label) })),
 );
-const BOTTOM_ITEMS = NAV.filter((i) => i.inBottomNav);
-const PLUS_GROUPS = GROUP_LABELS.map((label) => ({ label, items: NAV.filter((i) => i.group === label && !i.inBottomNav) })).filter((g) => g.items.length > 0);
 
 /**
  * Coquille de l'espace self-service `/amud/centre/*` (cahier des charges
@@ -72,41 +113,43 @@ const PLUS_GROUPS = GROUP_LABELS.map((label) => ({ label, items: NAV.filter((i) 
 export function CentreShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [navOpen, setNavOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
-  const [plusOpen, setPlusOpen] = useState(false);
-  const notifMenu = useDropdown<HTMLDivElement>();
   const profileMenu = useDropdown<HTMLDivElement>();
+  const [query, setQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const { centerId, role, setCenterId, setRole } = useCurrentCenter();
   const [centres] = useCollection(centresCollection, centresSeed);
   const currentCentre = useMemo(() => centres.find((c) => c.id === centerId), [centres, centerId]);
+  const results = useCentreSearchResults(query, centerId);
 
-  const [allNotifications] = useCollection(notificationsCollection, notificationsSeed);
-  const centreNotifications = useMemo(
-    () => allNotifications.filter((n) => n.scope === 'centre').sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
-    [allNotifications],
-  );
-  const totalAlerts = centreNotifications.filter((n) => !n.read).length;
+  useGlobalSearchShortcut(() => {
+    setSearchOpen(true);
+    searchInputRef.current?.focus();
+  });
 
   useEffect(() => {
-    setNavOpen(false);
-    setPlusOpen(false);
-    notifMenu.setOpen(false);
+    setSearchOpen(false);
     profileMenu.setOpen(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
+
+  function goToResult(href: string) {
+    setSearchOpen(false);
+    setQuery('');
+    router.push(href);
+  }
 
   const hiddenWhenCollapsed = collapsed ? 'md:hidden md:group-hover:block' : '';
 
   return (
     <ToastProvider>
       <div className="amud-ops-scale flex min-h-screen bg-amud-background text-amud-on-surface">
-        {navOpen ? <div className="fixed inset-0 z-30 bg-amud-on-surface/40 md:hidden" onClick={() => setNavOpen(false)} aria-hidden="true" /> : null}
         <aside
-          className={`group fixed left-0 top-0 z-40 flex h-screen w-64 flex-col border-r border-amud-outline-variant bg-amud-surface-container-lowest transition-[width,transform] duration-200 ease-in-out md:translate-x-0 ${
-            navOpen ? 'translate-x-0' : '-translate-x-full'
-          } ${collapsed ? 'md:w-20 md:hover:w-64' : 'md:w-64'}`}
+          className={`group fixed left-0 top-0 z-40 hidden h-screen flex-col border-r border-amud-outline-variant bg-amud-surface-container-lowest transition-[width] duration-200 ease-in-out md:flex ${
+            collapsed ? 'md:w-20 md:hover:w-64' : 'md:w-64'
+          }`}
         >
           <div className={`flex items-center gap-sm border-b border-amud-outline-variant p-lg ${collapsed ? 'md:px-md' : ''}`}>
             <img src="/assets/images/logo.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
@@ -155,9 +198,6 @@ export function CentreShell({ children }: { children: ReactNode }) {
         <div className={`flex min-h-screen min-w-0 flex-1 flex-col transition-[margin] duration-200 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-64'}`}>
           <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-amud-outline-variant bg-amud-surface px-gutter">
             <div className="flex items-center gap-1">
-              <button onClick={() => setNavOpen(true)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary md:hidden" aria-label="Ouvrir le menu">
-                <span className="material-symbols-outlined">menu</span>
-              </button>
               <button
                 onClick={() => setCollapsed((c) => !c)}
                 className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary md:flex"
@@ -167,48 +207,19 @@ export function CentreShell({ children }: { children: ReactNode }) {
                 <span className="material-symbols-outlined">menu</span>
               </button>
             </div>
+            <GlobalSearch
+              query={query}
+              onQueryChange={setQuery}
+              results={results}
+              onSelect={goToResult}
+              open={searchOpen}
+              onOpenChange={setSearchOpen}
+              inputRef={searchInputRef}
+              placeholder="Rechercher un étudiant, un enseignant…"
+              className="relative hidden w-64 md:block"
+            />
             <div className="ml-auto flex items-center gap-sm">
-              <div className="relative">
-                <button onClick={() => notifMenu.setOpen((v) => !v)} className="relative rounded-full p-2 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary" aria-label="Notifications" ref={notifMenu.ref as never}>
-                  <span className="material-symbols-outlined">notifications</span>
-                  {totalAlerts > 0 ? <span className="absolute right-1 top-1 flex h-4 min-w-[16px] animate-pulse items-center justify-center rounded-full bg-amud-secondary px-1 text-[10px] font-bold text-white">{totalAlerts}</span> : null}
-                </button>
-                {notifMenu.open ? (
-                  <div className="absolute right-0 top-full z-40 mt-2 w-80 overflow-hidden rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
-                    <div className="flex items-center justify-between border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm text-label-md font-semibold text-amud-on-surface">
-                      <span>Notifications</span>
-                      {totalAlerts > 0 ? (
-                        <button onClick={() => markAllNotificationsRead('centre')} className="text-label-sm font-normal text-amud-primary hover:underline">
-                          Tout marquer comme lu
-                        </button>
-                      ) : null}
-                    </div>
-                    <div className="flex max-h-96 flex-col overflow-y-auto">
-                      {centreNotifications.length === 0 ? (
-                        <p className="px-md py-lg text-center text-label-sm text-amud-on-surface-variant">Aucune notification.</p>
-                      ) : (
-                        centreNotifications.slice(0, 10).map((n) => (
-                          <button
-                            key={n.id}
-                            onClick={() => {
-                              markNotificationRead(n.id);
-                              notifMenu.setOpen(false);
-                              if (n.href) router.push(n.href);
-                            }}
-                            className={`flex w-full items-start gap-sm px-md py-sm text-left transition-colors hover:bg-amud-surface-container-low ${n.read ? 'opacity-60' : ''}`}
-                          >
-                            <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${n.read ? 'bg-amud-outline-variant' : 'bg-amud-secondary'}`} />
-                            <span className="min-w-0 flex-1">
-                              <span className="block text-body-md text-amud-on-surface">{n.title}</span>
-                              <span className="block text-label-sm text-amud-on-surface-variant">{n.category}</span>
-                            </span>
-                          </button>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                ) : null}
-              </div>
+              <NotificationCenter key={pathname} scope="centre" />
               <HeaderLanguageThemeControls />
               <div ref={profileMenu.ref} className="relative">
                 <button onClick={() => profileMenu.setOpen((v) => !v)} className="flex h-9 w-9 items-center justify-center rounded-full bg-amud-primary-container font-bold text-white transition-opacity hover:opacity-90" aria-label="Menu du compte" aria-haspopup="menu" aria-expanded={profileMenu.open}>
@@ -257,53 +268,7 @@ export function CentreShell({ children }: { children: ReactNode }) {
           </main>
         </div>
 
-        {/* Barre de navigation basse — remplace la sidebar en dessous de md. */}
-        <nav
-          className="fixed inset-x-0 bottom-0 z-40 flex h-16 items-stretch border-t border-amud-outline-variant bg-amud-surface-container-lowest md:hidden"
-          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-          aria-label="Navigation principale"
-        >
-          {BOTTOM_ITEMS.map((item) => {
-            const active = isNavActive(pathname, item.href, item.href === '/amud/centre/dashboard');
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={active ? 'page' : undefined}
-                className={`flex flex-1 flex-col items-center justify-center gap-0.5 px-1 text-[11px] font-medium transition-colors ${active ? 'text-amud-primary' : 'text-amud-on-surface-variant'}`}
-              >
-                <span className="material-symbols-outlined text-[22px]" style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}>
-                  {item.bottomIcon ?? item.icon}
-                </span>
-                <span className="truncate">{item.bottomLabel ?? item.label}</span>
-              </Link>
-            );
-          })}
-          <button
-            onClick={() => setPlusOpen(true)}
-            className="flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium text-amud-on-surface-variant"
-            aria-haspopup="menu"
-            aria-expanded={plusOpen}
-          >
-            <span className="material-symbols-outlined text-[22px]">more_horiz</span>
-            Plus
-          </button>
-        </nav>
-
-        <Drawer open={plusOpen} onClose={() => setPlusOpen(false)} anchor="bottom" title="Plus d’options">
-          <div className="flex flex-col gap-lg">
-            {PLUS_GROUPS.map((group) => (
-              <div key={group.label}>
-                <div className="px-1 pb-1 text-label-sm font-semibold uppercase tracking-wider text-amud-outline">{group.label}</div>
-                <div className="flex flex-col gap-0.5">
-                  {group.items.map((item) => (
-                    <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label} active={isNavActive(pathname, item.href)} />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </Drawer>
+        <RoleBottomNav items={NAV} />
       </div>
     </ToastProvider>
   );

@@ -21,6 +21,18 @@ import { centerAttendanceCollection } from '@/lib/amud/localCenterAttendance';
 import { centerAttendanceSeed } from '@/data/amud/centerAttendance';
 import { notifications as notificationsCollection } from '@/lib/amud/storage/notify';
 import { notificationsSeed } from '@/data/amud/notifications';
+import { studentResultsCollection } from '@/lib/amud/localStudentResults';
+import { centerStudentResultsSeed } from '@/data/amud/centerStudentResults';
+import { centerStudentsCollection } from '@/lib/amud/localCenterStudents';
+import { centerStudentsSeed } from '@/data/amud/centerStudents';
+import { AnalyticsCard } from '@/components/amud/analytics/AnalyticsCard';
+import { KpiCard } from '@/components/amud/analytics/KpiCard';
+import { BarChartAmud } from '@/components/amud/analytics/BarChartAmud';
+import { LineChartAmud } from '@/components/amud/analytics/LineChartAmud';
+import { ActivityHistogram } from '@/components/amud/analytics/ActivityHistogram';
+import { EmptyChartState } from '@/components/amud/analytics/EmptyChartState';
+import { getTeacherStats } from '@/lib/amud/analytics/teacherStats';
+import { resolvePeriod } from '@/lib/amud/analytics/period';
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10);
@@ -41,6 +53,8 @@ export default function TeacherDashboardPage() {
   const [formations] = useCollection(centerFormationsCollection, centerFormationsSeed);
   const [attendance] = useCollection(centerAttendanceCollection, centerAttendanceSeed);
   const [allNotifications] = useCollection(notificationsCollection, notificationsSeed);
+  const [studentResults] = useCollection(studentResultsCollection, centerStudentResultsSeed);
+  const [allStudents] = useCollection(centerStudentsCollection, centerStudentsSeed);
 
   const teacher = teachers.find((t) => t.id === teacherId);
   const today = todayIso();
@@ -55,6 +69,13 @@ export default function TeacherDashboardPage() {
     () => enrollments.filter((e) => myGroupIds.has(e.groupId) && e.statut === 'ACTIF'),
     [enrollments, myGroupIds],
   );
+
+  // Étudiants (dédupliqués) réellement inscrits dans mes groupes — base de
+  // scope pour teacherStats (StudentResult n'a pas de lien direct enseignant).
+  const myStudents = useMemo(() => {
+    const ids = new Set(activeEnrollments.map((e) => e.studentId));
+    return allStudents.filter((s) => ids.has(s.id));
+  }, [activeEnrollments, allStudents]);
 
   // Cours aujourd'hui
   const todaySchedules = useMemo(
@@ -102,6 +123,23 @@ export default function TeacherDashboardPage() {
     [allNotifications, teacherId],
   );
 
+  // Statistiques dynamiques (KPIs additionnels + graphiques) — voir teacherStats.ts.
+  const statsRange = useMemo(() => resolvePeriod('year'), []);
+  const teacherStats = useMemo(
+    () =>
+      getTeacherStats(
+        teacherId,
+        { id: teacherId, tauxHoraire: teacher?.tauxHoraire ?? 0 },
+        groups,
+        schedules,
+        attendance,
+        studentResults,
+        myStudents,
+        statsRange,
+      ),
+    [teacherId, teacher, groups, schedules, attendance, studentResults, myStudents, statsRange],
+  );
+
   if (!teacher) return <LoadingState label="Chargement de votre espace…" rows={4} />;
 
   const kpis = [
@@ -138,6 +176,38 @@ export default function TeacherDashboardPage() {
         {kpis.map((kpi) => (
           <StatCard key={kpi.label} label={kpi.label} value={kpi.value} icon={kpi.icon} suffix={kpi.suffix} href={kpi.href} />
         ))}
+      </div>
+
+      {/* KPIs additionnels (statistiques calculées, teacherStats.ts) */}
+      <div className="grid grid-cols-2 gap-md lg:grid-cols-4">
+        <KpiCard label="Présence moyenne" value={teacherStats.kpis.presenceMoyenne} icon="fact_check" suffix="%" />
+        <KpiCard label="Évaluations" value={teacherStats.kpis.evaluations} icon="grading" href="/amud/teacher/students" />
+        <KpiCard label="Rémunération" value={teacherStats.kpis.remuneration} icon="payments" suffix=" MAD" href="/amud/teacher/remuneration" />
+        <KpiCard label="Étudiants à risque" value={teacherStats.kpis.etudiantsARisque} icon="warning" href="/amud/teacher/students" />
+      </div>
+
+      {/* Graphiques */}
+      <div className="grid grid-cols-1 gap-lg lg:grid-cols-2">
+        <AnalyticsCard title="Présence par groupe" subtitle="Taux de présence de chacun de mes groupes">
+          <BarChartAmud data={teacherStats.presenceParGroupe} ariaLabel="Taux de présence par groupe" horizontal />
+        </AnalyticsCard>
+        <AnalyticsCard title="Progression des étudiants" subtitle="Répartition par moyenne des évaluations">
+          {teacherStats.progressionEtudiants.length === 0 ? (
+            <EmptyChartState />
+          ) : (
+            <BarChartAmud data={teacherStats.progressionEtudiants} ariaLabel="Répartition des étudiants par niveau de progression" />
+          )}
+        </AnalyticsCard>
+        <AnalyticsCard title="Évolution des performances" subtitle="Moyenne des notes (%) dans le temps">
+          <LineChartAmud
+            data={teacherStats.evolutionPerformances}
+            series={[{ key: 'value', label: 'Moyenne (%)' }]}
+            ariaLabel="Évolution de la moyenne des notes de mes étudiants"
+          />
+        </AnalyticsCard>
+        <AnalyticsCard title="Heures enseignées" subtitle="Répartition par jour de la semaine">
+          <ActivityHistogram data={teacherStats.heuresParJour} ariaLabel="Heures enseignées par jour de la semaine" />
+        </AnalyticsCard>
       </div>
 
       <div className="grid grid-cols-1 gap-lg lg:grid-cols-3">

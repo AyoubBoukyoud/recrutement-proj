@@ -2,9 +2,12 @@ import type { CenterStudent } from '@/data/amud/centerStudents';
 import type { CenterTeacher } from '@/data/amud/centerTeachers';
 import type { CenterFormation } from '@/data/amud/centerFormations';
 import type { CenterGroup } from '@/data/amud/centerGroups';
+import type { CenterEnrollment } from '@/data/amud/centerEnrollments';
 import type { CenterSchedule } from '@/data/amud/centerSchedules';
 import type { CenterAttendanceRecord, AttendanceStatus } from '@/data/amud/centerAttendance';
-import type { CenterStudentPayment, PaymentStatus } from '@/data/amud/centerStudentPayments';
+import { PAYMENT_STATUS_LABELS, type CenterStudentPayment, type PaymentStatus } from '@/data/amud/centerStudentPayments';
+import { bucketTimeSeries, comparePeriods, inRange, previousPeriodRange, type PeriodRange } from '@/lib/amud/analytics/period';
+import { countBy, sum, type Count } from '@/lib/amud/analytics/aggregate';
 
 /**
  * Calculs partagés (cahier des charges §63 : "ne jamais coder les
@@ -106,4 +109,133 @@ export function computeCenterStats(
 export function todayIso(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/*
+ * ------------------------------------------------------------------
+ * Statistiques centre (`/amud/centre/statistiques`) — calculs additionnels
+ * pour les graphiques dynamiques, en plus des fonctions ci-dessus déjà
+ * consommées par le dashboard/fiche admin/finance. Les tableaux passés en
+ * argument sont déjà scopés au centre courant par l'appelant (même
+ * convention que `getRecruiterStats`).
+ * ------------------------------------------------------------------
+ */
+
+/** Évolution des inscriptions (line chart) — bucket auto jour/semaine/mois selon `range`. */
+export function computeStudentsEvolution(students: CenterStudent[], range: PeriodRange): Count[] {
+  return bucketTimeSeries(students, (s) => s.dateInscription, range);
+}
+
+/** Répartition des étudiants par niveau (bar chart) — seuls les niveaux réellement présents. */
+export function computeStudentsByLevel(students: CenterStudent[]): Count[] {
+  return countBy(students, (s) => s.niveau);
+}
+
+/**
+ * Répartition des étudiants par formation (donut chart). `CenterStudent` ne
+ * référence pas directement de formation : le rattachement passe par
+ * `CenterEnrollment` (studentId → groupId) puis `CenterGroup.formationId`
+ * (l'entité `CenterEnrollment` remplace l'ancien `CenterGroup.studentIds`,
+ * voir `centerTypes.ts`). On ne compte que les inscriptions `ACTIF`, un
+ * étudiant n'est compté qu'une fois par formation même s'il a plusieurs
+ * groupes de la même formation.
+ */
+export function computeFormationDistribution(students: CenterStudent[], groups: CenterGroup[], enrollments: CenterEnrollment[], formations: CenterFormation[]): Count[] {
+  const validStudentIds = new Set(students.map((s) => s.id));
+  const groupToFormation = new Map(groups.map((g) => [g.id, g.formationId]));
+  const studentsByFormation = new Map<string, Set<string>>();
+  for (const e of enrollments) {
+    if (e.statut !== 'ACTIF' || !validStudentIds.has(e.studentId)) continue;
+    const formationId = groupToFormation.get(e.groupId);
+    if (!formationId) continue;
+    if (!studentsByFormation.has(formationId)) studentsByFormation.set(formationId, new Set());
+    studentsByFormation.get(formationId)!.add(e.studentId);
+  }
+  const formationById = new Map(formations.map((f) => [f.id, f]));
+  return Array.from(studentsByFormation.entries())
+    .map(([formationId, studentIds]) => ({ label: formationById.get(formationId)?.nom ?? 'Formation inconnue', value: studentIds.size }))
+    .filter((d) => d.value > 0);
+}
+
+/** Assiduité sur la période sélectionnée — réutilise `computeAttendanceRates()` + données prêtes pour un donut chart. */
+export function computeAttendanceByPeriod(attendance: CenterAttendanceRecord[], range: PeriodRange) {
+  const scoped = attendance.filter((a) => inRange(a.date, range));
+  const rates = computeAttendanceRates(scoped);
+  const donutData: Count[] = [
+    { label: 'Présent', value: scoped.filter((a) => a.statut === 'PRESENT').length },
+    { label: 'Absent', value: scoped.filter((a) => a.statut === 'ABSENT').length },
+    { label: 'Retard', value: scoped.filter((a) => a.statut === 'RETARD').length },
+    { label: 'Excusé', value: scoped.filter((a) => a.statut === 'EXCUSE').length },
+  ];
+  return { rates, donutData };
+}
+
+/**
+ * Revenus encaissés sur la période (area chart) + comparaison à la période
+ * précédente de même durée (`previousPeriodRange`) pour la puce de tendance
+ * du KPI "Revenus" de la page Statistiques.
+ */
+export function computeRevenueSeries(payments: CenterStudentPayment[], range: PeriodRange) {
+  const series = bucketTimeSeries(payments, (p) => p.date, range, (p) => p.montantPaye);
+  const currentTotal = sum(payments.filter((p) => inRange(p.date, range)), (p) => p.montantPaye);
+  const previousRange = previousPeriodRange(range);
+  const previousTotal = sum(payments.filter((p) => inRange(p.date, previousRange)), (p) => p.montantPaye);
+  const trend = comparePeriods(currentTotal, previousTotal, { positiveIsGood: true });
+  return { series, currentTotal, previousTotal, trend };
+}
+
+/** Répartition des paiements par statut réel (`PAYE`/`PARTIEL`/`IMPAYE`/`EN_RETARD`) pour un donut chart. */
+export function computePaymentsDistribution(payments: CenterStudentPayment[]): Count[] {
+  return countBy(payments, (p) => PAYMENT_STATUS_LABELS[p.statut]);
+}
+
+export type FormationPerformanceRow = {
+  formationId: string;
+  formation: string;
+  studentsCount: number;
+  avgAttendance: number; // %
+  revenue: number;
+  /** % du temps écoulé entre `dateDebut` et `dateFin` — omis nulle part ailleurs faute de champ fiable, ici dérivé des vraies dates de la formation. */
+  progression: number;
+};
+
+function formationProgression(formation: Pick<CenterFormation, 'dateDebut' | 'dateFin'>, today: string): number {
+  const start = new Date(formation.dateDebut).getTime();
+  const end = new Date(formation.dateFin).getTime();
+  const now = new Date(today).getTime();
+  if (Number.isNaN(start) || Number.isNaN(end) || end <= start) return 0;
+  if (now <= start) return 0;
+  if (now >= end) return 100;
+  return Math.round(((now - start) / (end - start)) * 100);
+}
+
+/**
+ * Ligne "Performance des formations" (table) : nombre d'étudiants actifs
+ * (via `CenterEnrollment`), taux de présence moyen (via `CenterAttendanceRecord.groupId`
+ * → `CenterGroup.formationId`), revenus encaissés (via `CenterStudentPayment.formationId`,
+ * qui référence directement la formation) et progression temporelle réelle.
+ */
+export function computeFormationPerformance(
+  formations: CenterFormation[],
+  groups: CenterGroup[],
+  enrollments: CenterEnrollment[],
+  attendance: CenterAttendanceRecord[],
+  payments: CenterStudentPayment[],
+  today: string = todayIso(),
+): FormationPerformanceRow[] {
+  return formations.map((f) => {
+    const formationGroupIds = new Set(groups.filter((g) => g.formationId === f.id).map((g) => g.id));
+    const studentIds = new Set(enrollments.filter((e) => e.statut === 'ACTIF' && formationGroupIds.has(e.groupId)).map((e) => e.studentId));
+    const formationAttendance = attendance.filter((a) => formationGroupIds.has(a.groupId));
+    const { presenceRate } = computeAttendanceRates(formationAttendance);
+    const revenue = payments.filter((p) => p.formationId === f.id).reduce((total, p) => total + p.montantPaye, 0);
+    return {
+      formationId: f.id,
+      formation: f.nom,
+      studentsCount: studentIds.size,
+      avgAttendance: presenceRate,
+      revenue,
+      progression: formationProgression(f, today),
+    };
+  });
 }

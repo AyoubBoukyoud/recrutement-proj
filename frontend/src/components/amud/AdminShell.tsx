@@ -3,13 +3,13 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { InertNavItem, NavItem, isNavActive, useDropdown } from '@/components/amud/ui';
+import { DropdownMenu, NavItem, isNavActive } from '@/components/amud/ui';
 import { HeaderLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
 import { ToastProvider } from '@/components/amud/Toast';
 import { DemoBanner } from '@/components/amud/DemoBanner';
-import { notificationsSeed } from '@/data/amud/notifications';
-import { notifications as notificationsCollection, markNotificationRead, markAllNotificationsRead } from '@/lib/amud/storage/notify';
-import { useCollection } from '@/lib/amud/storage/useCollection';
+import { GlobalSearch, useGlobalSearchShortcut, type GlobalSearchResult } from '@/components/amud/GlobalSearch';
+import { NotificationCenter } from '@/components/amud/NotificationCenter';
+import { RoleBottomNav, type RoleNavItem } from '@/components/amud/RoleBottomNav';
 import { loadLocalCommerciaux } from '@/lib/amud/localCommerciaux';
 import { loadLocalApplications } from '@/lib/amud/localApplications';
 import { loadLocalEntreprises } from '@/lib/amud/localEntreprises';
@@ -28,58 +28,39 @@ import { loadLocalCentres } from '@/lib/amud/localCentres';
  * Porte aussi le `ToastProvider` (notifications) et la cloche/recherche du
  * header, tous deux décoratifs à l'origine.
  */
-const NAV_GROUPS: {
-  label: string;
-  items: { href?: string; icon: string; label: string }[];
-}[] = [
-  { label: '', items: [{ href: '/amud/admin', icon: 'dashboard', label: 'Tableau de bord' }] },
-  {
-    label: 'Utilisateurs',
-    items: [
-      { href: '/amud/admin/candidats', icon: 'person', label: 'Candidats' },
-      { href: '/amud/admin/recruteurs', icon: 'badge', label: 'Recruteurs' },
-      { href: '/amud/admin/commerciaux', icon: 'support_agent', label: 'Commerciaux' },
-    ],
-  },
-  {
-    label: 'Recrutement',
-    items: [
-      { href: '/amud/admin/offres', icon: 'work', label: 'Offres' },
-      { href: '/amud/admin/candidatures', icon: 'assignment', label: 'Candidatures' },
-      { href: '/amud/admin/entreprises', icon: 'domain', label: 'Entreprises' },
-    ],
-  },
-  {
-    label: 'Commercial',
-    items: [
-      { href: '/amud/admin/objectifs', icon: 'target', label: 'Objectifs' },
-      { href: '/amud/admin/activites', icon: 'call', label: 'Activités' },
-    ],
-  },
-  {
-    label: 'Centres de formation',
-    items: [{ href: '/amud/admin/centres', icon: 'school', label: 'Centres de formation' }],
-  },
-  {
-    label: 'Sécurité',
-    items: [
-      { href: '/amud/admin/roles-permissions', icon: 'admin_panel_settings', label: 'Rôles & permissions' },
-      { href: '/amud/admin/journal-activite', icon: 'history', label: 'Journal système' },
-    ],
-  },
-  {
-    label: 'Configuration',
-    items: [{ href: '/amud/admin/parametres', icon: 'settings', label: 'Paramètres généraux' }],
-  },
+/**
+ * Source unique des entrées admin : sidebar desktop, barre basse mobile et
+ * tiroir « Plus » sont dérivés du même tableau (`RoleBottomNav`), comme le
+ * font déjà `CentreShell`/`StudentShell`/`TeacherShell`/`CompanyShell` — pour
+ * que la navigation mobile ne soit plus un tiroir plein écran différent ici.
+ */
+const NAV: RoleNavItem[] = [
+  { href: '/amud/admin', icon: 'dashboard', label: 'Tableau de bord', group: '', inBottomNav: true, bottomLabel: 'Accueil' },
+  { href: '/amud/admin/analytics', icon: 'analytics', label: 'Analytique', group: '' },
+  { href: '/amud/admin/candidats', icon: 'person', label: 'Candidats', group: 'Utilisateurs' },
+  { href: '/amud/admin/recruteurs', icon: 'badge', label: 'Recruteurs', group: 'Utilisateurs' },
+  { href: '/amud/admin/commerciaux', icon: 'support_agent', label: 'Commerciaux', group: 'Utilisateurs' },
+  { href: '/amud/admin/offres', icon: 'work', label: 'Offres', group: 'Recrutement', inBottomNav: true },
+  { href: '/amud/admin/candidatures', icon: 'assignment', label: 'Candidatures', group: 'Recrutement', inBottomNav: true },
+  { href: '/amud/admin/entreprises', icon: 'domain', label: 'Entreprises', group: 'Recrutement', inBottomNav: true },
+  { href: '/amud/admin/objectifs', icon: 'target', label: 'Objectifs', group: 'Commercial' },
+  { href: '/amud/admin/activites', icon: 'call', label: 'Activités', group: 'Commercial' },
+  { href: '/amud/admin/centres', icon: 'school', label: 'Centres de formation', group: 'Centres de formation' },
+  { href: '/amud/admin/roles-permissions', icon: 'admin_panel_settings', label: 'Rôles & permissions', group: 'Sécurité' },
+  { href: '/amud/admin/journal-activite', icon: 'history', label: 'Journal système', group: 'Sécurité' },
+  { href: '/amud/admin/parametres', icon: 'settings', label: 'Paramètres généraux', group: 'Configuration' },
 ];
 
-type SearchResult = { id: string; label: string; sub: string; href: string; icon: string };
+const GROUP_LABELS = ['Utilisateurs', 'Recrutement', 'Commercial', 'Centres de formation', 'Sécurité', 'Configuration'];
+const SIDEBAR_GROUPS = [{ label: '', items: NAV.filter((i) => i.group === '') }].concat(
+  GROUP_LABELS.map((label) => ({ label, items: NAV.filter((i) => i.group === label) })),
+);
 
-function useGlobalSearchResults(query: string): SearchResult[] {
+function useGlobalSearchResults(query: string): GlobalSearchResult[] {
   return useMemo(() => {
     const q = query.trim().toLowerCase();
     if (q.length < 2) return [];
-    const results: SearchResult[] = [];
+    const results: GlobalSearchResult[] = [];
 
     for (const c of loadLocalCommerciaux()) {
       if (results.filter((r) => r.sub === 'Commercial').length >= 3) break;
@@ -127,40 +108,21 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
-  const [navOpen, setNavOpen] = useState(false);
-  const [bellOpen, setBellOpen] = useState(false);
-  // Rail réduite (icônes seules) sur desktop, dépliée au survol — indépendante
-  // du tiroir mobile `navOpen` ci-dessus, qui reste un panneau plein écran.
   const [collapsed, setCollapsed] = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
-  const bellRef = useRef<HTMLDivElement>(null);
-  const profileMenu = useDropdown<HTMLDivElement>();
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const results = useGlobalSearchResults(query);
-  const [allNotifications] = useCollection(notificationsCollection, notificationsSeed);
-  const adminNotifications = useMemo(
-    () => allNotifications.filter((n) => n.scope === 'admin').sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
-    [allNotifications],
-  );
-  const totalAlerts = adminNotifications.filter((n) => !n.read).length;
   const hiddenWhenCollapsed = collapsed ? 'md:hidden md:group-hover:block' : '';
 
-  useEffect(() => {
-    setNavOpen(false);
-    setBellOpen(false);
-    setSearchOpen(false);
-    profileMenu.setOpen(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  useGlobalSearchShortcut(() => {
+    setSearchOpen(true);
+    searchInputRef.current?.focus();
+  });
 
   useEffect(() => {
-    function onClick(e: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setSearchOpen(false);
-      if (bellRef.current && !bellRef.current.contains(e.target as Node)) setBellOpen(false);
-    }
-    document.addEventListener('mousedown', onClick);
-    return () => document.removeEventListener('mousedown', onClick);
-  }, []);
+    setSearchOpen(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   function goTo(href: string) {
     setSearchOpen(false);
@@ -171,17 +133,10 @@ export function AdminShell({ children }: { children: ReactNode }) {
   return (
     <ToastProvider>
       <div className="amud-ops-scale flex min-h-screen bg-amud-background text-amud-on-surface">
-        {navOpen ? (
-          <div
-            className="fixed inset-0 z-30 bg-amud-on-surface/40 md:hidden"
-            onClick={() => setNavOpen(false)}
-            aria-hidden="true"
-          />
-        ) : null}
         <aside
-          className={`group fixed left-0 top-0 z-40 flex h-screen w-64 flex-col border-r border-amud-outline-variant bg-amud-surface-container-lowest transition-[width,transform] duration-200 ease-in-out md:translate-x-0 ${
-            navOpen ? 'translate-x-0' : '-translate-x-full'
-          } ${collapsed ? 'md:w-20 md:hover:w-64' : 'md:w-64'}`}
+          className={`group fixed left-0 top-0 z-40 hidden h-screen flex-col border-r border-amud-outline-variant bg-amud-surface-container-lowest transition-[width] duration-200 ease-in-out md:flex ${
+            collapsed ? 'md:w-20 md:hover:w-64' : 'md:w-64'
+          }`}
         >
           <div className={`flex items-center gap-sm border-b border-amud-outline-variant p-lg ${collapsed ? 'md:px-md' : ''}`}>
             <img src="/assets/images/logo.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
@@ -192,28 +147,24 @@ export function AdminShell({ children }: { children: ReactNode }) {
           </div>
 
           <nav className="flex-1 overflow-y-auto px-sm py-md">
-            {NAV_GROUPS.map((group, gi) => (
-              <div key={gi} className={gi > 0 ? 'mt-4' : ''}>
+            {SIDEBAR_GROUPS.map((group, gi) => (
+              <div key={group.label || 'root'} className={gi > 0 ? 'mt-4' : ''}>
                 {group.label ? (
                   <div className={`px-md py-1 text-label-sm font-semibold uppercase tracking-wider text-amud-outline ${hiddenWhenCollapsed}`}>
                     {group.label}
                   </div>
                 ) : null}
                 <div className="flex flex-col gap-0.5">
-                  {group.items.map((item, ii) =>
-                    item.href ? (
-                      <NavItem
-                        key={ii}
-                        href={item.href}
-                        icon={item.icon}
-                        label={item.label}
-                        active={isNavActive(pathname, item.href, item.href === '/amud/admin')}
-                        collapsed={collapsed}
-                      />
-                    ) : (
-                      <InertNavItem key={ii} icon={item.icon} label={item.label} collapsed={collapsed} />
-                    ),
-                  )}
+                  {group.items.map((item) => (
+                    <NavItem
+                      key={item.href}
+                      href={item.href}
+                      icon={item.icon}
+                      label={item.label}
+                      active={isNavActive(pathname, item.href, item.href === '/amud/admin')}
+                      collapsed={collapsed}
+                    />
+                  ))}
                 </div>
               </div>
             ))}
@@ -246,15 +197,8 @@ export function AdminShell({ children }: { children: ReactNode }) {
             collapsed ? 'md:ml-20' : 'md:ml-64'
           }`}
         >
-          <header className="fixed inset-x-0 bottom-0 z-30 flex h-16 items-center justify-between border-t border-amud-outline-variant bg-amud-surface px-gutter pb-[env(safe-area-inset-bottom)] md:sticky md:inset-x-auto md:top-0 md:bottom-auto md:border-b md:border-t-0 md:pb-0">
+          <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-amud-outline-variant bg-amud-surface px-gutter">
             <div className="flex items-center gap-1">
-              <button
-                onClick={() => setNavOpen(true)}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary md:hidden"
-                aria-label="Ouvrir le menu"
-              >
-                <span className="material-symbols-outlined">menu</span>
-              </button>
               <button
                 onClick={() => setCollapsed((c) => !c)}
                 className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary md:flex"
@@ -263,95 +207,23 @@ export function AdminShell({ children }: { children: ReactNode }) {
               >
                 <span className="material-symbols-outlined">menu</span>
               </button>
-            </div>
-            <div ref={searchRef} className="relative hidden w-72 md:block">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-amud-on-surface-variant">search</span>
-              <input
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  setSearchOpen(true);
-                }}
-                onFocus={() => setSearchOpen(true)}
-                className="w-full rounded-lg border border-amud-outline-variant bg-amud-surface-container-low py-2 pl-10 pr-4 text-body-md outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-amud-primary"
-                placeholder="Rechercher un candidat, une offre, une entreprise…"
-                type="text"
-              />
-              {searchOpen && query.trim().length >= 2 ? (
-                <div className="absolute left-0 right-0 top-full z-40 mt-2 max-h-80 overflow-y-auto rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
-                  {results.length === 0 ? (
-                    <p className="p-md text-label-sm text-amud-on-surface-variant">Aucun résultat pour « {query} ».</p>
-                  ) : (
-                    results.map((r) => (
-                      <button
-                        key={r.id}
-                        onClick={() => goTo(r.href)}
-                        className="flex w-full items-center gap-sm px-md py-sm text-left transition-colors hover:bg-amud-surface-container-low"
-                      >
-                        <span className="material-symbols-outlined text-amud-primary">{r.icon}</span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-label-md text-amud-on-surface">{r.label}</span>
-                          <span className="block truncate text-label-sm text-amud-on-surface-variant">{r.sub}</span>
-                        </span>
-                      </button>
-                    ))
-                  )}
-                </div>
-              ) : null}
-            </div>
-            <div className="ml-auto flex items-center gap-sm">
-              <div ref={bellRef} className="relative">
-                <button
-                  onClick={() => setBellOpen((v) => !v)}
-                  className="relative rounded-full p-2 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary"
-                  aria-label="Notifications"
-                >
-                  <span className="material-symbols-outlined">notifications</span>
-                  {totalAlerts > 0 ? (
-                    <span className="absolute right-1 top-1 flex h-4 min-w-[16px] animate-pulse items-center justify-center rounded-full bg-amud-secondary px-1 text-[10px] font-bold text-white">
-                      {totalAlerts}
-                    </span>
-                  ) : null}
-                </button>
-                {bellOpen ? (
-                  <div className="absolute right-0 top-full z-40 mt-2 w-80 overflow-hidden rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
-                    <div className="flex items-center justify-between border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm text-label-md font-semibold text-amud-on-surface">
-                      <span>Notifications</span>
-                      {totalAlerts > 0 ? (
-                        <button
-                          onClick={() => markAllNotificationsRead('admin')}
-                          className="text-label-sm font-normal text-amud-primary hover:underline"
-                        >
-                          Tout marquer comme lu
-                        </button>
-                      ) : null}
-                    </div>
-                    <div className="flex max-h-96 flex-col overflow-y-auto">
-                      {adminNotifications.length === 0 ? (
-                        <p className="px-md py-lg text-center text-label-sm text-amud-on-surface-variant">Aucune notification.</p>
-                      ) : (
-                        adminNotifications.slice(0, 10).map((n) => (
-                          <button
-                            key={n.id}
-                            onClick={() => {
-                              markNotificationRead(n.id);
-                              setBellOpen(false);
-                              if (n.href) router.push(n.href);
-                            }}
-                            className={`flex w-full items-start gap-sm px-md py-sm text-left transition-colors hover:bg-amud-surface-container-low ${n.read ? 'opacity-60' : ''}`}
-                          >
-                            <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${n.read ? 'bg-amud-outline-variant' : 'bg-amud-secondary'}`} />
-                            <span className="min-w-0 flex-1">
-                              <span className="block text-body-md text-amud-on-surface">{n.title}</span>
-                              <span className="block text-label-sm text-amud-on-surface-variant">{n.category}</span>
-                            </span>
-                          </button>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                ) : null}
+              <div className="flex min-w-0 items-center gap-sm md:hidden">
+                <img src="/assets/images/logo.png" alt="" className="h-8 w-8 shrink-0 object-contain" />
+                <span className="truncate text-title-lg font-bold text-amud-primary">Amud Skills</span>
               </div>
+            </div>
+            <GlobalSearch
+              query={query}
+              onQueryChange={setQuery}
+              results={results}
+              onSelect={goTo}
+              open={searchOpen}
+              onOpenChange={setSearchOpen}
+              inputRef={searchInputRef}
+              placeholder="Rechercher un candidat, une offre, une entreprise…"
+            />
+            <div className="ml-auto flex items-center gap-sm">
+              <NotificationCenter key={pathname} scope="admin" />
               <Link
                 href="/amud/admin/parametres"
                 className="rounded-full p-2 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary"
@@ -363,48 +235,31 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 <span className="material-symbols-outlined">help</span>
               </button>
               <HeaderLanguageThemeControls />
-              <div ref={profileMenu.ref} className="relative">
-                <button
-                  onClick={() => profileMenu.setOpen((v) => !v)}
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-amud-primary-container font-bold text-white transition-opacity hover:opacity-90"
-                  aria-label="Menu du compte"
-                  aria-haspopup="menu"
-                  aria-expanded={profileMenu.open}
-                >
-                  A
-                </button>
-                {profileMenu.open ? (
-                  <div className="absolute right-0 top-full z-40 mt-2 w-56 overflow-hidden rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
-                    <div className="border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm">
-                      <div className="text-label-md font-semibold text-amud-on-surface">Admin Pillar</div>
-                      <div className="text-label-sm text-amud-on-surface-variant">Gestionnaire Principal</div>
-                    </div>
-                    <div className="flex flex-col py-1">
-                      <Link
-                        href="/amud/admin/parametres"
-                        onClick={() => profileMenu.setOpen(false)}
-                        className="flex items-center gap-sm px-md py-sm text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">settings</span> Paramètres
-                      </Link>
-                      <Link
-                        href="/amud"
-                        onClick={() => profileMenu.setOpen(false)}
-                        className="flex items-center gap-sm px-md py-sm text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">apps</span> Changer d&apos;espace
-                      </Link>
-                      <Link
-                        href="/amud"
-                        onClick={() => profileMenu.setOpen(false)}
-                        className="flex items-center gap-sm px-md py-sm text-label-md text-amud-error transition-colors hover:bg-amud-surface-container-low"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">logout</span> Déconnexion
-                      </Link>
-                    </div>
+              <DropdownMenu
+                key={pathname}
+                header={
+                  <div>
+                    <div className="text-label-md font-semibold text-amud-on-surface">Admin Pillar</div>
+                    <div className="text-label-sm text-amud-on-surface-variant">Gestionnaire Principal</div>
                   </div>
-                ) : null}
-              </div>
+                }
+                trigger={({ open, toggle }) => (
+                  <button
+                    onClick={toggle}
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-amud-primary-container font-bold text-white transition-opacity hover:opacity-90"
+                    aria-label="Menu du compte"
+                    aria-haspopup="menu"
+                    aria-expanded={open}
+                  >
+                    A
+                  </button>
+                )}
+                items={[
+                  { label: 'Paramètres', icon: 'settings', href: '/amud/admin/parametres' },
+                  { label: "Changer d'espace", icon: 'apps', href: '/amud' },
+                  { label: 'Déconnexion', icon: 'logout', href: '/amud', danger: true },
+                ]}
+              />
             </div>
           </header>
           <main key={pathname} className="min-w-0 flex-1 animate-amud-rise-in p-margin-mobile pb-24 md:p-margin-desktop">
@@ -412,6 +267,8 @@ export function AdminShell({ children }: { children: ReactNode }) {
             {children}
           </main>
         </div>
+
+        <RoleBottomNav items={NAV} />
       </div>
     </ToastProvider>
   );

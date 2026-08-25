@@ -23,7 +23,15 @@ import { centerTeachersCollection } from '@/lib/amud/localCenterTeachers';
 import { centerTeachersSeed } from '@/data/amud/centerTeachers';
 import { notifications as notificationsCollection } from '@/lib/amud/storage/notify';
 import { notificationsSeed } from '@/data/amud/notifications';
+import { studentResultsCollection } from '@/lib/amud/localStudentResults';
+import { centerStudentResultsSeed } from '@/data/amud/centerStudentResults';
 import { PAYMENT_STATUS_LABELS, PAYMENT_STATUS_CLASS, ATTENDANCE_LABELS } from '@/data/amud/centerTypes';
+import { AnalyticsCard } from '@/components/amud/analytics/AnalyticsCard';
+import { ProgressGauge } from '@/components/amud/analytics/ProgressGauge';
+import { DonutChartAmud } from '@/components/amud/analytics/DonutChartAmud';
+import { BarChartAmud } from '@/components/amud/analytics/BarChartAmud';
+import { LineChartAmud } from '@/components/amud/analytics/LineChartAmud';
+import { getStudentStats } from '@/lib/amud/analytics/studentStats';
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10);
@@ -40,6 +48,7 @@ export default function StudentDashboardPage() {
   const [payments] = useCollection(centerStudentPaymentsCollection, centerStudentPaymentsSeed);
   const [teachers] = useCollection(centerTeachersCollection, centerTeachersSeed);
   const [allNotifications] = useCollection(notificationsCollection, notificationsSeed);
+  const [results] = useCollection(studentResultsCollection, centerStudentResultsSeed);
 
   const student = students.find((s) => s.id === studentId);
   const today = todayIso();
@@ -75,6 +84,12 @@ export default function StudentDashboardPage() {
   const unreadNotifs = useMemo(
     () => allNotifications.filter((n) => n.scope === 'student' && (!n.targetId || n.targetId === studentId) && !n.read),
     [allNotifications, studentId],
+  );
+
+  // Progression, présences, compétences et notes — voir studentStats.ts pour le détail du calcul.
+  const studentStats = useMemo(
+    () => getStudentStats(studentId, results, attendance, formation, today),
+    [studentId, results, attendance, formation, today],
   );
 
   if (!student) return <LoadingState label="Chargement de votre espace…" rows={4} />;
@@ -119,6 +134,24 @@ export default function StudentDashboardPage() {
             <StatCard key={kpi.label} label={kpi.label} value={kpi.value as number} icon={kpi.icon} suffix={kpi.suffix} href={kpi.href} />
           ),
         )}
+      </div>
+
+      {/* Mon parcours */}
+      <div className="grid grid-cols-1 gap-lg sm:grid-cols-2">
+        <AnalyticsCard title="Progression de la formation" subtitle={studentStats.progressLabel}>
+          <div className="flex justify-center py-sm">
+            <ProgressGauge value={studentStats.progressPct} label="Progression" color="var(--amud-primary)" />
+          </div>
+        </AnalyticsCard>
+        <AnalyticsCard title="Répartition des présences">
+          <DonutChartAmud data={studentStats.attendanceBreakdown} ariaLabel="Répartition de mes présences par statut" centerLabel={`${myAttendance.length}`} />
+        </AnalyticsCard>
+        <AnalyticsCard title="Moyenne par module">
+          <BarChartAmud data={studentStats.competencyByModule} ariaLabel="Moyenne de mes notes par module" horizontal />
+        </AnalyticsCard>
+        <AnalyticsCard title="Évolution de mes notes">
+          <LineChartAmud data={studentStats.gradesOverTime} series={[{ key: 'value', label: 'Note (%)' }]} ariaLabel="Évolution de mes notes au fil des évaluations" />
+        </AnalyticsCard>
       </div>
 
       <div className="grid grid-cols-1 gap-lg lg:grid-cols-3">

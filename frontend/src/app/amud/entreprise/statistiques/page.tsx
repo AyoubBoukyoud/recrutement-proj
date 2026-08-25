@@ -1,50 +1,43 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { CountUp } from '@/components/amud/ui';
 import { useCollection } from '@/lib/amud/storage/useCollection';
 import { offresCollection } from '@/lib/amud/localOffres';
 import { offresSeed } from '@/data/amud/offres';
 import { applicationsCollection } from '@/lib/amud/localApplications';
 import { applicationsSeed } from '@/data/amud/applications';
-import { interviewsCollection } from '@/lib/amud/localInterviews';
-import { interviewsSeed } from '@/data/amud/interviews';
+import { candidatesCollection } from '@/lib/amud/localCandidates';
+import { candidatesSeed } from '@/data/amud/candidates';
 import { CURRENT_EMPLOYER } from '@/data/amud/currentEmployer';
-
-function daysBetween(a: string, b: string): number {
-  return Math.max(0, Math.round((new Date(b).getTime() - new Date(a).getTime()) / (1000 * 60 * 60 * 24)));
-}
+import { KpiCard } from '@/components/amud/analytics/KpiCard';
+import { AnalyticsCard } from '@/components/amud/analytics/AnalyticsCard';
+import { AnalyticsFilters } from '@/components/amud/analytics/AnalyticsFilters';
+import { FunnelChartAmud } from '@/components/amud/analytics/FunnelChartAmud';
+import { BarChartAmud } from '@/components/amud/analytics/BarChartAmud';
+import { LineChartAmud } from '@/components/amud/analytics/LineChartAmud';
+import { getRecruiterStats } from '@/lib/amud/analytics/recruiterStats';
+import { resolvePeriod, type PeriodKey, type PeriodRange } from '@/lib/amud/analytics/period';
 
 export default function AmudEntrepriseStatistiquesPage() {
   const [offres] = useCollection(offresCollection, offresSeed);
   const [applications] = useCollection(applicationsCollection, applicationsSeed);
-  const [interviews] = useCollection(interviewsCollection, interviewsSeed);
+  const [candidates] = useCollection(candidatesCollection, candidatesSeed);
   const [selectedOfferId, setSelectedOfferId] = useState('');
+  const [period, setPeriod] = useState<PeriodKey>('30d');
+  const [customRange, setCustomRange] = useState<PeriodRange>();
 
   const myOffres = useMemo(() => offres.filter((o) => o.entrepriseId === CURRENT_EMPLOYER.entrepriseId), [offres]);
   const myApplications = useMemo(() => applications.filter((a) => a.entrepriseId === CURRENT_EMPLOYER.entrepriseId), [applications]);
-  const myInterviews = useMemo(() => interviews.filter((i) => i.entrepriseId === CURRENT_EMPLOYER.entrepriseId), [interviews]);
 
-  const stats = useMemo(() => {
-    const published = myOffres.filter((o) => o.statut === 'Publiée' || o.statut === 'Expirée' || o.statut === 'En pause' || o.statut === 'Archivée').length;
+  const range = useMemo(() => resolvePeriod(period, customRange), [period, customRange]);
+  const stats = useMemo(() => getRecruiterStats(myOffres, myApplications, candidates, range), [myOffres, myApplications, candidates, range]);
+
+  const legacyStats = useMemo(() => {
     const totalViews = myOffres.reduce((sum, o) => sum + (o.vues ?? 0), 0);
-    const hires = myApplications.filter((a) => a.status === 'ACCEPTED');
-    const rejections = myApplications.filter((a) => a.status === 'REJECTED').length;
-    const conversion = myApplications.length > 0 ? Math.round((hires.length / myApplications.length) * 100) : 0;
+    const conversion = myApplications.length > 0 ? Math.round((stats.kpis.recrutements / myApplications.length) * 100) : 0;
     const avgApplicationsPerOffer = myOffres.length > 0 ? Math.round((myApplications.length / myOffres.length) * 10) / 10 : 0;
-    const timeToHireDays = hires.length > 0 ? Math.round(hires.reduce((sum, a) => sum + daysBetween(a.createdAt, a.updatedAt), 0) / hires.length) : 0;
-    return {
-      published,
-      totalApplications: myApplications.length,
-      totalViews,
-      totalInterviews: myInterviews.length,
-      hires: hires.length,
-      rejections,
-      conversion,
-      avgApplicationsPerOffer,
-      timeToHireDays,
-    };
-  }, [myOffres, myApplications, myInterviews]);
+    return { totalViews, conversion, avgApplicationsPerOffer };
+  }, [myOffres, myApplications, stats.kpis.recrutements]);
 
   const selectedOffer = myOffres.find((o) => o.id === selectedOfferId);
   const offerFunnel = useMemo(() => {
@@ -62,15 +55,6 @@ export default function AmudEntrepriseStatistiquesPage() {
     return { vues: selectedOffer.vues ?? 0, applications: offerApplications.length, ...counts, conversion };
   }, [selectedOffer, myApplications]);
 
-  const KPIS = [
-    { label: 'Offres publiées', value: stats.published, icon: 'work' },
-    { label: 'Candidatures', value: stats.totalApplications, icon: 'assignment' },
-    { label: 'Vues cumulées', value: stats.totalViews, icon: 'visibility' },
-    { label: 'Entretiens', value: stats.totalInterviews, icon: 'event' },
-    { label: 'Recrutements', value: stats.hires, icon: 'check_circle' },
-    { label: 'Refus', value: stats.rejections, icon: 'cancel' },
-  ];
-
   return (
     <div>
       <div className="mb-lg">
@@ -78,36 +62,59 @@ export default function AmudEntrepriseStatistiquesPage() {
         <p className="mt-1 text-body-md text-amud-on-surface-variant">Performance de recrutement de {CURRENT_EMPLOYER.entrepriseNom}.</p>
       </div>
 
-      <div className="mb-lg grid grid-cols-2 gap-md md:grid-cols-3 lg:grid-cols-6">
-        {KPIS.map((k) => (
-          <div key={k.label} className="rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-md">
-            <span className="material-symbols-outlined text-amud-primary">{k.icon}</span>
-            <div className="mt-1 text-headline-md font-bold text-amud-on-surface">
-              <CountUp value={k.value} />
-            </div>
-            <div className="text-label-sm text-amud-on-surface-variant">{k.label}</div>
-          </div>
-        ))}
+      <AnalyticsFilters period={period} onPeriodChange={setPeriod} customRange={customRange} onCustomRangeChange={setCustomRange} />
+
+      <div className="mb-lg grid grid-cols-2 gap-md md:grid-cols-4">
+        <KpiCard label="Offres actives" value={stats.kpis.offresActives} icon="work" />
+        <KpiCard label="Candidatures" value={stats.kpis.candidatures} icon="assignment" trend={stats.trends.candidatures} />
+        <KpiCard label="Présélectionnés" value={stats.kpis.preselectionnes} icon="fact_check" />
+        <KpiCard label="Entretiens" value={stats.kpis.entretiens} icon="event" />
+        <KpiCard label="Finalistes" value={stats.kpis.finalistes} icon="star" />
+        <KpiCard label="Recrutements" value={stats.kpis.recrutements} icon="check_circle" trend={stats.trends.recrutements} />
+        <KpiCard label="Délai moyen" value={stats.kpis.delaiMoyenJours} icon="schedule" suffix=" j" />
+        <KpiCard label="Vues cumulées" value={legacyStats.totalViews} icon="visibility" />
+      </div>
+
+      <div className="mb-lg grid grid-cols-1 gap-md sm:grid-cols-2">
+        <AnalyticsCard title="Funnel de recrutement" subtitle={`Sur la période sélectionnée · ${myApplications.length} candidatures au total`}>
+          <FunnelChartAmud stages={stats.funnel} ariaLabel="Funnel de recrutement : candidatures, présélection, entretiens, finalistes, recrutements" />
+        </AnalyticsCard>
+        <AnalyticsCard title="Évolution des candidatures">
+          <LineChartAmud data={stats.evolutionCandidatures} series={[{ key: 'value', label: 'Candidatures' }]} ariaLabel="Évolution des candidatures sur la période" />
+        </AnalyticsCard>
+        <AnalyticsCard title="Candidatures par offre">
+          <BarChartAmud data={stats.candidaturesParOffre} ariaLabel="Candidatures par offre" horizontal />
+        </AnalyticsCard>
+        <AnalyticsCard title="Candidats par ville">
+          <BarChartAmud data={stats.candidatsParVille} ariaLabel="Candidats par ville" horizontal />
+        </AnalyticsCard>
+        <AnalyticsCard title="Postes les plus recherchés" subtitle="Parmi les candidats ayant postulé chez vous">
+          <BarChartAmud data={stats.topPostesRecherches} ariaLabel="Postes les plus recherchés" horizontal />
+        </AnalyticsCard>
       </div>
 
       <div className="mb-lg grid grid-cols-1 gap-md sm:grid-cols-3">
         <div className="rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg">
-          <div className="text-headline-md font-bold text-amud-primary">{stats.conversion}%</div>
+          <div className="text-headline-md font-bold text-amud-primary">{legacyStats.conversion}%</div>
           <div className="text-label-sm text-amud-on-surface-variant">Taux de conversion global</div>
         </div>
         <div className="rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg">
-          <div className="text-headline-md font-bold text-amud-primary">{stats.avgApplicationsPerOffer}</div>
+          <div className="text-headline-md font-bold text-amud-primary">{legacyStats.avgApplicationsPerOffer}</div>
           <div className="text-label-sm text-amud-on-surface-variant">Candidatures / offre en moyenne</div>
         </div>
         <div className="rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg">
-          <div className="text-headline-md font-bold text-amud-primary">{stats.timeToHireDays} j</div>
+          <div className="text-headline-md font-bold text-amud-primary">{stats.kpis.delaiMoyenJours} j</div>
           <div className="text-label-sm text-amud-on-surface-variant">Délai moyen de recrutement</div>
         </div>
       </div>
 
       <div className="rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg">
         <h3 className="mb-md text-title-lg text-amud-on-surface">Détail par offre</h3>
-        <select value={selectedOfferId} onChange={(e) => setSelectedOfferId(e.target.value)} className="mb-md w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary sm:max-w-sm">
+        <select
+          value={selectedOfferId}
+          onChange={(e) => setSelectedOfferId(e.target.value)}
+          className="mb-md w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary sm:max-w-sm"
+        >
           <option value="">Sélectionner une offre</option>
           {myOffres.map((o) => (
             <option key={o.id} value={o.id}>
@@ -140,7 +147,6 @@ export default function AmudEntrepriseStatistiquesPage() {
           <p className="text-label-md text-amud-on-surface-variant">Sélectionnez une offre pour voir son détail.</p>
         )}
       </div>
-
     </div>
   );
 }

@@ -27,6 +27,17 @@ import { centerTeachersCollection } from '@/lib/amud/localCenterTeachers';
 import { centerTeachersSeed } from '@/data/amud/centerTeachers';
 import { centerFormationsCollection } from '@/lib/amud/localCenterFormations';
 import { centerFormationsSeed } from '@/data/amud/centerFormations';
+import { entreprisesCollection } from '@/lib/amud/localEntreprises';
+import { entreprisesSeed } from '@/data/amud/entreprises';
+import { callTicketsCollection } from '@/lib/amud/localCallTickets';
+import { callTicketsSeed } from '@/data/amud/callTickets';
+import { AnalyticsCard } from '@/components/amud/analytics/AnalyticsCard';
+import { ActivityHistogram } from '@/components/amud/analytics/ActivityHistogram';
+import { FunnelChartAmud } from '@/components/amud/analytics/FunnelChartAmud';
+import { DonutChartAmud } from '@/components/amud/analytics/DonutChartAmud';
+import { ProgressGauge } from '@/components/amud/analytics/ProgressGauge';
+import { getCommercialStats } from '@/lib/amud/analytics/commercialStats';
+import { resolvePeriod } from '@/lib/amud/analytics/period';
 
 const CALL_RESULTS: CallResult[] = ['Répondu', 'Pas de réponse', 'Ligne occupée', 'Téléphone éteint', 'Numéro incorrect', 'Refus', 'Intéressé', 'À rappeler', 'Rendez-vous fixé'];
 
@@ -47,8 +58,12 @@ export default function AmudCommercialDashboardPage() {
   const [centerStudents] = useCollection(centerStudentsCollection, centerStudentsSeed);
   const [centerTeachers] = useCollection(centerTeachersCollection, centerTeachersSeed);
   const [centerFormations] = useCollection(centerFormationsCollection, centerFormationsSeed);
+  const [entreprises] = useCollection(entreprisesCollection, entreprisesSeed);
+  const [callTickets] = useCollection(callTicketsCollection, callTicketsSeed);
 
   const mesCentres = useMemo(() => centres.filter((c) => c.assignedCommercialNom === CURRENT_COMMERCIAL.nom), [centres]);
+  const mesEntreprises = useMemo(() => entreprises.filter((e) => e.commercialResponsable === CURRENT_COMMERCIAL.nom), [entreprises]);
+  const mesCallTickets = useMemo(() => callTickets.filter((c) => c.commercialId === CURRENT_COMMERCIAL.id), [callTickets]);
   const mesCentresIds = useMemo(() => new Set(mesCentres.map((c) => c.id)), [mesCentres]);
   const centresActifs = mesCentres.filter((c) => c.partnershipStatus === 'ACTIF').length;
   const centresNegociation = mesCentres.filter((c) => c.partnershipStatus === 'NEGOCIATION' || c.partnershipStatus === 'ESSAI').length;
@@ -60,10 +75,22 @@ export default function AmudCommercialDashboardPage() {
   const activitesAuj = useMemo(() => mesActivites.filter((a) => a.date === todayFr()), [mesActivites]);
   const appelsAuj = useMemo(() => activitesAuj.filter((a) => a.type === 'Appel'), [activitesAuj]);
   const appelsFaits = appelsAuj.length;
-  const objectifAppels = getObjectiveForCommercial(CURRENT_COMMERCIAL.id, objectives)?.appelsJour ?? 40;
+  const myObjective = useMemo(() => getObjectiveForCommercial(CURRENT_COMMERCIAL.id, objectives), [objectives]);
+  const objectifAppels = myObjective?.appelsJour ?? 40;
   const tauxReponse = appelsAuj.length > 0 ? Math.round((appelsAuj.filter((a) => a.resultat === 'Répondu' || a.resultat === 'Positif').length / appelsAuj.length) * 100) : 0;
   const mesFollowups = useMemo(() => followups.filter((f) => f.commercialId === CURRENT_COMMERCIAL.id && f.status === 'Planifiée'), [followups]);
   const pct = Math.min(100, Math.round((appelsFaits / objectifAppels) * 100));
+
+  const commercialStats = useMemo(
+    () =>
+      getCommercialStats(
+        mesActivites,
+        mesCallTickets,
+        { centres: mesCentres, entreprises: mesEntreprises, objective: myObjective },
+        resolvePeriod('7d'),
+      ),
+    [mesActivites, mesCallTickets, mesCentres, mesEntreprises, myObjective],
+  );
 
   const contactsPrioritaires = useMemo(
     () =>
@@ -219,12 +246,13 @@ export default function AmudCommercialDashboardPage() {
                 <span className="text-headline-md text-amud-on-surface-variant">/ {objectifAppels}</span>
                 <span className="ml-auto rounded-full bg-amud-primary-container px-2 py-1 text-label-md text-white">{pct}%</span>
               </div>
-              <div className="mb-4 h-3 w-full overflow-hidden rounded-full bg-amud-surface-container-high">
-                <div className="h-3 rounded-full bg-amud-primary transition-all duration-500 ease-out" style={{ width: `${pct}%` }} />
-              </div>
-              <div className="flex justify-between text-label-sm text-amud-on-surface-variant">
-                <span>Terminé: {appelsFaits}</span>
-                <span>Restant: {Math.max(0, objectifAppels - appelsFaits)}</span>
+              <div className="flex justify-center">
+                <ProgressGauge
+                  value={commercialStats.objectifMensuel.realise}
+                  max={commercialStats.objectifMensuel.objectif}
+                  label="Objectif mensuel"
+                  sublabel={`${commercialStats.objectifMensuel.realise}/${commercialStats.objectifMensuel.objectif} appels`}
+                />
               </div>
             </div>
           </div>
@@ -375,6 +403,21 @@ export default function AmudCommercialDashboardPage() {
             </p>
           </div>
         </div>
+      </div>
+
+      <div className="mt-gutter grid grid-cols-1 gap-gutter lg:grid-cols-3">
+        <AnalyticsCard title="Activité par jour" subtitle="Répartition Lun-Dim de vos activités">
+          <ActivityHistogram data={commercialStats.activiteParJour} ariaLabel="Activités par jour de la semaine" />
+        </AnalyticsCard>
+        <AnalyticsCard title="Funnel commercial" subtitle="Prospects → Contactés → Intéressés → Rendez-vous → Partenaires">
+          <FunnelChartAmud
+            stages={commercialStats.funnel}
+            ariaLabel="Funnel commercial : prospects, contactés, intéressés, rendez-vous, partenaires"
+          />
+        </AnalyticsCard>
+        <AnalyticsCard title="Résultats des appels" subtitle="Répartition des résultats de vos tickets d'appel">
+          <DonutChartAmud data={commercialStats.resultatsAppels} ariaLabel="Répartition des résultats de vos appels" />
+        </AnalyticsCard>
       </div>
 
       <Modal

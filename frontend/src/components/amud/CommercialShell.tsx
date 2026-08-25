@@ -2,19 +2,19 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ReactNode, useEffect, useMemo, useState } from 'react';
-import { InertNavItem, NavItem, Toggle, isNavActive, useDropdown } from '@/components/amud/ui';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { DropdownMenu, InertNavItem, NavItem, Toggle, isNavActive, useDropdown } from '@/components/amud/ui';
 import { HeaderLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
 import { ToastProvider } from '@/components/amud/Toast';
 import { DemoBanner } from '@/components/amud/DemoBanner';
+import { GlobalSearch, useGlobalSearchShortcut, type GlobalSearchResult } from '@/components/amud/GlobalSearch';
+import { NotificationCenter } from '@/components/amud/NotificationCenter';
+import { RoleBottomNav, type RoleNavItem } from '@/components/amud/RoleBottomNav';
 import { CURRENT_COMMERCIAL } from '@/data/amud/currentCommercial';
 import { loadLocalEntreprises } from '@/lib/amud/localEntreprises';
 import { loadLocalMesContacts } from '@/lib/amud/localMesContacts';
 import { loadLocalTaches } from '@/lib/amud/localCommercialTaches';
 import { loadLocalCentres } from '@/lib/amud/localCentres';
-import { notificationsSeed } from '@/data/amud/notifications';
-import { notifications as notificationsCollection, markNotificationRead, markAllNotificationsRead } from '@/lib/amud/storage/notify';
-import { useCollection } from '@/lib/amud/storage/useCollection';
 
 /**
  * Coquille des pages `/amud/commercial/*` — espace self-service d'un
@@ -30,13 +30,13 @@ import { useCollection } from '@/lib/amud/storage/useCollection';
  * construites — Candidats/Performance/Notifications/Profile restent inertes
  * : ce ne sont pas des pages de ce lot de travail.
  */
-const NAV = [
-  { href: '/amud/commercial', icon: 'dashboard', label: 'Vue d’ensemble' },
-  { href: '/amud/commercial/entreprises', icon: 'domain', label: 'Entreprises' },
+const NAV: RoleNavItem[] = [
+  { href: '/amud/commercial', icon: 'dashboard', label: 'Vue d’ensemble', inBottomNav: true, bottomLabel: 'Accueil' },
+  { href: '/amud/commercial/entreprises', icon: 'domain', label: 'Entreprises', inBottomNav: true },
+  { href: '/amud/commercial/activites', icon: 'history', label: 'Activités', inBottomNav: true },
+  { href: '/amud/commercial/rendez-vous', icon: 'calendar_month', label: 'Rendez-vous', inBottomNav: true, bottomLabel: 'RDV' },
   { href: '/amud/commercial/centres', icon: 'school', label: 'Centres partenaires' },
-  { href: '/amud/commercial/activites', icon: 'history', label: 'Activités' },
   { href: '/amud/commercial/taches', icon: 'assignment', label: 'Tâches' },
-  { href: '/amud/commercial/rendez-vous', icon: 'calendar_month', label: 'Rendez-vous' },
   { href: '/amud/commercial/contacts', icon: 'group', label: 'Contacts' },
 ];
 const INERT = [
@@ -46,14 +46,12 @@ const INERT = [
   { icon: 'account_circle', label: 'Profile' },
 ];
 
-type SearchResult = { id: string; label: string; sub: string; href: string; icon: string };
-
 /** Recherche header réelle (façon `useGlobalSearchResults` d'AdminShell), bornée aux entreprises/contacts/tâches du commercial connecté. */
-function useCommercialSearchResults(query: string): SearchResult[] {
+function useCommercialSearchResults(query: string): GlobalSearchResult[] {
   return useMemo(() => {
     const q = query.trim().toLowerCase();
     if (q.length < 2) return [];
-    const results: SearchResult[] = [];
+    const results: GlobalSearchResult[] = [];
 
     for (const e of loadLocalEntreprises()) {
       if (results.filter((r) => r.sub === 'Entreprise').length >= 3) break;
@@ -87,37 +85,29 @@ function useCommercialSearchResults(query: string): SearchResult[] {
 export function CommercialShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [navOpen, setNavOpen] = useState(false);
-  // Rail réduite (icônes seules) sur desktop, dépliée au survol — indépendante
-  // du tiroir mobile `navOpen` ci-dessus, qui reste un panneau plein écran.
   const [collapsed, setCollapsed] = useState(false);
-  const notifMenu = useDropdown<HTMLDivElement>();
   const settingsMenu = useDropdown<HTMLDivElement>();
-  const profileMenu = useDropdown<HTMLDivElement>();
-  const searchMenu = useDropdown<HTMLDivElement>();
   const [query, setQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [emailNotif, setEmailNotif] = useState(true);
   const [pushNotif, setPushNotif] = useState(true);
 
-  const [allNotifications] = useCollection(notificationsCollection, notificationsSeed);
-  const commercialNotifications = useMemo(
-    () => allNotifications.filter((n) => n.scope === 'commercial').sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
-    [allNotifications],
-  );
-  const totalAlerts = commercialNotifications.filter((n) => !n.read).length;
   const results = useCommercialSearchResults(query);
 
+  useGlobalSearchShortcut(() => {
+    setSearchOpen(true);
+    searchInputRef.current?.focus();
+  });
+
   useEffect(() => {
-    setNavOpen(false);
-    notifMenu.setOpen(false);
     settingsMenu.setOpen(false);
-    profileMenu.setOpen(false);
-    searchMenu.setOpen(false);
+    setSearchOpen(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   function goToResult(href: string) {
-    searchMenu.setOpen(false);
+    setSearchOpen(false);
     setQuery('');
     router.push(href);
   }
@@ -127,17 +117,10 @@ export function CommercialShell({ children }: { children: ReactNode }) {
   return (
     <ToastProvider>
     <div className="amud-ops-scale flex min-h-screen bg-amud-background text-amud-on-background">
-      {navOpen ? (
-        <div
-          className="fixed inset-0 z-30 bg-amud-on-surface/40 md:hidden"
-          onClick={() => setNavOpen(false)}
-          aria-hidden="true"
-        />
-      ) : null}
       <aside
-        className={`group fixed left-0 top-0 z-40 flex h-screen w-64 flex-col gap-base border-r border-amud-outline-variant bg-amud-surface-container px-md py-lg transition-[width,transform] duration-200 ease-in-out md:translate-x-0 ${
-          navOpen ? 'translate-x-0' : '-translate-x-full'
-        } ${collapsed ? 'md:w-20 md:px-2 md:hover:w-64 md:hover:px-md' : 'md:w-64'}`}
+        className={`group fixed left-0 top-0 z-40 hidden h-screen flex-col gap-base border-r border-amud-outline-variant bg-amud-surface-container px-md py-lg transition-[width] duration-200 ease-in-out md:flex ${
+          collapsed ? 'md:w-20 md:px-2 md:hover:w-64 md:hover:px-md' : 'md:w-64'
+        }`}
       >
         <div className="mb-xl flex items-center gap-md px-sm">
           <img src="/assets/images/logo.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
@@ -180,15 +163,8 @@ export function CommercialShell({ children }: { children: ReactNode }) {
           collapsed ? 'md:ml-20' : 'md:ml-64'
         }`}
       >
-        <header className="fixed inset-x-0 bottom-0 z-20 flex h-16 w-full items-center justify-between border-t border-amud-outline-variant bg-amud-surface px-md pb-[env(safe-area-inset-bottom)] md:sticky md:inset-x-auto md:top-0 md:bottom-auto md:border-b md:border-t-0 md:px-lg md:pb-0">
+        <header className="sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-amud-outline-variant bg-amud-surface px-md md:px-lg">
           <div className="flex items-center gap-1">
-            <button
-              onClick={() => setNavOpen(true)}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary md:hidden"
-              aria-label="Ouvrir le menu"
-            >
-              <span className="material-symbols-outlined">menu</span>
-            </button>
             <button
               onClick={() => setCollapsed((c) => !c)}
               className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary md:flex"
@@ -197,95 +173,28 @@ export function CommercialShell({ children }: { children: ReactNode }) {
             >
               <span className="material-symbols-outlined">menu</span>
             </button>
-          </div>
-          <div ref={searchMenu.ref} className="relative hidden w-64 md:block">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-amud-on-surface-variant">search</span>
-            <input
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                searchMenu.setOpen(true);
-              }}
-              onFocus={() => searchMenu.setOpen(true)}
-              className="w-full rounded-lg border-none bg-amud-surface-container-low py-2 pl-10 pr-4 text-body-md outline-none focus:ring-2 focus:ring-amud-primary"
-              placeholder="Rechercher…"
-              aria-label="Rechercher"
-              type="text"
-            />
-            {searchMenu.open && query.trim().length >= 2 ? (
-              <div className="absolute left-0 right-0 top-full z-40 mt-2 max-h-80 overflow-y-auto rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
-                {results.length === 0 ? (
-                  <p className="p-md text-label-sm text-amud-on-surface-variant">Aucun résultat pour « {query} ».</p>
-                ) : (
-                  results.map((r) => (
-                    <button
-                      key={r.id}
-                      onClick={() => goToResult(r.href)}
-                      className="flex w-full items-center gap-sm px-md py-sm text-left transition-colors hover:bg-amud-surface-container-low"
-                    >
-                      <span className="material-symbols-outlined text-amud-primary">{r.icon}</span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-label-md text-amud-on-surface">{r.label}</span>
-                        <span className="block truncate text-label-sm text-amud-on-surface-variant">{r.sub}</span>
-                      </span>
-                    </button>
-                  ))
-                )}
-              </div>
-            ) : null}
-          </div>
-          <div className="ml-auto flex items-center gap-2 md:gap-4">
-            <div ref={notifMenu.ref} className="relative">
-              <button
-                onClick={() => notifMenu.setOpen((v) => !v)}
-                className="relative rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary"
-                aria-label="Notifications"
-                aria-haspopup="menu"
-                aria-expanded={notifMenu.open}
-              >
-                <span className="material-symbols-outlined">notifications</span>
-                {totalAlerts > 0 ? (
-                  <span className="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-amud-error px-1 text-[10px] font-bold text-white">
-                    {totalAlerts}
-                  </span>
-                ) : null}
-              </button>
-              {notifMenu.open ? (
-                <div className="absolute right-0 top-full z-40 mt-2 w-80 overflow-hidden rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
-                  <div className="flex items-center justify-between border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm text-label-md font-semibold text-amud-on-surface">
-                    <span>Notifications</span>
-                    {totalAlerts > 0 ? (
-                      <button onClick={() => markAllNotificationsRead('commercial')} className="text-label-sm font-normal text-amud-primary hover:underline">
-                        Tout marquer comme lu
-                      </button>
-                    ) : null}
-                  </div>
-                  <div className="flex max-h-96 flex-col overflow-y-auto">
-                    {commercialNotifications.length === 0 ? (
-                      <p className="px-md py-lg text-center text-label-sm text-amud-on-surface-variant">Aucune notification.</p>
-                    ) : (
-                      commercialNotifications.slice(0, 10).map((n) => (
-                        <button
-                          key={n.id}
-                          onClick={() => {
-                            markNotificationRead(n.id);
-                            notifMenu.setOpen(false);
-                            if (n.href) router.push(n.href);
-                          }}
-                          className={`flex w-full items-start gap-sm px-md py-sm text-left transition-colors hover:bg-amud-surface-container-low ${n.read ? 'opacity-60' : ''}`}
-                        >
-                          <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${n.read ? 'bg-amud-outline-variant' : 'bg-amud-secondary'}`} />
-                          <span className="min-w-0 flex-1">
-                            <span className="block text-body-md text-amud-on-surface">{n.title}</span>
-                            <span className="block text-label-sm text-amud-on-surface-variant">{n.category}</span>
-                          </span>
-                        </button>
-                      ))
-                    )}
-                  </div>
-                </div>
-              ) : null}
+            <div className="flex min-w-0 items-center gap-sm md:hidden">
+              <img src="/assets/images/logo.png" alt="" className="h-8 w-8 shrink-0 object-contain" />
+              <span className="truncate text-title-lg font-black text-amud-primary">Amud Skills</span>
             </div>
+          </div>
+          <GlobalSearch
+            query={query}
+            onQueryChange={setQuery}
+            results={results}
+            onSelect={goToResult}
+            open={searchOpen}
+            onOpenChange={setSearchOpen}
+            inputRef={searchInputRef}
+            placeholder="Rechercher…"
+            className="relative hidden w-64 md:block"
+          />
+          <div className="ml-auto flex items-center gap-2 md:gap-4">
+            <NotificationCenter
+              key={pathname}
+              scope="commercial"
+              buttonClassName="relative rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary"
+            />
             <div ref={settingsMenu.ref} className="relative hidden sm:block">
               <button
                 onClick={() => settingsMenu.setOpen((v) => !v)}
@@ -315,41 +224,30 @@ export function CommercialShell({ children }: { children: ReactNode }) {
               ) : null}
             </div>
             <HeaderLanguageThemeControls iconButtonClassName="rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary" />
-            <div ref={profileMenu.ref} className="relative">
-              <button
-                onClick={() => profileMenu.setOpen((v) => !v)}
-                className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-amud-outline-variant bg-amud-primary-container text-sm font-bold text-white transition-opacity hover:opacity-90"
-                aria-label="Menu du compte"
-                aria-haspopup="menu"
-                aria-expanded={profileMenu.open}
-              >
-                {CURRENT_COMMERCIAL.initiales}
-              </button>
-              {profileMenu.open ? (
-                <div className="absolute right-0 top-full z-40 mt-2 w-56 overflow-hidden rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
-                  <div className="border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm">
-                    <div className="text-label-md font-semibold text-amud-on-surface">{CURRENT_COMMERCIAL.nom}</div>
-                    <div className="text-label-sm text-amud-on-surface-variant">Espace Commercial</div>
-                  </div>
-                  <div className="flex flex-col py-1">
-                    <Link
-                      href="/amud"
-                      onClick={() => profileMenu.setOpen(false)}
-                      className="flex items-center gap-sm px-md py-sm text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">apps</span> Changer d&apos;espace
-                    </Link>
-                    <Link
-                      href="/amud"
-                      onClick={() => profileMenu.setOpen(false)}
-                      className="flex items-center gap-sm px-md py-sm text-label-md text-amud-error transition-colors hover:bg-amud-surface-container-low"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">logout</span> Déconnexion
-                    </Link>
-                  </div>
+            <DropdownMenu
+              key={pathname}
+              header={
+                <div>
+                  <div className="text-label-md font-semibold text-amud-on-surface">{CURRENT_COMMERCIAL.nom}</div>
+                  <div className="text-label-sm text-amud-on-surface-variant">Espace Commercial</div>
                 </div>
-              ) : null}
-            </div>
+              }
+              trigger={({ open, toggle }) => (
+                <button
+                  onClick={toggle}
+                  className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-amud-outline-variant bg-amud-primary-container text-sm font-bold text-white transition-opacity hover:opacity-90"
+                  aria-label="Menu du compte"
+                  aria-haspopup="menu"
+                  aria-expanded={open}
+                >
+                  {CURRENT_COMMERCIAL.initiales}
+                </button>
+              )}
+              items={[
+                { label: "Changer d'espace", icon: 'apps', href: '/amud' },
+                { label: 'Déconnexion', icon: 'logout', href: '/amud', danger: true },
+              ]}
+            />
           </div>
         </header>
         <main className="mx-auto w-full max-w-[1200px] flex-1 p-md pb-24 md:p-lg md:pb-lg lg:p-margin-desktop">
@@ -357,6 +255,8 @@ export function CommercialShell({ children }: { children: ReactNode }) {
           {children}
         </main>
       </div>
+
+      <RoleBottomNav items={NAV} />
     </div>
     </ToastProvider>
   );

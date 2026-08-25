@@ -14,6 +14,11 @@ import { notifications as notificationsCollection } from '@/lib/amud/storage/not
 import { notificationsSeed } from '@/data/amud/notifications';
 import { CURRENT_EMPLOYER } from '@/data/amud/currentEmployer';
 import { STATUT_CLASS as INTERVIEW_STATUT_CLASS, TYPE_ICON } from '@/data/amud/interviews';
+import { AnalyticsCard } from '@/components/amud/analytics/AnalyticsCard';
+import { FunnelChartAmud } from '@/components/amud/analytics/FunnelChartAmud';
+import { TrendBadge } from '@/components/amud/analytics/TrendBadge';
+import { getRecruiterStats } from '@/lib/amud/analytics/recruiterStats';
+import { resolvePeriod } from '@/lib/amud/analytics/period';
 
 const STATUT_PILL: Record<ApplicationStatus, string> = {
   NEW: 'bg-amud-primary-container text-white',
@@ -35,14 +40,6 @@ const AVATAR_STYLES = [
 function initialsOf(nom: string): string {
   return nom.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
 }
-
-const PIPELINE_STAGES: { status: ApplicationStatus; label: string; icon: string }[] = [
-  { status: 'NEW', label: 'Nouvelles', icon: 'person_add' },
-  { status: 'SCREENING', label: 'Présélection', icon: 'fact_check' },
-  { status: 'INTERVIEW', label: 'Entretien', icon: 'event' },
-  { status: 'SHORTLIST', label: 'Shortlist', icon: 'star' },
-  { status: 'ACCEPTED', label: 'Acceptées', icon: 'check_circle' },
-];
 
 const QUICK_ACTIONS = [
   { href: '/amud/entreprise/offres/nouveau', icon: 'add_circle', label: 'Créer une offre' },
@@ -74,11 +71,10 @@ export default function AmudEntrepriseDashboardPage() {
     return { offresActives, nouvelles, enCours, entretiensAVenir };
   }, [myOffres, myApplications, myInterviews]);
 
-  const pipelineCounts = useMemo(() => {
-    const out: Record<ApplicationStatus, number> = { NEW: 0, SCREENING: 0, INTERVIEW: 0, SHORTLIST: 0, ACCEPTED: 0, REJECTED: 0, WITHDRAWN: 0 };
-    for (const a of myApplications) out[a.status] += 1;
-    return out;
-  }, [myApplications]);
+  // Fenêtre de comparaison par défaut (30j vs 30j précédents) — le dashboard
+  // reste sans sélecteur de période explicite (cf. plan : la page
+  // /statistiques porte les filtres, le dashboard garde un résumé "du jour").
+  const recruiterStats = useMemo(() => getRecruiterStats(myOffres, myApplications, [], resolvePeriod('30d')), [myOffres, myApplications]);
 
   const recentApplications = useMemo(
     () => [...myApplications].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5),
@@ -103,7 +99,7 @@ export default function AmudEntrepriseDashboardPage() {
       <section className="-mx-xs flex snap-x gap-lg overflow-x-auto px-xs pb-2 md:mx-0 md:grid md:grid-cols-2 md:gap-lg md:overflow-visible md:px-0 lg:grid-cols-4">
         {[
           { icon: 'work', value: kpis.offresActives, label: 'Offres actives', bg: 'bg-amud-primary-fixed', fg: 'text-amud-on-primary-fixed' },
-          { icon: 'person_add', value: kpis.nouvelles, label: 'Nouvelles candidatures', bg: 'bg-amud-secondary-fixed', fg: 'text-amud-on-secondary-fixed' },
+          { icon: 'person_add', value: kpis.nouvelles, label: 'Nouvelles candidatures', bg: 'bg-amud-secondary-fixed', fg: 'text-amud-on-secondary-fixed', trend: recruiterStats.trends.candidatures },
           { icon: 'hourglass_top', value: kpis.enCours, label: 'Candidatures en cours', bg: 'bg-amud-tertiary-fixed', fg: 'text-amud-on-tertiary-fixed' },
           { icon: 'event', value: kpis.entretiensAVenir, label: 'Entretiens à venir', bg: 'bg-amud-primary-fixed', fg: 'text-amud-on-primary-fixed' },
         ].map((k) => (
@@ -113,31 +109,20 @@ export default function AmudEntrepriseDashboardPage() {
               <CountUp value={k.value} />
             </div>
             <div className="text-label-md text-amud-on-surface-variant">{k.label}</div>
+            {k.trend ? (
+              <div className="mt-1">
+                <TrendBadge trend={k.trend} />
+              </div>
+            ) : null}
           </div>
         ))}
       </section>
 
       <section className="space-y-md">
         <h3 className="text-title-lg text-amud-on-surface">Pipeline de recrutement</h3>
-        <div className="-mx-xs flex snap-x items-stretch gap-sm overflow-x-auto px-xs pb-2 md:mx-0 md:grid md:grid-cols-5 md:gap-md md:overflow-visible md:px-0">
-          {PIPELINE_STAGES.map((stage, i) => (
-            <div key={stage.status} className="flex min-w-[150px] shrink-0 snap-start items-center gap-sm md:min-w-0">
-              <Link
-                href={`/amud/entreprise/candidatures?status=${stage.status}`}
-                className="flex flex-1 flex-col items-center gap-xs rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-md text-center transition-colors hover:border-amud-primary hover:bg-amud-surface-container-low"
-              >
-                <span className="material-symbols-outlined text-amud-primary">{stage.icon}</span>
-                <span className="text-title-lg font-bold text-amud-on-surface">
-                  <CountUp value={pipelineCounts[stage.status]} />
-                </span>
-                <span className="text-label-sm text-amud-on-surface-variant">{stage.label}</span>
-              </Link>
-              {i < PIPELINE_STAGES.length - 1 ? (
-                <span className="material-symbols-outlined hidden shrink-0 text-amud-outline md:block">chevron_right</span>
-              ) : null}
-            </div>
-          ))}
-        </div>
+        <AnalyticsCard>
+          <FunnelChartAmud stages={recruiterStats.funnel} ariaLabel="Funnel de recrutement : candidatures, présélection, entretiens, finalistes, recrutements" />
+        </AnalyticsCard>
       </section>
 
       <section className="grid grid-cols-1 gap-md sm:grid-cols-2 lg:grid-cols-4">

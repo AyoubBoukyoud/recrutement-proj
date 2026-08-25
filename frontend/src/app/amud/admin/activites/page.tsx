@@ -4,116 +4,62 @@ import { useMemo, useState } from 'react';
 import { Drawer } from '@/components/amud/ui';
 import { useToast } from '@/components/amud/Toast';
 import { exportCsv } from '@/lib/amud/csv';
+import {
+  RESULTAT_CLASS,
+  STATUT_CLASS,
+  TYPE_ICON,
+  activitesSeed,
+  type Activite,
+  type ResultatActivite,
+  type StatutActivite,
+  type TypeActivite,
+} from '@/data/amud/commercialActivites';
+import { activitesCollection } from '@/lib/amud/localCommercialActivites';
+import { useCollection } from '@/lib/amud/storage/useCollection';
 
-type Resultat = 'Positif' | 'Négatif' | 'En cours';
-type TypeActivite = 'Appel sortant' | 'Rendez-vous' | 'Email' | 'Note';
+const TYPES: TypeActivite[] = ['Appel', 'Email', 'Note', 'Tâche', 'Rendez-vous', 'Offre créée', 'Offre publiée', 'Candidat proposé', 'Follow-up'];
+const RESULTATS: ResultatActivite[] = ['Répondu', 'Sans réponse', 'Positif', 'Négatif', 'En cours', '—'];
 
-type Activite = {
-  id: string;
-  date: string;
-  heure: string;
-  commercial: string;
-  contact: string;
-  type: TypeActivite;
-  icon: string;
-  duree: string;
-  resultat: Resultat;
-  resume: string;
-  relance: string;
-  statut: 'Terminé' | 'Planifié' | 'En cours';
-};
-
-const SEED: Activite[] = [
-  {
-    id: 'a1',
-    date: "Aujourd'hui",
-    heure: '14:30',
-    commercial: 'Jean Dupont',
-    contact: 'Marie Laurent',
-    type: 'Appel sortant',
-    icon: 'call_made',
-    duree: '5 min',
-    resultat: 'Positif',
-    resume: 'Très intéressée par le poste...',
-    relance: 'Email envoyé',
-    statut: 'Terminé',
-  },
-  {
-    id: 'a2',
-    date: "Aujourd'hui",
-    heure: '11:15',
-    commercial: 'Marie Lambert',
-    contact: 'TechCorp Solutions',
-    type: 'Rendez-vous',
-    icon: 'event',
-    duree: '45 min',
-    resultat: 'En cours',
-    resume: 'Qualification des besoins...',
-    relance: 'Préparer deck',
-    statut: 'Planifié',
-  },
-  {
-    id: 'a3',
-    date: 'Hier',
-    heure: '16:45',
-    commercial: 'Jean Dupont',
-    contact: 'Paul Martin',
-    type: 'Email',
-    icon: 'mail',
-    duree: '-',
-    resultat: 'En cours',
-    resume: "Relance suite à l'entretien technique.",
-    relance: 'Attente réponse',
-    statut: 'En cours',
-  },
-  {
-    id: 'a4',
-    date: 'Hier',
-    heure: '09:40',
-    commercial: 'Sophie Martin',
-    contact: 'Innovate SA',
-    type: 'Appel sortant',
-    icon: 'call_made',
-    duree: '12 min',
-    resultat: 'Négatif',
-    resume: 'Budget reporté au trimestre prochain.',
-    relance: 'Rappeler en janvier',
-    statut: 'Terminé',
-  },
-];
-
-const RESULTAT_CLASS: Record<Resultat, string> = {
-  Positif: 'bg-amud-primary/10 text-amud-primary border-amud-primary/20',
-  'En cours': 'bg-amud-tertiary-fixed text-amud-tertiary-container border-amud-tertiary-fixed-dim',
-  Négatif: 'bg-amud-error-container text-amud-on-error-container border-amud-error/20',
-};
+function todayFr() {
+  return new Date().toLocaleDateString('fr-FR');
+}
 
 export default function AmudAdminActivitesPage() {
   const notify = useToast();
+  const [activites] = useCollection(activitesCollection, activitesSeed);
+
   const [search, setSearch] = useState('');
   const [commercial, setCommercial] = useState('');
-  const [type, setType] = useState('');
-  const [resultat, setResultat] = useState('');
+  const [type, setType] = useState<TypeActivite | ''>('');
+  const [resultat, setResultat] = useState<ResultatActivite | ''>('');
   const [selected, setSelected] = useState<Activite | null>(null);
+
+  const commerciaux = useMemo(() => Array.from(new Set(activites.map((a) => a.commercial))).sort(), [activites]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return SEED.filter(
-      (a) =>
-        (!q || a.contact.toLowerCase().includes(q) || a.commercial.toLowerCase().includes(q)) &&
-        (!commercial || a.commercial === commercial) &&
-        (!type || a.type === type) &&
-        (!resultat || a.resultat === resultat),
-    );
-  }, [search, commercial, type, resultat]);
+    return activites
+      .filter(
+        (a) =>
+          (!q || a.contact.toLowerCase().includes(q) || a.commercial.toLowerCase().includes(q) || a.entrepriseNom.toLowerCase().includes(q)) &&
+          (!commercial || a.commercial === commercial) &&
+          (!type || a.type === type) &&
+          (!resultat || a.resultat === resultat),
+      )
+      .sort((a, b) => (a.date === b.date ? b.heureDebut.localeCompare(a.heureDebut) : b.date.localeCompare(a.date)));
+  }, [activites, search, commercial, type, resultat]);
+
+  const today = todayFr();
+  const activitesAuj = useMemo(() => activites.filter((a) => a.date === today), [activites, today]);
+  const appels = useMemo(() => activites.filter((a) => a.type === 'Appel'), [activites]);
 
   const kpis = [
-    { label: 'Appels', value: 142, icon: 'call', border: 'border-l-amud-primary' },
-    { label: 'Appels répondus', value: 98, icon: 'call_made', border: 'border-l-amud-primary-fixed' },
-    { label: 'Sans réponse', value: 44, icon: 'call_missed', border: 'border-l-amud-error' },
-    { label: 'Rappels', value: 24, icon: 'history', border: 'border-l-amud-tertiary' },
-    { label: 'Rendez-vous', value: 12, icon: 'event', border: 'border-l-amud-secondary' },
-    { label: 'Notes', value: 106, icon: 'edit_document', border: '' },
+    { label: 'Appels', value: appels.length, icon: 'call', border: 'border-l-amud-primary' },
+    { label: 'Appels répondus', value: appels.filter((a) => a.resultat === 'Répondu' || a.resultat === 'Positif').length, icon: 'call_made', border: 'border-l-amud-primary-fixed' },
+    { label: 'Sans réponse', value: appels.filter((a) => a.resultat === 'Sans réponse').length, icon: 'call_missed', border: 'border-l-amud-error' },
+    { label: 'Follow-ups', value: activites.filter((a) => a.type === 'Follow-up').length, icon: 'history', border: 'border-l-amud-tertiary' },
+    { label: 'Rendez-vous', value: activites.filter((a) => a.type === 'Rendez-vous').length, icon: 'event', border: 'border-l-amud-secondary' },
+    { label: 'Notes', value: activites.filter((a) => a.type === 'Note').length, icon: 'edit_document', border: '' },
   ];
 
   return (
@@ -127,7 +73,7 @@ export default function AmudAdminActivitesPage() {
           onClick={() => {
             exportCsv(
               'activites-commerciales',
-              filtered.map((a) => ({ Date: a.date, Heure: a.heure, Commercial: a.commercial, Contact: a.contact, Type: a.type, Résultat: a.resultat, Statut: a.statut })),
+              filtered.map((a) => ({ Date: a.date, Heure: a.heureDebut, Commercial: a.commercial, Contact: a.contact, Type: a.type, Résultat: a.resultat, Statut: a.statut })),
             );
             notify('Rapport exporté.');
           }}
@@ -141,7 +87,7 @@ export default function AmudAdminActivitesPage() {
       <section className="mb-xl grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-7">
         <div className="relative col-span-2 flex h-full flex-col justify-between overflow-hidden rounded-xl border border-amud-outline-variant/30 bg-amud-primary-container p-lg text-white shadow-sm md:col-span-4 lg:col-span-2">
           <p className="mb-2 text-label-md uppercase tracking-wider text-white/80">Activités aujourd&apos;hui</p>
-          <p className="mt-auto text-display-lg">{SEED.length * 71}</p>
+          <p className="mt-auto text-display-lg">{activitesAuj.length}</p>
         </div>
         {kpis.map((k) => (
           <div key={k.label} className={`flex flex-col items-start gap-2 rounded-xl border border-amud-outline-variant bg-amud-surface p-md shadow-sm ${k.border ? `border-l-4 ${k.border}` : ''}`}>
@@ -169,22 +115,21 @@ export default function AmudAdminActivitesPage() {
           <div className="flex flex-wrap gap-2">
             <select value={commercial} onChange={(e) => setCommercial(e.target.value)} className="rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-label-md text-amud-on-surface focus:ring-2 focus:ring-amud-primary">
               <option value="">Commercial</option>
-              {Array.from(new Set(SEED.map((a) => a.commercial))).map((c) => (
+              {commerciaux.map((c) => (
                 <option key={c}>{c}</option>
               ))}
             </select>
-            <select value={type} onChange={(e) => setType(e.target.value)} className="rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-label-md text-amud-on-surface focus:ring-2 focus:ring-amud-primary">
+            <select value={type} onChange={(e) => setType(e.target.value as TypeActivite | '')} className="rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-label-md text-amud-on-surface focus:ring-2 focus:ring-amud-primary">
               <option value="">Type</option>
-              <option>Appel sortant</option>
-              <option>Rendez-vous</option>
-              <option>Email</option>
-              <option>Note</option>
+              {TYPES.map((t) => (
+                <option key={t}>{t}</option>
+              ))}
             </select>
-            <select value={resultat} onChange={(e) => setResultat(e.target.value)} className="rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-label-md text-amud-on-surface focus:ring-2 focus:ring-amud-primary">
+            <select value={resultat} onChange={(e) => setResultat(e.target.value as ResultatActivite | '')} className="rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-label-md text-amud-on-surface focus:ring-2 focus:ring-amud-primary">
               <option value="">Résultat</option>
-              <option>Positif</option>
-              <option>Négatif</option>
-              <option>En cours</option>
+              {RESULTATS.map((r) => (
+                <option key={r}>{r}</option>
+              ))}
             </select>
           </div>
         </div>
@@ -195,7 +140,7 @@ export default function AmudAdminActivitesPage() {
           <table className="w-full min-w-[1000px] border-collapse text-left">
             <thead>
               <tr className="border-b border-amud-outline-variant bg-amud-surface-container-low">
-                {['Date', 'Commercial', 'Contact', 'Type', 'Durée', 'Résultat', 'Résumé', 'Relance', 'Statut'].map((h) => (
+                {['Date', 'Commercial', 'Contact', 'Type', 'Durée', 'Résultat', 'Résumé', 'Prochaine action', 'Statut'].map((h) => (
                   <th key={h} className="p-4 text-label-sm font-semibold uppercase tracking-wider text-amud-on-surface-variant">
                     {h}
                   </th>
@@ -208,13 +153,13 @@ export default function AmudAdminActivitesPage() {
                 <tr key={a.id} onClick={() => setSelected(a)} className="group cursor-pointer transition-colors hover:bg-amud-surface-container-lowest">
                   <td className="p-4">
                     <span className="block font-medium text-amud-on-surface">{a.date}</span>
-                    <span className="block text-label-sm text-amud-on-surface-variant">{a.heure}</span>
+                    <span className="block text-label-sm text-amud-on-surface-variant">{a.heureDebut}</span>
                   </td>
                   <td className="p-4 text-amud-on-surface">{a.commercial}</td>
                   <td className="p-4 font-medium text-amud-primary">{a.contact}</td>
                   <td className="p-4">
                     <div className="flex items-center gap-2 text-amud-on-surface-variant">
-                      <span className="material-symbols-outlined text-[20px]">{a.icon}</span>
+                      <span className="material-symbols-outlined text-[20px]">{TYPE_ICON[a.type]}</span>
                       <span>{a.type}</span>
                     </div>
                   </td>
@@ -223,9 +168,9 @@ export default function AmudAdminActivitesPage() {
                     <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[12px] font-medium ${RESULTAT_CLASS[a.resultat]}`}>{a.resultat}</span>
                   </td>
                   <td className="max-w-[200px] truncate p-4 text-amud-on-surface-variant">{a.resume}</td>
-                  <td className="p-4 text-sm text-amud-on-surface-variant">{a.relance}</td>
+                  <td className="max-w-[180px] truncate p-4 text-sm text-amud-on-surface-variant">{a.prochaineAction}</td>
                   <td className="p-4">
-                    <div className="flex items-center gap-1.5 text-amud-primary">
+                    <div className={`flex items-center gap-1.5 ${STATUT_CLASS[a.statut]}`}>
                       <div className="h-2 w-2 rounded-full bg-current" />
                       <span className="text-sm">{a.statut}</span>
                     </div>
@@ -237,27 +182,34 @@ export default function AmudAdminActivitesPage() {
                   </td>
                 </tr>
               ))}
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="p-10 text-center text-body-md text-amud-on-surface-variant">
+                    Aucune activité ne correspond à ces filtres.
+                  </td>
+                </tr>
+              ) : null}
             </tbody>
           </table>
         </div>
         <div className="flex items-center justify-between border-t border-amud-outline-variant bg-amud-surface-container-lowest p-4 text-label-sm text-amud-on-surface-variant">
           <span>
-            Affichage 1-{filtered.length} sur {SEED.length} activités
+            Affichage 1-{filtered.length} sur {activites.length} activités
           </span>
         </div>
       </section>
 
-      <Drawer open={!!selected} onClose={() => setSelected(null)} title="Détail de l'activité" subtitle={selected ? `${selected.date}, ${selected.heure}` : undefined}>
+      <Drawer open={!!selected} onClose={() => setSelected(null)} title="Détail de l'activité" subtitle={selected ? `${selected.date}, ${selected.heureDebut}` : undefined}>
         {selected ? (
           <div className="space-y-xl">
             <div className="flex items-start gap-4">
               <div className="rounded-lg bg-amud-primary-container p-3 text-white">
-                <span className="material-symbols-outlined text-[28px]">{selected.icon}</span>
+                <span className="material-symbols-outlined text-[28px]">{TYPE_ICON[selected.type]}</span>
               </div>
               <div>
                 <h4 className="text-headline-md text-amud-on-surface">{selected.type}</h4>
                 <p className="mt-1 text-body-md text-amud-on-surface-variant">
-                  {selected.date}, {selected.heure} • {selected.duree}
+                  {selected.date}, {selected.heureDebut} • {selected.duree}
                 </p>
               </div>
             </div>
@@ -279,7 +231,7 @@ export default function AmudAdminActivitesPage() {
                 </div>
                 <div>
                   <p className="text-label-sm uppercase text-amud-on-surface-variant">Statut</p>
-                  <div className="mt-1 flex items-center gap-1.5 text-amud-primary">
+                  <div className={`mt-1 flex items-center gap-1.5 ${STATUT_CLASS[selected.statut]}`}>
                     <div className="h-2 w-2 rounded-full bg-current" />
                     <span className="text-sm font-medium">{selected.statut}</span>
                   </div>
@@ -299,7 +251,7 @@ export default function AmudAdminActivitesPage() {
                     <span className="material-symbols-outlined">mail</span>
                   </div>
                   <div>
-                    <p className="font-medium text-amud-on-surface">{selected.relance}</p>
+                    <p className="font-medium text-amud-on-surface">{selected.prochaineAction}</p>
                     <p className="text-label-sm text-amud-on-surface-variant">Prévu prochainement</p>
                   </div>
                 </div>
