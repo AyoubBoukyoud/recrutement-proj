@@ -16,13 +16,18 @@
  * Palette Pillar Foundation — vert sarcelle (primaire), or (secondaire),
  * bordeaux (tertiaire). Reprise de la charte candidat, qui porte le logo.
  *
- * Les valeurs vivent dans ./colors.json (JSON pur, sans logique) :
+ * Les valeurs vivent dans ./colors.json (JSON pur, sans logique), sous
+ * `brand.light`/`brand.dark` — namespace distinct de `amud.*` (palette du
+ * module mock `/amud`, consommée séparément par `frontend/tailwind.config.js`)
+ * pour que les deux ne soient jamais fusionnées sous les mêmes clés :
  *   - success reprend primary : deux verts distincts sur un même écran se
  *     liraient comme deux marques ;
  *   - attention est l'or assombri jusqu'au ratio AA sur blanc, pour les
  *     états intermédiaires des écrans ops (dossier en attente, relance due).
  * ------------------------------------------------------------------ */
-const palette = require('./colors.json');
+const colorTokens = require('./colors.json');
+const palette = colorTokens.brand.light;
+const paletteDark = colorTokens.brand.dark;
 
 /* ------------------------------------------------------------------ *
  * Thème Tailwind
@@ -173,56 +178,64 @@ const preset = {
 };
 
 /* ------------------------------------------------------------------ *
- * Variables CSS — mêmes valeurs, injectées sur :root par chaque app.
+ * Variables CSS — mêmes valeurs, injectées sur :root (clair) / :root.dark
+ * (sombre) par chaque app. `buildColorVars` factorise le mapping palette ->
+ * variable pour ne l'écrire qu'une fois et l'appliquer aux deux modes.
  * ------------------------------------------------------------------ */
+function buildColorVars(p) {
+  return {
+    '--primary': p.primary,
+    '--primary-dark': p.primaryDark,
+    '--primary-light': p.primaryLight,
+    '--primary-container': p.primary,
+    '--on-primary': p.onPrimary,
+    '--on-primary-container': p.onPrimaryContainer,
+
+    '--secondary': p.secondary,
+    '--secondary-dark': p.secondaryDark,
+    '--secondary-light': p.secondaryLight,
+    '--gold': p.secondary,
+    '--on-secondary': p.onSecondary,
+    '--on-secondary-container': p.onSecondaryContainer,
+
+    '--tertiary': p.tertiary,
+    '--tertiary-dark': p.tertiaryDark,
+    '--tertiary-light': p.tertiaryLight,
+    '--on-tertiary': p.onTertiary,
+    '--on-tertiary-container': p.onTertiaryContainer,
+
+    '--error': p.error,
+    '--error-light': p.errorLight,
+    '--on-error': p.onError,
+    '--on-error-container': p.onErrorContainer,
+
+    '--success': p.success,
+    '--success-light': p.successLight,
+
+    '--attention': p.attention,
+    '--attention-light': p.attentionLight,
+    '--on-attention-container': p.onAttentionContainer,
+
+    '--background': p.surface,
+    '--surface': p.surface,
+    '--surface-bright': p.surfaceBright,
+    '--surface-dim': p.surfaceDim,
+    '--surface-lowest': p.surfaceLowest,
+    '--surface-low': p.surfaceLow,
+    '--surface-container': p.surfaceContainer,
+    '--surface-high': p.surfaceHigh,
+    '--surface-highest': p.surfaceHighest,
+
+    '--on-surface': p.onSurface,
+    '--on-surface-variant': p.onSurfaceVariant,
+
+    '--outline': p.outline,
+    '--outline-variant': p.outlineVariant,
+  };
+}
+
 const cssVars = {
-  '--primary': palette.primary,
-  '--primary-dark': palette.primaryDark,
-  '--primary-light': palette.primaryLight,
-  '--primary-container': palette.primary,
-  '--on-primary': palette.onPrimary,
-  '--on-primary-container': palette.onPrimaryContainer,
-
-  '--secondary': palette.secondary,
-  '--secondary-dark': palette.secondaryDark,
-  '--secondary-light': palette.secondaryLight,
-  '--gold': palette.secondary,
-  '--on-secondary': palette.onSecondary,
-  '--on-secondary-container': palette.onSecondaryContainer,
-
-  '--tertiary': palette.tertiary,
-  '--tertiary-dark': palette.tertiaryDark,
-  '--tertiary-light': palette.tertiaryLight,
-  '--on-tertiary': palette.onTertiary,
-  '--on-tertiary-container': palette.onTertiaryContainer,
-
-  '--error': palette.error,
-  '--error-light': palette.errorLight,
-  '--on-error': palette.onError,
-  '--on-error-container': palette.onErrorContainer,
-
-  '--success': palette.success,
-  '--success-light': palette.successLight,
-
-  '--attention': palette.attention,
-  '--attention-light': palette.attentionLight,
-  '--on-attention-container': palette.onAttentionContainer,
-
-  '--background': palette.surface,
-  '--surface': palette.surface,
-  '--surface-bright': palette.surfaceBright,
-  '--surface-dim': palette.surfaceDim,
-  '--surface-lowest': palette.surfaceLowest,
-  '--surface-low': palette.surfaceLow,
-  '--surface-container': palette.surfaceContainer,
-  '--surface-high': palette.surfaceHigh,
-  '--surface-highest': palette.surfaceHighest,
-
-  '--on-surface': palette.onSurface,
-  '--on-surface-variant': palette.onSurfaceVariant,
-
-  '--outline': palette.outline,
-  '--outline-variant': palette.outlineVariant,
+  ...buildColorVars(palette),
 
   '--font-body': "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
   '--font-mono': "'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace",
@@ -239,4 +252,7 @@ const cssVars = {
   '--radius-lg': '16px',
 };
 
-module.exports = { palette, preset, cssVars };
+/** Overrides `:root.dark` uniquement les variables de couleur — typo/spacing/radius ne changent pas avec le thème. */
+const cssVarsDark = buildColorVars(paletteDark);
+
+module.exports = { palette, paletteDark, preset, cssVars, cssVarsDark };
