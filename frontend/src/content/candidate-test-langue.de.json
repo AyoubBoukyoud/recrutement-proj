@@ -4,7 +4,7 @@
   },
   "preparation": {
     "heading": "Bereit für Ihre Bewertung?",
-    "intro": "Die künstliche Intelligenz analysiert Ihre Sprachgewandtheit, Ihre Aussprache und Ihren Wortschatz.",
+    "intro": "Das Werkzeug transkribiert Ihre Aufnahme und erstellt eine unverbindliche Einschätzung von Sprachfluss und Verständlichkeit.",
     "topicLabel": "Thema der Prüfung",
     "topic": "Beschreiben Sie Ihren Beruf und Ihre täglichen Aufgaben im Detail.",
     "hint": "Anweisung: Sprechen Sie mindestens {seconds} Sekunden lang über Ihren Beruf und Ihre täglichen Aufgaben.",
@@ -15,15 +15,15 @@
   },
   "processing": {
     "uploading": "Ihre Aufnahme wird gesendet…",
-    "analyzing": "Ihre Aussprache wird analysiert…",
-    "description": "Die KI transkribiert und vergleicht Ihre Phoneme mit deutschen Standards. Dies kann etwa fünfzehn Sekunden dauern."
+    "analyzing": "Ihre mündliche Ausdrucksfähigkeit wird eingeschätzt…",
+    "description": "Das Werkzeug transkribiert die Aufnahme und berechnet automatische Indikatoren. Das Ergebnis ist kein Sprachzertifikat."
   },
   "failed": {
     "heading": "Bewertung nicht erfolgreich",
     "retryButton": "Erneut versuchen"
   },
   "results": {
-    "aiEvaluated": "KI-bewertet",
+    "aiEvaluated": "Automatische Einschätzung",
     "levelLabel": "Niveau {level}",
     "heading": "Ergebnis der Bewertung",
     "wordsPerMinute": "{value} Wörter/Minute",

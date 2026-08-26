@@ -65,7 +65,8 @@ export function SiteHeader() {
         </nav>
 
         <div className="ms-auto flex items-center gap-3">
-          <LanguageSwitcher />
+          <div className="sm:hidden"><LanguageSwitcher compact /></div>
+          <div className="hidden sm:block"><LanguageSwitcher /></div>
           <ThemeToggle />
 
           <Link

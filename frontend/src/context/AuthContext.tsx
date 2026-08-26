@@ -22,7 +22,17 @@ export type AuthFailure =
 
 type Failure = { ok: false; reason: AuthFailure; retryAfter?: number };
 
-export type AuthResult = { ok: true } | Failure;
+/** Delivery details are retained so local development can display the code
+ * returned by Laravel's log channel. Real WhatsApp/SMS responses never carry
+ * a debug code, and production is additionally blocked server-side. */
+export type OtpDispatch = {
+  debugCode: string | null;
+  channel: string;
+  resendAvailableIn: number;
+  expiresIn: number;
+};
+
+export type AuthResult = ({ ok: true } & OtpDispatch) | Failure;
 
 /** Le rôle est connu dès la vérification réussie — inutile d'attendre le
  *  prochain rendu pour savoir où envoyer l'appelant. */
@@ -160,10 +170,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const data = await authRepository.requestOtp(phone, referralToken);
+      const dispatch: OtpDispatch = {
+        debugCode: data.debug_otp_code ?? null,
+        channel: data.channel ?? 'unknown',
+        resendAvailableIn: data.resend_available_in ?? 60,
+        expiresIn: data.expires_in ?? 600,
+      };
 
-      setResendAvailableIn(data.resend_available_in ?? null);
+      setResendAvailableIn(dispatch.resendAvailableIn);
 
-      return { ok: true };
+      return { ok: true, ...dispatch };
     } catch (error) {
       const failure = failureFrom(error);
       if (!failure.ok && failure.retryAfter) setResendAvailableIn(failure.retryAfter);

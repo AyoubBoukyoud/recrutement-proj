@@ -1,3 +1,5 @@
+import { recoverFromUnauthorized } from '@/lib/authSession';
+
 // Client HTTP minimal vers l'API Laravel. Volontairement réduit à ce dont
 // l'authentification et l'extraction de documents ont besoin. Les écrans ne
 // l'appellent jamais directement : ils passent par les dépôts de `src/data`,
@@ -72,6 +74,7 @@ async function request<T>(method: Method, path: string, body?: unknown, token?: 
 
   if (!response.ok) {
     const message = typeof payload.message === 'string' ? payload.message : `HTTP ${response.status}`;
+    if (response.status === 401 && token) recoverFromUnauthorized();
     throw new ApiError(response.status, message, payload);
   }
 

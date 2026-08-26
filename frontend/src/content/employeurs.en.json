@@ -1,44 +1,45 @@
 {
   "hero": {
-    "title": "Recruit in Morocco with German-grade trust standards.",
-    "body": "Cut your position vacancy times with verified, highly qualified Moroccan professionals, trained to strict German CEFR standards and fully GDPR-compliant.",
-    "ctaRoi": "Calculate ROI",
-    "ctaStandards": "View Standards",
-    "imageAlt": "Moroccan healthcare professional at a modern German medical facility."
+    "eyebrow": "Recruiter workspace",
+    "title": "Structured applications, viewed with the candidate’s consent.",
+    "body": "Amud Skills brings together the candidate’s trade information, attachments, and stated language details. Authorized recruiters can publish jobs and track applications in a dedicated workspace.",
+    "primaryCta": "Open recruiter workspace",
+    "secondaryCta": "See how it works",
+    "note": "Recruiter access requires an account whose role has been approved by an administrator."
   },
-  "stats": [
-    { "value": "136 Days", "label": "National Average Vacancy" },
-    { "value": "212 Days", "label": "Healthcare Vacancy" },
-    { "value": "-40%", "label": "Time-to-Hire Reduction" }
-  ],
-  "cost": {
-    "title": "The Cost of Vacancy",
-    "body": "German Mittelstand companies face unprecedented delays for critical hires. Amud Skills closes this gap through rigorous, verified sourcing."
-  },
-  "standards": {
-    "title": "Uncompromising Standards",
+  "preview": {
+    "eyebrow": "What the workspace supports",
+    "title": "A traceable recruitment flow",
     "items": [
-      {
-        "title": "GDPR / DSGVO Compliant",
-        "desc": "Our entire sourcing, verification, and data-transfer process strictly complies with German and European data protection regulations."
-      },
-      {
-        "title": "Verified CEFR German Levels",
-        "desc": "We guarantee every candidate reaches the required B1/B2 German level, authenticated by accredited testing centers before placement."
-      }
+      { "icon": "post_add", "label": "Manage jobs", "body": "Create, edit, publish, or close your organization’s job listings." },
+      { "icon": "folder_shared", "label": "Review applications", "body": "Read submitted profiles and move applications through their statuses." },
+      { "icon": "contact_phone", "label": "Request contact details", "body": "Reveal contact details only through an explicit, logged action." }
     ]
   },
-  "roi": {
-    "title": "ROI Calculator",
-    "openPositionsLabel": "Open Positions",
-    "openPositionsPlaceholder": "e.g., 3",
-    "industryLabel": "Industry",
-    "industries": [
-      "Healthcare (Avg 212 days)",
-      "Logistics (Avg 145 days)",
-      "IT (Avg 160 days)"
-    ],
-    "submit": "Calculate Savings",
-    "toast": "Estimate calculated — an advisor will follow up to refine it."
+  "workflow": {
+    "title": "From hiring need to application follow-up",
+    "subtitle": "The capabilities shown here correspond to journeys available in the application.",
+    "items": [
+      { "icon": "assignment", "title": "Publish a job", "body": "Describe the role, requested skills, and expected language level, then manage its publication status." },
+      { "icon": "rule", "title": "Review received profiles", "body": "Compare declared information and attached documents. An attachment is not presented as an official certification." },
+      { "icon": "fact_check", "title": "Track the decision", "body": "Update application status and keep a useful history in the recruiter workspace." }
+    ]
+  },
+  "safeguards": {
+    "eyebrow": "Access and data",
+    "title": "Controls visible in the product",
+    "subtitle": "We describe implemented mechanisms without promising a regulatory certification or a hiring outcome.",
+    "items": [
+      { "icon": "visibility_off", "title": "Candidate-controlled visibility", "body": "Candidates can enable, pause, or withdraw consent for profile visibility." },
+      { "icon": "lock", "title": "Private documents", "body": "Private files are served through temporary links to authorized users." },
+      { "icon": "history", "title": "Logged actions", "body": "Supported contact-detail requests and sensitive operations are recorded." },
+      { "icon": "admin_panel_settings", "title": "Controlled roles", "body": "Recruiter features depend on the account role and permissions enforced by the server." }
+    ]
+  },
+  "finalCta": {
+    "title": "Already have recruiter access?",
+    "body": "Sign in with the phone number associated with your account to open the recruiter portal.",
+    "cta": "Sign in as recruiter",
+    "note": "Recruiter role creation or approval remains managed by the administration."
   }
 }

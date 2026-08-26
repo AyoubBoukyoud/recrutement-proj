@@ -39,16 +39,16 @@ The single largest hole is **K**: the business model has no representation in th
 ## A. Candidate Onboarding & Authentication — DONE
 
 **Done** — phone-first OTP flow, Sanctum tokens, spatie role gating, referral token bound at request time.
-`mobile/src/context/AuthContext.tsx`, `mobile/src/screens/PhoneEntryScreen.tsx`, `mobile/src/screens/OtpVerifyScreen.tsx`, `backend/app/Http/Controllers/Api/AuthController.php`
+`mobile-expo/src/context/AuthContext.tsx`, `mobile-expo/src/screens/PhoneEntryScreen.tsx`, `mobile-expo/src/screens/OtpVerifyScreen.tsx`, `backend/app/Http/Controllers/Api/AuthController.php`
 
 - **Dual-channel delivery with fallback.** `OTP_CHANNELS=whatsapp,sms` tries the Meta WhatsApp Cloud API first and falls back to Twilio SMS; a channel whose credentials are missing is skipped rather than failed, and an exhausted chain answers 502 without persisting a code nobody received. Default stays `log`, so a fresh checkout signs in with no provider account.
   `backend/config/otp.php`, `backend/app/Services/Otp/OtpChannelManager.php`, `Channels/`
 - **The `OtpChannel` abstraction.** `backend/app/Contracts/OtpChannel.php` — three methods, one per driver. A new provider is a class plus a config entry; `OtpChannelManager::extend()` registers one from a service provider without touching the package.
 - **Abuse limits.** 60-second resend cooldown, 5 sends per hour per number, 5 verify attempts per code, all in `OtpService` against `otp_codes`; `throttle:otp-request` / `throttle:otp-verify` (defined in `AppServiceProvider`) bound both endpoints per number *and* per IP in front of that. Codes are stored hashed and phone numbers are normalised to E.164 at every entry point, so spacing cannot split a limit bucket.
 - **Account recovery.** `POST /auth/phone/change` + `/confirm` moves a dossier to a new number from a signed-in device, proving the *new* number and revoking every other session. For a candidate who lost the number *and* every device, `PATCH /admin/users/{user}/phone` reassigns it after an administrator confirms identity off-platform; the reason is mandatory and logged.
-  `backend/app/Http/Controllers/Api/PhoneChangeController.php`, `AdminAccountRecoveryController.php`, `mobile/src/components/PhoneChangeCard.tsx`
+  `backend/app/Http/Controllers/Api/PhoneChangeController.php`, `AdminAccountRecoveryController.php`, `mobile-expo/src/components/PhoneChangeCard.tsx`
 - **Multi-device sessions.** `GET /auth/sessions`, `DELETE /auth/sessions/{id}`, `DELETE /auth/sessions/others`, with devices named at sign-in. Surfaced in the mobile Account tab.
-  `backend/app/Http/Controllers/Api/DeviceSessionController.php`, `mobile/src/components/DeviceSessions.tsx`
+  `backend/app/Http/Controllers/Api/DeviceSessionController.php`, `mobile-expo/src/components/DeviceSessions.tsx`
 
 Covered by `backend/tests/Feature/OtpAuthTest.php`, `OtpChannelTest.php`, `AccountSessionTest.php`.
 
@@ -62,7 +62,7 @@ Covered by `backend/tests/Feature/OtpAuthTest.php`, `OtpChannelTest.php`, `Accou
 
 **Done** — 7-step builder covering personal info, education, languages (with certificates),
 availability, consents, presentation video and a final review/submit step; full CRUD behind it.
-`mobile/src/screens/profile-builder/`, `backend/app/Http/Controllers/Api/CandidateProfileController.php`, `EducationController.php`, `CandidateLanguageController.php`
+`mobile-expo/src/screens/profile-builder/`, `backend/app/Http/Controllers/Api/CandidateProfileController.php`, `EducationController.php`, `CandidateLanguageController.php`
 
 - **Language certificates.** `POST|DELETE /candidate/languages/{language}/certificate` attaches or
   removes proof, either by uploading a file inline or by pointing at a document already on the
@@ -81,7 +81,7 @@ availability, consents, presentation video and a final review/submit step; full 
   what is actually published.
 
 **Remaining** — the new candidate-facing strings are English-only; `fr`/`ar`/`de` fall back to
-English, as with the rest of the builder (see the note atop `mobile/src/i18n/index.ts`).
+English, as with the rest of the builder (see the note atop `mobile-expo/src/i18n/index.ts`).
 
 ---
 
@@ -90,7 +90,7 @@ English, as with the rest of the builder (see the note atop `mobile/src/i18n/ind
 **Done** — per-language prompted recording with a hard 60s cap and a 20s floor, listen-back before
 submit, retake, upload, status polling, CEFR result with the reasoning behind it, badge awarded,
 `candidate_languages` reconciled rather than overwritten.
-`mobile/src/screens/LanguageAssessmentScreen.tsx`, `backend/app/Jobs/ProcessLanguageAssessment.php`,
+`mobile-expo/src/screens/LanguageAssessmentScreen.tsx`, `backend/app/Jobs/ProcessLanguageAssessment.php`,
 `backend/app/Services/LanguageAssessment/` (`WhisperTranscriber`, `PronunciationAnalyzer`, `CefrScorer`,
 `LanguageLevelReconciler`), `backend/scripts/transcribe.py`
 
@@ -139,7 +139,7 @@ Covered by `backend/tests/Unit/CefrScorerTest.php`, `PronunciationAnalyzerTest.p
 **Done** — upload, two-engine routing (Gemini for CVs and PDFs, Tesseract otherwise), hardened field
 sanitisation, confidence threshold, candidate review screen, **write-back to the profile**, retries,
 cloud escalation and multilingual local OCR.
-`mobile/src/screens/DocumentsScreen.tsx`, `backend/app/Jobs/ProcessDocumentOcr.php`,
+`mobile-expo/src/screens/DocumentsScreen.tsx`, `backend/app/Jobs/ProcessDocumentOcr.php`,
 `backend/app/Services/Ocr/` (`GeminiCvExtractor`, `TesseractOcrService`, `DocumentFieldExtractor`,
 `ExtractionApplier`, `TransientOcrFailure`), `backend/config/ocr.php`
 
@@ -216,8 +216,6 @@ Covered by `backend/tests/Feature/RecruiterSearchTest.php` and `RecruiterShortli
 
 **Remaining**
 
-- Media is still served from public storage — a released contact detail is gated, a CV URL is not.
-  See *Security*; it is the same fix for the whole platform, not a recruiter-side one.
 - No saved searches or alerts, and no bulk actions across a result set.
 
 ---
@@ -226,7 +224,7 @@ Covered by `backend/tests/Feature/RecruiterSearchTest.php` and `RecruiterShortli
 
 **Done** — ubiquitous entry point, text and voice submission, haptic confirmation, storage, real
 administrator alerts, full triage including `in_review`, and a reply that reaches the candidate.
-`mobile/src/components/ComplaintFab.tsx`, `backend/app/Http/Controllers/Api/ComplaintController.php`,
+`mobile-expo/src/components/ComplaintFab.tsx`, `backend/app/Http/Controllers/Api/ComplaintController.php`,
 `backend/app/Jobs/NotifyAdminsOfComplaint.php`, `backend/app/Notifications/ComplaintSubmitted.php`,
 `backend/config/complaints.php`, `frontend/src/components/admin/ComplaintsPanel.tsx`
 
@@ -260,7 +258,7 @@ mobile app are English-only, as with the rest of the deeper screens.
 **Done** — every write in the candidate app goes through the queue, media included; a
 connectivity-triggered flush; a pending-changes banner and a named list of what is still held on
 the device; and explicit conflict resolution when two devices edit the same dossier.
-`mobile/src/lib/offlineQueue.ts` (+ `.web.ts`, `.types.ts`), `mobile/src/components/OfflineBanner.tsx`,
+`mobile-expo/src/lib/offlineQueue.ts` (+ `.web.ts`, `.types.ts`), `mobile-expo/src/components/OfflineBanner.tsx`,
 `PendingChanges.tsx`, `backend/app/Http/Controllers/Api/CandidateProfileController.php`
 
 - **Every write path enqueues.** The profile steps (personal, education, languages, availability,
@@ -302,7 +300,7 @@ APIs.
 ## H. User Experience & Design Language — DONE
 
 **Done** — multi-step animated form with fade transitions, a navigable progress ledger, a hand-built
-design system (`mobile/src/theme.ts`, `mobile/src/components/ui.tsx`), custom typography, haptic
+design system (`mobile-expo/src/theme.ts`, `mobile-expo/src/components/ui.tsx`), custom typography, haptic
 feedback, and one consistent way of showing waiting and failure.
 
 - **The ledger navigates.** `StepLedger` takes `onStepPress` / `furthestStep` / `stepLabels`; cells
@@ -338,7 +336,7 @@ triage and user/role management.
 `frontend/src/app/admin/` (routed sections), `frontend/src/components/admin/`,
 `backend/app/Http/Controllers/Api/` (`AdminCandidateController`, `AdminTaskController`,
 `AdminUserController`, `AdminMetricsController`, `CandidateTaskController`),
-`backend/app/Services/TaskEngagement.php`, `mobile/src/screens/DailyTasksScreen.tsx`
+`backend/app/Services/TaskEngagement.php`, `mobile-expo/src/screens/DailyTasksScreen.tsx`
 
 - **Daily remote internship.** `tasks` (the catalogue) and `task_assignments` (one candidate's copy
   of an activity, for one day). Administrators maintain the catalogue, assign a day's work in one
@@ -381,7 +379,7 @@ retention) — the metrics endpoint answers "now", not "since when".
 
 **Done** — token generation, rotation with a grace period, QR rendering with download/print/copy, an
 in-app scanner, the full attribution loop, and a commission lifecycle from earning to payout.
-`mobile/src/screens/ScanReferralScreen.tsx`, `mobile/src/lib/referralToken.ts`,
+`mobile-expo/src/screens/ScanReferralScreen.tsx`, `mobile-expo/src/lib/referralToken.ts`,
 `frontend/src/components/AgentDashboard.tsx`, `frontend/src/components/ReferralPayouts.tsx`,
 `backend/app/Http/Controllers/Api/ReferralAgentController.php`, `AdminReferralController.php`,
 `backend/app/Services/ReferralCommissions.php`, `backend/config/referrals.php`
@@ -390,7 +388,7 @@ in-app scanner, the full attribution loop, and a commission lifecycle from earni
   `CameraView`'s QR scanner and lands on sign-in with the token attached — the same state the deep
   link produces, so there is one path, not two. `parseReferralToken` accepts the deep link, an https
   link with `?ref=`, or a bare token, and refuses anything else rather than guessing: attributing a
-  registration to the wrong agent is worse than asking for another scan. `mobile/app.json`'s camera
+  registration to the wrong agent is worse than asking for another scan. `mobile-expo/app.json`'s camera
   copy is now true.
 - **Commission tracking.** `referral_registrations` carries `commission_status`
   (pending → qualified → approved → paid, or rejected), amount, currency and the timestamps behind
@@ -457,12 +455,12 @@ Things that read as finished and are not. These matter more than the plain gaps 
 
 ## Security & compliance
 
-Flagged separately because the platform collects explicit CNDP consent, which raises the stakes on all three.
+Flagged separately because the platform collects explicit consent, which raises the stakes on all three.
 
-- **Rate limiting: the auth endpoints only.** `/auth/otp/request` and `/auth/otp/verify` are now throttled per number and per IP (`AppServiceProvider::configureOtpRateLimiting`), on top of the per-number cooldown and 5-attempt cap in `OtpService`. **Every other route is still unbounded** — profile, document upload and the recruiter search have no `throttle` middleware.
-- **All uploaded media is served unauthenticated.** `storageUrl()` in `CandidateDossier.tsx` and `AdminDashboard.tsx:8`, and `Document::url`, all build direct public-disk `/storage/...` URLs. Every CV, certificate, diploma, complaint voice note and presentation video is readable by anyone who has or guesses the path. Needs signed URLs or an authenticated streaming endpoint. This directly contradicts the CNDP consent the app collects.
-- **No account deletion and no data export.** Both are standard obligations under the data-protection regime the consent flow invokes.
-- No 401 interceptor in `frontend/src/lib/opsApi.ts` — an expired token renders errors instead of redirecting to login.
+- **Rate limiting is layered.** Every authenticated route uses the per-user `throttle:api` limiter. OTP, document upload, language assessment, complaint creation, recruiter search and contact reveal also have tighter endpoint-specific limits. `backend/app/Providers/AppServiceProvider.php`, `backend/routes/api.php`.
+- **Uploaded media is private.** Documents, presentation videos, assessment audio and complaint voice notes live on the local private disk. `App\Services\FileAccess` returns ten-minute signed URLs only after checking the viewer’s role and relationship to the dossier or complaint. Covered by `PrivateMediaTest`.
+- **Candidate export and deletion exist.** `GET /candidate/account/export` returns the candidate’s data and `DELETE /candidate/account` deletes the account through `CandidateAccountController`; both are authenticated.
+- **Expired browser sessions recover.** Both the fetch client and the recruiter/admin Axios client clear stale auth and redirect on an authenticated 401. They deliberately do not treat 403 as an expired session. `frontend/src/lib/authSession.ts`, `api.ts`, `opsApi.ts`.
 - Models are serialized raw to JSON throughout; there are no API Resources, FormRequests or Policies, so response shape is whatever the model happens to hold.
 
 ---
@@ -480,9 +478,9 @@ language hint to Whisper. *Fixed in E:* the min-CEFR filter comparing an ENUM co
 
 ## Cross-cutting
 
-- **i18n coverage is partial by design.** The comment in `mobile/src/i18n/index.ts` states only auth-flow and navigation strings are translated across en/fr/ar/de; the profile builder, documents and language assessment screens are hardcoded English. The mechanism (including real RTL via `I18nManager.forceRTL` in `mobile/src/lib/language.ts`) is sound — what remains is a content pass. Spec §6 lists full internationalisation as MVP scope.
-- **Test coverage is ten suites plus the CV extractor.** `GeminiCvExtractionTest.php` is genuinely good, and OTP delivery, throttling, sessions and recovery are covered by `OtpAuthTest`/`OtpChannelTest`/`AccountSessionTest`. Recruiter search, the shortlist and the contact gate are covered by `RecruiterSearchTest`/`RecruiterShortlistTest`. The referral programme is covered by `ReferralProgrammeTest`. Untested: profile CRUD, education, languages, the admin checklist. `CefrScorer`, `PronunciationAnalyzer` and the assessment pipeline now have unit and feature suites. No factories exist for any domain model beyond `User`. No frontend or mobile tests at all.
-- **Dead dependency:** `zustand` is in `mobile/package.json` and used nowhere in `src` — all client state is Context plus TanStack Query. Remove it or adopt it.
+- **i18n coverage is partial by design.** The comment in `mobile-expo/src/i18n/index.ts` states only auth-flow and navigation strings are translated across en/fr/ar/de; the profile builder, documents and language assessment screens are hardcoded English. The mechanism (including real RTL via `I18nManager.forceRTL` in `mobile-expo/src/lib/language.ts`) is sound — what remains is a content pass. Spec §6 lists full internationalisation as MVP scope.
+- **Current automated baseline.** The Laravel suite contains 218 passing tests with 1,002 assertions. The frontend adds eleven static client-demo contract checks for canonical routes, gated prototypes/dev tools, real CTAs, localization, 401-vs-403 recovery and candidate visibility. Type-check, lint and production build remain required; the mobile app still has no component/E2E test harness.
+- **Dead dependency:** `zustand` is in `mobile-expo/package.json` and used nowhere in `src` — all client state is Context plus TanStack Query. Remove it or adopt it.
 - **Endpoints the backend exposes that mobile never calls:** `GET /auth/me`, `GET /candidate/educations`, `GET /candidate/languages`, `GET /candidate/documents/{id}`, `GET /candidate/language-assessments/{id}`. Either wire them or drop them.
 
 ---
@@ -490,11 +488,8 @@ language hint to Whisper. *Fixed in E:* the min-CEFR filter comparing an ENUM co
 ## Not in the spec, needed before launch
 
 - ~~Real OTP delivery, with the channel abstraction built first (A).~~ Built — provider credentials are all that is outstanding.
-- **Rate limiting on the rest of the API** (*Security*) — the auth endpoints are covered, nothing else is.
-- **Authenticated media access** (*Security*).
 - **Consistent error and retry UX** — several failure paths currently surface as a bare `Alert` or nothing at all.
 - **Analytics and crash reporting.** No SDK in any of the three apps; there will be no visibility into failures in the field.
-- **Account deletion and data export**, per the consent the app collects.
 
 ---
 
@@ -504,7 +499,7 @@ Roughly by value-per-effort, given the current state:
 
 1. **Make OCR review write back to the profile** (D) — the pipeline's whole purpose, and the surrounding machinery already works.
 2. ~~Real OTP delivery + rate limiting (A, *Security*).~~ Done, minus provider credentials.
-3. **Authenticated media URLs** (*Security*) — a live privacy exposure today.
+3. ~~Authenticated media URLs (*Security*).~~ Done with private storage and short-lived signed URLs.
 4. ~~Recruiter contact + shortlist actions (E).~~ Built.
 5. **Pagination on the admin dashboard** (I) — small fix, currently hiding data; the recruiter side is done.
 6. **Real admin notification for complaints** (F) — and drop or correct `admin_notified_at`.

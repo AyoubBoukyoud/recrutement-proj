@@ -9,7 +9,7 @@ const GROUPS: { type: CandidateDocument['type']; label: string; blurb: string }[
   {
     type: 'certificate',
     label: 'Certificats de langue',
-    blurb: 'Marqués vérifiés lorsqu’ils sont joints comme preuve d’un niveau CECRL précis.',
+    blurb: 'Pièces jointes au dossier ; leur présence ne vaut pas validation par l’organisme émetteur.',
   },
   { type: 'diploma', label: 'Diplômes', blurb: 'Les qualifications, telles que téléversées.' },
 ]
@@ -23,7 +23,7 @@ const isPdf = (path: string) => /\.pdf$/i.test(path)
  * Auparavant une boucle générique imprimait « Télécharger le certificat
  * (échec) » — le statut du scanner, qui se lit comme un jugement sur le
  * candidat — et rendait un diplôme indiscernable d'une preuve de langue
- * certifiée. Le groupement, la marque de vérification et l'aperçu en ligne
+ * certifiée. Le groupement, le statut de pièce jointe et l'aperçu en ligne
  * sont ce qui permet à un recruteur d'apprécier réellement le dossier au lieu
  * de télécharger trois fichiers pour le découvrir.
  */
@@ -60,7 +60,7 @@ function DocumentRow({ document }: { document: CandidateDocument }) {
     <div className="grid gap-2 rounded-element border border-outline-variant p-2">
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm text-on-surface">{document.file_path.split('/').pop()}</span>
-        {document.verified && <Badge tone="done">preuve vérifiée</Badge>}
+        {document.verified && <Badge tone="done">pièce examinée</Badge>}
         <span className="helper-text">
           téléversé le {new Date(document.uploaded_at).toLocaleDateString('fr-FR')}
         </span>

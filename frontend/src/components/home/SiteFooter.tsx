@@ -3,11 +3,7 @@
 import Link from 'next/link';
 import { useHomeContent } from '@/lib/useLocalizedContent';
 
-/**
- * Sur ce type de plateforme, un pied de page légal complet **est** un signal de
- * confiance : un footer vide se lit comme une page éphémère, ce qui est
- * exactement ce qu'un candidat méfiant cherche à repérer.
- */
+/** Public footer containing only implemented destinations. */
 export function SiteFooter() {
   const { footer } = useHomeContent();
   return (

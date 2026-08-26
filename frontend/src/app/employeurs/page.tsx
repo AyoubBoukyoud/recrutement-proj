@@ -6,17 +6,15 @@ import { EmployeursBody } from './EmployeursBody';
 export const metadata: Metadata = {
   title: 'Recrutez au Maroc — Amud Skills',
   description:
-    'Réduisez vos délais de vacance de poste grâce à des professionnels marocains vérifiés, formés aux standards CECR allemands et entièrement conformes au RGPD.',
+    'Découvrez comment Amud Skills permet aux recruteurs autorisés de publier des offres et de consulter des dossiers candidats avec leur consentement.',
 };
 
 /**
  * `/employeurs` — page publique employeurs, confiance & conformité.
  *
- * Contenu porté depuis la maquette "Trust & Compliance" (voir
- * `/amud/marketing/employers` pour la version isolée d'origine). `SiteHeader`
- * / `SiteFooter` réels ; le corps traduit vit dans `EmployeursBody` (même
- * raison que `ProductHome`/`TradeDetail` : la langue n'est connue que du
- * navigateur), qui inclut le calculateur ROI (`RoiCalculatorForm`).
+ * La langue n'étant connue que du navigateur, le corps traduit vit dans
+ * `EmployeursBody`. Les actions publiques renvoient uniquement vers des
+ * parcours réellement implémentés.
  */
 export default function EmployeursPage() {
   return (

@@ -8,7 +8,7 @@ code and earn commission on the ones who complete a dossier.
 | Directory | What it is | Runs on |
 | --- | --- | --- |
 | `backend/` | Laravel API — the only thing that talks to the database | `:8000` |
-| `mobile/` | React Native (Expo) candidate app | Metro `:8082` |
+| `mobile-expo/` | React Native (Expo) candidate app | Metro `:8082` |
 | `frontend/` | Next.js PWA — candidate, recruiter, admin and agent, one login | `:3000` |
 | `docs/` | Spec, MVP notes, and the feature-by-feature status report | — |
 
@@ -35,7 +35,7 @@ cd backend && php artisan queue:work
 cd frontend && npm run dev           # http://localhost:3000
 
 # 4b. Mobile candidate app
-cd mobile && npx expo start --port 8082
+cd mobile-expo && npx expo start --port 8082
 ```
 
 Then open the app: press `w` in the Expo terminal for the browser target, or scan the QR code with
@@ -47,15 +47,15 @@ Expo Go on a phone.
 cd backend  && composer install && cp -n .env.example .env && php artisan key:generate
 docker compose up -d
 php artisan migrate --seed          # creates the four roles
-cd ../frontend && npm install
-cd ../mobile   && npm install
+cd ../frontend && npm ci
+cd ../mobile-expo && npm ci
 ```
 
 ---
 
 ## The two things that bite every time
 
-**The mobile app finds the API by itself — leave `mobile/.env` alone.** It derives the address from
+**The mobile app finds the API by itself — leave `mobile-expo/.env` alone.** It derives the address from
 the Metro server the device is already talking to (`src/lib/api.ts`), so a phone that reached Metro
 at `192.168.1.43:8082` calls the API at `192.168.1.43:8000`, and the browser target calls
 `localhost:8000`. Nothing to edit when your IP changes. Metro prints the address it resolved on
@@ -121,10 +121,10 @@ network and port 8000 must be open in the firewall.
 ## Tests and checks
 
 ```bash
-cd backend  && php artisan test          # 183 tests
+cd backend  && php artisan test          # 218 tests / 1,002 assertions
 cd backend  && ./vendor/bin/pint         # formatter
-cd mobile   && npx tsc --noEmit
-cd frontend && npx tsc --noEmit && npm run lint
+cd mobile-expo && npx tsc --noEmit
+cd frontend && npm run test:client-demo && npx tsc --noEmit && npm run lint && npm run build
 ```
 
 Optional local tooling, all degrading gracefully when absent: `GEMINI_API_KEY` for reading CV PDFs,
@@ -138,3 +138,6 @@ Without them those features report an honest failure instead of crashing.
 [`docs/FEATURES_TO_IMPLEMENT.md`](docs/FEATURES_TO_IMPLEMENT.md) tracks every feature against the
 spec, section by section, with the file that justifies each claim. Start there before planning work
 — it supersedes the status claims in `docs/MVP.md`.
+
+For a truthful local client walkthrough, including the required environment flags and route order,
+use [`docs/CLIENT_DEMO_RUNBOOK.md`](docs/CLIENT_DEMO_RUNBOOK.md).

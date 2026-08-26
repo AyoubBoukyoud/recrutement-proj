@@ -264,6 +264,12 @@ export EVOLUTION_GLOBAL_API_KEY=pick-something-long
 docker compose up -d evolution-go
 ```
 
+Evolution Go 0.7.x starts in an inactive state on a fresh database. Open
+<http://localhost:4000/manager/login>, enter the gateway URL and the
+`EVOLUTION_GLOBAL_API_KEY` used by Compose, and finish the provider's activation flow. Until this
+is done, `/instance/*`, `/user/check`, and `/send/text` intentionally return HTTP 503. The
+`/server/ok` health endpoint can therefore be green while WhatsApp delivery is still unavailable.
+
 Create an instance. `GLOBAL_API_KEY` authenticates this call; the `token` you choose here becomes
 the instance's own key, and it is that one — not the global key — that every send is made with:
 

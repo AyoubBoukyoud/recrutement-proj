@@ -4,7 +4,7 @@
   },
   "preparation": {
     "heading": "Prêt pour votre évaluation ?",
-    "intro": "L'intelligence artificielle analysera votre fluidité, votre prononciation et votre vocabulaire.",
+    "intro": "L’outil transcrit votre enregistrement et produit une estimation indicative de fluidité et de clarté.",
     "topicLabel": "Sujet de l'épreuve",
     "topic": "Décrivez votre métier et vos tâches quotidiennes en détail.",
     "hint": "Consigne : Parlez pendant au moins {seconds} secondes de votre métier et de vos responsabilités quotidiennes.",
@@ -15,15 +15,15 @@
   },
   "processing": {
     "uploading": "Envoi de votre enregistrement…",
-    "analyzing": "Analyse de votre prononciation…",
-    "description": "L'IA transcrit et compare vos phonèmes aux standards allemands. Cela peut prendre une quinzaine de secondes."
+    "analyzing": "Estimation de votre expression orale…",
+    "description": "L’outil transcrit l’enregistrement et calcule des indicateurs automatiques. Le résultat n’est pas un certificat linguistique."
   },
   "failed": {
     "heading": "Évaluation non aboutie",
     "retryButton": "Réessayer"
   },
   "results": {
-    "aiEvaluated": "Évalué par IA",
+    "aiEvaluated": "Estimation automatique",
     "levelLabel": "Niveau {level}",
     "heading": "Résultat de l'évaluation",
     "wordsPerMinute": "{value} mots/minute",

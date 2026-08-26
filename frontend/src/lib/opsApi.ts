@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { readStorage, STORAGE_KEYS } from '@/lib/storage';
+import { recoverFromUnauthorized } from '@/lib/authSession';
 
 /*
  * Le client HTTP des écrans recruteur/admin/agent, portés depuis web-admin.
@@ -47,3 +48,12 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const hadAuthorization = Boolean(error?.config?.headers?.Authorization);
+    if (error?.response?.status === 401 && hadAuthorization) recoverFromUnauthorized();
+    return Promise.reject(error);
+  }
+);

@@ -27,7 +27,7 @@
         },
         {
           "question": "Wie lange dauert die Prüfung meiner Dokumente?",
-          "answer": "Unser Team prüft Ihre Dokumente in der Regel innerhalb von 48 bis 72 Werkstunden."
+          "answer": "Der Status jedes Dokuments erscheint nach der Prüfung in Ihrem Profil. Die Anwendung garantiert keine Bearbeitungszeit."
         }
       ]
     },
@@ -48,8 +48,8 @@
       "title": "Nach der Vermittlung",
       "items": [
         {
-          "question": "Wer begleitet mich bei Visum und Abreise?",
-          "answer": "Sobald ein Arbeitgeber Ihre Vermittlung bestätigt, meldet sich ein Amud-Skills-Berater bei Ihnen, um Sie bei den Verwaltungsschritten und der Abreise zu begleiten."
+          "question": "Übernimmt die Anwendung Visum und Abreise?",
+          "answer": "Nein. Amud Skills bietet in der Anwendung keinen Visa- oder Umzugsprozess an. Klären Sie die erforderlichen Schritte mit den zuständigen Behörden und Ihrem Arbeitgeber."
         }
       ]
     }

@@ -1,44 +1,45 @@
 {
   "hero": {
-    "title": "Rekrutieren Sie in Marokko nach deutschen Vertrauensstandards.",
-    "body": "Verkürzen Sie Ihre Stellenvakanzzeiten mit verifizierten, hochqualifizierten marokkanischen Fachkräften, die nach strengen deutschen GER-Standards ausgebildet und vollständig DSGVO-konform sind.",
-    "ctaRoi": "ROI berechnen",
-    "ctaStandards": "Standards ansehen",
-    "imageAlt": "Marokkanische Pflegefachkraft in einer modernen deutschen medizinischen Einrichtung."
+    "eyebrow": "Recruiter-Bereich",
+    "title": "Strukturierte Bewerbungen, eingesehen mit Zustimmung der Bewerbenden.",
+    "body": "Amud Skills bündelt berufliche Angaben, Anhänge und die angegebenen Sprachkenntnisse. Autorisierte Recruiter können Stellen veröffentlichen und Bewerbungen in einem eigenen Bereich verfolgen.",
+    "primaryCta": "Recruiter-Bereich öffnen",
+    "secondaryCta": "Ablauf ansehen",
+    "note": "Der Recruiter-Zugang erfordert ein Konto, dessen Rolle von der Administration freigegeben wurde."
   },
-  "stats": [
-    { "value": "136 Tage", "label": "Nationale durchschnittliche Vakanzzeit" },
-    { "value": "212 Tage", "label": "Vakanzzeit im Gesundheitswesen" },
-    { "value": "-40%", "label": "Verkürzung der Time-to-Hire" }
-  ],
-  "cost": {
-    "title": "Die Kosten der Vakanz",
-    "body": "Der deutsche Mittelstand steht bei kritischen Einstellungen vor beispiellosen Verzögerungen. Amud Skills schließt diese Lücke durch rigoroses, verifiziertes Sourcing."
-  },
-  "standards": {
-    "title": "Kompromisslose Standards",
+  "preview": {
+    "eyebrow": "Funktionen des Bereichs",
+    "title": "Ein nachvollziehbarer Recruiting-Ablauf",
     "items": [
-      {
-        "title": "DSGVO-konform",
-        "desc": "Unser gesamter Sourcing-, Verifizierungs- und Datenübermittlungsprozess entspricht strikt den deutschen und europäischen Datenschutzbestimmungen."
-      },
-      {
-        "title": "Verifizierte GER-Deutschniveaus",
-        "desc": "Wir garantieren, dass jeder Kandidat das erforderliche Sprachniveau B1/B2 erreicht, bestätigt durch akkreditierte Testzentren vor der Vermittlung."
-      }
+      { "icon": "post_add", "label": "Stellen verwalten", "body": "Stellen Ihrer Organisation erstellen, bearbeiten, veröffentlichen oder schließen." },
+      { "icon": "folder_shared", "label": "Bewerbungen prüfen", "body": "Übermittelte Profile ansehen und ihren Bewerbungsstatus aktualisieren." },
+      { "icon": "contact_phone", "label": "Kontaktdaten anfordern", "body": "Kontaktdaten nur durch eine ausdrückliche, protokollierte Aktion anzeigen." }
     ]
   },
-  "roi": {
-    "title": "ROI-Rechner",
-    "openPositionsLabel": "Offene Stellen",
-    "openPositionsPlaceholder": "z. B. 3",
-    "industryLabel": "Branche",
-    "industries": [
-      "Gesundheitswesen (Ø 212 Tage)",
-      "Logistik (Ø 145 Tage)",
-      "IT (Ø 160 Tage)"
-    ],
-    "submit": "Einsparungen berechnen",
-    "toast": "Schätzung berechnet — ein Berater meldet sich, um sie zu verfeinern."
+  "workflow": {
+    "title": "Vom Personalbedarf bis zur Bewerbungsverfolgung",
+    "subtitle": "Die hier beschriebenen Funktionen entsprechen den verfügbaren Abläufen in der Anwendung.",
+    "items": [
+      { "icon": "assignment", "title": "Stelle veröffentlichen", "body": "Rolle, gewünschte Kompetenzen und erwartetes Sprachniveau beschreiben und anschließend den Veröffentlichungsstatus verwalten." },
+      { "icon": "rule", "title": "Profile prüfen", "body": "Angegebene Informationen und angehängte Dokumente vergleichen. Ein Anhang wird nicht als offizielle Zertifizierung dargestellt." },
+      { "icon": "fact_check", "title": "Entscheidung verfolgen", "body": "Bewerbungsstatus aktualisieren und einen nutzbaren Verlauf im Recruiter-Bereich behalten." }
+    ]
+  },
+  "safeguards": {
+    "eyebrow": "Zugriff und Daten",
+    "title": "Im Produkt sichtbare Kontrollen",
+    "subtitle": "Wir beschreiben implementierte Mechanismen, ohne eine behördliche Zertifizierung oder einen Einstellungserfolg zu versprechen.",
+    "items": [
+      { "icon": "visibility_off", "title": "Selbst gewählte Sichtbarkeit", "body": "Bewerbende können ihre Zustimmung zur Profilsichtbarkeit erteilen, pausieren oder widerrufen." },
+      { "icon": "lock", "title": "Private Dokumente", "body": "Private Dateien werden autorisierten Nutzern über zeitlich begrenzte Links bereitgestellt." },
+      { "icon": "history", "title": "Protokollierte Aktionen", "body": "Unterstützte Kontaktdaten-Anfragen und sensible Vorgänge werden protokolliert." },
+      { "icon": "admin_panel_settings", "title": "Kontrollierte Rollen", "body": "Recruiter-Funktionen hängen von der Kontorolle und den serverseitig durchgesetzten Berechtigungen ab." }
+    ]
+  },
+  "finalCta": {
+    "title": "Sie haben bereits Recruiter-Zugang?",
+    "body": "Melden Sie sich mit der Ihrem Konto zugeordneten Telefonnummer an, um das Recruiter-Portal zu öffnen.",
+    "cta": "Als Recruiter anmelden",
+    "note": "Die Einrichtung oder Freigabe einer Recruiter-Rolle bleibt Aufgabe der Administration."
   }
 }

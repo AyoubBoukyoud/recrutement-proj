@@ -2,166 +2,31 @@
 
 // Interface 3 — Authentification par téléphone : saisie du numéro, validation, puis /otp?phone=...
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { otpFailureMessage } from '@/lib/authMessages';
 import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/shared/Button';
 import { AuthShell } from '@/components/AuthShell';
-import { USE_MOCKS } from '@/data/config';
-import { authRepository } from '@/data/auth';
-import { MOCK_OTP_CODE } from '@/data/fixtures/auth';
-import { destinationForRole } from '@/lib/roleDestination';
+import { toInternationalPhone } from '@/lib/phoneNumber';
 
-/** Le menu dev ne doit jamais atterrir dans un build de production, mocks ou non. */
-const SHOW_DEV_MENU = process.env.NODE_ENV !== 'production';
+/**
+ * Les raccourcis sont opt-in, même sous `next dev`. Cela permet de lancer une
+ * démonstration avec le serveur de développement sans exposer comptes, codes
+ * locaux ou catalogue de routes. La production ne doit jamais activer ce
+ * drapeau.
+ */
+const DevAuthTools = process.env.NEXT_PUBLIC_SHOW_DEV_TOOLS === '1'
+  ? dynamic(() => import('./DevAuthTools').then((module) => module.DevAuthTools), { ssr: false })
+  : null;
 
 const COUNTRY_CODES = [
   { code: '+212', label: '🇲🇦 +212' },
   { code: '+49', label: '🇩🇪 +49' },
 ];
-
-type DevMenuItem = { path: string; label: string };
-type DevLinkGroup = { key: string; label: string; items: DevMenuItem[] };
-
-/**
- * Pages publiques du mini-site marketing `/amud/marketing/*` (portées depuis
- * 3 maquettes indépendantes des dashboards par rôle). Pages publiques, sans
- * connexion, donc de simples liens.
- */
-const DEV_MARKETING_LINKS: DevMenuItem[] = [
-  { path: '/amud/marketing/home', label: 'Accueil — Le pont professionnel' },
-  { path: '/amud/marketing/employers', label: 'Employeurs — Confiance & conformité' },
-  { path: '/amud/marketing/product', label: 'Produit — Matching en temps réel' },
-];
-
-type DevRealAccount = { phone: string; label: string; path: string };
-
-/**
- * Comptes de démo dont la destination réelle (`/recruiter`, `/agent`) est
- * protégée par `middleware.ts` : un simple `Link`, comme dans
- * `DEV_REAL_APP_LINKS`, y serait aussitôt renvoyé vers `/auth-phone` faute de
- * cookie `as_role`. Ces boutons passent donc par `devSignInReal`, qui rejoue
- * la vérification OTP réelle (même téléphone que `MOCK_ACCOUNTS`) avant de
- * naviguer vers `destinationForRole`.
- *
- * `path` ne sert que de clé React / suivi d'état de chargement — la
- * navigation réelle vient de `destinationForRole(result.role)`. Le compte
- * Admin y atterrit sur `/` depuis le retrait du back-office `/admin`.
- */
-const DEV_REAL_OTP_ACCOUNTS: DevRealAccount[] = [
-  { phone: '+212600000001', label: 'Admin — 06 00 00 00 01', path: '/' },
-  { phone: '+212600000002', label: 'Recruteur — 06 00 00 00 02', path: '/recruiter' },
-  { phone: '+212600000003', label: 'Agent — 06 00 00 00 03', path: '/agent' },
-];
-
-/**
- * Contrairement à `DEV_REAL_OTP_ACCOUNTS` (qui saute l'écran OTP en appelant
- * `verifyOtp` directement), ce lien mène au véritable écran `/otp` — numéro
- * déjà rempli — pour tester ce parcours-là. Compte candidat 101
- * (`incompleteProfileStep: null`), donc `destinationForRole` atterrit sur
- * `/dashboard` une fois le code `000000` saisi.
- */
-const DEV_CANDIDATE_OTP_LINK = { phone: '+212600000004', label: 'Candidat — écran OTP → /dashboard' };
-
-/**
- * Pages réelles de l'app (hors `/amud`, hors ce menu) qui n'ont pas encore de
- * raccourci ci-dessus. Simples liens `Link`, comme `DEV_MARKETING_LINKS` : pas
- * de connexion mock à déclencher, on veut juste pouvoir ouvrir la page. Liste
- * dérivée de `frontend/src/app/**\/page.tsx` — à tenir à jour si une page est
- * ajoutée ailleurs et manuellement rattachée à un groupe ci-dessus.
- * Le groupe « Back-office admin » a disparu avec le retrait de `/admin`
- * (cf. `roleDestination.ts`) : ces routes n'existent plus.
- */
-const DEV_REAL_APP_LINKS: DevLinkGroup[] = [
-  {
-    key: 'public',
-    label: 'Public / avant connexion',
-    items: [
-      { path: '/', label: 'Accueil' },
-      { path: '/employeurs', label: 'Employeurs' },
-      { path: '/language', label: 'Choix de la langue' },
-      { path: '/splash', label: 'Splash screen' },
-      { path: '/otp', label: 'Vérification OTP' },
-      { path: '/profile-creation', label: 'Création de profil (5 étapes)' },
-      { path: '/metiers/infirmier', label: 'Fiche métier (exemple : infirmier)' },
-      { path: '/offline', label: 'Page hors-ligne' },
-    ],
-  },
-  {
-    key: 'candidate-real',
-    label: 'Espace candidat (réel)',
-    items: [
-      { path: '/dashboard', label: 'Tableau de bord' },
-      { path: '/offres', label: "Offres d'emploi" },
-      { path: '/documents', label: 'Documents & extraction CV' },
-      { path: '/profil', label: 'Profil public' },
-      { path: '/reclamation', label: 'Réclamation' },
-      { path: '/faq', label: 'FAQ / Centre d’aide' },
-      { path: '/matching-preferences', label: 'Préférences de matching' },
-      { path: '/quiz-metier', label: 'Quiz métier' },
-      { path: '/salaire', label: 'Simuler mon salaire' },
-      { path: '/parrainage', label: 'Programme de parrainage' },
-      { path: '/verification-identite', label: 'Vérification d’identité' },
-      { path: '/video', label: 'Vidéo de présentation' },
-      { path: '/visibilite', label: 'Score de visibilité' },
-      { path: '/test-langue', label: 'Test de langue IA' },
-      { path: '/lecon-jour', label: 'Leçon du jour' },
-    ],
-  },
-];
-
-/** Groupe repliable de simples liens `Link` — pas de connexion mock, juste ouvrir la page. */
-function DevLinkGroupList({
-  groups,
-  expandedKey,
-  onToggle,
-}: {
-  groups: DevLinkGroup[];
-  expandedKey: string | null;
-  onToggle: (key: string) => void;
-}) {
-  return (
-    <div className="space-y-1.5">
-      {groups.map((group) => {
-        const isOpen = expandedKey === group.key;
-        return (
-          <div key={group.key} className="overflow-hidden rounded-pillar border border-outline-variant bg-surface-container-lowest">
-            <button
-              type="button"
-              onClick={() => onToggle(group.key)}
-              aria-expanded={isOpen}
-              className="flex w-full items-center justify-between px-3.5 py-2.5 text-xs font-bold text-primary transition-colors hover:bg-primary/5"
-            >
-              {group.label}
-              <span
-                className="material-symbols-outlined transition-transform duration-150"
-                style={{ fontSize: 18, transform: isOpen ? 'rotate(180deg)' : undefined }}
-              >
-                expand_more
-              </span>
-            </button>
-            {isOpen && (
-              <div className="max-h-56 divide-y divide-outline-variant/60 overflow-y-auto border-t border-outline-variant">
-                {group.items.map((item) => (
-                  <Link
-                    key={item.path}
-                    href={item.path}
-                    className="flex items-center justify-between px-4 py-2 text-left text-xs text-onSurface-variant transition-colors hover:bg-primary/5 hover:text-primary"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
 
 /**
  * Connexion candidat ou recruteur/staff : même téléphone, même code — le rôle
@@ -173,81 +38,29 @@ type Intent = 'job_seeker' | 'recruiter';
 
 export default function AuthPhonePage() {
   const router = useRouter();
-  const { requestOtp, verifyOtp } = useAuth();
+  const { requestOtp } = useAuth();
   const { t } = useLanguage();
   const [intent, setIntent] = useState<Intent>('job_seeker');
   const [countryCode, setCountryCode] = useState(COUNTRY_CODES[0].code);
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // Chemin en cours de connexion (pas juste le rôle : plusieurs pages
-  // partagent un même rôle, chacune a son propre état de chargement).
-  const [devLoadingPath, setDevLoadingPath] = useState<string | null>(null);
-  // Idem pour les groupes de DEV_REAL_APP_LINKS — état séparé, ce sont deux menus distincts.
-  const [expandedRealGroup, setExpandedRealGroup] = useState<string | null>(null);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
-  // Se connecte avec le vrai téléphone du compte puis suit la même
-  // redirection que l'écran OTP (`destinationForRole`), pour atterrir sur la
-  // vraie page protégée (`/recruiter`, `/agent`) plutôt que sur une maquette `/amud`.
-  // En mock, le code accepté est fixe (`MOCK_OTP_CODE`) ; contre l'API réelle,
-  // on redemande un vrai code au back et on se sert du `debug_otp_code` qu'il
-  // renvoie en local — jamais disponible hors `APP_ENV=local`, donc sans
-  // effet en production.
-  const devSignInReal = async (account: DevRealAccount) => {
-    setError(null);
-    setDevLoadingPath(account.path);
-    try {
-      let demoCode: string;
-
-      if (USE_MOCKS) {
-        demoCode = MOCK_OTP_CODE;
-      } else {
-        const otpResponse = await authRepository.requestOtp(account.phone);
-        if (!otpResponse.debug_otp_code) {
-          setError('Connexion rapide indisponible : le back ne renvoie pas de code de démonstration (APP_ENV != local ?).');
-          return;
-        }
-        demoCode = otpResponse.debug_otp_code;
-      }
-
-      const result = await verifyOtp(demoCode, account.phone);
-      if (!result.ok) {
-        setError(otpFailureMessage(result, t));
-        return;
-      }
-      router.push(destinationForRole(result.role, null));
-    } catch (err) {
-      console.error('devSignInReal a échoué', err);
-      setError(otpFailureMessage({ ok: false, reason: 'unknown' }, t));
-    } finally {
-      setDevLoadingPath(null);
-    }
-  };
-
-  const openCandidateOtp = async () => {
-    setError(null);
-    setDevLoadingPath('/otp');
-    try {
-      const response = await authRepository.requestOtp(DEV_CANDIDATE_OTP_LINK.phone);
-      const query = new URLSearchParams({ phone: DEV_CANDIDATE_OTP_LINK.phone, intent: 'job_seeker' });
-      if (response.debug_otp_code) query.set('debug_code', response.debug_otp_code);
-      router.push(`/otp?${query.toString()}`);
-    } catch {
-      setError('Impossible de préparer le code candidat. Réessayez après le délai indiqué.');
-    } finally {
-      setDevLoadingPath(null);
-    }
-  };
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    if (query.get('intent') === 'recruiter') setIntent('recruiter');
+    setSessionExpired(query.get('reason') === 'session_expired');
+  }, []);
 
   const submit = async () => {
-    const digits = phone.replace(/\D/g, '');
-    if (digits.length < 6) {
+    const fullPhone = toInternationalPhone(phone, countryCode);
+    if (!/^\+[1-9]\d{7,14}$/.test(fullPhone)) {
       setError(t('phone_error_invalid'));
       return;
     }
     setError(null);
     setIsSubmitting(true);
-    const fullPhone = `${countryCode}${digits}`;
     const result = await requestOtp(fullPhone);
     setIsSubmitting(false);
 
@@ -258,7 +71,9 @@ export default function AuthPhonePage() {
       return;
     }
 
-    router.push(`/otp?phone=${encodeURIComponent(fullPhone)}&intent=${intent}`);
+    const query = new URLSearchParams({ phone: fullPhone, intent });
+    if (result.debugCode) query.set('debug_code', result.debugCode);
+    router.push(`/otp?${query.toString()}`);
   };
 
   return (
@@ -287,6 +102,12 @@ export default function AuthPhonePage() {
         }}
         className="flex-1 px-6 pt-6"
       >
+        {sessionExpired && (
+          <div role="status" className="mb-4 flex items-start gap-2 rounded-pillar border border-gold/30 bg-gold/10 p-3 text-xs font-medium text-onSurface">
+            <span className="material-symbols-outlined text-gold-dark" style={{ fontSize: 18 }}>schedule</span>
+            {t('auth_session_expired')}
+          </div>
+        )}
         <div className="fade-in-entry opacity-0 mb-6 flex rounded-pillar border border-outline-variant bg-surface-container-lowest p-1">
           {(
             [
@@ -367,58 +188,7 @@ export default function AuthPhonePage() {
         </div>
       </form>
 
-      {SHOW_DEV_MENU && (
-        <div className="fade-in-entry opacity-0 mx-6 mb-4 rounded-pillar border border-dashed border-outline-variant bg-surface-container-low p-3">
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-onSurface-variant">
-            Espace réel (via OTP)
-          </p>
-          <div className="space-y-1.5">
-            {DEV_REAL_OTP_ACCOUNTS.map((account) => (
-              <Button
-                key={account.path}
-                variant="outline"
-                size="sm"
-                fullWidth
-                className="justify-start"
-                onClick={() => devSignInReal(account)}
-                disabled={devLoadingPath !== null}
-                isLoading={devLoadingPath === account.path}
-              >
-                {account.label}
-              </Button>
-            ))}
-          </div>
-
-          <p className="mb-2 mt-4 text-[10px] font-bold uppercase tracking-wider text-onSurface-variant">
-            Parcours OTP réel (candidat)
-          </p>
-          <Button variant="outline" size="sm" fullWidth className="justify-start" onClick={openCandidateOtp} isLoading={devLoadingPath === '/otp'}>{DEV_CANDIDATE_OTP_LINK.label}</Button>
-
-          <p className="mb-2 mt-4 text-[10px] font-bold uppercase tracking-wider text-onSurface-variant">
-            Site public (sans connexion)
-          </p>
-          <div className="space-y-1.5">
-            {DEV_MARKETING_LINKS.map((item) => (
-              <Link
-                key={item.path}
-                href={item.path}
-                className="flex h-10 w-full items-center justify-start gap-2 rounded-pillar border border-outline bg-transparent px-4 text-xs font-bold text-primary transition-colors hover:bg-primary/5"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
-
-          <p className="mb-2 mt-4 text-[10px] font-bold uppercase tracking-wider text-onSurface-variant">
-            Pages réelles de l&apos;app (pas encore dans ce menu)
-          </p>
-          <DevLinkGroupList
-            groups={DEV_REAL_APP_LINKS}
-            expandedKey={expandedRealGroup}
-            onToggle={(key) => setExpandedRealGroup((prev) => (prev === key ? null : key))}
-          />
-        </div>
-      )}
+      {DevAuthTools && <DevAuthTools />}
 
       <footer className="fade-in-entry stagger-3 opacity-0 space-y-3 border-t border-outline-variant bg-surface-container-lowest p-6">
         <Button
@@ -432,12 +202,6 @@ export default function AuthPhonePage() {
           className="shadow-sm"
         >
           {isSubmitting ? t('phone_sending') : t('phone_submit_cta')}
-        </Button>
-        <Button variant="outline" fullWidth onClick={submit} disabled={isSubmitting}>
-          <span className="material-symbols-outlined text-primary" style={{ fontSize: 18 }}>
-            chat
-          </span>
-          {t('phone_whatsapp_cta')}
         </Button>
       </footer>
     </main>

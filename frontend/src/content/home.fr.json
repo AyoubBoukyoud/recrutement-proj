@@ -17,7 +17,7 @@
     "subheadline": "Votre CV, vos diplômes et votre niveau d'allemand réunis dans un dossier que les entreprises allemandes savent lire — et qu'elles consultent directement.",
     "cta": "Créer mon dossier",
     "secondaryCta": "Voir ce que mon métier demande",
-    "microcopy": "Gratuit · Aucun mot de passe · Vous choisissez qui voit votre dossier",
+    "microcopy": "Gratuit · Aucun mot de passe · Vous contrôlez si votre dossier est visible",
     "card": {
       "title": "Dossier candidat",
       "name": "Votre métier",
@@ -55,8 +55,8 @@
   "trust": {
     "items": [
       { "icon": "toll", "label": "Inscription gratuite" },
-      { "icon": "shield_lock", "label": "Vos données protégées — déclaration CNDP" },
-      { "icon": "visibility", "label": "Vous choisissez qui voit votre dossier" }
+      { "icon": "shield_lock", "label": "Visibilité contrôlée par votre consentement" },
+      { "icon": "visibility", "label": "Vous pouvez suspendre la visibilité" }
     ]
   },
   "trades": {
@@ -77,7 +77,7 @@
       {
         "icon": "smartphone",
         "title": "Créez votre compte",
-        "body": "Un numéro de téléphone, un code reçu par WhatsApp. Pas de mot de passe à retenir."
+        "body": "Un numéro de téléphone et un code de connexion à six chiffres. Pas de mot de passe à retenir."
       },
       {
         "icon": "document_scanner",
@@ -86,7 +86,7 @@
       },
       {
         "icon": "graphic_eq",
-        "title": "Prouvez votre niveau de langue",
+        "title": "Estimez votre niveau oral",
         "body": "Un enregistrement d'une minute. Votre niveau CEFR est estimé, et expliqué."
       },
       {
@@ -97,8 +97,8 @@
     ]
   },
   "credible": {
-    "title": "Un dossier qu'un employeur allemand peut vérifier",
-    "subtitle": "Un CV se lit. Un dossier se vérifie. C'est la différence entre une candidature ignorée et un entretien.",
+    "title": "Un dossier structuré qu’un employeur peut examiner",
+    "subtitle": "Les informations déclarées, les pièces jointes et les indicateurs automatiques restent distingués dans le dossier.",
     "items": [
       {
         "icon": "folder_supervised",
@@ -112,8 +112,8 @@
       },
       {
         "icon": "workspace_premium",
-        "title": "Un certificat prime sur une estimation",
-        "body": "Si vous fournissez un certificat de langue, c'est lui qui fait foi. La machine ne peut pas vous rétrograder."
+        "title": "Un certificat joint reste distinct de l’estimation",
+        "body": "Si vous joignez un certificat de langue, sa présence est indiquée séparément. La pièce jointe n’est pas présentée comme authentifiée par son émetteur."
       },
       {
         "icon": "event_available",
@@ -128,8 +128,8 @@
     "items": [
       {
         "icon": "gavel",
-        "title": "Traitement des données déclaré",
-        "body": "Vos données personnelles sont traitées dans le cadre de la CNDP, et votre consentement est demandé explicitement."
+        "title": "Consentement explicite",
+        "body": "Votre consentement est demandé avant de rendre votre profil visible, et vous pouvez le suspendre ou le retirer."
       },
       {
         "icon": "history_toggle_off",
@@ -160,16 +160,16 @@
       },
       {
         "icon": "conversion_path",
-        "title": "Votre pipeline, jusqu'au placement",
+        "title": "Votre suivi de candidature",
         "body": "Sauvegardé, contacté, entretien, placé, refusé — avec vos notes privées et un export CSV."
       }
     ],
     "cta": "Accéder à l'espace recruteur",
-    "secondaryCta": "Demander une démonstration"
+    "secondaryCta": "Comprendre l’accès recruteur"
   },
   "faq": {
     "title": "Les questions que tout le monde se pose",
-    "subtitle": "Réponses courtes et honnêtes. S'il y a un doute, écrivez-nous.",
+    "subtitle": "Réponses courtes sur les fonctions disponibles dans la plateforme.",
     "items": [
       {
         "question": "Est-ce que l'inscription est payante ?",
@@ -193,13 +193,13 @@
       },
       {
         "question": "Combien de temps prend la constitution du dossier ?",
-        "answer": "Quelques minutes pour l'essentiel si vous avez votre CV sous la main : il est lu automatiquement et remplit la majorité des champs. Les documents et l'évaluation orale peuvent être ajoutés plus tard."
+        "answer": "Vous pouvez commencer avec votre CV : il est lu automatiquement et les données extraites restent à confirmer ou corriger. Les documents et l’évaluation orale peuvent être ajoutés plus tard."
       }
     ]
   },
   "finalCta": {
     "title": "Votre métier vous attend ailleurs.",
-    "subtitle": "Créez votre dossier en quelques minutes. C'est gratuit, et vous décidez qui le voit.",
+    "subtitle": "Créez votre dossier à votre rythme. C’est gratuit, et vous contrôlez s’il est visible par les recruteurs.",
     "cta": "Créer mon dossier",
     "microcopy": "Aucun mot de passe · Vous pouvez tout retirer à tout moment"
   },
@@ -217,22 +217,13 @@
       {
         "title": "Recruteurs",
         "links": [
-          { "label": "Espace recruteur", "href": "/auth-phone" },
+          { "label": "Espace recruteur", "href": "/auth-phone?intent=recruiter" },
           { "label": "Rechercher des profils", "href": "/employeurs" },
-          { "label": "Demander une démonstration", "href": "/employeurs#roi" }
-        ]
-      },
-      {
-        "title": "Légal",
-        "links": [
-          { "label": "Conditions d'utilisation", "href": "#" },
-          { "label": "Politique de confidentialité", "href": "#" },
-          { "label": "Traitement des données — CNDP", "href": "#" },
-          { "label": "Cookies", "href": "#" }
+          { "label": "Comprendre le parcours", "href": "/employeurs#workflow" }
         ]
       }
     ],
-    "legalNote": "Les liens légaux restent à brancher sur les pages définitives avant mise en ligne.",
+    "legalNote": "Visibilité du profil contrôlée par le candidat.",
     "rights": "Tous droits réservés."
   },
   "tradePage": {
@@ -242,9 +233,9 @@
     "salaryLabel": "Salaire indicatif",
     "requirementsTitle": "Ce que demandent les employeurs",
     "dossierTitle": "À réunir dans votre dossier",
-    "disclaimer": "Ces exigences sont indicatives : elles varient selon le Land et l'employeur. Votre dossier reste recevable même si un élément vous manque encore.",
+    "disclaimer": "Ces repères sont indicatifs : ils varient selon le Land, l’employeur et les procédures applicables. Confirmez les exigences auprès des organismes compétents.",
     "ctaTitle": "Commencez votre dossier pour ce métier",
-    "ctaBody": "Ajoutez votre CV : il est lu automatiquement et remplit la majorité des champs.",
+    "ctaBody": "Ajoutez votre CV : les données détectées sont proposées pour que vous les confirmiez ou les corrigiez.",
     "othersTitle": "Autres métiers"
   },
   "product": {
@@ -295,12 +286,12 @@
       }
     },
     "methodology": {
-      "title": "Un pipeline de précision vérifié par IA",
-      "subtitle": "Notre méthodologie propriétaire « Bridge » garantit que chaque candidat répond aux standards allemands stricts avant présentation.",
+      "title": "Une préparation de dossier structurée",
+      "subtitle": "Les données extraites automatiquement restent à confirmer par le candidat, et l’évaluation orale reste une estimation.",
       "steps": [
         { "title": "Sourcing et présélection", "desc": "Approche ciblée au sein du vivier de talents marocain." },
-        { "title": "Vérification par IA", "desc": "Évaluation automatisée des compétences et du niveau de langue." },
-        { "title": "Alignement culturel", "desc": "Formation à l'intégration en entreprise allemande." }
+        { "title": "Lecture automatique", "desc": "Extraction de données du CV avec confirmation ou correction par le candidat." },
+        { "title": "Visibilité consentie", "desc": "Le profil devient consultable uniquement lorsque le candidat active son consentement." }
       ]
     }
   },

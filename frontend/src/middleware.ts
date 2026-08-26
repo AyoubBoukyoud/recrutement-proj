@@ -44,11 +44,21 @@ const LEGACY_REDIRECTS: Record<string, string> = {
 };
 
 /**
+ * Les maquettes marketing restent disponibles pour les revues de design,
+ * mais uniquement quand quelqu'un les active volontairement. Un serveur
+ * `next dev` utilisé devant un client doit suivre le même parcours public que
+ * la production par défaut.
+ */
+const SHOW_PROTOTYPES = process.env.NEXT_PUBLIC_ENABLE_PROTOTYPES === '1';
+
+/**
  * Les portails `/amud` sont des prototypes localStorage. Ils restent dans le
  * dépôt comme références de design, mais une URL de production ne doit pas
  * donner l'impression que leurs données sont réelles.
  */
 function realDestinationForAmud(pathname: string): string | null {
+  if (!SHOW_PROTOTYPES && pathname.startsWith('/amud/marketing/employers')) return '/employeurs';
+  if (!SHOW_PROTOTYPES && pathname.startsWith('/amud/marketing')) return '/accueil-public';
   if (pathname === '/amud' || pathname.startsWith('/amud/centre')) return '/accueil-public';
   // Le back-office `/admin` a été retiré : il n'y a plus de console réelle
   // vers laquelle renvoyer, et `/admin/apercu` renverrait un 404. On suit donc
@@ -81,6 +91,8 @@ function redirectTo(request: NextRequest, targetPathname: string) {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const role = request.cookies.get('as_role')?.value;
+
+  if (pathname === '/') return redirectTo(request, '/accueil-public');
 
   const amudDestination = realDestinationForAmud(pathname);
   if (amudDestination) return redirectTo(request, amudDestination);
@@ -136,6 +148,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/',
     '/simulateur-salaire/:path*',
     '/cours-allemand/:path*',
     '/dashboard/:path*',

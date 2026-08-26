@@ -1,11 +1,8 @@
 // Taxonomie des métiers : ce que la recherche de la page d'accueil interroge.
 //
-// Il n'existe pas d'offres d'emploi dans ce produit — les recruteurs cherchent
-// des candidats, pas l'inverse (voir docs/plan-home-recruitment.md §0). Une
-// barre « recherche d'emploi » n'aurait donc rien à interroger. Elle porte ici
-// l'intention « je commence maintenant » et mène à une fiche métier, qui elle
-// dit quelque chose de vrai : le niveau d'allemand attendu et ce que le dossier
-// doit contenir.
+// Cette taxonomie alimente les fiches métiers publiques. Elle reste distincte
+// des offres réellement publiées dans l'espace candidat : les repères de
+// langue et de reconnaissance sont indicatifs et accompagnés d'un avertissement.
 //
 // Les `slug` sont identiques dans les quatre langues : une fiche partagée reste
 // valide quand le visiteur change de langue.

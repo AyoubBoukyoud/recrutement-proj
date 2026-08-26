@@ -1,44 +1,45 @@
 {
   "hero": {
-    "title": "Recrutez au Maroc avec les standards de confiance allemands.",
-    "body": "Réduisez vos délais de vacance de poste grâce à des professionnels marocains vérifiés, hautement qualifiés, formés aux standards CECR allemands stricts et entièrement conformes au RGPD.",
-    "ctaRoi": "Calculer le ROI",
-    "ctaStandards": "Voir nos standards",
-    "imageAlt": "Professionnelle de santé marocaine dans un établissement médical allemand moderne."
+    "eyebrow": "Espace recruteur",
+    "title": "Des candidatures structurées, consultées avec le consentement du candidat.",
+    "body": "Amud Skills réunit les informations métier, les pièces jointes et les éléments linguistiques renseignés par le candidat. Les recruteurs autorisés peuvent publier leurs offres et suivre les candidatures depuis un espace dédié.",
+    "primaryCta": "Accéder à l’espace recruteur",
+    "secondaryCta": "Voir le fonctionnement",
+    "note": "L’accès recruteur nécessite un compte dont le rôle a été approuvé par un administrateur."
   },
-  "stats": [
-    { "value": "136 jours", "label": "Délai de vacance moyen (national)" },
-    { "value": "212 jours", "label": "Délai de vacance (santé)" },
-    { "value": "-40%", "label": "Réduction du délai d'embauche" }
-  ],
-  "cost": {
-    "title": "Le coût de la vacance de poste",
-    "body": "Le Mittelstand allemand fait face à des délais sans précédent pour ses recrutements critiques. Amud Skills comble cet écart grâce à un sourcing rigoureux et vérifié."
-  },
-  "standards": {
-    "title": "Des standards sans compromis",
+  "preview": {
+    "eyebrow": "Ce que l’espace permet",
+    "title": "Un parcours de recrutement traçable",
     "items": [
-      {
-        "title": "Conforme RGPD / DSGVO",
-        "desc": "L'ensemble de notre processus de sourcing, de vérification et de transmission de données respecte strictement les réglementations allemandes et européennes en matière de protection des données."
-      },
-      {
-        "title": "Niveaux d'allemand CECR vérifiés",
-        "desc": "Nous garantissons que tous les candidats atteignent le niveau d'allemand B1/B2 requis, authentifié par des centres de test accrédités avant le placement."
-      }
+      { "icon": "post_add", "label": "Gérer les offres", "body": "Créer, modifier, publier ou clôturer les offres de votre organisation." },
+      { "icon": "folder_shared", "label": "Étudier les candidatures", "body": "Consulter les dossiers transmis et faire évoluer leur statut." },
+      { "icon": "contact_phone", "label": "Demander un contact", "body": "Accéder aux coordonnées uniquement après une action explicite et journalisée." }
     ]
   },
-  "roi": {
-    "title": "Calculateur de ROI",
-    "openPositionsLabel": "Postes à pourvoir",
-    "openPositionsPlaceholder": "ex. 3",
-    "industryLabel": "Secteur d'activité",
-    "industries": [
-      "Santé (moy. 212 jours)",
-      "Logistique (moy. 145 jours)",
-      "IT (moy. 160 jours)"
-    ],
-    "submit": "Calculer les économies",
-    "toast": "Estimation calculée — un conseiller vous recontacte pour l'affiner."
+  "workflow": {
+    "title": "Du besoin au suivi de candidature",
+    "subtitle": "Les fonctions présentées ici correspondent aux parcours disponibles dans l’application.",
+    "items": [
+      { "icon": "assignment", "title": "Publier une offre", "body": "Décrivez le poste, les compétences recherchées et le niveau de langue attendu, puis gérez son état de publication." },
+      { "icon": "rule", "title": "Examiner les dossiers reçus", "body": "Comparez les informations déclarées et les documents joints. Une pièce jointe n’est pas présentée comme une certification officielle." },
+      { "icon": "fact_check", "title": "Suivre la décision", "body": "Mettez à jour le statut de la candidature et conservez un historique exploitable dans l’espace recruteur." }
+    ]
+  },
+  "safeguards": {
+    "eyebrow": "Accès et données",
+    "title": "Des contrôles visibles dans le produit",
+    "subtitle": "Nous décrivons les mécanismes implémentés, sans promettre une certification réglementaire ou un résultat de recrutement.",
+    "items": [
+      { "icon": "visibility_off", "title": "Visibilité choisie", "body": "Le candidat peut activer, suspendre ou retirer son consentement à la visibilité de son profil." },
+      { "icon": "lock", "title": "Documents privés", "body": "Les fichiers privés sont servis par des liens temporaires aux utilisateurs autorisés." },
+      { "icon": "history", "title": "Actions journalisées", "body": "Les demandes d’accès aux coordonnées et les opérations sensibles prises en charge sont consignées." },
+      { "icon": "admin_panel_settings", "title": "Rôles contrôlés", "body": "L’accès aux fonctions recruteur dépend du rôle du compte et des autorisations appliquées côté serveur." }
+    ]
+  },
+  "finalCta": {
+    "title": "Vous avez déjà un accès recruteur ?",
+    "body": "Identifiez-vous avec le numéro associé à votre compte pour ouvrir le portail recruteur.",
+    "cta": "Se connecter comme recruteur",
+    "note": "La création ou l’approbation d’un rôle recruteur reste gérée par l’administration."
   }
 }

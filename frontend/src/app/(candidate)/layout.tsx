@@ -86,15 +86,16 @@ export default function CandidateLayout({ children }: { children: React.ReactNod
                 href={href}
                 aria-label={label}
                 title={label}
-                className={`flex items-center justify-center px-3 py-1.5 transition-all duration-200 active:scale-95 ${
+                className={`flex min-w-0 flex-1 flex-col items-center justify-center px-1 py-1 transition-all duration-200 active:scale-95 ${
                   isActive ? 'font-extrabold text-primary' : 'text-onSurface-variant opacity-70 hover:opacity-100'
                 }`}
               >
-                <div className={`flex items-center justify-center rounded-full px-3.5 py-2 transition-colors ${isActive ? 'bg-surface-container-low text-primary' : ''}`}>
+                <div className={`flex items-center justify-center rounded-full px-3 py-1.5 transition-colors ${isActive ? 'bg-surface-container-low text-primary' : ''}`}>
                   <span className={`material-symbols-outlined ${isActive ? 'fill text-primary' : 'text-onSurface-variant'}`} style={{ fontSize: 24 }}>
                     {icon}
                   </span>
                 </div>
+                <span className="mt-0.5 max-w-full truncate text-[10px] leading-tight">{label}</span>
               </Link>
             );
           })}

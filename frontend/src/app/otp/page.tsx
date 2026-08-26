@@ -20,7 +20,7 @@ function OtpContent() {
   const searchParams = useSearchParams();
   const phone = searchParams.get('phone') ?? '';
   const intent = searchParams.get('intent') === 'recruiter' ? 'recruiter' : 'job_seeker';
-  const debugCode = searchParams.get('debug_code');
+  const initialDebugCode = searchParams.get('debug_code');
   const { verifyOtp, requestOtp, resendAvailableIn } = useAuth();
   const { getIncompleteStep } = useProfile();
   const { t } = useLanguage();
@@ -30,6 +30,7 @@ function OtpContent() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(resendAvailableIn ?? RESEND_SECONDS);
+  const [debugCode, setDebugCode] = useState<string | null>(initialDebugCode);
   const [shake, setShake] = useState(false);
   // Rempli uniquement quand quelqu'un a choisi « Je recrute » mais que le
   // compte, une fois vérifié, s'avère être un simple candidat : la connexion
@@ -108,7 +109,8 @@ function OtpContent() {
       return;
     }
 
-    setSecondsLeft(RESEND_SECONDS);
+    setSecondsLeft(result.resendAvailableIn);
+    setDebugCode(result.debugCode);
     setDigits(Array(6).fill(''));
     inputsRef.current[0]?.focus();
   };

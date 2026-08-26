@@ -25,7 +25,7 @@ export function TradeDetail({ slug }: { slug: string }) {
 
   return (
     <div className="mx-auto w-full max-w-[820px] px-6 lg:px-12">
-      <Link href="/#metiers" className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">
+      <Link href="/accueil-public#sectors" className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">
         <span className="material-symbols-outlined" style={{ fontSize: 16 }} aria-hidden="true">
           arrow_back
         </span>

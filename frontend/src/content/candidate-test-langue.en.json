@@ -4,7 +4,7 @@
   },
   "preparation": {
     "heading": "Ready for your assessment?",
-    "intro": "Artificial intelligence will analyze your fluency, pronunciation, and vocabulary.",
+    "intro": "The tool transcribes your recording and produces an indicative estimate of fluency and clarity.",
     "topicLabel": "Test topic",
     "topic": "Describe your job and your daily tasks in detail.",
     "hint": "Instructions: Speak for at least {seconds} seconds about your job and daily responsibilities.",
@@ -15,15 +15,15 @@
   },
   "processing": {
     "uploading": "Uploading your recording…",
-    "analyzing": "Analyzing your pronunciation…",
-    "description": "The AI transcribes and compares your phonemes against German standards. This can take about fifteen seconds."
+    "analyzing": "Estimating your spoken expression…",
+    "description": "The tool transcribes the recording and calculates automatic indicators. The result is not a language certificate."
   },
   "failed": {
     "heading": "Assessment unsuccessful",
     "retryButton": "Try again"
   },
   "results": {
-    "aiEvaluated": "AI-evaluated",
+    "aiEvaluated": "Automated estimate",
     "levelLabel": "Level {level}",
     "heading": "Assessment result",
     "wordsPerMinute": "{value} words/minute",

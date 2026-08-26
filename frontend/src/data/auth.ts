@@ -12,6 +12,7 @@ import { MOCK_OTP_CODE, findMockAccount } from './fixtures/auth';
 
 export interface OtpRequestResponse {
   channel?: string;
+  expires_in?: number;
   resend_available_in?: number;
   debug_otp_code?: string | null;
 }
@@ -61,6 +62,7 @@ const mockAuth: AuthRepository = {
     }
     return fakeLatency<OtpRequestResponse>({
       channel: 'whatsapp',
+      expires_in: 600,
       resend_available_in: 30,
       // Le back n'expose ce champ qu'en développement ; la maquette fait pareil,
       // c'est ce qui permet de se connecter sans lire de SMS.

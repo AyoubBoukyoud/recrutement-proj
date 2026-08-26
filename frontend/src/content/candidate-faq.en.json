@@ -27,7 +27,7 @@
         },
         {
           "question": "How long does document verification take?",
-          "answer": "Our team usually verifies your documents within 48 to 72 business hours."
+          "answer": "Each document’s status appears in your file after review. The application does not guarantee a processing time."
         }
       ]
     },
@@ -48,8 +48,8 @@
       "title": "After recruitment",
       "items": [
         {
-          "question": "Who helps me with the visa and departure?",
-          "answer": "An Amud Skills advisor contacts you as soon as an employer confirms your recruitment, to support you through the administrative steps and your departure."
+          "question": "Does the application handle visas and departure?",
+          "answer": "No. Amud Skills does not provide a visa or relocation workflow in the application. Check the required steps with the competent authorities and your employer."
         }
       ]
     }

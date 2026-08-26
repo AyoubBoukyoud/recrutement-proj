@@ -27,7 +27,7 @@
         },
         {
           "question": "Combien de temps prend la vérification de mes documents ?",
-          "answer": "Nos équipes vérifient généralement vos documents sous 48 à 72 heures ouvrées."
+          "answer": "Le statut de chaque document est affiché dans votre dossier après son examen. Aucun délai de traitement n’est garanti dans l’application."
         }
       ]
     },
@@ -48,8 +48,8 @@
       "title": "Après le recrutement",
       "items": [
         {
-          "question": "Qui m’accompagne pour le visa et le départ ?",
-          "answer": "Un conseiller Amud Skills vous contacte dès qu’un employeur confirme votre recrutement pour vous accompagner dans les démarches administratives et le départ."
+          "question": "L’application prend-elle en charge le visa et le départ ?",
+          "answer": "Non. Amud Skills ne propose pas de parcours de visa ou de relocalisation dans l’application. Vérifiez les démarches auprès des autorités compétentes et de votre employeur."
         }
       ]
     }

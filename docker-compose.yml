@@ -110,7 +110,9 @@ services:
       retries: 10
 
   evolution-go:
-    image: evoapicloud/evolution-go:latest
+    # Pin the gateway: `latest` changed its activation/runtime contract and
+    # silently broke a previously paired OTP stack after an image refresh.
+    image: evoapicloud/evolution-go:0.7.2
     container_name: recruitment_evolution_go
     restart: unless-stopped
     environment:

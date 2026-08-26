@@ -1,6 +1,6 @@
 'use client';
 
-// Simuler mon salaire — estimation du salaire net et des coûts de migration.
+// Simulateur indicatif : hypothèses fixes clairement signalées dans l'UI.
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';

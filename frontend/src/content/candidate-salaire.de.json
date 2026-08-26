@@ -4,7 +4,7 @@
   },
   "intro": {
     "title": "Mein Gehalt simulieren",
-    "body": "Schätzen Sie Ihren künftigen Lebensstandard in Deutschland ein und bereiten Sie Ihren beruflichen Wechsel vor."
+    "body": "Erkunden Sie ein unverbindliches Szenario auf Basis fester Annahmen. Das Ergebnis ist weder ein Gehaltsangebot noch eine amtliche Steuerberechnung."
   },
   "form": {
     "professionLabel": "Beruf",
@@ -22,11 +22,11 @@
     "Nordrhein-Westfalen"
   ],
   "migrationCosts": [
-    "Arbeitsvisum (Konsulat)",
-    "Flugticket (Casablanca → Deutschland)",
-    "Reiseversicherung (90 Tage)",
-    "Erste Miete + Kaution (Schätzung)",
-    "Beglaubigte Übersetzung der Dokumente"
+    "Verwaltungsformalitäten (Annahme)",
+    "Erste Anreise (Annahme)",
+    "Vorübergehende Versicherung (Annahme)",
+    "Wohnungseinrichtung (Annahme)",
+    "Dokumentenübersetzung (Annahme)"
   ],
   "results": {
     "grossTitle": "Geschätztes monatliches Bruttogehalt",
@@ -36,23 +36,23 @@
     "netLabel": "Geschätztes Nettogehalt",
     "resteAVivreLabel": "Verfügbares Einkommen",
     "resteAVivreNote": "Nach Miete und Nebenkosten",
-    "migrationTitle": "Migration: geschätzte Kosten",
-    "migrationBadge": "Schätzung 2026",
+    "migrationTitle": "Beispiel für ein Startbudget",
+    "migrationBadge": "Feste Annahmen",
     "tableExpenseHeader": "Ausgabenposten",
     "tableAmountHeader": "Betrag",
     "totalLabel": "Geschätzte Gesamtkosten",
-    "aidLabel": "Mögliche Unterstützung:",
-    "aidProgram": "THAMM-Programm",
-    "aidBody": "Sie könnten im Rahmen der bilateralen Abkommen zwischen Marokko und Deutschland eine teilweise Erstattung dieser Kosten erhalten."
+    "aidLabel": "Zu prüfen bei:",
+    "aidProgram": "offiziellen Stellen",
+    "aidBody": "Diese Beträge sind nur ein Rechenbeispiel. Prüfen Sie Kosten, Pflichten und mögliche Hilfen bei den zuständigen Stellen."
   },
   "sidebar": {
     "optimizeTitle": "Optimieren Sie Ihr Profil",
-    "optimizeBody": "Die Gehälter können je nach zertifiziertem Deutschniveau (B1/B2) um bis zu 20 % variieren.",
+    "optimizeBody": "Erfahrung, Region, Vertrag und Anerkennung Ihrer Qualifikationen können das tatsächliche Gehalt erheblich verändern.",
     "languageCoursesLink": "Sprachkurse ansehen",
-    "supportTitle": "Brauchen Sie Unterstützung?",
-    "supportBody": "Unsere Berater helfen Ihnen bei der Vorbereitung Ihres Visumantrags und bei der Suche nach Ihrer ersten Wohnung.",
-    "tags": ["Wohnungssuche", "Visa-Unterstützung", "Bankkontoeröffnung"],
-    "contactLink": "Berater kontaktieren"
+    "supportTitle": "Eine Frage zur Anwendung?",
+    "supportBody": "Der Support bearbeitet Fragen und Beschwerden zu Amud Skills. Er ersetzt keine Verwaltungs- oder Konsularbehörden.",
+    "tags": ["Unverbindliche Schätzung", "Kein garantiertes Angebot", "Offizielle Quellen prüfen"],
+    "contactLink": "Support öffnen"
   },
   "downloadPdf": "Schätzung herunterladen (PDF)"
 }

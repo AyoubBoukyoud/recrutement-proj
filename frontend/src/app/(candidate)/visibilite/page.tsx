@@ -29,12 +29,15 @@ export default function VisibilitePage() {
   const queryClient = useQueryClient();
   const visibility = useQuery({ queryKey: ['candidate-visibility'], queryFn: () => marketplaceApi.visibility(token as string), enabled: Boolean(token) });
   const changeVisibility = useMutation({
-    mutationFn: (action: 'pause' | 'resume' | 'withdraw') => action === 'pause' ? marketplaceApi.pause(token as string) : action === 'resume' ? marketplaceApi.resume(token as string) : marketplaceApi.withdraw(token as string),
+    mutationFn: (action: 'pause' | 'resume' | 'withdraw' | 'grant') => action === 'pause' ? marketplaceApi.pause(token as string) : action === 'resume' ? marketplaceApi.resume(token as string) : action === 'grant' ? marketplaceApi.grantConsent(token as string) : marketplaceApi.withdraw(token as string),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['candidate-visibility'] }); queryClient.invalidateQueries({ queryKey: ['candidate-profile'] }); },
   });
 
   const percent = profile?.completeness.percent ?? 0;
-  const visible = Boolean(profile?.terms_consent_at && profile?.cndp_consent_at);
+  // Source de vérité unique : le back tient aussi compte d'une pause et d'un
+  // retrait CNDP. Les seuls timestamps du profil faisaient paraître visible
+  // un dossier que la recherche recruteur excluait déjà correctement.
+  const visible = visibility.data?.visible ?? false;
   const videoDone = Boolean(profile?.presentation_video_path);
   const languageDone = profile?.completeness.sections.find((s) => s.key === 'languages')?.complete ?? false;
 
@@ -75,7 +78,7 @@ export default function VisibilitePage() {
             <h2 className="font-bold text-onSurface">Contrôle de la visibilité</h2>
             <p className="mt-1 text-sm text-onSurface-variant">{visibility.data.visible ? 'Votre dossier est visible par les recruteurs.' : visibility.data.withdrawn ? 'Votre consentement CNDP a été retiré.' : 'Votre visibilité est actuellement en pause.'}</p>
             <div className="mt-4 flex flex-wrap gap-3">
-              {visibility.data.visible ? <button onClick={() => changeVisibility.mutate('pause')} className="rounded-full border border-primary px-4 py-2 text-sm font-bold text-primary">Mettre en pause</button> : !visibility.data.withdrawn && <button onClick={() => changeVisibility.mutate('resume')} className="rounded-full bg-primary px-4 py-2 text-sm font-bold text-onPrimary">Réactiver</button>}
+              {visibility.data.visible ? <button onClick={() => changeVisibility.mutate('pause')} className="rounded-full border border-primary px-4 py-2 text-sm font-bold text-primary">Mettre en pause</button> : visibility.data.withdrawn ? <button onClick={() => changeVisibility.mutate('grant')} className="rounded-full bg-primary px-4 py-2 text-sm font-bold text-onPrimary">Redonner mon consentement CNDP</button> : <button onClick={() => changeVisibility.mutate('resume')} className="rounded-full bg-primary px-4 py-2 text-sm font-bold text-onPrimary">Réactiver</button>}
               {!visibility.data.withdrawn && <button onClick={() => window.confirm('Retirer votre consentement CNDP masque immédiatement votre dossier aux recruteurs. Continuer ?') && changeVisibility.mutate('withdraw')} className="rounded-full px-4 py-2 text-sm font-bold text-error">Retirer mon consentement</button>}
             </div>
             {changeVisibility.isError && <p role="alert" className="mt-3 text-sm text-error">La modification a échoué.</p>}

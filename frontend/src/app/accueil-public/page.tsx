@@ -1,28 +1,25 @@
 import type { Metadata } from 'next';
 import { SiteHeader } from '@/components/home/SiteHeader';
 import { SiteFooter } from '@/components/home/SiteFooter';
-import { ProductHome } from '@/components/home/ProductHome';
+import { PublicHome } from '@/components/home/PublicHome';
 
 export const metadata: Metadata = {
-  title: 'Matching en temps réel — Amud Skills',
+  title: 'Dossier candidat et recrutement — Amud Skills',
   description:
-    "Une expérience de mise en relation fluide entre professionnels marocains et opportunités allemandes. Mobile d'abord, gratuit pour les candidats.",
+    "Créez un dossier professionnel structuré et choisissez s’il peut être consulté par des recruteurs autorisés.",
 };
 
 /**
- * Page d'accueil publique réelle de l'app (contenu identique à l'ancienne
- * route `/`, déplacé ici quand `/amud` est devenu la page d'accueil — cf.
- * `app/page.tsx` qui redirige désormais vers `/amud`). `SiteHeader` /
- * `SiteFooter` restent les composants réels — partagés avec
- * `/metiers/[slug]`. Le corps traduit vit dans `ProductHome` (même raison
- * que `TradeDetail` : la langue n'est connue que du navigateur).
+ * Page d'accueil publique canonique. `SiteHeader` / `SiteFooter` sont
+ * partagés avec `/metiers/[slug]`; le corps traduit vit dans `PublicHome`
+ * car la langue est connue côté navigateur.
  */
 export default function AccueilPublicPage() {
   return (
     <div className="home-font-pairing">
       <SiteHeader />
 
-      <ProductHome />
+      <PublicHome />
 
       <SiteFooter />
     </div>

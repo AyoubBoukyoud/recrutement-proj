@@ -1,120 +1,85 @@
 'use client';
 
+import Link from 'next/link';
 import { useEmployeursContent } from '@/lib/useLocalizedContent';
 import { Reveal, RevealNoScriptFallback } from '@/components/home/Reveal';
-import { RoiCalculatorForm } from './RoiCalculatorForm';
 
-const STAT_ICONS = ['timer', 'medical_services', 'trending_down'];
-const STAT_ICON_CLASSES = ['text-amud-error', 'text-amud-primary-fixed', 'text-amud-secondary'];
-const STANDARD_ICONS = ['gpp_good', 'school'];
+function Icon({ name }: { name: string }) {
+  return <span className="material-symbols-outlined text-2xl" aria-hidden="true">{name}</span>;
+}
 
-/** Corps traduit de `/employeurs` — voir `ProductHome`/`TradeDetail` pour la même raison : la langue n'est connue que du navigateur. */
+/** Public employer overview. Every action leads to an implemented route. */
 export function EmployeursBody() {
   const content = useEmployeursContent();
 
   return (
-    <main className="force-light overflow-x-hidden bg-amud-background text-amud-on-background">
+    <main className="force-light overflow-x-hidden bg-surface text-onSurface">
       <RevealNoScriptFallback />
-      {/* Hero */}
-      <section className="mx-auto max-w-container-max px-margin-mobile pb-section-gap pt-20 sm:pt-28 md:px-gutter lg:pt-36">
-        <div className="grid items-center gap-12 md:grid-cols-2">
+
+      <section className="relative overflow-hidden pb-20 pt-32 lg:pb-28 lg:pt-44">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(27,94,55,0.14),transparent_48%)]" />
+        <div className="relative mx-auto grid max-w-[1280px] items-center gap-12 px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-12">
           <div>
-            <h1 className="mb-6 text-headline-lg-mobile text-amud-primary md:text-display-lg">{content.hero.title}</h1>
-            <p className="mb-8 text-body-lg text-amud-on-surface-variant">{content.hero.body}</p>
-            <div className="flex gap-4">
-              <a
-                href="#roi"
-                className="rounded bg-amud-primary-container px-6 py-3 text-label-md font-semibold text-white shadow-sm transition-colors hover:bg-amud-primary"
-              >
-                {content.hero.ctaRoi}
-              </a>
-              <a
-                href="#standards"
-                className="rounded border border-amud-inverse-surface px-6 py-3 text-label-md font-semibold text-amud-inverse-surface transition-colors hover:bg-amud-surface-container-low"
-              >
-                {content.hero.ctaStandards}
+            <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-primary">{content.hero.eyebrow}</p>
+            <h1 className="mt-5 max-w-3xl text-4xl font-black leading-tight text-primary-dark sm:text-5xl lg:text-6xl">{content.hero.title}</h1>
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-onSurface-variant">{content.hero.body}</p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link href="/auth-phone?intent=recruiter" className="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 py-3 font-bold text-onPrimary transition-colors hover:bg-primary-dark">
+                {content.hero.primaryCta}
+              </Link>
+              <a href="#workflow" className="inline-flex min-h-12 items-center justify-center rounded-xl border border-outline-variant bg-surface-lowest px-6 py-3 font-bold text-primary-dark transition-colors hover:border-primary">
+                {content.hero.secondaryCta}
               </a>
             </div>
+            <p className="mt-4 text-sm text-outline">{content.hero.note}</p>
           </div>
-          <div className="relative h-[400px] overflow-hidden rounded-xl border border-amud-primary/10 shadow-sm">
-            <img
-              alt={content.hero.imageAlt}
-              className="absolute inset-0 h-full w-full object-cover"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCD0ddlmdhHojXFTkDT0rDqJP0G3eDihGx90p5l_mEy0HNv0qWzAHHXml0p_4vGSFpZdAvawH1xTQOMjQLBBzDGA7VlzD51Jo6UrXjnZzu6dcCRPxpokHME41cDPWBynEQNckNFWVzxFlH4QX_T3rz2fQ9FOdlIv6ja8veuviAU9eC0t-cntXnUAB9m04c4QfAkQRs-uoH-nglNvd9fcfFkxavKirYXguaCNBnsXmVciu5_E1waW-gw"
-            />
-          </div>
-        </div>
-      </section>
 
-      {/* Stats */}
-      <section id="statistics" className="relative border-y border-amud-primary/10 bg-amud-surface-container-lowest py-section-gap">
-        <div
-          className="absolute inset-0 opacity-50"
-          style={{
-            backgroundImage:
-              "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoNDYsIDQ1LCA5OCwgMC4wNSkiLz48L3N2Zz4=')",
-          }}
-        />
-        <div className="relative z-10 mx-auto max-w-container-max px-margin-mobile md:px-gutter">
-          <Reveal className="mb-12 text-center">
-            <h2 className="mb-4 text-headline-lg text-amud-primary">{content.cost.title}</h2>
-            <p className="mx-auto max-w-2xl text-body-md text-amud-on-surface-variant">{content.cost.body}</p>
-          </Reveal>
-          <div className="grid gap-6 md:grid-cols-3">
-            {content.stats.map((s, idx) =>
-              idx === 1 ? (
-                <Reveal key={s.label} className="h-full" delay={idx * 80}>
-                  <div className="flex h-full flex-col items-center rounded-lg bg-amud-primary p-6 text-center text-amud-on-primary shadow-[0_4px_24px_-8px_rgba(46,45,98,0.15)] md:-translate-y-4">
-                    <span className="material-symbols-outlined fill mb-4 text-4xl text-amud-primary-fixed">{STAT_ICONS[idx]}</span>
-                    <h3 className="mb-2 text-headline-lg text-amud-on-primary">{s.value}</h3>
-                    <p className="text-label-md uppercase tracking-wider text-amud-primary-fixed-dim">{s.label}</p>
-                  </div>
-                </Reveal>
-              ) : (
-                <Reveal key={s.label} className="h-full" delay={idx * 80}>
-                  <div className="flex h-full flex-col items-center rounded-lg border border-amud-primary/10 bg-amud-surface p-6 text-center shadow-[0_4px_24px_-8px_rgba(46,45,98,0.05)]">
-                    <span className={`material-symbols-outlined fill mb-4 text-4xl ${STAT_ICON_CLASSES[idx]}`}>{STAT_ICONS[idx]}</span>
-                    <h3 className="mb-2 text-headline-lg text-amud-primary">{s.value}</h3>
-                    <p className="text-label-md uppercase tracking-wider text-amud-on-surface-variant">{s.label}</p>
-                  </div>
-                </Reveal>
-              )
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Compliance & ROI */}
-      <section id="standards" className="mx-auto max-w-container-max px-margin-mobile py-section-gap md:px-gutter">
-        <div className="grid items-center gap-16 md:grid-cols-2">
-          <div>
-            <Reveal>
-              <h2 className="mb-6 text-headline-lg text-amud-primary">{content.standards.title}</h2>
-            </Reveal>
-            <div className="space-y-6">
-              {content.standards.items.map((s, idx) => (
-                <Reveal key={s.title} delay={100 + idx * 100}>
-                  <div className="flex gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amud-surface-container-high">
-                      <span className="material-symbols-outlined text-amud-primary">{STANDARD_ICONS[idx]}</span>
-                    </div>
-                    <div>
-                      <h3 className="mb-2 text-headline-md text-amud-primary">{s.title}</h3>
-                      <p className="text-body-md text-amud-on-surface-variant">{s.desc}</p>
-                    </div>
-                  </div>
-                </Reveal>
+          <div className="rounded-3xl border border-outline-variant bg-surface-lowest p-6 shadow-floating sm:p-8">
+            <div className="flex items-center gap-4 border-b border-outline-variant pb-5">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Icon name="business_center" /></div>
+              <div><p className="text-xs font-bold uppercase tracking-wider text-outline">{content.preview.eyebrow}</p><h2 className="mt-1 text-xl font-black text-primary-dark">{content.preview.title}</h2></div>
+            </div>
+            <div className="mt-6 space-y-3">
+              {content.preview.items.map((item) => (
+                <div key={item.label} className="flex items-start gap-3 rounded-2xl bg-surface-container p-4">
+                  <Icon name={item.icon} />
+                  <div><p className="font-black text-primary-dark">{item.label}</p><p className="mt-1 text-sm leading-relaxed text-onSurface-variant">{item.body}</p></div>
+                </div>
               ))}
             </div>
           </div>
-
-          <Reveal delay={150}>
-            <div id="roi" className="rounded-xl border border-amud-primary/10 bg-amud-surface-container-low p-8">
-              <h3 className="mb-6 text-center text-headline-md text-amud-primary">{content.roi.title}</h3>
-              <RoiCalculatorForm />
-            </div>
-          </Reveal>
         </div>
+      </section>
+
+      <section id="workflow" className="border-y border-outline-variant bg-surface-container/60 py-20 lg:py-24">
+        <div className="mx-auto max-w-[1280px] px-6 lg:px-12">
+          <Reveal className="max-w-3xl"><h2 className="text-3xl font-black text-primary-dark sm:text-4xl">{content.workflow.title}</h2><p className="mt-4 text-lg text-onSurface-variant">{content.workflow.subtitle}</p></Reveal>
+          <div className="mt-12 grid gap-5 md:grid-cols-3">
+            {content.workflow.items.map((item, index) => (
+              <Reveal key={item.title} delay={index * 70}>
+                <article className="h-full rounded-2xl border border-outline-variant bg-surface-lowest p-6 shadow-soft">
+                  <div className="mb-5 flex items-center justify-between"><span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary"><Icon name={item.icon} /></span><span className="text-sm font-black text-outline">0{index + 1}</span></div>
+                  <h3 className="text-lg font-black text-primary-dark">{item.title}</h3><p className="mt-3 text-sm leading-relaxed text-onSurface-variant">{item.body}</p>
+                </article>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="safeguards" className="mx-auto grid max-w-[1280px] gap-12 px-6 py-20 lg:grid-cols-[0.8fr_1.2fr] lg:px-12 lg:py-28">
+        <Reveal><p className="text-sm font-extrabold uppercase tracking-[0.18em] text-primary">{content.safeguards.eyebrow}</p><h2 className="mt-4 text-3xl font-black text-primary-dark sm:text-4xl">{content.safeguards.title}</h2><p className="mt-5 leading-relaxed text-onSurface-variant">{content.safeguards.subtitle}</p></Reveal>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {content.safeguards.items.map((item, index) => (
+            <Reveal key={item.title} delay={index * 60}>
+              <article className="h-full rounded-2xl border border-outline-variant p-5"><span className="text-primary"><Icon name={item.icon} /></span><h3 className="mt-4 font-black text-primary-dark">{item.title}</h3><p className="mt-2 text-sm leading-relaxed text-onSurface-variant">{item.body}</p></article>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      <section className="bg-primary-dark px-6 py-20 text-center text-surface-lowest">
+        <Reveal><h2 className="text-3xl font-black sm:text-4xl">{content.finalCta.title}</h2><p className="mx-auto mt-4 max-w-2xl text-surface-container-high">{content.finalCta.body}</p><Link href="/auth-phone?intent=recruiter" className="mt-8 inline-flex min-h-12 items-center justify-center rounded-xl bg-primary-light px-6 py-3 font-bold text-primary-dark transition-opacity hover:opacity-90">{content.finalCta.cta}</Link><p className="mt-4 text-sm text-surface-container-high">{content.finalCta.note}</p></Reveal>
       </section>
     </main>
   );

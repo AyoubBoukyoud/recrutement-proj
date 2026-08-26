@@ -4,7 +4,7 @@
   },
   "intro": {
     "title": "Simulate my salary",
-    "body": "Estimate your future standard of living in Germany and plan ahead for your career move."
+    "body": "Explore an indicative scenario based on fixed assumptions. The result is neither a salary offer nor an official tax calculation."
   },
   "form": {
     "professionLabel": "Profession",
@@ -22,11 +22,11 @@
     "North Rhine-Westphalia"
   ],
   "migrationCosts": [
-    "Work visa (Consulate)",
-    "Flight ticket (Casablanca → Germany)",
-    "Travel insurance (90 days)",
-    "First month's rent + deposit (estimate)",
-    "Certified document translation"
+    "Administrative formalities (assumption)",
+    "Initial transport (assumption)",
+    "Temporary insurance (assumption)",
+    "Housing setup (assumption)",
+    "Document translation (assumption)"
   ],
   "results": {
     "grossTitle": "Estimated gross monthly salary",
@@ -36,23 +36,23 @@
     "netLabel": "Estimated net salary",
     "resteAVivreLabel": "Disposable income",
     "resteAVivreNote": "After rent and expenses",
-    "migrationTitle": "Migration: estimated costs",
-    "migrationBadge": "2026 estimate",
+    "migrationTitle": "Example setup budget",
+    "migrationBadge": "Fixed assumptions",
     "tableExpenseHeader": "Expense",
     "tableAmountHeader": "Amount",
     "totalLabel": "Estimated total cost",
-    "aidLabel": "Possible assistance:",
-    "aidProgram": "THAMM Program",
-    "aidBody": "You may be eligible for a partial reimbursement of these costs through the Morocco–Germany bilateral agreements."
+    "aidLabel": "Verify with:",
+    "aidProgram": "official sources",
+    "aidBody": "These amounts are only a calculation example. Verify costs, obligations, and any available assistance with the competent organizations."
   },
   "sidebar": {
     "optimizeTitle": "Optimize your profile",
-    "optimizeBody": "Salaries can vary by up to 20% depending on your certified German level (B1/B2).",
+    "optimizeBody": "Your experience, region, contract, and recognition of qualifications can substantially change the actual salary.",
     "languageCoursesLink": "View language courses",
-    "supportTitle": "Need support?",
-    "supportBody": "Our advisors can help you prepare your visa file and find your first home.",
-    "tags": ["Housing search", "Visa assistance", "Bank account opening"],
-    "contactLink": "Contact an advisor"
+    "supportTitle": "A question about the application?",
+    "supportBody": "Support handles questions and complaints about Amud Skills. It does not replace administrative or consular authorities.",
+    "tags": ["Indicative estimate", "No guaranteed offer", "Check official sources"],
+    "contactLink": "Open support"
   },
   "downloadPdf": "Download the estimate (PDF)"
 }
