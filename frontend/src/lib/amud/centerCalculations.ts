@@ -6,7 +6,7 @@ import type { CenterEnrollment } from '@/data/amud/centerEnrollments';
 import type { CenterSchedule } from '@/data/amud/centerSchedules';
 import type { CenterAttendanceRecord, AttendanceStatus } from '@/data/amud/centerAttendance';
 import { PAYMENT_STATUS_LABELS, type CenterStudentPayment, type PaymentStatus } from '@/data/amud/centerStudentPayments';
-import { bucketTimeSeries, comparePeriods, inRange, previousPeriodRange, type PeriodRange } from '@/lib/amud/analytics/period';
+import { bucketTimeSeries, comparePeriods, inRange, parseFrDate, previousPeriodRange, type PeriodRange } from '@/lib/amud/analytics/period';
 import { countBy, sum, type Count } from '@/lib/amud/analytics/aggregate';
 
 /**
@@ -200,10 +200,10 @@ export type FormationPerformanceRow = {
 };
 
 function formationProgression(formation: Pick<CenterFormation, 'dateDebut' | 'dateFin'>, today: string): number {
-  const start = new Date(formation.dateDebut).getTime();
-  const end = new Date(formation.dateFin).getTime();
+  const start = parseFrDate(formation.dateDebut)?.getTime();
+  const end = parseFrDate(formation.dateFin)?.getTime();
   const now = new Date(today).getTime();
-  if (Number.isNaN(start) || Number.isNaN(end) || end <= start) return 0;
+  if (start == null || end == null || end <= start) return 0;
   if (now <= start) return 0;
   if (now >= end) return 100;
   return Math.round(((now - start) / (end - start)) * 100);

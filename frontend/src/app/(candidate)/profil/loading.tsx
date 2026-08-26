@@ -5,7 +5,7 @@ const TOOL_LINK_COUNT = 7;
 export default function ProfilLoading() {
   return (
     <SkeletonPage className="min-h-screen bg-surface pb-32">
-      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-outline-variant/20 bg-surface/80 px-6 py-4 backdrop-blur-md lg:px-10">
+      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-outline-variant/20 bg-surface/80 px-2.5 py-1.5 backdrop-blur-md lg:px-4">
         <Skeleton className="h-5 w-5 rounded" />
         <Skeleton className="h-4 w-36" />
         <Skeleton className="h-5 w-5 rounded" />

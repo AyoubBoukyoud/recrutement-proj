@@ -25,6 +25,7 @@ import {
 import { ApiError } from '@/lib/api';
 import { fakeLatency, fakeFailure } from './config';
 import { MOCK_DOCUMENTS } from './fixtures/documents';
+import { readStorage, writeStorage, STORAGE_KEYS } from '@/lib/storage';
 
 export interface DocumentsRepository {
   list(token: string): Promise<CandidateDocument[]>;
@@ -56,16 +57,24 @@ const httpDocuments: DocumentsRepository = {
  * fausses données se retrouvent dans le bundle livré même quand le drapeau est
  * éteint. Sous forme paresseuse, la seule référence aux fixtures se trouve
  * dans `mockDocuments`, que la condition constante élimine avec elles.
+ *
+ * Prototype localStorage : l'état est aussi persisté (`as_candidate_documents`)
+ * pour survivre au rechargement — voir implementation_plan.md.
  */
 let store: CandidateDocument[] | null = null;
 let nextId = 0;
 
 function documents(): CandidateDocument[] {
   if (store === null) {
-    store = MOCK_DOCUMENTS.map((d) => ({ ...d }));
-    nextId = Math.max(...MOCK_DOCUMENTS.map((d) => d.id)) + 1;
+    store = readStorage<CandidateDocument[] | null>(STORAGE_KEYS.candidateDocuments, null) ?? MOCK_DOCUMENTS.map((d) => ({ ...d }));
+    nextId = store.length > 0 ? Math.max(...store.map((d) => d.id)) + 1 : 1;
   }
   return store;
+}
+
+function persist(next: CandidateDocument[]) {
+  store = next;
+  writeStorage(STORAGE_KEYS.candidateDocuments, next);
 }
 
 const find = (id: number): CandidateDocument | undefined => documents().find((d) => d.id === id);
@@ -74,7 +83,7 @@ const notFound = (id: number) =>
   fakeFailure(new ApiError(404, `Document ${id} introuvable`, { reason: 'not_found' }));
 
 const replace = (next: CandidateDocument) => {
-  store = documents().map((d) => (d.id === next.id ? next : d));
+  persist(documents().map((d) => (d.id === next.id ? next : d)));
   return next;
 };
 
@@ -111,7 +120,7 @@ const mockDocuments: DocumentsRepository = {
       created_at: new Date().toISOString(),
       extraction: null,
     };
-    store = [created, ...current];
+    persist([created, ...current]);
 
     settleLater(id, {
       ocr_status: 'needs_review',

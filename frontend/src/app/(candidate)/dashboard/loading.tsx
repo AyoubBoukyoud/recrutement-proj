@@ -5,7 +5,7 @@ const QUICK_ACTION_COUNT = 11;
 export default function DashboardLoading() {
   return (
     <SkeletonPage>
-      <header className="sticky top-0 z-20 flex w-full items-center justify-between border-b border-surface-container-high bg-surface-container-lowest/90 px-6 py-3.5 backdrop-blur-md lg:px-10 lg:py-5">
+      <header className="sticky top-0 z-20 flex w-full items-center justify-between border-b border-surface-container-high bg-surface-container-lowest/90 px-2.5 py-1.5 backdrop-blur-md lg:px-4 lg:py-2">
         <div className="space-y-2">
           <Skeleton className="h-4 w-40" />
           <Skeleton className="h-2.5 w-24" />

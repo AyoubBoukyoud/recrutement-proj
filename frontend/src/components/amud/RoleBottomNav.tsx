@@ -55,7 +55,7 @@ export function RoleBottomNav({
   return (
     <>
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 flex h-16 items-stretch border-t border-amud-outline-variant bg-amud-surface-container-lowest md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 flex h-16 items-stretch border-t border-amud-outline-variant/40 bg-amud-surface-container-lowest/95 shadow-subtle backdrop-blur-md md:hidden"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         aria-label="Navigation principale"
       >

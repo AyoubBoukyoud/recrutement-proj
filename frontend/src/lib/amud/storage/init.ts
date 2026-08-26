@@ -30,13 +30,16 @@ import { centerStudentsSeed } from '@/data/amud/centerStudents';
 import { centerTeachersSeed } from '@/data/amud/centerTeachers';
 import { centerFormationsSeed } from '@/data/amud/centerFormations';
 import { centerGroupsSeed } from '@/data/amud/centerGroups';
+import { centerEnrollmentsSeed } from '@/data/amud/centerEnrollments';
 import { centerSchedulesSeed } from '@/data/amud/centerSchedules';
 import { centerAttendanceSeed } from '@/data/amud/centerAttendance';
 import { centerStudentPaymentsSeed } from '@/data/amud/centerStudentPayments';
 import { centerTeacherPaymentsSeed } from '@/data/amud/centerTeacherPayments';
+import { centerTeacherHoursSeed } from '@/data/amud/centerTeacherHours';
 import { centerTarifsSeed } from '@/data/amud/centerTarifs';
 import { centerLeadsSeed } from '@/data/amud/centerLeads';
 import { centerModificationRequestsSeed } from '@/data/amud/centerModificationRequests';
+import { centerUsersSeed } from '@/data/amud/centerUsers';
 import { centerStudentResultsSeed } from '@/data/amud/centerStudentResults';
 import { teacherResourcesSeed } from '@/data/amud/teacherResources';
 
@@ -90,13 +93,16 @@ export function initAmudDemoData() {
   seedIfMissing(AMUD_KEYS.centerTeachers, () => centerTeachersSeed);
   seedIfMissing(AMUD_KEYS.centerFormations, () => centerFormationsSeed);
   seedIfMissing(AMUD_KEYS.centerGroups, () => centerGroupsSeed);
+  seedIfMissing(AMUD_KEYS.centerEnrollments, () => centerEnrollmentsSeed);
   seedIfMissing(AMUD_KEYS.centerSchedules, () => centerSchedulesSeed);
   seedIfMissing(AMUD_KEYS.centerAttendance, () => centerAttendanceSeed);
   seedIfMissing(AMUD_KEYS.centerStudentPayments, () => centerStudentPaymentsSeed);
   seedIfMissing(AMUD_KEYS.centerTeacherPayments, () => centerTeacherPaymentsSeed);
+  seedIfMissing(AMUD_KEYS.centerTeacherHours, () => centerTeacherHoursSeed);
   seedIfMissing(AMUD_KEYS.centerTarifs, () => centerTarifsSeed);
   seedIfMissing(AMUD_KEYS.centerLeads, () => centerLeadsSeed);
   seedIfMissing(AMUD_KEYS.centerModificationRequests, () => centerModificationRequestsSeed);
+  seedIfMissing(AMUD_KEYS.centerUsers, () => centerUsersSeed);
   seedIfMissing(AMUD_KEYS.studentResults, () => centerStudentResultsSeed);
   seedIfMissing(AMUD_KEYS.teacherResources, () => teacherResourcesSeed);
 }

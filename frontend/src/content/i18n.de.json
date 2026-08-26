@@ -65,5 +65,8 @@
   "otp_error_network": "Server nicht erreichbar. Prüfen Sie Ihre Internetverbindung.",
   "otp_resend_cta": "Code erneut senden",
   "otp_resend_countdown_prefix": "Code erneut senden in",
-  "nav_candidate_aria_label": "Kandidatennavigation"
+  "nav_candidate_aria_label": "Kandidatennavigation",
+  "pagination_previous": "← Zurück",
+  "pagination_next": "Weiter →",
+  "pagination_page_of": "Seite {current} von {last} · {count}"
 }

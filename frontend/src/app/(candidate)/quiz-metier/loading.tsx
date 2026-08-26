@@ -3,7 +3,7 @@ import { Skeleton, SkeletonPage } from '@/components/shared/Skeleton';
 export default function QuizMetierLoading() {
   return (
     <SkeletonPage className="min-h-screen bg-surface pb-24">
-      <header className="sticky top-0 z-20 flex h-16 w-full items-center gap-4 border-b border-outline-variant bg-surface px-4 lg:px-10">
+      <header className="sticky top-0 z-20 flex h-16 w-full items-center gap-4 border-b border-outline-variant bg-surface px-1.5 lg:px-4">
         <Skeleton className="h-6 w-6 rounded-full" />
         <Skeleton className="h-4 w-28" />
       </header>

@@ -65,5 +65,8 @@
   "otp_error_network": "Cannot reach the server. Check your internet connection.",
   "otp_resend_cta": "Resend code",
   "otp_resend_countdown_prefix": "Resend code in",
-  "nav_candidate_aria_label": "Candidate navigation"
+  "nav_candidate_aria_label": "Candidate navigation",
+  "pagination_previous": "← Previous",
+  "pagination_next": "Next →",
+  "pagination_page_of": "Page {current} of {last} · {count}"
 }

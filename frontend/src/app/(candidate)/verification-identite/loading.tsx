@@ -3,7 +3,7 @@ import { Skeleton, SkeletonPage } from '@/components/shared/Skeleton';
 export default function VerificationIdentiteLoading() {
   return (
     <SkeletonPage className="min-h-screen bg-background pb-24 flex flex-col">
-      <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-surface-container-high bg-background px-4 lg:px-10">
+      <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-surface-container-high bg-background px-1.5 lg:px-4">
         <Skeleton className="h-10 w-10 rounded-full" />
         <Skeleton className="h-4 w-48" />
         <span className="h-10 w-10" />

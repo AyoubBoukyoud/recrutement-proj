@@ -105,7 +105,7 @@ export default function TeacherProfilePage() {
               { label: 'Type de contrat', value: teacher.typeContrat },
               { label: 'Taux horaire', value: `${teacher.tauxHoraire} MAD/h` },
               { label: 'Expérience', value: `${teacher.experienceAnnees} an${teacher.experienceAnnees > 1 ? 's' : ''}` },
-              { label: "Date d'entrée", value: new Date(teacher.dateEntree).toLocaleDateString('fr-FR') },
+              { label: "Date d'entrée", value: teacher.dateEntree },
             ].map(({ label, value }) => (
               <div key={label} className="flex justify-between border-b border-amud-outline-variant py-sm last:border-0">
                 <span className="text-label-sm text-amud-on-surface-variant">{label}</span>

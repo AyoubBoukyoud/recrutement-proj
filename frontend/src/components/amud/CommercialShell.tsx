@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { DropdownMenu, InertNavItem, NavItem, Toggle, isNavActive, useDropdown } from '@/components/amud/ui';
-import { HeaderLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
+import { DropdownMenu, NavItem, Toggle, isNavActive } from '@/components/amud/ui';
+import { InlineLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
 import { ToastProvider } from '@/components/amud/Toast';
 import { DemoBanner } from '@/components/amud/DemoBanner';
 import { GlobalSearch, useGlobalSearchShortcut, type GlobalSearchResult } from '@/components/amud/GlobalSearch';
@@ -15,6 +15,8 @@ import { loadLocalEntreprises } from '@/lib/amud/localEntreprises';
 import { loadLocalMesContacts } from '@/lib/amud/localMesContacts';
 import { loadLocalTaches } from '@/lib/amud/localCommercialTaches';
 import { loadLocalCentres } from '@/lib/amud/localCentres';
+import { getCandidatesForCommercial } from '@/data/amud/candidates';
+import { loadLocalCandidates } from '@/lib/amud/localCandidates';
 
 /**
  * Coquille des pages `/amud/commercial/*` — espace self-service d'un
@@ -25,25 +27,22 @@ import { loadLocalCentres } from '@/lib/amud/localCentres';
  * Companies/Contacts/Tasks) plutôt que sur le sidebar générique "Commercial
  * Agents" recopié par erreur dans doc19/doc10/doc16.
  *
- * Entreprises / Activités / Tâches sont passées de `InertNavItem` (pas
- * encore livrées) à de vrais liens le jour où ces 3 pages ont été
- * construites — Candidats/Performance/Notifications/Profile restent inertes
- * : ce ne sont pas des pages de ce lot de travail.
+ * Candidats/Performance/Notifications/Profil sont passées de `InertNavItem`
+ * (pas encore livrées) à de vrais liens une fois ce dernier lot de pages
+ * construit — plus aucune entrée inerte dans cet espace.
  */
 const NAV: RoleNavItem[] = [
   { href: '/amud/commercial', icon: 'dashboard', label: 'Vue d’ensemble', inBottomNav: true, bottomLabel: 'Accueil' },
   { href: '/amud/commercial/entreprises', icon: 'domain', label: 'Entreprises', inBottomNav: true },
-  { href: '/amud/commercial/activites', icon: 'history', label: 'Activités', inBottomNav: true },
+  { href: '/amud/commercial/candidats', icon: 'person', label: 'Candidats', inBottomNav: true },
+  { href: '/amud/commercial/activites', icon: 'history', label: 'Activités', group: 'Suivi' },
+  { href: '/amud/commercial/taches', icon: 'assignment', label: 'Tâches', group: 'Suivi' },
   { href: '/amud/commercial/rendez-vous', icon: 'calendar_month', label: 'Rendez-vous', inBottomNav: true, bottomLabel: 'RDV' },
-  { href: '/amud/commercial/centres', icon: 'school', label: 'Centres partenaires' },
-  { href: '/amud/commercial/taches', icon: 'assignment', label: 'Tâches' },
-  { href: '/amud/commercial/contacts', icon: 'group', label: 'Contacts' },
-];
-const INERT = [
-  { icon: 'person', label: 'Candidats' },
-  { icon: 'trending_up', label: 'Performance' },
-  { icon: 'notifications', label: 'Notifications' },
-  { icon: 'account_circle', label: 'Profile' },
+  { href: '/amud/commercial/centres', icon: 'school', label: 'Centres partenaires', group: 'Suivi' },
+  { href: '/amud/commercial/contacts', icon: 'group', label: 'Contacts', group: 'Suivi' },
+  { href: '/amud/commercial/performance', icon: 'trending_up', label: 'Performance', group: 'Mon espace' },
+  { href: '/amud/commercial/notifications', icon: 'notifications', label: 'Notifications', group: 'Mon espace' },
+  { href: '/amud/commercial/profile', icon: 'account_circle', label: 'Profil', group: 'Mon espace' },
 ];
 
 /** Recherche header réelle (façon `useGlobalSearchResults` d'AdminShell), bornée aux entreprises/contacts/tâches du commercial connecté. */
@@ -77,6 +76,12 @@ function useCommercialSearchResults(query: string): GlobalSearchResult[] {
         results.push({ id: `centre-${c.id}`, label: c.nom, sub: 'Centre de formation', href: `/amud/commercial/centres/${c.id}`, icon: 'school' });
       }
     }
+    for (const cand of getCandidatesForCommercial(CURRENT_COMMERCIAL.nom, loadLocalCandidates())) {
+      if (results.filter((r) => r.sub === 'Candidat').length >= 3) break;
+      if (cand.nom.toLowerCase().includes(q) || cand.posteRecherche.toLowerCase().includes(q) || cand.ville.toLowerCase().includes(q)) {
+        results.push({ id: `cand-${cand.id}`, label: cand.nom, sub: 'Candidat', href: `/amud/commercial/candidats/${cand.id}`, icon: 'person' });
+      }
+    }
 
     return results.slice(0, 8);
   }, [query]);
@@ -86,7 +91,6 @@ export function CommercialShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
-  const settingsMenu = useDropdown<HTMLDivElement>();
   const [query, setQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -101,7 +105,6 @@ export function CommercialShell({ children }: { children: ReactNode }) {
   });
 
   useEffect(() => {
-    settingsMenu.setOpen(false);
     setSearchOpen(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
@@ -122,7 +125,7 @@ export function CommercialShell({ children }: { children: ReactNode }) {
           collapsed ? 'md:w-20 md:px-2 md:hover:w-64 md:hover:px-md' : 'md:w-64'
         }`}
       >
-        <div className="mb-xl flex items-center gap-md px-sm">
+        <div className="mb-xl flex h-16 items-center gap-md px-sm">
           <img src="/assets/images/logo.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
           <div className={hiddenWhenCollapsed}>
             <h1 className="text-title-lg font-black text-amud-primary">Amud Skills</h1>
@@ -140,9 +143,6 @@ export function CommercialShell({ children }: { children: ReactNode }) {
               active={isNavActive(pathname, item.href, item.href === '/amud/commercial')}
               collapsed={collapsed}
             />
-          ))}
-          {INERT.map((item) => (
-            <InertNavItem key={item.label} icon={item.icon} label={item.label} collapsed={collapsed} />
           ))}
         </div>
 
@@ -163,7 +163,7 @@ export function CommercialShell({ children }: { children: ReactNode }) {
           collapsed ? 'md:ml-20' : 'md:ml-64'
         }`}
       >
-        <header className="sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-amud-outline-variant bg-amud-surface px-md md:px-lg">
+        <header className="sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-amud-outline-variant/40 bg-amud-surface/90 px-md backdrop-blur-md md:px-lg">
           <div className="flex items-center gap-1">
             <button
               onClick={() => setCollapsed((c) => !c)}
@@ -194,42 +194,30 @@ export function CommercialShell({ children }: { children: ReactNode }) {
               key={`notif-${pathname}`}
               scope="commercial"
               buttonClassName="relative rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary"
+              viewAllHref="/amud/commercial/notifications"
             />
-            <div ref={settingsMenu.ref} className="relative hidden sm:block">
-              <button
-                onClick={() => settingsMenu.setOpen((v) => !v)}
-                className="rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary"
-                aria-label="Réglages"
-                aria-haspopup="menu"
-                aria-expanded={settingsMenu.open}
-              >
-                <span className="material-symbols-outlined">settings</span>
-              </button>
-              {settingsMenu.open ? (
-                <div className="absolute right-0 top-full z-40 mt-2 w-72 overflow-hidden rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
-                  <div className="border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm text-label-md font-semibold text-amud-on-surface">
-                    Réglages rapides
-                  </div>
-                  <div className="flex flex-col gap-sm p-md">
-                    <div className="flex items-center justify-between">
-                      <span className="text-label-md text-amud-on-surface">Notifications par email</span>
-                      <Toggle checked={emailNotif} onChange={setEmailNotif} size="sm" label="Notifications par email" />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-label-md text-amud-on-surface">Notifications push</span>
-                      <Toggle checked={pushNotif} onChange={setPushNotif} size="sm" label="Notifications push" />
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-            </div>
-            <HeaderLanguageThemeControls iconButtonClassName="rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary" />
             <DropdownMenu
               key={`profile-${pathname}`}
               header={
                 <div>
                   <div className="text-label-md font-semibold text-amud-on-surface">{CURRENT_COMMERCIAL.nom}</div>
                   <div className="text-label-sm text-amud-on-surface-variant">Espace Commercial</div>
+                </div>
+              }
+              body={
+                <div className="flex flex-col">
+                  <InlineLanguageThemeControls />
+                  <div className="flex flex-col gap-sm border-t border-amud-outline-variant p-md">
+                    <div className="text-label-sm text-amud-on-surface-variant">Notifications</div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-label-md text-amud-on-surface">Par email</span>
+                      <Toggle checked={emailNotif} onChange={setEmailNotif} size="sm" label="Notifications par email" />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-label-md text-amud-on-surface">Push</span>
+                      <Toggle checked={pushNotif} onChange={setPushNotif} size="sm" label="Notifications push" />
+                    </div>
+                  </div>
                 </div>
               }
               trigger={({ open, toggle }) => (
@@ -244,6 +232,8 @@ export function CommercialShell({ children }: { children: ReactNode }) {
                 </button>
               )}
               items={[
+                { label: 'Voir mon profil', icon: 'account_circle', href: '/amud/commercial/profile' },
+                { label: 'Aide', icon: 'help' },
                 { label: "Changer d'espace", icon: 'apps', href: '/amud' },
                 { label: 'Déconnexion', icon: 'logout', href: '/amud', danger: true },
               ]}

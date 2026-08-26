@@ -22,7 +22,9 @@
   "job": {
     "removeFavoriteAria": "Retirer des favoris",
     "addFavoriteAria": "Ajouter aux favoris",
-    "interestedButton": "Je suis intéressé"
+    "interestedButton": "Je suis intéressé",
+    "appliedButton": "Candidature envoyée",
+    "noResults": "Aucune offre ne correspond à votre recherche."
   },
   "banner": {
     "title": "Booster votre visibilité",

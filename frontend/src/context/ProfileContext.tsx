@@ -37,12 +37,22 @@ interface ProfileContextValue {
 
 const ProfileContext = createContext<ProfileContextValue | undefined>(undefined);
 
+/** Prototype maquette : premier paint du candidat de démo, avant même que
+ *  `candidateProfileRepository` (la source réelle) ait répondu. */
+const DEMO_PROFILE: CandidateProfile = {
+  ...EMPTY_PROFILE,
+  firstName: 'Youssef',
+  lastName: 'Amrani',
+  avatarInitials: 'YA',
+};
+
 export function ProfileProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<CandidateProfile>(EMPTY_PROFILE);
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    setProfile(readStorage<CandidateProfile>(STORAGE_KEYS.profile, EMPTY_PROFILE));
+    const fallback = process.env.NEXT_PUBLIC_USE_MOCKS === '1' ? DEMO_PROFILE : EMPTY_PROFILE;
+    setProfile(readStorage<CandidateProfile>(STORAGE_KEYS.profile, fallback));
     setIsHydrated(true);
   }, []);
 

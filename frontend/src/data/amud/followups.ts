@@ -12,6 +12,9 @@ export type FollowUp = {
   entrepriseId?: string;
   entrepriseNom?: string;
   contactNom: string;
+  /** Optionnel — id + type du contact rappelé (ex. `candidate_xxx` / `'Candidat'`), pour relier ce rappel à sa fiche (`/amud/commercial/candidats/:id` → onglet Historique). Absent pour les rappels créés avant cette extension ou sans contact identifié. */
+  contactId?: string;
+  contactType?: 'Entreprise' | 'Candidat' | 'Recruteur' | 'Portefeuille';
   commercialId: string;
   commercialNom: string;
   dueDate: string; // 'DD/MM/YYYY'

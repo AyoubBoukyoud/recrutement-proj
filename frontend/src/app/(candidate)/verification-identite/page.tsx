@@ -145,7 +145,7 @@ export default function VerificationIdentitePage() {
 
   return (
     <div className="min-h-screen bg-background text-onSurface pb-24 flex flex-col font-sans">
-      <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-surface-container-high bg-background px-4 lg:px-10">
+      <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-surface-container-high bg-background px-1.5 lg:px-4">
         <Link
           href="/profil"
           className="flex h-10 w-10 items-center justify-center rounded-full text-primary transition-opacity hover:opacity-80 active:scale-95"

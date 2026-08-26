@@ -3,7 +3,7 @@ import { Skeleton, SkeletonPage } from '@/components/shared/Skeleton';
 export default function VideoLoading() {
   return (
     <SkeletonPage>
-      <header className="flex items-center gap-3 bg-primary p-6 pb-8 lg:px-10">
+      <header className="flex items-center gap-3 bg-primary p-2.5 pb-3 lg:px-4">
         <Skeleton className="h-5 w-5 rounded bg-white/30" />
         <Skeleton className="h-4 w-48 bg-white/30" />
       </header>

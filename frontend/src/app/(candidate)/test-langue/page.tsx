@@ -11,13 +11,8 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/shared/Button';
 import { ApiError } from '@/lib/api';
-import {
-  submitLanguageAssessment,
-  getLanguageAssessment,
-  isPending,
-  failureMessage,
-  type LanguageAssessmentResult,
-} from '@/lib/languageAssessment';
+import { isPending, failureMessage, type LanguageAssessmentResult } from '@/lib/languageAssessment';
+import { languageAssessmentRepository } from '@/data/languageAssessment';
 import { useLanguage } from '@/context/LanguageContext';
 import { candidateTestLangueContentFor, type CandidateTestLangueContent } from '@/lib/candidateTestLangueContent';
 
@@ -65,12 +60,12 @@ export default function TestLanguePage() {
     setError(null);
 
     try {
-      const created = await submitLanguageAssessment('de', blob, token);
+      const created = await languageAssessmentRepository.submit('de', blob, token);
       setResult(created);
       setStage('analysis');
       pollRef.current = setInterval(async () => {
         try {
-          const fresh = await getLanguageAssessment(created.id, token);
+          const fresh = await languageAssessmentRepository.get(created.id, token);
           if (!isPending(fresh.status)) {
             if (pollRef.current) clearInterval(pollRef.current);
             setResult(fresh);
@@ -150,7 +145,7 @@ export default function TestLanguePage() {
 
   return (
     <div className="min-h-screen bg-surface pb-24">
-      <header className="flex h-16 max-w-4xl items-center justify-between px-6 mx-auto w-full lg:px-10">
+      <header className="flex h-16 max-w-4xl items-center justify-between px-2.5 mx-auto w-full lg:px-4">
         <Link href="/dashboard" className="text-primary-dark transition-opacity hover:opacity-80">
           <span className="material-symbols-outlined" style={{ fontSize: 24 }}>arrow_back</span>
         </Link>

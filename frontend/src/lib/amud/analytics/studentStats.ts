@@ -1,6 +1,7 @@
 import type { CenterAttendanceRecord, CenterFormation, StudentResult } from '@/data/amud/centerTypes';
 import { ATTENDANCE_LABELS } from '@/data/amud/centerTypes';
 import { countBy } from './aggregate';
+import { parseFrDate } from './period';
 
 export type StudentStats = {
   /** 0-100, voir le commentaire sur son calcul ci-dessous. */
@@ -36,11 +37,11 @@ export function getStudentStats(
   // formation exploitables, on retombe sur la moyenne des notes (note/noteMax%).
   let progressPct = 0;
   let progressLabel = 'Durée de formation écoulée';
-  if (formation?.dateDebut && formation?.dateFin) {
-    const start = new Date(formation.dateDebut).getTime();
-    const end = new Date(formation.dateFin).getTime();
+  const start = formation?.dateDebut ? parseFrDate(formation.dateDebut)?.getTime() : undefined;
+  const end = formation?.dateFin ? parseFrDate(formation.dateFin)?.getTime() : undefined;
+  if (start != null && end != null && end > start) {
     const now = new Date(today).getTime();
-    progressPct = end > start ? Math.max(0, Math.min(100, Math.round(((now - start) / (end - start)) * 100))) : 0;
+    progressPct = Math.max(0, Math.min(100, Math.round(((now - start) / (end - start)) * 100)));
   } else if (myResults.length > 0) {
     progressPct = Math.round(
       myResults.reduce((sum, r) => sum + (r.noteMax > 0 ? (r.note / r.noteMax) * 100 : 0), 0) / myResults.length,

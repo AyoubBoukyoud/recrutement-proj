@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { NavItem, isNavActive, useDropdown } from '@/components/amud/ui';
-import { HeaderLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
+import { InlineLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
 import { ToastProvider } from '@/components/amud/Toast';
 import { NotificationCenter } from '@/components/amud/NotificationCenter';
 import { RoleBottomNav } from '@/components/amud/RoleBottomNav';
@@ -75,7 +75,7 @@ export function StudentShell({ children }: { children: ReactNode }) {
             collapsed ? 'md:w-20 md:hover:w-64' : 'md:w-64'
           }`}
         >
-          <div className={`flex items-center gap-sm border-b border-amud-outline-variant p-lg ${collapsed ? 'md:px-md' : ''}`}>
+          <div className={`flex items-center gap-sm border-b border-amud-outline-variant px-lg py-2.5 ${collapsed ? 'md:px-md' : ''}`}>
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amud-secondary-container text-amud-on-secondary-container">
               <span className="material-symbols-outlined text-[22px]">school</span>
             </div>
@@ -140,7 +140,6 @@ export function StudentShell({ children }: { children: ReactNode }) {
                 targetId={studentId}
                 buttonClassName="relative rounded-full p-2 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-secondary"
               />
-              <HeaderLanguageThemeControls />
               {/* Menu profil avec sélecteur d'étudiant */}
               <div ref={profileMenu.ref} className="relative">
                 <button onClick={() => profileMenu.setOpen((v) => !v)} className="flex h-9 w-9 items-center justify-center rounded-full bg-amud-secondary-container font-bold text-amud-on-secondary-container transition-opacity hover:opacity-90" aria-label="Menu du compte" aria-haspopup="menu" aria-expanded={profileMenu.open}>
@@ -151,6 +150,9 @@ export function StudentShell({ children }: { children: ReactNode }) {
                     <div className="border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm">
                       <div className="text-label-md font-semibold text-amud-on-surface">{studentName}</div>
                       <div className="text-label-sm text-amud-on-surface-variant">Simulation — aucune vraie authentification</div>
+                    </div>
+                    <div className="border-b border-amud-outline-variant">
+                      <InlineLanguageThemeControls />
                     </div>
                     <div className="flex flex-col gap-sm p-md">
                       <label className="text-label-sm text-amud-on-surface-variant">
@@ -169,6 +171,12 @@ export function StudentShell({ children }: { children: ReactNode }) {
                       </label>
                     </div>
                     <div className="flex flex-col border-t border-amud-outline-variant py-1">
+                      <Link href="/amud/student/settings" onClick={() => profileMenu.setOpen(false)} className="flex items-center gap-sm px-md py-sm text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
+                        <span className="material-symbols-outlined text-[18px]">settings</span> Paramètres
+                      </Link>
+                      <button type="button" className="flex items-center gap-sm px-md py-sm text-left text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
+                        <span className="material-symbols-outlined text-[18px]">help</span> Aide
+                      </button>
                       <Link href="/amud" onClick={() => profileMenu.setOpen(false)} className="flex items-center gap-sm px-md py-sm text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
                         <span className="material-symbols-outlined text-[18px]">apps</span> Changer d&apos;espace
                       </Link>

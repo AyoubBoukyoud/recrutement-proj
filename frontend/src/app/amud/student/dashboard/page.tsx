@@ -260,7 +260,7 @@ export default function StudentDashboardPage() {
                 <div key={p.id} className="flex items-center justify-between rounded-lg border border-amud-outline-variant px-md py-sm">
                   <div>
                     <p className="text-body-md text-amud-on-surface">{f?.nom ?? 'Formation'}</p>
-                    <p className="text-label-sm text-amud-on-surface-variant">{new Date(p.date).toLocaleDateString('fr-FR')} · {p.mode}</p>
+                    <p className="text-label-sm text-amud-on-surface-variant">{p.date} · {p.mode}</p>
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     <span className="text-body-md font-semibold text-amud-on-surface">{p.montantPaye.toLocaleString('fr-FR')} MAD</span>

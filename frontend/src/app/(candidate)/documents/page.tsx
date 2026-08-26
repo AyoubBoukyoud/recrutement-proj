@@ -337,7 +337,7 @@ export default function DocumentsPage() {
 
   return (
     <div className="min-h-screen bg-surface pb-24">
-      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-outline-variant/30 bg-surface/90 px-6 py-4 backdrop-blur-md lg:px-10">
+      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-outline-variant/30 bg-surface/90 px-2.5 py-1.5 backdrop-blur-md lg:px-4">
         <Link href="/dashboard" className="text-primary-dark transition-opacity hover:opacity-80">
           <span className="material-symbols-outlined" style={{ fontSize: 22 }}>arrow_back</span>
         </Link>
@@ -372,8 +372,7 @@ export default function DocumentsPage() {
                 aria-pressed={selectedType === type}
                 className="flex-1 whitespace-nowrap"
               >
-                {/* documentTypeLabel lives in `@/lib/documents` (out of scope for this
-                    i18n pass) and always renders hardcoded French labels. */}
+                {/* Hardcoded to French — out of scope for this i18n pass, see documentTypeLabel. */}
                 {documentTypeLabel(type, 'fr')}
               </Button>
             ))}
@@ -470,8 +469,7 @@ export default function DocumentsPage() {
               <div className="absolute inset-x-0 top-0 h-1 animate-[scan_1.8s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-primary-container to-transparent shadow-[0_0_15px_2px_rgba(27,94,55,0.5)]" />
               <div className="absolute inset-0 flex items-center justify-center bg-primary-container/10">
                 <div className="rounded-full bg-surface-container-lowest/90 px-6 py-2 shadow-sm backdrop-blur-sm">
-                  {/* ocrStatusLabel lives in `@/lib/documents` (out of scope for this i18n
-                      pass) and always renders hardcoded French labels. */}
+                  {/* Hardcoded to French — out of scope for this i18n pass, see ocrStatusLabel. */}
                   <span className="font-medium text-primary-container">{ocrStatusLabel(active.ocr_status, 'fr')}</span>
                 </div>
               </div>
@@ -647,8 +645,7 @@ export default function DocumentsPage() {
                 <div key={document.id} className="space-y-1">
                   <DocumentViewer document={toLocalEntry(document, fileNameOf(document))} previewUrl={document.url} />
                   <div className="flex items-center justify-between px-1 text-xs text-onSurface-variant">
-                    {/* documentTypeLabel / ocrStatusLabel live in `@/lib/documents` (out of
-                        scope for this i18n pass) and always render hardcoded French labels. */}
+                    {/* Hardcoded to French — out of scope for this i18n pass. */}
                     <span>
                       {documentTypeLabel(document.type, 'fr')} — {ocrStatusLabel(document.ocr_status, 'fr')}
                     </span>

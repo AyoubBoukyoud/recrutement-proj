@@ -2,15 +2,28 @@
 
 // Quiz Métier — auto-évaluation des compétences techniques avant candidature.
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button, IconButton } from '@/components/shared/Button';
 import { useLanguage } from '@/context/LanguageContext';
 import { candidateQuizMetierContentFor } from '@/lib/candidateQuizMetierContent';
+import { readStorage, writeStorage, STORAGE_KEYS } from '@/lib/storage';
 import { useAuth } from '@/context/AuthContext';
 import { candidateProfileRepository } from '@/data/candidateProfile';
 import { useInvalidateCandidateProfile } from '@/lib/useCandidateProfile';
+
+/**
+ * Deux persistances complémentaires, pas redondantes : le résultat part au
+ * profil réel (`orientation_result` / `orientation_score`, lu par le reste de
+ * l'app et par les recruteurs), tandis que l'historique des tentatives reste
+ * local — c'est un confort d'écran, le back ne conserve que le dernier score.
+ */
+interface QuizAttempt {
+  score: number;
+  total: number;
+  completedAt: string;
+}
 
 export default function QuizMetierPage() {
   const router = useRouter();
@@ -23,6 +36,8 @@ export default function QuizMetierPage() {
   const [selected, setSelected] = useState<number | null>(null);
   const [answers, setAnswers] = useState<(number | null)[]>([]);
   const [finished, setFinished] = useState(false);
+  const [history, setHistory] = useState<QuizAttempt[]>([]);
+  const recordedRef = useRef(false);
 
   const question = QUESTIONS[index];
   const progress = Math.round(((index + (selected !== null ? 1 : 0)) / QUESTIONS.length) * 100);
@@ -34,7 +49,13 @@ export default function QuizMetierPage() {
       setFinished(true);
       if (token) {
         const finalScore = nextAnswers.filter((a, i) => a === QUESTIONS[i]?.correctIndex).length;
-        await candidateProfileRepository.update({ orientation_result: content.jobTitle, orientation_score: Math.round(finalScore / QUESTIONS.length * 100) }, token);
+        await candidateProfileRepository.update(
+          {
+            orientation_result: content.jobTitle,
+            orientation_score: Math.round((finalScore / QUESTIONS.length) * 100),
+          },
+          token,
+        );
         await invalidateProfile();
       }
     } else {
@@ -46,10 +67,19 @@ export default function QuizMetierPage() {
 
   const score = answers.filter((a, i) => a === QUESTIONS[i]?.correctIndex).length;
 
+  useEffect(() => {
+    if (!finished || recordedRef.current) return;
+    recordedRef.current = true;
+    const previous = readStorage<QuizAttempt[]>(STORAGE_KEYS.quizMetier, []);
+    const next = [{ score, total: QUESTIONS.length, completedAt: new Date().toISOString() }, ...previous];
+    writeStorage(STORAGE_KEYS.quizMetier, next);
+    setHistory(next);
+  }, [finished, score, QUESTIONS.length]);
+
   if (finished) {
     return (
       <div className="min-h-screen bg-surface pb-24">
-        <header className="sticky top-0 z-20 flex h-16 w-full items-center gap-4 border-b border-outline-variant bg-surface px-4 lg:px-10">
+        <header className="sticky top-0 z-20 flex h-16 w-full items-center gap-4 border-b border-outline-variant bg-surface px-1.5 lg:px-4">
           <Link href="/offres" className="p-2 transition-transform active:scale-95">
             <span className="material-symbols-outlined text-primary-dark">arrow_back</span>
           </Link>
@@ -65,6 +95,11 @@ export default function QuizMetierPage() {
           <p className="text-onSurface-variant">
             {content.finished.description}
           </p>
+          {history.length > 1 && (
+            <p className="text-xs font-semibold text-onSurface-variant">
+              {history.length} tentatives · meilleur score {Math.max(...history.map((h) => h.score))}/{QUESTIONS.length}
+            </p>
+          )}
           <div className="flex w-full flex-col gap-3 sm:flex-row">
             <Link
               href="/offres"
@@ -75,6 +110,7 @@ export default function QuizMetierPage() {
             <Button
               variant="outline"
               onClick={() => {
+                recordedRef.current = false;
                 setIndex(0);
                 setSelected(null);
                 setAnswers([]);
@@ -93,7 +129,7 @@ export default function QuizMetierPage() {
 
   return (
     <div className="min-h-screen bg-surface pb-24">
-      <header className="sticky top-0 z-20 flex h-16 w-full items-center gap-4 border-b border-outline-variant bg-surface px-4 lg:px-10">
+      <header className="sticky top-0 z-20 flex h-16 w-full items-center gap-4 border-b border-outline-variant bg-surface px-1.5 lg:px-4">
         <IconButton variant="ghost" onClick={() => router.back()} aria-label={content.header.backAria}>
           <span className="material-symbols-outlined text-primary-dark">arrow_back</span>
         </IconButton>

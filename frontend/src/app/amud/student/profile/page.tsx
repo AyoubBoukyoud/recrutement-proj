@@ -101,7 +101,7 @@ export default function StudentProfilePage() {
             <ReadOnlyField label="Groupe" value={group?.nom ?? '—'} />
             <ReadOnlyField label="Niveau" value={student.niveau} />
             <ReadOnlyField label="Niveau cible" value={student.niveauCible} />
-            <ReadOnlyField label="Date d'inscription" value={new Date(student.dateInscription).toLocaleDateString('fr-FR')} />
+            <ReadOnlyField label="Date d'inscription" value={student.dateInscription} />
             <ReadOnlyField label="Email" value={student.email} />
           </div>
           <p className="mt-md text-label-sm text-amud-on-surface-variant">

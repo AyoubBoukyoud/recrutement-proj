@@ -40,15 +40,19 @@ const DEV_MARKETING_LINKS: DevMenuItem[] = [
 type DevRealAccount = { phone: string; label: string; path: string };
 
 /**
- * Comptes de démo dont la destination réelle (`/admin/apercu`) est protégée
- * par `middleware.ts` : un simple `Link`, comme dans `DEV_REAL_APP_LINKS`, y
- * serait aussitôt renvoyé vers `/auth-phone` faute de cookie `as_role`. Ces
- * boutons passent donc par `devSignInReal`, qui rejoue la vérification OTP
- * réelle (même téléphone que `MOCK_ACCOUNTS`) avant de naviguer vers
- * `destinationForRole`.
+ * Comptes de démo dont la destination réelle (`/recruiter`, `/agent`) est
+ * protégée par `middleware.ts` : un simple `Link`, comme dans
+ * `DEV_REAL_APP_LINKS`, y serait aussitôt renvoyé vers `/auth-phone` faute de
+ * cookie `as_role`. Ces boutons passent donc par `devSignInReal`, qui rejoue
+ * la vérification OTP réelle (même téléphone que `MOCK_ACCOUNTS`) avant de
+ * naviguer vers `destinationForRole`.
+ *
+ * `path` ne sert que de clé React / suivi d'état de chargement — la
+ * navigation réelle vient de `destinationForRole(result.role)`. Le compte
+ * Admin y atterrit sur `/` depuis le retrait du back-office `/admin`.
  */
 const DEV_REAL_OTP_ACCOUNTS: DevRealAccount[] = [
-  { phone: '+212600000001', label: 'Admin — 06 00 00 00 01', path: '/admin/apercu' },
+  { phone: '+212600000001', label: 'Admin — 06 00 00 00 01', path: '/' },
   { phone: '+212600000002', label: 'Recruteur — 06 00 00 00 02', path: '/recruiter' },
   { phone: '+212600000003', label: 'Agent — 06 00 00 00 03', path: '/agent' },
 ];
@@ -68,9 +72,8 @@ const DEV_CANDIDATE_OTP_LINK = { phone: '+212600000004', label: 'Candidat — é
  * de connexion mock à déclencher, on veut juste pouvoir ouvrir la page. Liste
  * dérivée de `frontend/src/app/**\/page.tsx` — à tenir à jour si une page est
  * ajoutée ailleurs et manuellement rattachée à un groupe ci-dessus.
- * `/admin` (redirige vers `/admin/apercu`) et `/admin/[...slug]` (fallback
- * 404 générique) sont volontairement omis : ni l'un ni l'autre n'est une
- * destination utile en soi.
+ * Le groupe « Back-office admin » a disparu avec le retrait de `/admin`
+ * (cf. `roleDestination.ts`) : ces routes n'existent plus.
  */
 const DEV_REAL_APP_LINKS: DevLinkGroup[] = [
   {
@@ -106,21 +109,6 @@ const DEV_REAL_APP_LINKS: DevLinkGroup[] = [
       { path: '/visibilite', label: 'Score de visibilité' },
       { path: '/test-langue', label: 'Test de langue IA' },
       { path: '/lecon-jour', label: 'Leçon du jour' },
-    ],
-  },
-  {
-    key: 'admin-real',
-    label: 'Back-office admin (réel)',
-    items: [
-      { path: '/admin/apercu', label: 'Aperçu (métriques)' },
-      { path: '/admin/candidats', label: 'Candidats' },
-      { path: '/admin/candidats/1', label: 'Dossier candidat (exemple : id 1)' },
-      { path: '/admin/recruteurs', label: 'Recruteurs' },
-      { path: '/admin/recruteurs/201', label: 'Dossier recruteur (exemple : id 201)' },
-      { path: '/admin/parrainage', label: 'Commissions de parrainage' },
-      { path: '/admin/reclamations', label: 'Réclamations' },
-      { path: '/admin/stage', label: 'Catalogue du stage' },
-      { path: '/admin/utilisateurs', label: 'Utilisateurs' },
     ],
   },
 ];
@@ -200,7 +188,7 @@ export default function AuthPhonePage() {
 
   // Se connecte avec le vrai téléphone du compte puis suit la même
   // redirection que l'écran OTP (`destinationForRole`), pour atterrir sur la
-  // vraie page protégée (`/admin/apercu`) plutôt que sur une maquette `/amud`.
+  // vraie page protégée (`/recruiter`, `/agent`) plutôt que sur une maquette `/amud`.
   // En mock, le code accepté est fixe (`MOCK_OTP_CODE`) ; contre l'API réelle,
   // on redemande un vrai code au back et on se sert du `debug_otp_code` qu'il
   // renvoie en local — jamais disponible hors `APP_ENV=local`, donc sans

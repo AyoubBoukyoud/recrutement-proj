@@ -18,6 +18,7 @@ const CANDIDATE_PATHS = [
   '/profil',
   '/profile-creation',
   '/lecon-jour',
+  '/taches',
   '/offres',
   '/quiz-metier',
   '/visibilite',
@@ -49,7 +50,10 @@ const LEGACY_REDIRECTS: Record<string, string> = {
  */
 function realDestinationForAmud(pathname: string): string | null {
   if (pathname === '/amud' || pathname.startsWith('/amud/centre')) return '/accueil-public';
-  if (pathname.startsWith('/amud/admin')) return '/admin/apercu';
+  // Le back-office `/admin` a été retiré : il n'y a plus de console réelle
+  // vers laquelle renvoyer, et `/admin/apercu` renverrait un 404. On suit donc
+  // `destinationForRole('admin')`, qui envoie l'administrateur sur `/`.
+  if (pathname.startsWith('/amud/admin')) return '/';
   if (pathname.startsWith('/amud/entreprise') || pathname === '/amud/employer') return '/recruiter';
   if (pathname.startsWith('/amud/commercial')) return '/agent';
   return null;
@@ -61,10 +65,6 @@ function isCandidatePath(pathname: string) {
 
 function isRecruiterPath(pathname: string) {
   return pathname.startsWith('/recruiter');
-}
-
-function isAdminPath(pathname: string) {
-  return pathname.startsWith('/admin');
 }
 
 function isAgentPath(pathname: string) {
@@ -92,6 +92,21 @@ export function middleware(request: NextRequest) {
   // Routes candidat : nécessite une session candidat.
   if (isCandidatePath(pathname)) {
     if (role !== 'candidate') {
+      /*
+       * Prototype maquette (NEXT_PUBLIC_USE_MOCKS=1, jamais en production) :
+       * une première visite sans cookie du tout ouvre directement une session
+       * candidat de démonstration, au lieu de renvoyer vers /auth-phone. Le
+       * compte visé (id 101) est celui qu'un login démo réel produirait —
+       * AuthContext sème le même localStorage au premier montage côté client.
+       * Un rôle déjà présent (employer/admin/agent) garde le comportement
+       * existant : ce n'est pas la première visite, donc pas de bascule.
+       */
+      if (!role && process.env.NEXT_PUBLIC_USE_MOCKS === '1') {
+        const response = NextResponse.next();
+        response.cookies.set('as_role', 'candidate', { path: '/' });
+        response.cookies.set('as_uid', '101', { path: '/' });
+        return response;
+      }
       return redirectTo(request, '/auth-phone');
     }
   }
@@ -102,16 +117,6 @@ export function middleware(request: NextRequest) {
       return redirectTo(request, '/dashboard');
     }
     if (role !== 'employer') {
-      return redirectTo(request, '/auth-phone');
-    }
-  }
-
-  // Routes admin : nécessite une session admin.
-  if (isAdminPath(pathname)) {
-    if (role === 'candidate') {
-      return redirectTo(request, '/dashboard');
-    }
-    if (role !== 'admin') {
       return redirectTo(request, '/auth-phone');
     }
   }
@@ -143,6 +148,7 @@ export const config = {
     '/profil/:path*',
     '/profile-creation/:path*',
     '/lecon-jour/:path*',
+    '/taches/:path*',
     '/offres/:path*',
     '/quiz-metier/:path*',
     '/visibilite/:path*',
@@ -154,7 +160,6 @@ export const config = {
     '/notifications/:path*',
     '/compte/:path*',
     '/recruiter/:path*',
-    '/admin/:path*',
     '/agent/:path*',
     '/amud/:path*',
   ],

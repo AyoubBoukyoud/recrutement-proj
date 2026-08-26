@@ -1,74 +1,199 @@
 'use client';
 
+// Leçon quotidienne — Allemand du quotidien (phrase du jour + mini quiz).
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Button } from '@/components/shared/Button';
+import { Button, IconButton } from '@/components/shared/Button';
 import { useLanguage } from '@/context/LanguageContext';
 import { candidateLeconJourContentFor } from '@/lib/candidateLeconJourContent';
-import type { TaskAssignment } from '@/lib/candidateTasks';
-import { useCandidateTasks, useUpdateCandidateTask } from '@/lib/useCandidateTasks';
+import { readStorage, writeStorage, STORAGE_KEYS } from '@/lib/storage';
 
-const CATEGORY_ICONS: Record<string, string> = { language: 'translate', documents: 'description', culture: 'public', admin: 'assignment', other: 'task_alt' };
+const WEEK_SLOTS = ['done', 'done', 'done', 'done', 'done', 'active', 'remaining'] as const;
 
-function TaskCard({ assignment, overdue = false }: { assignment: TaskAssignment; overdue?: boolean }) {
-  const { language } = useLanguage();
-  const content = candidateLeconJourContentFor(language);
-  const update = useUpdateCandidateTask();
-  const task = assignment.task;
-  if (!task) return null;
+interface GermanStreak {
+  count: number;
+  lastCompletedDate: string | null;
+}
 
-  return (
-    <article className={`rounded-xl border bg-surface-container-lowest p-5 shadow-soft ${overdue ? 'border-error/40' : 'border-outline-variant'}`}>
-      <div className="flex items-start gap-4">
-        <span className={`material-symbols-outlined flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${overdue ? 'bg-error/10 text-error' : 'bg-primary/10 text-primary'}`}>
-          {CATEGORY_ICONS[task.category] ?? CATEGORY_ICONS.other}
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-start justify-between gap-2">
-            <h3 className="font-bold text-onSurface">{task.title}</h3>
-            <span className="rounded-full bg-surface-container-high px-2.5 py-1 text-xs font-semibold text-onSurface-variant">{content.tasks.minutes.replace('{count}', String(task.estimated_minutes))}</span>
-          </div>
-          {task.description && <p className="mt-2 text-sm leading-6 text-onSurface-variant">{task.description}</p>}
-          {overdue && <p className="mt-2 text-xs font-bold text-error">{content.tasks.overdue}</p>}
-          <div className="mt-4 flex justify-end">
-            <Button size="sm" onClick={() => update.mutate({ id: assignment.id, input: { status: 'completed', minutes_spent: task.estimated_minutes } })} isLoading={update.isPending} loadingLabel={content.tasks.saving} leadingIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>check</span>}>
-              {content.tasks.complete}
-            </Button>
-          </div>
-          {update.isError && <p role="alert" className="mt-2 text-right text-xs text-error">{content.error.update}</p>}
-        </div>
-      </div>
-    </article>
-  );
+const DEFAULT_STREAK: GermanStreak = { count: 7, lastCompletedDate: null };
+
+const todayKey = () => new Date().toISOString().slice(0, 10);
+
+// Contenu de la leçon du jour : le mot allemand enseigné et ses traductions de
+// référence (française et arabe) restent fixes quelle que soit la langue de
+// l'interface — ce sont les données pédagogiques, pas du texte d'UI.
+const GERMAN_PHRASE = 'Guten Morgen';
+const FRENCH_TRANSLATION = 'Bonjour';
+const ARABIC_TRANSLATION = 'صباح الخير';
+
+const QUIZ_OPTIONS = [
+  { text: 'Guten Tag', correct: true },
+  { text: 'Gute Nacht', correct: false },
+  { text: 'Danke', correct: false },
+];
+
+function speak(text: string, lang: string) {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return;
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = lang;
+  window.speechSynthesis.speak(utterance);
 }
 
 export default function LeconJourPage() {
+  const router = useRouter();
   const { language } = useLanguage();
   const content = candidateLeconJourContentFor(language);
-  const tasks = useCandidateTasks();
-  const engagement = tasks.data?.engagement;
-  const completion = engagement?.completion_rate ?? 0;
+  const [isRepeating, setIsRepeating] = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [streak, setStreak] = useState<GermanStreak>(DEFAULT_STREAK);
+
+  useEffect(() => {
+    setStreak(readStorage<GermanStreak>(STORAGE_KEYS.germanStreak, DEFAULT_STREAK));
+  }, []);
+
+  const handleRepeat = () => {
+    setIsRepeating(true);
+    setFeedback(null);
+    setTimeout(() => {
+      setIsRepeating(false);
+      setFeedback(content.lesson.feedback);
+      setTimeout(() => setFeedback(null), 2500);
+    }, 1500);
+  };
+
+  const handleFinish = () => {
+    const today = todayKey();
+    if (streak.lastCompletedDate !== today) {
+      const next: GermanStreak = { count: streak.count + 1, lastCompletedDate: today };
+      writeStorage(STORAGE_KEYS.germanStreak, next);
+    }
+    router.push('/dashboard');
+  };
 
   return (
     <div className="min-h-screen bg-surface pb-24">
-      <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b border-outline-variant bg-surface px-4 lg:px-10">
-        <Link href="/dashboard" className="p-2 transition-transform active:scale-95" aria-label={content.header.backAria}><span className="material-symbols-outlined text-primary-dark">arrow_back</span></Link>
+      <header className="sticky top-0 z-20 flex h-16 w-full items-center gap-4 border-b border-outline-variant bg-surface px-1.5 lg:px-4">
+        <Link href="/dashboard" className="p-2 transition-transform active:scale-95">
+          <span className="material-symbols-outlined text-primary-dark">arrow_back</span>
+        </Link>
         <h1 className="flex-1 truncate text-lg font-bold text-primary-dark">{content.header.title}</h1>
-        {engagement && <div className="flex items-center gap-1.5 rounded-full bg-gold/10 px-3 py-1.5"><span className="material-symbols-outlined fill text-gold" style={{ fontSize: 18 }}>local_fire_department</span><span className="text-sm font-bold text-gold-dark">{content.streak.label.replace('{count}', String(engagement.streak_days))}</span></div>}
+        <div className="flex items-center gap-1.5 rounded-full bg-gold/10 px-3 py-1.5">
+          <span className="material-symbols-outlined fill text-gold" style={{ fontSize: 18 }}>local_fire_department</span>
+          <span className="text-sm font-bold text-gold-dark">{content.streak.label.replace('{count}', String(streak.count))}</span>
+        </div>
       </header>
 
-      <main className="mx-auto w-full max-w-[720px] space-y-8 px-4 py-6 lg:px-10 lg:py-10">
-        {tasks.isLoading && <div className="h-36 animate-pulse rounded-xl bg-surface-container-high" aria-label={content.loading} />}
-        {tasks.isError && <section role="alert" className="rounded-xl border border-error/30 bg-error/5 p-6 text-center"><p className="font-bold text-error">{content.error.load}</p><Button variant="outline" className="mt-4" onClick={() => tasks.refetch()}>{content.error.retry}</Button></section>}
-        {tasks.data && <>
-          <section className="space-y-3 rounded-xl border border-outline-variant bg-surface-container-lowest p-5 shadow-soft">
-            <div className="flex items-center justify-between"><span className="text-xs font-bold uppercase tracking-wider text-onSurface-variant">{content.progress.label}</span><span className="text-sm font-bold text-primary-dark">{completion}%</span></div>
-            <div className="h-2.5 overflow-hidden rounded-full bg-surface-container-high" role="progressbar" aria-valuenow={completion} aria-valuemin={0} aria-valuemax={100}><div className="h-full rounded-full bg-tertiary transition-all" style={{ width: `${completion}%` }} /></div>
-            <div className="grid grid-cols-3 gap-3 pt-2 text-center text-xs"><div><strong className="block text-lg text-primary">{engagement?.completed ?? 0}</strong>{content.stats.completed}</div><div><strong className="block text-lg text-primary">{engagement?.minutes_last_7_days ?? 0}</strong>{content.stats.minutes}</div><div><strong className="block text-lg text-primary">{engagement?.overdue ?? 0}</strong>{content.stats.overdue}</div></div>
-          </section>
-          {tasks.data.overdue.length > 0 && <section className="space-y-3"><h2 className="text-lg font-bold text-error">{content.sections.overdue}</h2>{tasks.data.overdue.map((item) => <TaskCard key={item.id} assignment={item} overdue />)}</section>}
-          <section className="space-y-3"><h2 className="text-lg font-bold text-onSurface">{content.sections.today}</h2>{tasks.data.today.length > 0 ? tasks.data.today.map((item) => <TaskCard key={item.id} assignment={item} />) : <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-8 text-center"><span className="material-symbols-outlined text-4xl text-primary">event_available</span><p className="mt-2 font-bold text-onSurface">{content.empty.title}</p><p className="mt-1 text-sm text-onSurface-variant">{content.empty.body}</p></div>}</section>
-          {tasks.data.upcoming.length > 0 && <section className="space-y-3"><h2 className="text-lg font-bold text-onSurface">{content.sections.upcoming}</h2>{tasks.data.upcoming.map((item) => <article key={item.id} className="flex items-center gap-3 rounded-xl border border-outline-variant bg-surface-container-lowest p-4"><span className="material-symbols-outlined text-primary">schedule</span><div className="min-w-0 flex-1"><p className="font-semibold text-onSurface">{item.task?.title}</p><p className="text-xs text-onSurface-variant">{item.assigned_for}</p></div></article>)}</section>}
-        </>}
+      <main className="mx-auto w-full max-w-[600px] space-y-8 px-4 py-6 lg:max-w-[720px] lg:px-10 lg:py-10">
+        <section className="space-y-3">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs font-bold uppercase tracking-wider text-onSurface-variant">{content.progress.label}</span>
+            <span className="text-xs font-bold text-primary-dark">85%</span>
+          </div>
+          <div className="flex h-2.5 gap-2">
+            {WEEK_SLOTS.map((slot, i) => (
+              <div
+                key={i}
+                className={`flex-1 rounded-full shadow-sm ${
+                  slot === 'done' ? 'bg-tertiary' : slot === 'active' ? 'animate-pulse bg-tertiary/40' : 'bg-surface-container-high'
+                }`}
+              />
+            ))}
+          </div>
+        </section>
+
+        <article className="group relative overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest p-8 shadow-[0px_4px_24px_rgba(0,69,35,0.06)]">
+          <div className="absolute bottom-0 left-0 top-0 w-1.5 rounded-r-full bg-primary-dark" />
+          <div className="flex flex-col items-center space-y-6 text-center">
+            <div className="mb-2 flex h-24 w-24 items-center justify-center rounded-full bg-primary-container/10 text-primary-dark">
+              <span className="material-symbols-outlined" style={{ fontSize: 48 }}>wb_sunny</span>
+            </div>
+            <div className="flex items-center justify-center gap-3">
+              <h2 className="text-2xl font-bold text-primary-dark">{GERMAN_PHRASE}</h2>
+              <IconButton
+                variant="primary"
+                onClick={() => speak(GERMAN_PHRASE, 'de-DE')}
+                aria-label={content.lesson.listenAria}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 20 }}>volume_up</span>
+              </IconButton>
+            </div>
+
+            <div className="w-full space-y-3 border-t border-outline-variant/30 pt-4">
+              <div className="flex items-center justify-between rounded-lg bg-surface-container p-3">
+                <span className="text-xs font-semibold text-onSurface-variant">{content.lesson.frenchLabel}</span>
+                <span className="text-sm font-semibold">{FRENCH_TRANSLATION}</span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg bg-surface-container p-3">
+                <span className="text-xs font-semibold text-onSurface-variant">{content.lesson.arabicLabel}</span>
+                <span className="text-sm font-semibold" dir="rtl">{ARABIC_TRANSLATION}</span>
+              </div>
+            </div>
+
+            <div className="grid w-full grid-cols-2 gap-4 pt-4">
+              <Button variant="tonal" onClick={() => speak(GERMAN_PHRASE, 'de-DE')} className="flex-1">
+                <span className="material-symbols-outlined" style={{ fontSize: 20 }}>play_circle</span>
+                {content.lesson.listen}
+              </Button>
+              <Button onClick={handleRepeat} disabled={isRepeating} className="flex-1 shadow-lg shadow-primary-dark/20">
+                <span className={`material-symbols-outlined ${isRepeating ? 'animate-pulse' : ''}`} style={{ fontSize: 20 }}>mic</span>
+                {isRepeating ? content.lesson.repeating : content.lesson.repeat}
+              </Button>
+            </div>
+
+            {feedback && <p className="text-sm font-bold text-primary-dark">{feedback}</p>}
+          </div>
+        </article>
+
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 px-1">
+            <span className="material-symbols-outlined text-tertiary" style={{ fontSize: 20 }}>quiz</span>
+            <h3 className="text-lg font-bold text-onSurface">{content.quiz.title}</h3>
+          </div>
+          <div className="space-y-6 rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
+            <p className="text-onSurface">{content.quiz.question}</p>
+            <div className="grid grid-cols-1 gap-3">
+              {QUIZ_OPTIONS.map((option) => {
+                const isSelected = selectedOption === option.text;
+                const showState = isSelected;
+                return (
+                  <button
+                    key={option.text}
+                    type="button"
+                    onClick={() => setSelectedOption(option.text)}
+                    className={`flex items-center justify-between rounded-xl border p-4 text-left text-sm font-medium transition-all active:scale-[0.98] ${
+                      showState
+                        ? option.correct
+                          ? 'border-primary-dark bg-primary-dark/5 text-primary-dark'
+                          : 'border-error bg-error/5 text-error'
+                        : 'border-outline-variant hover:bg-surface-container-low'
+                    }`}
+                  >
+                    <span>{option.text}</span>
+                    {showState && (
+                      <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
+                        {option.correct ? 'check_circle' : 'cancel'}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        <footer className="pb-4 pt-2">
+          <Button
+            size="lg"
+            fullWidth
+            onClick={handleFinish}
+            className="bg-tertiary text-onTertiary shadow-lg shadow-tertiary/20 hover:enabled:bg-tertiary-dark"
+          >
+            {content.finish}
+          </Button>
+        </footer>
       </main>
     </div>
   );

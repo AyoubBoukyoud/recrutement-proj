@@ -11,6 +11,7 @@ import { centerStudentPaymentsSeed } from '@/data/amud/centerStudentPayments';
 import { centerFormationsCollection } from '@/lib/amud/localCenterFormations';
 import { centerFormationsSeed } from '@/data/amud/centerFormations';
 import { PAYMENT_STATUS_LABELS, PAYMENT_STATUS_CLASS } from '@/data/amud/centerTypes';
+import { parseAnyDate } from '@/lib/amud/analytics/period';
 
 export default function StudentPaymentsPage() {
   const { studentId } = useCurrentStudent();
@@ -20,7 +21,10 @@ export default function StudentPaymentsPage() {
 
   const student = students.find((s) => s.id === studentId);
   const myPayments = useMemo(
-    () => payments.filter((p) => p.studentId === studentId).sort((a, b) => b.date.localeCompare(a.date)),
+    () =>
+      payments
+        .filter((p) => p.studentId === studentId)
+        .sort((a, b) => (parseAnyDate(b.date)?.getTime() ?? 0) - (parseAnyDate(a.date)?.getTime() ?? 0)),
     [payments, studentId],
   );
 
@@ -67,7 +71,7 @@ export default function StudentPaymentsPage() {
                     <div>
                       <p className="text-body-md font-semibold text-amud-on-surface">{formation?.nom ?? 'Formation'}</p>
                       <p className="text-label-sm text-amud-on-surface-variant">
-                        {new Date(p.date).toLocaleDateString('fr-FR')} · {p.mode}
+                        {p.date} · {p.mode}
                         {p.reference ? ` · Réf. ${p.reference}` : ''}
                       </p>
                     </div>

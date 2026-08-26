@@ -112,8 +112,8 @@ export default function StudentFormationPage() {
               { label: 'Durée', value: `${formation.dureeSemaines} semaines` },
               { label: 'Nombre de séances', value: `${formation.nombreSeances} séances` },
               { label: 'Prix', value: `${formation.prix.toLocaleString('fr-FR')} MAD` },
-              { label: 'Date de début', value: new Date(formation.dateDebut).toLocaleDateString('fr-FR') },
-              { label: 'Date de fin', value: new Date(formation.dateFin).toLocaleDateString('fr-FR') },
+              { label: 'Date de début', value: formation.dateDebut },
+              { label: 'Date de fin', value: formation.dateFin },
               { label: 'Statut', value: formation.statut },
             ].map(({ label, value }) => (
               <div key={label} className="flex justify-between border-b border-amud-outline-variant py-sm last:border-0">

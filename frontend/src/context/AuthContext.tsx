@@ -125,8 +125,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [resendAvailableIn, setResendAvailableIn] = useState<number | null>(null);
 
   useEffect(() => {
-    setUser(readStorage<AuthUser | null>(STORAGE_KEYS.auth, null));
-    setToken(readStorage<string | null>(STORAGE_KEYS.token, null));
+    let storedUser = readStorage<AuthUser | null>(STORAGE_KEYS.auth, null);
+    let storedToken = readStorage<string | null>(STORAGE_KEYS.token, null);
+
+    /*
+     * Prototype maquette : la première visite sans session ouvre le même
+     * compte candidat de démo que /auth-phone produirait (+212600000001,
+     * id 101 — voir data/fixtures/auth.ts) plutôt que de rester déconnecté.
+     * `middleware.ts` pose déjà le cookie côté serveur pour ce même compte ;
+     * ceci sème le localStorage que lit le reste de l'app (token, useAuth().user).
+     */
+    if (!storedUser && process.env.NEXT_PUBLIC_USE_MOCKS === '1') {
+      storedUser = {
+        id: '101',
+        role: 'candidate',
+        name: 'Youssef Amrani',
+        phone: '+212600000001',
+        roles: ['User'],
+      };
+      storedToken = 'mock-token-candidate-101';
+      writeStorage(STORAGE_KEYS.token, storedToken);
+      persistUser(storedUser);
+    }
+
+    setUser(storedUser);
+    setToken(storedToken);
     setIsLoading(false);
   }, []);
 

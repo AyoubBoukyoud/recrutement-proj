@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { DropdownMenu, NavItem, isNavActive } from '@/components/amud/ui';
-import { HeaderLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
+import { InlineLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
 import { ToastProvider } from '@/components/amud/Toast';
 import { DemoBanner } from '@/components/amud/DemoBanner';
 import { GlobalSearch, useGlobalSearchShortcut, type GlobalSearchResult } from '@/components/amud/GlobalSearch';
@@ -138,7 +138,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
             collapsed ? 'md:w-20 md:hover:w-64' : 'md:w-64'
           }`}
         >
-          <div className={`flex items-center gap-sm border-b border-amud-outline-variant p-lg ${collapsed ? 'md:px-md' : ''}`}>
+          <div className={`flex items-center gap-sm border-b border-amud-outline-variant px-lg py-2.5 ${collapsed ? 'md:px-md' : ''}`}>
             <img src="/assets/images/logo.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
             <div className={hiddenWhenCollapsed}>
               <h1 className="text-title-lg font-bold text-amud-primary">Amud Skills</h1>
@@ -197,7 +197,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
             collapsed ? 'md:ml-20' : 'md:ml-64'
           }`}
         >
-          <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-amud-outline-variant bg-amud-surface px-gutter">
+          <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-amud-outline-variant/40 bg-amud-surface/90 px-gutter backdrop-blur-md">
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setCollapsed((c) => !c)}
@@ -224,17 +224,6 @@ export function AdminShell({ children }: { children: ReactNode }) {
             />
             <div className="ml-auto flex items-center gap-sm">
               <NotificationCenter key={`notif-${pathname}`} scope="admin" />
-              <Link
-                href="/amud/admin/parametres"
-                className="rounded-full p-2 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary"
-                aria-label="Paramètres"
-              >
-                <span className="material-symbols-outlined">settings</span>
-              </Link>
-              <button className="rounded-full p-2 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary" aria-label="Aide">
-                <span className="material-symbols-outlined">help</span>
-              </button>
-              <HeaderLanguageThemeControls />
               <DropdownMenu
                 key={`profile-${pathname}`}
                 header={
@@ -243,6 +232,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
                     <div className="text-label-sm text-amud-on-surface-variant">Gestionnaire Principal</div>
                   </div>
                 }
+                body={<InlineLanguageThemeControls />}
                 trigger={({ open, toggle }) => (
                   <button
                     onClick={toggle}
@@ -256,6 +246,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 )}
                 items={[
                   { label: 'Paramètres', icon: 'settings', href: '/amud/admin/parametres' },
+                  { label: 'Aide', icon: 'help' },
                   { label: "Changer d'espace", icon: 'apps', href: '/amud' },
                   { label: 'Déconnexion', icon: 'logout', href: '/amud', danger: true },
                 ]}

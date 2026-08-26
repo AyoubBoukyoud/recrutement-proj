@@ -116,7 +116,7 @@ export default function VideoRecordingPage() {
 
   return (
     <div>
-      <header className="flex items-center gap-3 bg-primary p-6 pb-8 lg:px-10">
+      <header className="flex items-center gap-3 bg-primary p-2.5 pb-3 lg:px-4">
         <Link href="/dashboard" className="text-onPrimary">
           <ChevronLeft size={22} />
         </Link>

@@ -16,4 +16,10 @@ export const CURRENT_COMMERCIAL = {
   id: 'ahmed-benali',
   nom: 'Ahmed Benali',
   initiales: 'AB',
+  email: 'ahmed.benali@amudskills.com',
+  telephone: '+212 6 61 23 45 67',
+  ville: 'Casablanca',
+  fonction: 'Commercial Senior',
+  dateEntree: '03/01/2024',
+  statut: 'Actif',
 } as const;

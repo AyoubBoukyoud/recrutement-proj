@@ -67,8 +67,8 @@ export default function StudentGroupPage() {
             { label: 'Niveau', value: group.niveau, icon: 'grade' },
             { label: 'Salle', value: group.salle, icon: 'meeting_room' },
             { label: 'Capacité', value: `${groupMembers.length} / ${group.capaciteMax}`, icon: 'group' },
-            { label: 'Date de début', value: new Date(group.dateDebut).toLocaleDateString('fr-FR'), icon: 'event' },
-            { label: 'Date de fin', value: new Date(group.dateFin).toLocaleDateString('fr-FR'), icon: 'event_busy' },
+            { label: 'Date de début', value: group.dateDebut, icon: 'event' },
+            { label: 'Date de fin', value: group.dateFin, icon: 'event_busy' },
           ].map(({ label, value, icon }) => (
             <div key={label} className="flex items-center gap-sm rounded-lg border border-amud-outline-variant p-sm">
               <span className="material-symbols-outlined text-amud-primary">{icon}</span>
