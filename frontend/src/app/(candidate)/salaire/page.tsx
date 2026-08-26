@@ -2,11 +2,19 @@
 
 // Simuler mon salaire — estimation du salaire net et des coûts de migration.
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/shared/Button';
 import { useLanguage } from '@/context/LanguageContext';
 import { salaireContentFor } from '@/lib/candidateSalaireContent';
+import { readStorage, writeStorage, STORAGE_KEYS } from '@/lib/storage';
+
+interface SalarySimulation {
+  profession: string;
+  region: string;
+  experience: number;
+  result: { low: number; mid: number; high: number; net: number; resteAVivre: number };
+}
 
 // Mots-clés de correspondance métier → salaire de base. Volontairement non
 // traduits : c'est une heuristique interne sur le texte libre saisi par le
@@ -46,6 +54,15 @@ export default function SalairePage() {
   const [isCalculating, setIsCalculating] = useState(false);
   const [result, setResult] = useState<{ low: number; mid: number; high: number; net: number; resteAVivre: number } | null>(null);
 
+  useEffect(() => {
+    const saved = readStorage<SalarySimulation | null>(STORAGE_KEYS.salarySimulation, null);
+    if (!saved) return;
+    setProfession(saved.profession);
+    setRegion(saved.region);
+    setExperience(saved.experience);
+    setResult(saved.result);
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsCalculating(true);
@@ -58,14 +75,16 @@ export default function SalairePage() {
       const high = Math.round((mid * 1.18) / 10) * 10;
       const net = Math.round((mid * 0.67) / 10) * 10;
       const resteAVivre = Math.max(net - 700 - 500, 0);
-      setResult({ low, mid, high, net, resteAVivre });
+      const nextResult = { low, mid, high, net, resteAVivre };
+      setResult(nextResult);
+      writeStorage<SalarySimulation>(STORAGE_KEYS.salarySimulation, { profession, region, experience, result: nextResult });
       setIsCalculating(false);
     }, 800);
   };
 
   return (
     <div className="min-h-screen bg-surface pb-32">
-      <header className="sticky top-0 z-20 flex w-full items-center gap-4 border-b border-outline-variant/20 bg-surface px-4 py-4 lg:px-10">
+      <header className="sticky top-0 z-20 flex w-full items-center gap-4 border-b border-outline-variant/20 bg-surface px-1.5 py-1.5 lg:px-4">
         <Link href="/dashboard" className="text-primary-dark transition-opacity hover:opacity-80">
           <span className="material-symbols-outlined">arrow_back</span>
         </Link>

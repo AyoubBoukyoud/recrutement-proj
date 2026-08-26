@@ -3,7 +3,7 @@ import { Skeleton, SkeletonPage } from '@/components/shared/Skeleton';
 export default function SalaireLoading() {
   return (
     <SkeletonPage className="min-h-screen bg-surface pb-32">
-      <header className="sticky top-0 z-20 flex w-full items-center gap-4 border-b border-outline-variant/20 bg-surface px-4 py-4 lg:px-10">
+      <header className="sticky top-0 z-20 flex w-full items-center gap-4 border-b border-outline-variant/20 bg-surface px-1.5 py-1.5 lg:px-4">
         <Skeleton className="h-5 w-5 rounded" />
         <Skeleton className="h-4 w-44" />
       </header>

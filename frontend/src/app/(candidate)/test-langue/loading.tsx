@@ -3,7 +3,7 @@ import { Skeleton, SkeletonPage } from '@/components/shared/Skeleton';
 export default function TestLangueLoading() {
   return (
     <SkeletonPage className="min-h-screen bg-surface pb-24">
-      <header className="flex h-16 max-w-4xl items-center justify-between px-6 mx-auto w-full lg:px-10">
+      <header className="flex h-16 max-w-4xl items-center justify-between px-2.5 mx-auto w-full lg:px-4">
         <Skeleton className="h-6 w-6 rounded" />
         <Skeleton className="h-4 w-56" />
         <span className="w-6" />

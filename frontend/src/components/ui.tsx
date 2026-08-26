@@ -26,6 +26,8 @@ import {
   type ReactNode,
   type SelectHTMLAttributes,
 } from 'react'
+import type { Language } from '@/lib/types'
+import { translate } from '@/lib/i18n'
 
 const cx = (...parts: (string | false | undefined)[]) => parts.filter(Boolean).join(' ')
 
@@ -476,19 +478,25 @@ export function BulkActionBar({
   actions,
   onClear,
   noun = 'sélectionné',
+  nounPlural,
+  language = 'fr',
 }: {
   count: number
   actions: { label: string; onClick: () => void; tone?: 'default' | 'danger'; disabled?: boolean }[]
   onClear: () => void
+  /** Le nom au singulier — par défaut, un « s » suffit à tout ce qui est compté ici. */
   noun?: string
+  /** Forme au pluriel, quand un simple « +s » ne convient pas (allemand, arabe...). */
+  nounPlural?: string
+  /** Espaces non encore branchés sur `useLanguage()` : défaut `'fr'`, comportement inchangé. */
+  language?: Language
 }) {
   if (count === 0) return null
 
   return (
     <div className="sticky bottom-4 z-30 flex flex-wrap items-center gap-3 rounded-element border border-outline-variant bg-surface-lowest px-4 py-3 shadow-lg">
       <span className="text-[13px] font-semibold text-on-surface">
-        {count} {noun}
-        {count > 1 ? 's' : ''}
+        {count} {count > 1 ? (nounPlural ?? `${noun}s`) : noun}
       </span>
       <div className="flex flex-wrap gap-2">
         {actions.map((action) => (
@@ -507,7 +515,7 @@ export function BulkActionBar({
         onClick={onClear}
         className="ml-auto text-[13px] font-medium text-on-surface-variant hover:text-on-surface"
       >
-        Annuler
+        {translate(language, 'cancel')}
       </button>
     </div>
   )

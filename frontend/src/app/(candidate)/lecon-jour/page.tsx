@@ -2,18 +2,24 @@
 
 // Leçon quotidienne — Allemand du quotidien (phrase du jour + mini quiz).
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button, IconButton } from '@/components/shared/Button';
 import { useLanguage } from '@/context/LanguageContext';
 import { candidateLeconJourContentFor } from '@/lib/candidateLeconJourContent';
+import { readStorage, writeStorage, STORAGE_KEYS } from '@/lib/storage';
 
 const WEEK_SLOTS = ['done', 'done', 'done', 'done', 'done', 'active', 'remaining'] as const;
 
-// Nombre de jours de la série en cours — mock, non traduisible (interpolé dans
-// `content.streak.label`).
-const STREAK_DAYS = 7;
+interface GermanStreak {
+  count: number;
+  lastCompletedDate: string | null;
+}
+
+const DEFAULT_STREAK: GermanStreak = { count: 7, lastCompletedDate: null };
+
+const todayKey = () => new Date().toISOString().slice(0, 10);
 
 // Contenu de la leçon du jour : le mot allemand enseigné et ses traductions de
 // référence (française et arabe) restent fixes quelle que soit la langue de
@@ -42,6 +48,11 @@ export default function LeconJourPage() {
   const [isRepeating, setIsRepeating] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [streak, setStreak] = useState<GermanStreak>(DEFAULT_STREAK);
+
+  useEffect(() => {
+    setStreak(readStorage<GermanStreak>(STORAGE_KEYS.germanStreak, DEFAULT_STREAK));
+  }, []);
 
   const handleRepeat = () => {
     setIsRepeating(true);
@@ -54,19 +65,24 @@ export default function LeconJourPage() {
   };
 
   const handleFinish = () => {
+    const today = todayKey();
+    if (streak.lastCompletedDate !== today) {
+      const next: GermanStreak = { count: streak.count + 1, lastCompletedDate: today };
+      writeStorage(STORAGE_KEYS.germanStreak, next);
+    }
     router.push('/dashboard');
   };
 
   return (
     <div className="min-h-screen bg-surface pb-24">
-      <header className="sticky top-0 z-20 flex h-16 w-full items-center gap-4 border-b border-outline-variant bg-surface px-4 lg:px-10">
+      <header className="sticky top-0 z-20 flex h-16 w-full items-center gap-4 border-b border-outline-variant bg-surface px-1.5 lg:px-4">
         <Link href="/dashboard" className="p-2 transition-transform active:scale-95">
           <span className="material-symbols-outlined text-primary-dark">arrow_back</span>
         </Link>
         <h1 className="flex-1 truncate text-lg font-bold text-primary-dark">{content.header.title}</h1>
         <div className="flex items-center gap-1.5 rounded-full bg-gold/10 px-3 py-1.5">
           <span className="material-symbols-outlined fill text-gold" style={{ fontSize: 18 }}>local_fire_department</span>
-          <span className="text-sm font-bold text-gold-dark">{content.streak.label.replace('{count}', String(STREAK_DAYS))}</span>
+          <span className="text-sm font-bold text-gold-dark">{content.streak.label.replace('{count}', String(streak.count))}</span>
         </div>
       </header>
 

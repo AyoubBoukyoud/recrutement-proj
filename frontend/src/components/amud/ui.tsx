@@ -1239,6 +1239,7 @@ export function DropdownMenu({
   items,
   align = 'right',
   header,
+  body,
   widthClassName = 'w-56',
 }: {
   /** Rend le déclencheur ; reçoit `open`/`toggle` pour poser `aria-expanded` etc. */
@@ -1246,6 +1247,8 @@ export function DropdownMenu({
   items: DropdownMenuItem[];
   align?: 'left' | 'right';
   header?: ReactNode;
+  /** Contenu libre entre l'en-tête et la liste d'actions (ex. sélecteurs langue/thème). */
+  body?: ReactNode;
   widthClassName?: string;
 }) {
   const { open, setOpen, ref } = useDropdown<HTMLDivElement>();
@@ -1260,6 +1263,7 @@ export function DropdownMenu({
           }`}
         >
           {header ? <div className="border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm">{header}</div> : null}
+          {body ? <div className="border-b border-amud-outline-variant">{body}</div> : null}
           <div className="flex flex-col py-1">
             {items.map((item, i) =>
               item.href ? (

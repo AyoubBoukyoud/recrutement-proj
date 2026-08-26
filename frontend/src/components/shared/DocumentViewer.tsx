@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import type { DocumentEntry } from '@/lib/types';
 import { Button } from '@/components/shared/Button';
 
@@ -29,13 +30,23 @@ interface DocumentViewerProps {
 
 export function DocumentViewer({ document, previewUrl, onRemove }: DocumentViewerProps) {
   const isImage = /\.(png|jpe?g|webp)$/i.test(document.name);
+  // Une maquette peut pointer vers un fichier qui n'existe pas réellement sur
+  // le disque (`/assets/mock/*.jpg`) : sans ce garde-fou, le navigateur affiche
+  // son icône d'image cassée avec le texte alternatif qui déborde du cadre.
+  const [imageFailed, setImageFailed] = useState(false);
+  const showImage = previewUrl && isImage && !imageFailed;
 
   return (
     <div className="flex items-center gap-3 rounded-xl border border-outline-variant bg-surface-lowest p-3 shadow-soft">
       <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-primary-light text-primary">
-        {previewUrl && isImage ? (
+        {showImage ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={previewUrl} alt={document.name} className="h-full w-full object-cover" />
+          <img
+            src={previewUrl}
+            alt={document.name}
+            className="h-full w-full object-cover"
+            onError={() => setImageFailed(true)}
+          />
         ) : (
           <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
             {isImage ? 'image' : 'description'}

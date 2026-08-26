@@ -22,7 +22,9 @@
   "job": {
     "removeFavoriteAria": "Remove from favorites",
     "addFavoriteAria": "Add to favorites",
-    "interestedButton": "I'm interested"
+    "interestedButton": "I'm interested",
+    "appliedButton": "Application sent",
+    "noResults": "No offers match your search."
   },
   "banner": {
     "title": "Boost your visibility",

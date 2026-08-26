@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { DropdownMenu, NavItem, Toggle, isNavActive, useDropdown } from '@/components/amud/ui';
-import { HeaderLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
+import { DropdownMenu, NavItem, Toggle, isNavActive } from '@/components/amud/ui';
+import { InlineLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
 import { ToastProvider } from '@/components/amud/Toast';
 import { DemoBanner } from '@/components/amud/DemoBanner';
 import { GlobalSearch, useGlobalSearchShortcut, type GlobalSearchResult } from '@/components/amud/GlobalSearch';
@@ -91,7 +91,6 @@ export function CommercialShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
-  const settingsMenu = useDropdown<HTMLDivElement>();
   const [query, setQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -106,7 +105,6 @@ export function CommercialShell({ children }: { children: ReactNode }) {
   });
 
   useEffect(() => {
-    settingsMenu.setOpen(false);
     setSearchOpen(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
@@ -127,7 +125,7 @@ export function CommercialShell({ children }: { children: ReactNode }) {
           collapsed ? 'md:w-20 md:px-2 md:hover:w-64 md:hover:px-md' : 'md:w-64'
         }`}
       >
-        <div className="mb-xl flex items-center gap-md px-sm">
+        <div className="mb-xl flex h-16 items-center gap-md px-sm">
           <img src="/assets/images/logo.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
           <div className={hiddenWhenCollapsed}>
             <h1 className="text-title-lg font-black text-amud-primary">Amud Skills</h1>
@@ -165,7 +163,7 @@ export function CommercialShell({ children }: { children: ReactNode }) {
           collapsed ? 'md:ml-20' : 'md:ml-64'
         }`}
       >
-        <header className="sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-amud-outline-variant bg-amud-surface px-md md:px-lg">
+        <header className="sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-amud-outline-variant/40 bg-amud-surface/90 px-md backdrop-blur-md md:px-lg">
           <div className="flex items-center gap-1">
             <button
               onClick={() => setCollapsed((c) => !c)}
@@ -198,41 +196,28 @@ export function CommercialShell({ children }: { children: ReactNode }) {
               buttonClassName="relative rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary"
               viewAllHref="/amud/commercial/notifications"
             />
-            <div ref={settingsMenu.ref} className="relative hidden sm:block">
-              <button
-                onClick={() => settingsMenu.setOpen((v) => !v)}
-                className="rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary"
-                aria-label="Réglages"
-                aria-haspopup="menu"
-                aria-expanded={settingsMenu.open}
-              >
-                <span className="material-symbols-outlined">settings</span>
-              </button>
-              {settingsMenu.open ? (
-                <div className="absolute right-0 top-full z-40 mt-2 w-72 overflow-hidden rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
-                  <div className="border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm text-label-md font-semibold text-amud-on-surface">
-                    Réglages rapides
-                  </div>
-                  <div className="flex flex-col gap-sm p-md">
-                    <div className="flex items-center justify-between">
-                      <span className="text-label-md text-amud-on-surface">Notifications par email</span>
-                      <Toggle checked={emailNotif} onChange={setEmailNotif} size="sm" label="Notifications par email" />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-label-md text-amud-on-surface">Notifications push</span>
-                      <Toggle checked={pushNotif} onChange={setPushNotif} size="sm" label="Notifications push" />
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-            </div>
-            <HeaderLanguageThemeControls iconButtonClassName="rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary" />
             <DropdownMenu
               key={`profile-${pathname}`}
               header={
                 <div>
                   <div className="text-label-md font-semibold text-amud-on-surface">{CURRENT_COMMERCIAL.nom}</div>
                   <div className="text-label-sm text-amud-on-surface-variant">Espace Commercial</div>
+                </div>
+              }
+              body={
+                <div className="flex flex-col">
+                  <InlineLanguageThemeControls />
+                  <div className="flex flex-col gap-sm border-t border-amud-outline-variant p-md">
+                    <div className="text-label-sm text-amud-on-surface-variant">Notifications</div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-label-md text-amud-on-surface">Par email</span>
+                      <Toggle checked={emailNotif} onChange={setEmailNotif} size="sm" label="Notifications par email" />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-label-md text-amud-on-surface">Push</span>
+                      <Toggle checked={pushNotif} onChange={setPushNotif} size="sm" label="Notifications push" />
+                    </div>
+                  </div>
                 </div>
               }
               trigger={({ open, toggle }) => (
@@ -248,6 +233,7 @@ export function CommercialShell({ children }: { children: ReactNode }) {
               )}
               items={[
                 { label: 'Voir mon profil', icon: 'account_circle', href: '/amud/commercial/profile' },
+                { label: 'Aide', icon: 'help' },
                 { label: "Changer d'espace", icon: 'apps', href: '/amud' },
                 { label: 'Déconnexion', icon: 'logout', href: '/amud', danger: true },
               ]}

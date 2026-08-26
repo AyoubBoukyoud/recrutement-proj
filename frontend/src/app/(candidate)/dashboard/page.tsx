@@ -7,8 +7,9 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useProfile } from '@/context/ProfileContext';
 import { useCandidateProfile } from '@/lib/useCandidateProfile';
-import { listLanguageAssessments } from '@/lib/languageAssessment';
+import { languageAssessmentRepository } from '@/data/languageAssessment';
 import { documentsRepository } from '@/data/documents';
+import { JOB_OFFERS, listAppliedIds, applyToJob } from '@/data/jobOffers';
 import { ChecklistItem } from '@/components/shared/ChecklistItem';
 import { Button, IconButton } from '@/components/shared/Button';
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
@@ -36,11 +37,6 @@ const APPLICATIONS = [
   { id: 3, company: 'Logistik Nord', icon: 'local_shipping', stage: 0 },
 ] as const;
 
-const RECOMMENDATIONS = [
-  { id: 1, company: 'Hôtel München', icon: 'hotel', match: 92 },
-  { id: 2, company: 'Pflegeheim Hamburg', icon: 'medical_services', match: 87 },
-] as const;
-
 export default function DashboardPage() {
   // Vérification d'identité reste sur l'écran dédié (son propre document
   // approuvé fait foi) — ce tableau de bord ne la refait pas ici.
@@ -64,7 +60,8 @@ export default function DashboardPage() {
         setIdentityVerified(docs.some((d) => d.type === 'identity' && d.approval_status === 'approved'));
       })
       .catch(() => undefined);
-    listLanguageAssessments(token)
+    languageAssessmentRepository
+      .list(token)
       .then((assessments) => setTestDone(assessments.some((a) => a.status === 'completed')))
       .catch(() => undefined);
   }, [token]);
@@ -78,16 +75,40 @@ export default function DashboardPage() {
   const avatarInitials =
     `${profile?.first_name?.[0] ?? ''}${profile?.last_name?.[0] ?? ''}`.toUpperCase() || localProfile.avatarInitials;
 
-  const [appliedIds, setAppliedIds] = useState<number[]>([]);
+  // Les recommandations pointent vers le catalogue partagé avec /offres — id
+  // numérique côté contenu i18n (content.recommendations.items), id texte
+  // côté catalogue (data/jobOffers) pour persister le "postuler" en commun.
+  const RECOMMENDATIONS = [
+    { id: 1, jobId: 'hotel-munchen', company: 'Hôtel München', icon: 'hotel', match: 92 },
+    { id: 2, jobId: 'pflegeheim-hamburg', company: 'Pflegeheim Hamburg', icon: 'medical_services', match: 87 },
+  ] as const;
+
+  const [appliedJobIds, setAppliedJobIds] = useState<string[]>([]);
+  useEffect(() => setAppliedJobIds(listAppliedIds()), []);
+  const applyToRecommendation = (jobId: string) => setAppliedJobIds(applyToJob(jobId).map((a) => a.jobId));
+
   const heroApplication = [...APPLICATIONS].sort((a, b) => b.stage - a.stage)[0];
   const otherApplications = APPLICATIONS.filter((application) => application.id !== heroApplication.id);
   const applicationTextFor = (id: number) => content.applications.items.find((item) => item.id === id)!;
   const recommendationTextFor = (id: number) => content.recommendations.items.find((item) => item.id === id)!;
   const heroApplicationText = applicationTextFor(heroApplication.id);
 
+  // Les trois candidatures ci-dessus (APPLICATIONS) sont déjà dans le
+  // catalogue partagé, seedées comme "déjà postulées" — ne pas les redessiner
+  // une seconde fois. Une offre postulée ailleurs (ex. /offres) que ces
+  // trois-là et les deux recommandations n'a pas de texte i18n dédié : une
+  // carte générique suffit à en témoigner sur le tableau de bord.
+  const PIPELINE_JOB_IDS = ['klinik-berlin', 'elektro-gmbh', 'logistik-nord'];
+  const extraApplications = JOB_OFFERS.filter(
+    (job) =>
+      appliedJobIds.includes(job.id) &&
+      !PIPELINE_JOB_IDS.includes(job.id) &&
+      !RECOMMENDATIONS.some((r) => r.jobId === job.id)
+  );
+
   return (
     <div>
-      <header className="sticky top-0 z-20 flex w-full items-center justify-between border-b border-surface-container-high bg-surface-container-lowest/90 px-6 py-3.5 backdrop-blur-md lg:px-10 lg:py-5">
+      <header className="sticky top-0 z-20 flex w-full items-center justify-between border-b border-surface-container-high bg-surface-container-lowest/90 px-2.5 py-1.5 backdrop-blur-md lg:px-4 lg:py-2">
         <div>
           <h1 className="text-base font-extrabold text-primary lg:text-xl">
             {content.header.greeting.replace('{name}', firstName || content.header.fallbackName)}{' '}
@@ -200,28 +221,6 @@ export default function DashboardPage() {
           </div>
 
           <section className="fade-in-entry stagger-3 opacity-0 space-y-3 lg:col-span-3">
-            <h2 className="text-lg font-extrabold text-primary">{content.quickActions.title}</h2>
-            <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-              {QUICK_ACTIONS.map((action) => (
-                <Link
-                  key={action.href}
-                  href={action.href}
-                  className="flex flex-col items-center gap-2 rounded-pillar border border-outline-variant bg-surface-container-lowest p-4 text-center shadow-subtle transition-all duration-200 hover:border-primary/50 hover:bg-surface-container-low/50 active:scale-[0.98]"
-                >
-                  <div className="flex h-11 w-11 items-center justify-center rounded-pillar bg-surface-container-low text-primary">
-                    <span className="material-symbols-outlined" style={{ fontSize: 26 }}>
-                      {action.icon}
-                    </span>
-                  </div>
-                  <span className="text-xs font-bold text-onSurface">{content.quickActions.items[action.key]}</span>
-                </Link>
-              ))}
-            </div>
-          </section>
-        </div>
-
-        <div className="space-y-6 lg:grid lg:grid-cols-5 lg:items-start lg:gap-8 lg:space-y-0">
-          <section className="fade-in-entry stagger-4 opacity-0 space-y-3 lg:col-span-3">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-extrabold text-primary">{content.applications.title}</h2>
               <Link href="/offres" className="text-xs font-bold text-primary hover:underline">
@@ -306,12 +305,56 @@ export default function DashboardPage() {
                 </div>
               );
             })}
+
+            {extraApplications.map((job) => (
+              <div
+                key={job.id}
+                className="flex items-center justify-between rounded-pillar border border-outline-variant bg-surface-container-lowest p-4 shadow-subtle"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-pillar bg-surface-container-low text-onSurface-variant">
+                    <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
+                      {job.companyIcon}
+                    </span>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-onSurface">{job.title}</h4>
+                    <p className="text-xs font-medium text-onSurface-variant">{job.company}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="block text-xs font-bold text-onSurface">Candidature envoyée</span>
+                </div>
+              </div>
+            ))}
+          </section>
+        </div>
+
+        <div className="space-y-6 lg:grid lg:grid-cols-5 lg:items-start lg:gap-8 lg:space-y-0">
+          <section className="fade-in-entry stagger-4 opacity-0 space-y-3 lg:col-span-3">
+            <h2 className="text-lg font-extrabold text-primary">{content.quickActions.title}</h2>
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+              {QUICK_ACTIONS.map((action) => (
+                <Link
+                  key={action.href}
+                  href={action.href}
+                  className="flex flex-col items-center gap-2 rounded-pillar border border-outline-variant bg-surface-container-lowest p-4 text-center shadow-subtle transition-all duration-200 hover:border-primary/50 hover:bg-surface-container-low/50 active:scale-[0.98]"
+                >
+                  <div className="flex h-11 w-11 items-center justify-center rounded-pillar bg-surface-container-low text-primary">
+                    <span className="material-symbols-outlined" style={{ fontSize: 26 }}>
+                      {action.icon}
+                    </span>
+                  </div>
+                  <span className="text-xs font-bold text-onSurface">{content.quickActions.items[action.key]}</span>
+                </Link>
+              ))}
+            </div>
           </section>
 
           <section className="fade-in-entry stagger-4 opacity-0 space-y-3 lg:col-span-2">
             <h2 className="text-lg font-extrabold text-primary">{content.recommendations.title}</h2>
             {RECOMMENDATIONS.map((offer) => {
-              const applied = appliedIds.includes(offer.id);
+              const applied = appliedJobIds.includes(offer.jobId);
               const offerText = recommendationTextFor(offer.id);
               return (
                 <div key={offer.id} className="rounded-pillar border border-outline-variant bg-surface-container-lowest p-5 shadow-subtle">
@@ -342,7 +385,7 @@ export default function DashboardPage() {
                     size="sm"
                     fullWidth
                     disabled={applied}
-                    onClick={() => setAppliedIds((prev) => [...prev, offer.id])}
+                    onClick={() => applyToRecommendation(offer.jobId)}
                     leadingIcon={
                       applied ? (
                         <span className="material-symbols-outlined" style={{ fontSize: 16 }}>

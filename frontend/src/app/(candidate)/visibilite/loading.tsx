@@ -3,7 +3,7 @@ import { Skeleton, SkeletonPage } from '@/components/shared/Skeleton';
 export default function VisibiliteLoading() {
   return (
     <SkeletonPage className="min-h-screen bg-surface pb-24">
-      <header className="sticky top-0 z-40 mx-auto flex w-full max-w-xl items-center justify-between border-b border-surface-container-high bg-surface px-4 py-4 lg:max-w-6xl lg:px-10">
+      <header className="sticky top-0 z-40 mx-auto flex w-full max-w-xl items-center justify-between border-b border-surface-container-high bg-surface px-1.5 py-1.5 lg:max-w-6xl lg:px-4">
         <Skeleton className="h-6 w-6 rounded" />
         <Skeleton className="h-5 w-32" />
         <Skeleton className="h-4 w-6" />

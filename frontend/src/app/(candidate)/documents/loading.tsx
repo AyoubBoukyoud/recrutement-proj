@@ -3,7 +3,7 @@ import { Skeleton, SkeletonPage } from '@/components/shared/Skeleton';
 export default function DocumentsLoading() {
   return (
     <SkeletonPage className="min-h-screen bg-surface pb-24">
-      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-outline-variant/30 bg-surface/90 px-6 py-4 backdrop-blur-md lg:px-10">
+      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-outline-variant/30 bg-surface/90 px-2.5 py-1.5 backdrop-blur-md lg:px-4">
         <Skeleton className="h-5 w-5 rounded" />
         <Skeleton className="h-4 w-44" />
       </header>

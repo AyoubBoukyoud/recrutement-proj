@@ -10,168 +10,11 @@ import { otpFailureMessage } from '@/lib/authMessages';
 import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/shared/Button';
 import { AuthShell } from '@/components/AuthShell';
-import { USE_MOCKS } from '@/data/config';
-import { authRepository } from '@/data/auth';
-import { MOCK_OTP_CODE } from '@/data/fixtures/auth';
-import { destinationForRole } from '@/lib/roleDestination';
-
-/** Le menu dev ne doit jamais atterrir dans un build de production, mocks ou non. */
-const SHOW_DEV_MENU = process.env.NODE_ENV !== 'production';
 
 const COUNTRY_CODES = [
   { code: '+212', label: '🇲🇦 +212' },
   { code: '+49', label: '🇩🇪 +49' },
 ];
-
-type DevMenuItem = { path: string; label: string };
-type DevLinkGroup = { key: string; label: string; items: DevMenuItem[] };
-
-/**
- * Pages publiques du mini-site marketing `/amud/marketing/*` (portées depuis
- * 3 maquettes indépendantes des dashboards par rôle). Pages publiques, sans
- * connexion, donc de simples liens.
- */
-const DEV_MARKETING_LINKS: DevMenuItem[] = [
-  { path: '/amud/marketing/home', label: 'Accueil — Le pont professionnel' },
-  { path: '/amud/marketing/employers', label: 'Employeurs — Confiance & conformité' },
-  { path: '/amud/marketing/product', label: 'Produit — Matching en temps réel' },
-];
-
-type DevRealAccount = { phone: string; label: string; path: string };
-
-/**
- * Comptes de démo dont la destination réelle (`/admin/apercu`) est protégée
- * par `middleware.ts` : un simple `Link`, comme dans `DEV_REAL_APP_LINKS`, y
- * serait aussitôt renvoyé vers `/auth-phone` faute de cookie `as_role`. Ces
- * boutons passent donc par `devSignInReal`, qui rejoue la vérification OTP
- * réelle (même téléphone que `MOCK_ACCOUNTS`) avant de naviguer vers
- * `destinationForRole`.
- */
-const DEV_REAL_OTP_ACCOUNTS: DevRealAccount[] = [
-  { phone: '+212600000004', label: 'Admin — 06 00 00 00 04', path: '/admin/apercu' },
-];
-
-/**
- * Contrairement à `DEV_REAL_OTP_ACCOUNTS` (qui saute l'écran OTP en appelant
- * `verifyOtp` directement), ce lien mène au véritable écran `/otp` — numéro
- * déjà rempli — pour tester ce parcours-là. Compte candidat 101
- * (`incompleteProfileStep: null`), donc `destinationForRole` atterrit sur
- * `/dashboard` une fois le code `000000` saisi.
- */
-const DEV_CANDIDATE_OTP_LINK = { phone: '+212600000001', label: 'Candidat — écran OTP → /dashboard' };
-
-/**
- * Pages réelles de l'app (hors `/amud`, hors ce menu) qui n'ont pas encore de
- * raccourci ci-dessus. Simples liens `Link`, comme `DEV_MARKETING_LINKS` : pas
- * de connexion mock à déclencher, on veut juste pouvoir ouvrir la page. Liste
- * dérivée de `frontend/src/app/**\/page.tsx` — à tenir à jour si une page est
- * ajoutée ailleurs et manuellement rattachée à un groupe ci-dessus.
- * `/admin` (redirige vers `/admin/apercu`) et `/admin/[...slug]` (fallback
- * 404 générique) sont volontairement omis : ni l'un ni l'autre n'est une
- * destination utile en soi.
- */
-const DEV_REAL_APP_LINKS: DevLinkGroup[] = [
-  {
-    key: 'public',
-    label: 'Public / avant connexion',
-    items: [
-      { path: '/', label: 'Accueil' },
-      { path: '/employeurs', label: 'Employeurs' },
-      { path: '/language', label: 'Choix de la langue' },
-      { path: '/splash', label: 'Splash screen' },
-      { path: '/otp', label: 'Vérification OTP' },
-      { path: '/profile-creation', label: 'Création de profil (5 étapes)' },
-      { path: '/metiers/infirmier', label: 'Fiche métier (exemple : infirmier)' },
-      { path: '/offline', label: 'Page hors-ligne' },
-    ],
-  },
-  {
-    key: 'candidate-real',
-    label: 'Espace candidat (réel)',
-    items: [
-      { path: '/dashboard', label: 'Tableau de bord' },
-      { path: '/offres', label: "Offres d'emploi" },
-      { path: '/documents', label: 'Documents & extraction CV' },
-      { path: '/profil', label: 'Profil public' },
-      { path: '/reclamation', label: 'Réclamation' },
-      { path: '/faq', label: 'FAQ / Centre d’aide' },
-      { path: '/matching-preferences', label: 'Préférences de matching' },
-      { path: '/quiz-metier', label: 'Quiz métier' },
-      { path: '/salaire', label: 'Simuler mon salaire' },
-      { path: '/parrainage', label: 'Programme de parrainage' },
-      { path: '/verification-identite', label: 'Vérification d’identité' },
-      { path: '/video', label: 'Vidéo de présentation' },
-      { path: '/visibilite', label: 'Score de visibilité' },
-      { path: '/test-langue', label: 'Test de langue IA' },
-      { path: '/lecon-jour', label: 'Leçon du jour' },
-    ],
-  },
-  {
-    key: 'admin-real',
-    label: 'Back-office admin (réel)',
-    items: [
-      { path: '/admin/apercu', label: 'Aperçu (métriques)' },
-      { path: '/admin/candidats', label: 'Candidats' },
-      { path: '/admin/candidats/1', label: 'Dossier candidat (exemple : id 1)' },
-      { path: '/admin/recruteurs', label: 'Recruteurs' },
-      { path: '/admin/recruteurs/201', label: 'Dossier recruteur (exemple : id 201)' },
-      { path: '/admin/parrainage', label: 'Commissions de parrainage' },
-      { path: '/admin/reclamations', label: 'Réclamations' },
-      { path: '/admin/stage', label: 'Catalogue du stage' },
-      { path: '/admin/utilisateurs', label: 'Utilisateurs' },
-    ],
-  },
-];
-
-/** Groupe repliable de simples liens `Link` — pas de connexion mock, juste ouvrir la page. */
-function DevLinkGroupList({
-  groups,
-  expandedKey,
-  onToggle,
-}: {
-  groups: DevLinkGroup[];
-  expandedKey: string | null;
-  onToggle: (key: string) => void;
-}) {
-  return (
-    <div className="space-y-1.5">
-      {groups.map((group) => {
-        const isOpen = expandedKey === group.key;
-        return (
-          <div key={group.key} className="overflow-hidden rounded-pillar border border-outline-variant bg-surface-container-lowest">
-            <button
-              type="button"
-              onClick={() => onToggle(group.key)}
-              aria-expanded={isOpen}
-              className="flex w-full items-center justify-between px-3.5 py-2.5 text-xs font-bold text-primary transition-colors hover:bg-primary/5"
-            >
-              {group.label}
-              <span
-                className="material-symbols-outlined transition-transform duration-150"
-                style={{ fontSize: 18, transform: isOpen ? 'rotate(180deg)' : undefined }}
-              >
-                expand_more
-              </span>
-            </button>
-            {isOpen && (
-              <div className="max-h-56 divide-y divide-outline-variant/60 overflow-y-auto border-t border-outline-variant">
-                {group.items.map((item) => (
-                  <Link
-                    key={item.path}
-                    href={item.path}
-                    className="flex items-center justify-between px-4 py-2 text-left text-xs text-onSurface-variant transition-colors hover:bg-primary/5 hover:text-primary"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
 
 /**
  * Connexion candidat ou recruteur/staff : même téléphone, même code — le rôle
@@ -183,56 +26,13 @@ type Intent = 'job_seeker' | 'recruiter';
 
 export default function AuthPhonePage() {
   const router = useRouter();
-  const { requestOtp, verifyOtp } = useAuth();
+  const { requestOtp } = useAuth();
   const { t } = useLanguage();
   const [intent, setIntent] = useState<Intent>('job_seeker');
   const [countryCode, setCountryCode] = useState(COUNTRY_CODES[0].code);
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // Chemin en cours de connexion (pas juste le rôle : plusieurs pages
-  // partagent un même rôle, chacune a son propre état de chargement).
-  const [devLoadingPath, setDevLoadingPath] = useState<string | null>(null);
-  // Idem pour les groupes de DEV_REAL_APP_LINKS — état séparé, ce sont deux menus distincts.
-  const [expandedRealGroup, setExpandedRealGroup] = useState<string | null>(null);
-
-  // Se connecte avec le vrai téléphone du compte puis suit la même
-  // redirection que l'écran OTP (`destinationForRole`), pour atterrir sur la
-  // vraie page protégée (`/admin/apercu`) plutôt que sur une maquette `/amud`.
-  // En mock, le code accepté est fixe (`MOCK_OTP_CODE`) ; contre l'API réelle,
-  // on redemande un vrai code au back et on se sert du `debug_otp_code` qu'il
-  // renvoie en local — jamais disponible hors `APP_ENV=local`, donc sans
-  // effet en production.
-  const devSignInReal = async (account: DevRealAccount) => {
-    setError(null);
-    setDevLoadingPath(account.path);
-    try {
-      let demoCode: string;
-
-      if (USE_MOCKS) {
-        demoCode = MOCK_OTP_CODE;
-      } else {
-        const otpResponse = await authRepository.requestOtp(account.phone);
-        if (!otpResponse.debug_otp_code) {
-          setError('Connexion rapide indisponible : le back ne renvoie pas de code de démonstration (APP_ENV != local ?).');
-          return;
-        }
-        demoCode = otpResponse.debug_otp_code;
-      }
-
-      const result = await verifyOtp(demoCode, account.phone);
-      if (!result.ok) {
-        setError(otpFailureMessage(result, t));
-        return;
-      }
-      router.push(destinationForRole(result.role, null));
-    } catch (err) {
-      console.error('devSignInReal a échoué', err);
-      setError(otpFailureMessage({ ok: false, reason: 'unknown' }, t));
-    } finally {
-      setDevLoadingPath(null);
-    }
-  };
 
   const submit = async () => {
     const digits = phone.replace(/\D/g, '');
@@ -361,64 +161,6 @@ export default function AuthPhonePage() {
           <p className="text-[11px] leading-normal text-primary font-medium">{t('phone_consent')}</p>
         </div>
       </form>
-
-      {SHOW_DEV_MENU && (
-        <div className="fade-in-entry opacity-0 mx-6 mb-4 rounded-pillar border border-dashed border-outline-variant bg-surface-container-low p-3">
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-onSurface-variant">
-            Espace réel (via OTP)
-          </p>
-          <div className="space-y-1.5">
-            {DEV_REAL_OTP_ACCOUNTS.map((account) => (
-              <Button
-                key={account.path}
-                variant="outline"
-                size="sm"
-                fullWidth
-                className="justify-start"
-                onClick={() => devSignInReal(account)}
-                disabled={devLoadingPath !== null}
-                isLoading={devLoadingPath === account.path}
-              >
-                {account.label}
-              </Button>
-            ))}
-          </div>
-
-          <p className="mb-2 mt-4 text-[10px] font-bold uppercase tracking-wider text-onSurface-variant">
-            Parcours OTP réel (candidat)
-          </p>
-          <Link
-            href={`/otp?phone=${encodeURIComponent(DEV_CANDIDATE_OTP_LINK.phone)}&intent=job_seeker`}
-            className="flex h-10 w-full items-center justify-start gap-2 rounded-pillar border border-outline bg-transparent px-4 text-xs font-bold text-primary transition-colors hover:bg-primary/5"
-          >
-            {DEV_CANDIDATE_OTP_LINK.label}
-          </Link>
-
-          <p className="mb-2 mt-4 text-[10px] font-bold uppercase tracking-wider text-onSurface-variant">
-            Site public (sans connexion)
-          </p>
-          <div className="space-y-1.5">
-            {DEV_MARKETING_LINKS.map((item) => (
-              <Link
-                key={item.path}
-                href={item.path}
-                className="flex h-10 w-full items-center justify-start gap-2 rounded-pillar border border-outline bg-transparent px-4 text-xs font-bold text-primary transition-colors hover:bg-primary/5"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
-
-          <p className="mb-2 mt-4 text-[10px] font-bold uppercase tracking-wider text-onSurface-variant">
-            Pages réelles de l&apos;app (pas encore dans ce menu)
-          </p>
-          <DevLinkGroupList
-            groups={DEV_REAL_APP_LINKS}
-            expandedKey={expandedRealGroup}
-            onToggle={(key) => setExpandedRealGroup((prev) => (prev === key ? null : key))}
-          />
-        </div>
-      )}
 
       <footer className="fade-in-entry stagger-3 opacity-0 space-y-3 border-t border-outline-variant bg-surface-container-lowest p-6">
         <Button

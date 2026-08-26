@@ -6,85 +6,51 @@ import Link from 'next/link';
 import { Button, IconButton } from '@/components/shared/Button';
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { candidateOffresContentFor, filterLabelFor } from '@/lib/candidateOffresContent';
+import { JOB_OFFERS, listFavoriteIds, toggleFavorite as persistToggleFavorite, listAppliedIds, applyToJob } from '@/data/jobOffers';
 
 // Valeurs canoniques (français) des puces de filtre : servent de clé de
 // comparaison (`selectedFilter === filter`) pour le style actif/inactif.
 // L'affichage traduit passe par `filterLabelFor`.
 const FILTERS = ['Santé', 'Électricité', 'Hôtellerie', 'Logistique', 'Disponibilité immédiate'];
 
-const JOB_OFFERS = [
-  {
-    id: 1,
-    title: 'Infirmier Qualifié',
-    company: 'Klinik Berlin',
-    companyIcon: 'domain',
-    logo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC65RZFkMIBKkDR_PCnqKHbnzk61gQRYHCw7Z5yMbyZwLKvMFDlzm_lCJRW5RZWCnY0Ftj-odI4LZGUntAM__NVLIP73ra80OXakvbyi0szbEaksiRxkcN7krxhPSeymAfNct5jAq_ZZXEUPo_0_jj-ObpOYrf0EhNXRudem0hZXkV4JAYovH62hJ0smPz2iPwrzLj67SF4ADw3IXop13sBXA-OvOovGiaALwYHlRfXnCffbcayNDgO',
-    location: 'Berlin, Allemagne',
-    salary: '3 200€ - 3 800€ / mois',
-    badges: [
-      { text: 'B1 requis', type: 'secondary' },
-      { text: 'Plein temps', type: 'neutral' },
-    ],
-  },
-  {
-    id: 2,
-    title: 'Réceptionniste',
-    company: 'Hôtel München',
-    companyIcon: 'hotel',
-    logo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBlK-c7eR7aVuA_zB0GwvOMQRcj0YxsFFcn6W4X8TY048VMvaVGP9JQE48FgpTXsygtKauIDLEGNCtoaMcdD-_v5AwZUWrCULMtjwy-hBPBT-J_wAGpWOjRnOaJpAVgM7LkIx8oD4glmmZeZiP2vMBGCD5WiZ2Ka1be6wUJA3n3PwsdDFDvE5XpolUw15GpyPXf_lJYoWMAPpX3ynilz7UKqVh6vZ_3gwU3VRhffijwOrwOY_VRrvAb',
-    location: 'Munich, Allemagne',
-    salary: '2 400€ - 2 900€ / mois',
-    badges: [
-      { text: 'B2 recommandé', type: 'tertiary' },
-      { text: 'CDI', type: 'neutral' },
-    ],
-  },
-  {
-    id: 3,
-    title: 'Électricien de Bâtiment',
-    company: 'Elektro Gmbh',
-    companyIcon: 'bolt',
-    logo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBEKk99eeOD6vMgi8ElDVzQmQEyKR8BsZG7jJ2hXuQHjATwxNTbnfz_K2BUB7s42Q5HYlKSnB91UZEOCwNgzHghGzGsu9PRFZtv9aroDTaVytPI8HIQzL5nIlPmzCP_2VGXXPwNami5_7RfkZlMkXBjc6I0hIruAeHfiZn_GhTPbHsuLHMfndjwi88-s80B5vBE8Al4qVVq51Bfpy9ourTj5wNOSx8O9zL_nT2SrZ-8QBieChDqtgEc',
-    location: 'Hamburg, Allemagne',
-    salary: '3 000€ - 3 500€ / mois',
-    badges: [
-      { text: 'B1 requis', type: 'secondary' },
-      { text: 'Déplacement', type: 'neutral' },
-    ],
-  },
-  {
-    id: 4,
-    title: 'Chauffeur PL',
-    company: 'Logistik Nord',
-    companyIcon: 'local_shipping',
-    logo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB5Ynm3VoRzox7o4i61rcTC40ekLq52XJnr5_lMIZafa3q_1VJywVQip2XkGJjoqhNRThO4rIDPChxdU-Hf4MBuwMaNPEcoLBr2_JwKx0fuBrYRpxGMgHEcELgrPt1i70J0krQ5UTuLpoDnmqhg5V2TbTQPdGdsfVfXyUelt4kqW2KTjry_LU5VFtxaEjne3bITKC0p1Nf7LJDjIaBruyO3P7fZBPXIRGC0NL_3sv8ij9F8WfSdRpiL',
-    location: 'Frankfurt, Allemagne',
-    salary: '2 800€ - 3 200€ / mois',
-    badges: [
-      { text: 'A2 suffisant', type: 'neutral' },
-      { text: 'Urgent', type: 'urgent' },
-    ],
-  },
-];
-
 export default function OffresPage() {
   const { language } = useLanguage();
   const content = candidateOffresContentFor(language);
-  const [favorites, setFavorites] = useState<number[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [appliedIds, setAppliedIds] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('Tous');
 
-  const toggleFavorite = (id: number) => {
-    setFavorites((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
-  };
+  useEffect(() => {
+    setFavorites(listFavoriteIds());
+    setAppliedIds(listAppliedIds());
+  }, []);
+
+  const toggleFavorite = (id: string) => setFavorites(persistToggleFavorite(id));
+
+  const apply = (id: string) => setAppliedIds(applyToJob(id).map((a) => a.jobId));
+
+  const filteredOffers = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return JOB_OFFERS.filter((job) => {
+      const matchesQuery =
+        query === '' || job.title.toLowerCase().includes(query) || job.company.toLowerCase().includes(query) || job.location.toLowerCase().includes(query);
+      const matchesFilter =
+        selectedFilter === 'Tous' ||
+        (selectedFilter === 'Disponibilité immédiate'
+          ? job.badges.some((badge) => badge.type === 'urgent')
+          : job.sector === selectedFilter);
+      return matchesQuery && matchesFilter;
+    });
+  }, [search, selectedFilter]);
 
   return (
     <div className="min-h-screen bg-surface pb-24 text-onSurface">
       {/* TopAppBar */}
-      <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-outline-variant bg-surface px-4 shadow-subtle lg:px-10">
+      <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-outline-variant bg-surface px-1.5 shadow-subtle lg:px-4">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 overflow-hidden rounded-full border border-outline-variant">
             <img
@@ -158,9 +124,15 @@ export default function OffresPage() {
         </div>
 
         {/* Jobs Grid/List */}
+        {filteredOffers.length === 0 && (
+          <p className="rounded-xl bg-surface-container p-4 text-center text-sm text-onSurface-variant">
+            {content.job.noResults}
+          </p>
+        )}
         <div className="space-y-4 lg:grid lg:grid-cols-2 lg:gap-5 lg:space-y-0 xl:grid-cols-3">
-          {JOB_OFFERS.map((job) => {
+          {filteredOffers.map((job) => {
             const isFav = favorites.includes(job.id);
+            const isApplied = appliedIds.includes(job.id);
             return (
               <div
                 key={job.id}
@@ -231,13 +203,15 @@ export default function OffresPage() {
                 </div>
 
                 <Button
-                  variant="secondary"
+                  variant={isApplied ? 'tonal' : 'secondary'}
                   fullWidth
+                  disabled={isApplied}
+                  onClick={() => apply(job.id)}
                   className="text-xs font-extrabold uppercase tracking-wider shadow-sm"
                 >
-                  {content.job.interestedButton}
+                  {isApplied ? content.job.appliedButton : content.job.interestedButton}
                   <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
-                    arrow_forward
+                    {isApplied ? 'check_circle' : 'arrow_forward'}
                   </span>
                 </Button>
               </div>

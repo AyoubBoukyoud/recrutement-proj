@@ -20,7 +20,7 @@ export default function FaqPage() {
 
   return (
     <div className="min-h-screen bg-surface pb-24">
-      <header className="sticky top-0 z-10 flex h-16 items-center border-b border-surface-container bg-surface px-6 lg:px-10">
+      <header className="sticky top-0 z-10 flex h-16 items-center border-b border-surface-container bg-surface px-2.5 lg:px-4">
         <Link href="/reclamation" className="mr-4 text-primary-dark transition-transform active:scale-95">
           <span className="material-symbols-outlined" style={{ fontSize: 22 }}>arrow_back</span>
         </Link>

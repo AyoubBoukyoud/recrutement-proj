@@ -65,5 +65,8 @@
   "otp_error_network": "تعذّر الاتصال. تحقق من اتصالك بالإنترنت.",
   "otp_resend_cta": "إعادة إرسال الرمز",
   "otp_resend_countdown_prefix": "إعادة الإرسال خلال",
-  "nav_candidate_aria_label": "تنقّل المرشح"
+  "nav_candidate_aria_label": "تنقّل المرشح",
+  "pagination_previous": "→ السابق",
+  "pagination_next": "التالي ←",
+  "pagination_page_of": "الصفحة {current} من {last} · {count}"
 }

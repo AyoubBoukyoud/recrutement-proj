@@ -5,8 +5,19 @@ import { Button, Wordmark } from '@/components/ui'
 import { useAuth } from '@/context/AuthContext'
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher'
 import { ThemeToggle } from '@/components/shared/ThemeToggle'
+import type { Language } from '@/lib/types'
+import { translate } from '@/lib/i18n'
 
-export function TopBar({ title, connectivity }: { title: string; connectivity?: ReactNode }) {
+export function TopBar({
+  title,
+  connectivity,
+  language = 'fr',
+}: {
+  title: string
+  connectivity?: ReactNode
+  /** Espaces non encore branchés sur `useLanguage()` : défaut `'fr'`, comportement inchangé. */
+  language?: Language
+}) {
   const { user, logout } = useAuth()
 
   return (
@@ -31,7 +42,7 @@ export function TopBar({ title, connectivity }: { title: string; connectivity?: 
           <span className="eyebrow">{user?.roles?.join(' · ')}</span>
         </div>
         <Button variant="ghost" size="compact" onClick={logout}>
-          Se déconnecter
+          {translate(language, 'logout')}
         </Button>
       </div>
     </header>

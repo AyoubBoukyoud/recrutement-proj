@@ -3,7 +3,7 @@ import { Skeleton, SkeletonPage } from '@/components/shared/Skeleton';
 export default function ReclamationLoading() {
   return (
     <SkeletonPage className="min-h-screen bg-surface pb-24">
-      <header className="sticky top-0 z-10 flex h-16 items-center border-b border-surface-container bg-surface px-6 lg:px-10">
+      <header className="sticky top-0 z-10 flex h-16 items-center border-b border-surface-container bg-surface px-2.5 lg:px-4">
         <Skeleton className="mr-4 h-5 w-5 rounded" />
         <Skeleton className="h-4 w-32" />
       </header>

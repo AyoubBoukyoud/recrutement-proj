@@ -28,6 +28,7 @@ import {
   type CefrLevel,
 } from '@/lib/candidateProfile';
 import { fakeLatency } from './config';
+import { readStorage, writeStorage, STORAGE_KEYS } from '@/lib/storage';
 
 export interface CandidateProfileRepository {
   get(token: string): Promise<CandidateProfileData>;
@@ -74,7 +75,11 @@ const httpCandidateProfile: CandidateProfileRepository = {
 };
 
 /* ------------------------------------------------------------------ *
- * Maquette — état en mémoire, réinitialisé au rechargement de la page.
+ * Maquette — prototype localStorage. L'état est persisté (et non plus
+ * remis à zéro au rechargement) pour servir de prototype réel : voir
+ * implementation_plan.md. Le candidat de démonstration (Youssef Amrani)
+ * correspond au compte id 101 de `data/fixtures/auth.ts`, celui qu'ouvre
+ * aussi bien /auth-phone que le contournement de AuthContext/middleware.
  * ------------------------------------------------------------------ */
 
 function emptyCompleteness(): CandidateProfileData['completeness'] {
@@ -98,52 +103,152 @@ function emptyCompleteness(): CandidateProfileData['completeness'] {
   };
 }
 
-let profile: CandidateProfileData | null = null;
-let educations: EducationEntry[] = [];
-let languages: CandidateLanguageEntry[] = [];
-let nextEducationId = 1;
+function demoProfile(): CandidateProfileData {
+  return {
+    id: 1,
+    user_id: 101,
+    first_name: 'Youssef',
+    last_name: 'Amrani',
+    profession: 'Développeur Full-Stack',
+    specialization: 'React / Laravel',
+    years_of_experience: 4,
+    date_of_birth: '1996-03-18',
+    availability_status: 'within_1_month',
+    matching_preferences: null,
+    terms_consent_at: new Date().toISOString(),
+    cndp_consent_at: new Date().toISOString(),
+    presentation_video_path: null,
+    video_url: null,
+    submitted_at: null,
+    verified_at: null,
+    admin_notes: null,
+    updated_at: new Date().toISOString(),
+    educations: [],
+    languages: [],
+    completeness: emptyCompleteness(),
+  };
+}
 
-function state(): CandidateProfileData {
-  if (profile === null) {
-    profile = {
+function demoEducations(): EducationEntry[] {
+  return [
+    {
       id: 1,
-      user_id: 1,
-      first_name: null,
-      last_name: null,
-      profession: null,
-      specialization: null,
-      years_of_experience: null,
-      date_of_birth: null,
-      availability_status: null,
-      matching_preferences: null,
-      terms_consent_at: null,
-      cndp_consent_at: null,
-      presentation_video_path: null,
-      video_url: null,
-      submitted_at: null,
-      verified_at: null,
-      admin_notes: null,
-      updated_at: new Date().toISOString(),
-      educations: [],
-      languages: [],
-      completeness: emptyCompleteness(),
+      level: 'master',
+      field: 'Génie logiciel',
+      institution: 'ENSIAS, Rabat',
+      started_at: '2017-09',
+      ended_at: '2019-07',
+    },
+  ];
+}
+
+function demoLanguages(): CandidateLanguageEntry[] {
+  return [
+    {
+      id: 1,
+      language: 'ar',
+      cefr_level: 'C2',
+      self_declared_cefr: 'C2',
+      ai_cefr: null,
+      source: 'self_declared',
+      level_discrepancy: false,
+      certificate_document_id: null,
+      certificate_document: null,
+    },
+    {
+      id: 2,
+      language: 'fr',
+      cefr_level: 'C1',
+      self_declared_cefr: 'C1',
+      ai_cefr: null,
+      source: 'self_declared',
+      level_discrepancy: false,
+      certificate_document_id: null,
+      certificate_document: null,
+    },
+    {
+      id: 3,
+      language: 'de',
+      cefr_level: 'B1',
+      self_declared_cefr: 'B1',
+      ai_cefr: null,
+      source: 'self_declared',
+      level_discrepancy: false,
+      certificate_document_id: null,
+      certificate_document: null,
+    },
+  ];
+}
+
+interface PersistedState {
+  profile: CandidateProfileData;
+  educations: EducationEntry[];
+  languages: CandidateLanguageEntry[];
+  nextEducationId: number;
+}
+
+let cache: PersistedState | null = null;
+
+function load(): PersistedState {
+  if (cache === null) {
+    cache = readStorage<PersistedState | null>(STORAGE_KEYS.candidateProfileV2, null) ?? {
+      profile: demoProfile(),
+      educations: demoEducations(),
+      languages: demoLanguages(),
+      nextEducationId: 2,
     };
   }
-  return profile;
+  return cache;
+}
+
+function save(): void {
+  if (cache) writeStorage(STORAGE_KEYS.candidateProfileV2, cache);
+}
+
+function state(): CandidateProfileData {
+  return load().profile;
+}
+
+/**
+ * Pont entre `data/languageAssessment` et ce module : un test de langue
+ * réussi met à jour le niveau allemand ici, comme le ferait le back après
+ * un `LanguageAssessment` complété. Pas d'export dans `CandidateProfileRepository`
+ * — c'est un détail d'intégration entre deux maquettes, pas un appel d'écran.
+ */
+export function applyLanguageAssessmentResult(language: LanguageCode, cefrLevel: CefrLevel): void {
+  const s = load();
+  const existing = s.languages.find((l) => l.language === language);
+  const updated: CandidateLanguageEntry = existing
+    ? { ...existing, ai_cefr: cefrLevel, cefr_level: cefrLevel, source: 'ai_assessed' }
+    : {
+        id: s.languages.length + 1,
+        language,
+        cefr_level: cefrLevel,
+        self_declared_cefr: null,
+        ai_cefr: cefrLevel,
+        source: 'ai_assessed',
+        level_discrepancy: false,
+        certificate_document_id: null,
+        certificate_document: null,
+      };
+  s.languages = [...s.languages.filter((l) => l.language !== language), updated];
+  recomputeCompleteness();
+  save();
 }
 
 /** Recalcule la complétude localement — même logique que ProfileCompleteness côté back. */
 function recomputeCompleteness(): void {
-  const p = state();
+  const s = load();
+  const p = s.profile;
   const flags = {
     personal: Boolean(p.first_name && p.last_name && p.date_of_birth),
-    education: educations.length > 0,
-    languages: languages.some((l) => l.cefr_level !== null),
+    education: s.educations.length > 0,
+    languages: s.languages.some((l) => l.cefr_level !== null),
     availability: Boolean(p.availability_status),
     consents: Boolean(p.terms_consent_at && p.cndp_consent_at),
     video: Boolean(p.presentation_video_path),
     cv: false,
-    certificates: languages.some((l) => l.certificate_document_id !== null),
+    certificates: s.languages.some((l) => l.certificate_document_id !== null),
   };
 
   const required = ['personal', 'education', 'languages', 'availability', 'consents'] as const;
@@ -162,10 +267,15 @@ function recomputeCompleteness(): void {
   };
 }
 
+function snapshot(): CandidateProfileData {
+  const s = load();
+  return { ...s.profile, educations: [...s.educations], languages: [...s.languages] };
+}
+
 const mockCandidateProfile: CandidateProfileRepository = {
   get: () => {
     recomputeCompleteness();
-    return fakeLatency({ ...state(), educations: [...educations], languages: [...languages] });
+    return fakeLatency(snapshot());
   },
 
   update: (data) => {
@@ -182,7 +292,8 @@ const mockCandidateProfile: CandidateProfileRepository = {
     if (data.cndp_accepted !== undefined) p.cndp_consent_at = data.cndp_accepted ? new Date().toISOString() : null;
     p.updated_at = new Date().toISOString();
     recomputeCompleteness();
-    return fakeLatency({ ...p, educations: [...educations], languages: [...languages] });
+    save();
+    return fakeLatency(snapshot());
   },
 
   uploadVideo: (file) => {
@@ -190,14 +301,15 @@ const mockCandidateProfile: CandidateProfileRepository = {
     p.presentation_video_path = `videos/${file.name}`;
     p.video_url = URL.createObjectURL(file);
     recomputeCompleteness();
-    return fakeLatency({ ...p, educations: [...educations], languages: [...languages] }, 700);
+    save();
+    return fakeLatency(snapshot(), 700);
   },
 
   preview: () => {
     const p = state();
     return fakeLatency({
       visible_to_recruiters: Boolean(p.terms_consent_at && p.cndp_consent_at),
-      profile: { ...p, educations: [...educations], languages: [...languages] },
+      profile: { ...snapshot() },
     });
   },
 
@@ -205,45 +317,53 @@ const mockCandidateProfile: CandidateProfileRepository = {
     const p = state();
     p.submitted_at = new Date().toISOString();
     recomputeCompleteness();
-    return fakeLatency({ ...p, educations: [...educations], languages: [...languages] });
+    save();
+    return fakeLatency(snapshot());
   },
 
-  listEducations: () => fakeLatency([...educations]),
+  listEducations: () => fakeLatency([...load().educations]),
 
   createEducation: (data) => {
+    const s = load();
     const entry: EducationEntry = {
-      id: nextEducationId++,
+      id: s.nextEducationId++,
       level: data.level,
       field: data.field ?? null,
       institution: data.institution ?? null,
       started_at: data.started_at ?? null,
       ended_at: data.ended_at ?? null,
     };
-    educations = [entry, ...educations];
+    s.educations = [entry, ...s.educations];
     recomputeCompleteness();
+    save();
     return fakeLatency({ ...entry });
   },
 
   updateEducation: (id, data) => {
-    educations = educations.map((e) => (e.id === id ? { ...e, ...data } : e));
-    const updated = educations.find((e) => e.id === id)!;
+    const s = load();
+    s.educations = s.educations.map((e) => (e.id === id ? { ...e, ...data } : e));
+    const updated = s.educations.find((e) => e.id === id)!;
+    save();
     return fakeLatency({ ...updated });
   },
 
   deleteEducation: (id) => {
-    educations = educations.filter((e) => e.id !== id);
+    const s = load();
+    s.educations = s.educations.filter((e) => e.id !== id);
     recomputeCompleteness();
+    save();
     return fakeLatency(undefined);
   },
 
-  listLanguages: () => fakeLatency([...languages]),
+  listLanguages: () => fakeLatency([...load().languages]),
 
   upsertLanguage: (language, cefrLevel) => {
-    const existing = languages.find((l) => l.language === language);
+    const s = load();
+    const existing = s.languages.find((l) => l.language === language);
     const updated: CandidateLanguageEntry = existing
       ? { ...existing, cefr_level: cefrLevel, self_declared_cefr: cefrLevel }
       : {
-          id: languages.length + 1,
+          id: s.languages.length + 1,
           language,
           cefr_level: cefrLevel,
           self_declared_cefr: cefrLevel,
@@ -253,16 +373,18 @@ const mockCandidateProfile: CandidateProfileRepository = {
           certificate_document_id: null,
           certificate_document: null,
         };
-    languages = [...languages.filter((l) => l.language !== language), updated];
+    s.languages = [...s.languages.filter((l) => l.language !== language), updated];
     recomputeCompleteness();
+    save();
     return fakeLatency({ ...updated });
   },
 
   attachCertificateFile: (language, file, cefrLevel) => {
-    const existing = languages.find((l) => l.language === language);
+    const s = load();
+    const existing = s.languages.find((l) => l.language === language);
     const documentId = Math.floor(Math.random() * 100000);
     const updated: CandidateLanguageEntry = {
-      id: existing?.id ?? languages.length + 1,
+      id: existing?.id ?? s.languages.length + 1,
       language,
       cefr_level: cefrLevel ?? existing?.cefr_level ?? null,
       self_declared_cefr: cefrLevel ?? existing?.self_declared_cefr ?? null,
@@ -272,15 +394,17 @@ const mockCandidateProfile: CandidateProfileRepository = {
       certificate_document_id: documentId,
       certificate_document: { id: documentId, type: 'certificate', url: URL.createObjectURL(file) },
     };
-    languages = [...languages.filter((l) => l.language !== language), updated];
+    s.languages = [...s.languages.filter((l) => l.language !== language), updated];
     recomputeCompleteness();
+    save();
     return fakeLatency({ ...updated }, 700);
   },
 
   attachCertificateDocument: (language, documentId, cefrLevel) => {
-    const existing = languages.find((l) => l.language === language);
+    const s = load();
+    const existing = s.languages.find((l) => l.language === language);
     const updated: CandidateLanguageEntry = {
-      id: existing?.id ?? languages.length + 1,
+      id: existing?.id ?? s.languages.length + 1,
       language,
       cefr_level: cefrLevel ?? existing?.cefr_level ?? null,
       self_declared_cefr: cefrLevel ?? existing?.self_declared_cefr ?? null,
@@ -290,13 +414,15 @@ const mockCandidateProfile: CandidateProfileRepository = {
       certificate_document_id: documentId,
       certificate_document: { id: documentId, type: 'certificate', url: null },
     };
-    languages = [...languages.filter((l) => l.language !== language), updated];
+    s.languages = [...s.languages.filter((l) => l.language !== language), updated];
     recomputeCompleteness();
+    save();
     return fakeLatency({ ...updated });
   },
 
   detachCertificate: (language) => {
-    const existing = languages.find((l) => l.language === language);
+    const s = load();
+    const existing = s.languages.find((l) => l.language === language);
     if (!existing) return fakeLatency({} as CandidateLanguageEntry);
     const updated: CandidateLanguageEntry = {
       ...existing,
@@ -304,8 +430,9 @@ const mockCandidateProfile: CandidateProfileRepository = {
       certificate_document_id: null,
       certificate_document: null,
     };
-    languages = [...languages.filter((l) => l.language !== language), updated];
+    s.languages = [...s.languages.filter((l) => l.language !== language), updated];
     recomputeCompleteness();
+    save();
     return fakeLatency({ ...updated });
   },
 };

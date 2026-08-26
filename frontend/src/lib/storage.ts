@@ -37,4 +37,14 @@ export const STORAGE_KEYS = {
   theme: 'as_theme',
   syncQueue: 'as_sync_queue',
   installPromptDismissedAt: 'as_install_prompt_dismissed_at',
+  // Prototype candidat (maquette localStorage) — voir implementation_plan.md.
+  candidateProfileV2: 'as_candidate_profile_v2',
+  candidateDocuments: 'as_candidate_documents',
+  languageAssessments: 'as_language_assessments',
+  jobApplications: 'as_job_applications',
+  jobFavorites: 'as_job_favorites',
+  complaints: 'as_complaints',
+  germanStreak: 'as_german_streak',
+  quizMetier: 'as_quiz_metier',
+  salarySimulation: 'as_salary_simulation',
 } as const;

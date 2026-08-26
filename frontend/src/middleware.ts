@@ -46,10 +46,6 @@ function isRecruiterPath(pathname: string) {
   return pathname.startsWith('/recruiter');
 }
 
-function isAdminPath(pathname: string) {
-  return pathname.startsWith('/admin');
-}
-
 function isAgentPath(pathname: string) {
   return pathname.startsWith('/agent');
 }
@@ -72,6 +68,21 @@ export function middleware(request: NextRequest) {
   // Routes candidat : nécessite une session candidat.
   if (isCandidatePath(pathname)) {
     if (role !== 'candidate') {
+      /*
+       * Prototype maquette (NEXT_PUBLIC_USE_MOCKS=1, jamais en production) :
+       * une première visite sans cookie du tout ouvre directement une session
+       * candidat de démonstration, au lieu de renvoyer vers /auth-phone. Le
+       * compte visé (id 101) est celui qu'un login démo réel produirait —
+       * AuthContext sème le même localStorage au premier montage côté client.
+       * Un rôle déjà présent (employer/admin/agent) garde le comportement
+       * existant : ce n'est pas la première visite, donc pas de bascule.
+       */
+      if (!role && process.env.NEXT_PUBLIC_USE_MOCKS === '1') {
+        const response = NextResponse.next();
+        response.cookies.set('as_role', 'candidate', { path: '/' });
+        response.cookies.set('as_uid', '101', { path: '/' });
+        return response;
+      }
       return redirectTo(request, '/auth-phone');
     }
   }
@@ -82,16 +93,6 @@ export function middleware(request: NextRequest) {
       return redirectTo(request, '/dashboard');
     }
     if (role !== 'employer') {
-      return redirectTo(request, '/auth-phone');
-    }
-  }
-
-  // Routes admin : nécessite une session admin.
-  if (isAdminPath(pathname)) {
-    if (role === 'candidate') {
-      return redirectTo(request, '/dashboard');
-    }
-    if (role !== 'admin') {
       return redirectTo(request, '/auth-phone');
     }
   }
@@ -130,7 +131,6 @@ export const config = {
     '/parrainage/:path*',
     '/verification-identite/:path*',
     '/recruiter/:path*',
-    '/admin/:path*',
     '/agent/:path*',
   ],
 };

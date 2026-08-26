@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { DropdownMenu, NavItem, Toggle, isNavActive, useDropdown } from '@/components/amud/ui';
-import { HeaderLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
+import { DropdownMenu, NavItem, isNavActive } from '@/components/amud/ui';
+import { InlineLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
 import { ToastProvider } from '@/components/amud/Toast';
 import { GlobalSearch, useGlobalSearchShortcut, type GlobalSearchResult } from '@/components/amud/GlobalSearch';
 import { NotificationCenter } from '@/components/amud/NotificationCenter';
@@ -83,11 +83,8 @@ export function CompanyShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const [emailNotif, setEmailNotif] = useState(true);
-  const [pushNotif, setPushNotif] = useState(true);
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const settingsMenu = useDropdown<HTMLDivElement>();
 
   const [entreprises] = useCollection(entreprisesCollection, entreprisesSeed);
   const entreprise = useMemo(() => entreprises.find((e) => e.id === CURRENT_EMPLOYER.entrepriseId), [entreprises]);
@@ -103,7 +100,6 @@ export function CompanyShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     setMobileSearchOpen(false);
     setSearchOpen(false);
-    settingsMenu.setOpen(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
@@ -125,7 +121,7 @@ export function CompanyShell({ children }: { children: ReactNode }) {
             collapsed ? 'md:w-20 md:hover:w-64' : 'md:w-64'
           }`}
         >
-          <div className={`flex items-center gap-sm border-b border-amud-outline-variant p-lg ${collapsed ? 'md:px-md' : ''}`}>
+          <div className={`flex items-center gap-sm border-b border-amud-outline-variant px-lg py-2.5 ${collapsed ? 'md:px-md' : ''}`}>
             <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-amud-primary-container">
               {entreprise?.logo ? (
                 <img src={entreprise.logo} alt="" className="h-full w-full object-cover" />
@@ -185,7 +181,7 @@ export function CompanyShell({ children }: { children: ReactNode }) {
         </aside>
 
         <div className={`flex min-h-screen min-w-0 flex-1 flex-col transition-[margin] duration-200 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-64'}`}>
-          <header className="sticky top-0 z-30 flex h-16 items-center gap-sm border-b border-amud-outline-variant bg-amud-surface px-margin-mobile md:px-gutter">
+          <header className="sticky top-0 z-30 flex h-16 items-center gap-sm border-b border-amud-outline-variant/40 bg-amud-surface/90 px-margin-mobile backdrop-blur-md md:px-gutter">
             <button
               onClick={() => setCollapsed((c) => !c)}
               className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary md:flex"
@@ -234,37 +230,6 @@ export function CompanyShell({ children }: { children: ReactNode }) {
 
               <NotificationCenter key={`notif-${pathname}`} scope="employer" viewAllHref="/amud/entreprise/notifications" />
 
-              <div ref={settingsMenu.ref} className="relative hidden sm:block">
-                <button
-                  onClick={() => settingsMenu.setOpen((v) => !v)}
-                  className="rounded-full p-2 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary"
-                  aria-label="Réglages"
-                  aria-haspopup="menu"
-                  aria-expanded={settingsMenu.open}
-                >
-                  <span className="material-symbols-outlined">settings</span>
-                </button>
-                {settingsMenu.open ? (
-                  <div className="absolute right-0 top-full z-40 mt-2 w-72 overflow-hidden rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
-                    <div className="border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm text-label-md font-semibold text-amud-on-surface">Réglages rapides</div>
-                    <div className="flex flex-col gap-sm p-md">
-                      <div className="flex items-center justify-between">
-                        <span className="text-label-md text-amud-on-surface">Notifications par email</span>
-                        <Toggle checked={emailNotif} onChange={setEmailNotif} size="sm" label="Notifications par email" />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-label-md text-amud-on-surface">Notifications push</span>
-                        <Toggle checked={pushNotif} onChange={setPushNotif} size="sm" label="Notifications push" />
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-
-              <HeaderLanguageThemeControls />
-
-              <div className="hidden h-8 w-[1px] bg-amud-outline-variant sm:block" />
-
               <DropdownMenu
                 key={`profile-${pathname}`}
                 header={
@@ -273,6 +238,7 @@ export function CompanyShell({ children }: { children: ReactNode }) {
                     <div className="text-label-sm text-amud-on-surface-variant">{entreprise?.nom ?? CURRENT_EMPLOYER.entrepriseNom}</div>
                   </div>
                 }
+                body={<InlineLanguageThemeControls />}
                 trigger={({ open, toggle }) => (
                   <button
                     onClick={toggle}
@@ -286,6 +252,8 @@ export function CompanyShell({ children }: { children: ReactNode }) {
                 )}
                 items={[
                   { label: 'Mon entreprise', icon: 'apartment', href: '/amud/entreprise/profil' },
+                  { label: 'Paramètres', icon: 'settings', href: '/amud/entreprise/parametres' },
+                  { label: 'Aide', icon: 'help' },
                   { label: "Changer d'espace", icon: 'apps', href: '/amud' },
                   { label: 'Déconnexion', icon: 'logout', href: '/amud', danger: true },
                 ]}

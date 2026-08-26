@@ -4,7 +4,7 @@ export default function MatchingPreferencesLoading() {
   return (
     <SkeletonPage className="min-h-screen bg-background pb-32">
       <header className="sticky top-0 z-40 w-full border-b border-outline-variant bg-surface">
-        <div className="mx-auto flex h-16 w-full max-w-xl items-center justify-between px-4 lg:max-w-5xl lg:px-10">
+        <div className="mx-auto flex h-16 w-full max-w-xl items-center justify-between px-1.5 lg:max-w-5xl lg:px-4">
           <div className="flex items-center gap-4">
             <Skeleton className="h-10 w-10 rounded-full" />
             <Skeleton className="h-4 w-36" />

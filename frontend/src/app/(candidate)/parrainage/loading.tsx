@@ -3,7 +3,7 @@ import { Skeleton, SkeletonPage } from '@/components/shared/Skeleton';
 export default function ParrainageLoading() {
   return (
     <SkeletonPage className="min-h-screen bg-surface pb-24">
-      <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-surface-container-high bg-surface px-4 shadow-subtle lg:px-10">
+      <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-surface-container-high bg-surface px-1.5 shadow-subtle lg:px-4">
         <div className="flex items-center gap-3">
           <Skeleton className="h-7 w-7 rounded" />
           <Skeleton className="h-4 w-28" />

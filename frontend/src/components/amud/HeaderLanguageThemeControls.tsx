@@ -102,3 +102,60 @@ export function HeaderLanguageThemeControls({
     </>
   );
 }
+
+/**
+ * Même sélecteurs langue/thème que `HeaderLanguageThemeControls`, mais posés
+ * directement dans le corps d'un menu déroulant (profil) plutôt qu'en icônes
+ * séparées du header — sélection en un clic, sans sous-menu imbriqué.
+ */
+export function InlineLanguageThemeControls() {
+  const { language, setLanguage } = useLanguage();
+  const { mode, setMode } = useTheme();
+
+  return (
+    <div className="flex flex-col gap-sm p-md">
+      <div>
+        <div className="mb-1.5 text-label-sm text-amud-on-surface-variant">Langue</div>
+        <div className="flex flex-wrap gap-1.5">
+          {LANGUAGES.map((lang) => (
+            <button
+              key={lang.code}
+              type="button"
+              onClick={() => setLanguage(lang.code)}
+              aria-pressed={lang.code === language}
+              className={`flex items-center gap-1 rounded-full border px-2.5 py-1 text-label-sm transition-colors ${
+                lang.code === language
+                  ? 'border-amud-primary bg-amud-primary/10 font-semibold text-amud-primary'
+                  : 'border-amud-outline-variant text-amud-on-surface hover:bg-amud-surface-container-low'
+              }`}
+            >
+              <span>{lang.flag}</span>
+              <span>{lang.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+      <div>
+        <div className="mb-1.5 text-label-sm text-amud-on-surface-variant">Thème</div>
+        <div className="flex gap-1.5">
+          {THEME_OPTIONS.map((opt) => (
+            <button
+              key={opt.mode}
+              type="button"
+              onClick={() => setMode(opt.mode)}
+              aria-pressed={opt.mode === mode}
+              className={`flex flex-1 flex-col items-center gap-0.5 rounded-lg border px-2 py-1.5 text-[11px] transition-colors ${
+                opt.mode === mode
+                  ? 'border-amud-primary bg-amud-primary/10 font-semibold text-amud-primary'
+                  : 'border-amud-outline-variant text-amud-on-surface-variant hover:bg-amud-surface-container-low'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[18px]">{opt.icon}</span>
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

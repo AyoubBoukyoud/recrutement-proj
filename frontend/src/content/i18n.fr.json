@@ -65,5 +65,8 @@
   "otp_error_network": "Connexion impossible. Vérifiez votre connexion internet.",
   "otp_resend_cta": "Renvoyer le code",
   "otp_resend_countdown_prefix": "Renvoyer le code dans",
-  "nav_candidate_aria_label": "Navigation candidat"
+  "nav_candidate_aria_label": "Navigation candidat",
+  "pagination_previous": "← Précédent",
+  "pagination_next": "Suivant →",
+  "pagination_page_of": "Page {current} sur {last} · {count}"
 }

@@ -22,7 +22,9 @@
   "job": {
     "removeFavoriteAria": "إزالة من المفضلة",
     "addFavoriteAria": "إضافة إلى المفضلة",
-    "interestedButton": "أنا مهتم"
+    "interestedButton": "أنا مهتم",
+    "appliedButton": "تم إرسال الطلب",
+    "noResults": "لا توجد عروض مطابقة لبحثك."
   },
   "banner": {
     "title": "عزّز ظهورك",

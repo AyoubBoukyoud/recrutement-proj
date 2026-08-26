@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { NavItem, isNavActive, useDropdown } from '@/components/amud/ui';
-import { HeaderLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
+import { InlineLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
 import { ToastProvider } from '@/components/amud/Toast';
 import { GlobalSearch, useGlobalSearchShortcut, type GlobalSearchResult } from '@/components/amud/GlobalSearch';
 import { NotificationCenter } from '@/components/amud/NotificationCenter';
@@ -151,7 +151,7 @@ export function CentreShell({ children }: { children: ReactNode }) {
             collapsed ? 'md:w-20 md:hover:w-64' : 'md:w-64'
           }`}
         >
-          <div className={`flex items-center gap-sm border-b border-amud-outline-variant p-lg ${collapsed ? 'md:px-md' : ''}`}>
+          <div className={`flex items-center gap-sm border-b border-amud-outline-variant px-lg py-2.5 ${collapsed ? 'md:px-md' : ''}`}>
             <img src="/assets/images/logo.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
             <div className={hiddenWhenCollapsed}>
               <h1 className="text-title-lg font-bold text-amud-primary">Amud Skills</h1>
@@ -196,7 +196,7 @@ export function CentreShell({ children }: { children: ReactNode }) {
         </aside>
 
         <div className={`flex min-h-screen min-w-0 flex-1 flex-col transition-[margin] duration-200 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-64'}`}>
-          <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-amud-outline-variant bg-amud-surface px-gutter">
+          <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-amud-outline-variant/40 bg-amud-surface/90 px-gutter backdrop-blur-md">
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setCollapsed((c) => !c)}
@@ -220,7 +220,6 @@ export function CentreShell({ children }: { children: ReactNode }) {
             />
             <div className="ml-auto flex items-center gap-sm">
               <NotificationCenter key={pathname} scope="centre" />
-              <HeaderLanguageThemeControls />
               <div ref={profileMenu.ref} className="relative">
                 <button onClick={() => profileMenu.setOpen((v) => !v)} className="flex h-9 w-9 items-center justify-center rounded-full bg-amud-primary-container font-bold text-white transition-opacity hover:opacity-90" aria-label="Menu du compte" aria-haspopup="menu" aria-expanded={profileMenu.open}>
                   {(currentCentre?.nom ?? 'C').charAt(0)}
@@ -230,6 +229,9 @@ export function CentreShell({ children }: { children: ReactNode }) {
                     <div className="border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm">
                       <div className="text-label-md font-semibold text-amud-on-surface">{currentCentre?.nom ?? 'Espace Centre'}</div>
                       <div className="text-label-sm text-amud-on-surface-variant">Simulation — aucune vraie authentification</div>
+                    </div>
+                    <div className="border-b border-amud-outline-variant">
+                      <InlineLanguageThemeControls />
                     </div>
                     <div className="flex flex-col gap-sm p-md">
                       <label className="text-label-sm text-amud-on-surface-variant">
@@ -254,6 +256,12 @@ export function CentreShell({ children }: { children: ReactNode }) {
                       </label>
                     </div>
                     <div className="flex flex-col border-t border-amud-outline-variant py-1">
+                      <Link href="/amud/centre/parametres" onClick={() => profileMenu.setOpen(false)} className="flex items-center gap-sm px-md py-sm text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
+                        <span className="material-symbols-outlined text-[18px]">settings</span> Paramètres
+                      </Link>
+                      <button type="button" className="flex items-center gap-sm px-md py-sm text-left text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
+                        <span className="material-symbols-outlined text-[18px]">help</span> Aide
+                      </button>
                       <Link href="/amud" onClick={() => profileMenu.setOpen(false)} className="flex items-center gap-sm px-md py-sm text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
                         <span className="material-symbols-outlined text-[18px]">apps</span> Changer d&apos;espace
                       </Link>

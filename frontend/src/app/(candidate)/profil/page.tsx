@@ -124,7 +124,7 @@ export default function ProfilPage() {
 
   return (
     <div className="min-h-screen bg-surface pb-32">
-      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-outline-variant/20 bg-surface/80 px-6 py-4 backdrop-blur-md lg:px-10">
+      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-outline-variant/20 bg-surface/80 px-2.5 py-1.5 backdrop-blur-md lg:px-4">
         <Link href="/dashboard" aria-label={content.header.backAriaLabel} className="flex items-center text-primary hover:opacity-80 transition-opacity">
           <span className="material-symbols-outlined text-primary" style={{ fontSize: 22 }}>arrow_back</span>
         </Link>

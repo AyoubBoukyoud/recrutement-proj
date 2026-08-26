@@ -19,8 +19,8 @@ import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { ApiError } from '@/lib/api';
 import { documentsRepository } from '@/data/documents';
 import {
-  DOCUMENT_TYPE_LABELS,
-  STATUS_LABELS,
+  documentTypeLabel,
+  ocrStatusLabel,
   fieldLabel,
   fileNameOf,
   isScanning,
@@ -337,7 +337,7 @@ export default function DocumentsPage() {
 
   return (
     <div className="min-h-screen bg-surface pb-24">
-      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-outline-variant/30 bg-surface/90 px-6 py-4 backdrop-blur-md lg:px-10">
+      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-outline-variant/30 bg-surface/90 px-2.5 py-1.5 backdrop-blur-md lg:px-4">
         <Link href="/dashboard" className="text-primary-dark transition-opacity hover:opacity-80">
           <span className="material-symbols-outlined" style={{ fontSize: 22 }}>arrow_back</span>
         </Link>
@@ -372,9 +372,8 @@ export default function DocumentsPage() {
                 aria-pressed={selectedType === type}
                 className="flex-1 whitespace-nowrap"
               >
-                {/* DOCUMENT_TYPE_LABELS lives in `@/lib/documents` (out of scope for this
-                    i18n pass) and always renders hardcoded French labels. */}
-                {DOCUMENT_TYPE_LABELS[type]}
+                {/* Hardcoded to French — out of scope for this i18n pass, see documentTypeLabel. */}
+                {documentTypeLabel(type, 'fr')}
               </Button>
             ))}
           </div>
@@ -470,9 +469,8 @@ export default function DocumentsPage() {
               <div className="absolute inset-x-0 top-0 h-1 animate-[scan_1.8s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-primary-container to-transparent shadow-[0_0_15px_2px_rgba(27,94,55,0.5)]" />
               <div className="absolute inset-0 flex items-center justify-center bg-primary-container/10">
                 <div className="rounded-full bg-surface-container-lowest/90 px-6 py-2 shadow-sm backdrop-blur-sm">
-                  {/* STATUS_LABELS lives in `@/lib/documents` (out of scope for this i18n
-                      pass) and always renders hardcoded French labels. */}
-                  <span className="font-medium text-primary-container">{STATUS_LABELS[active.ocr_status]}</span>
+                  {/* Hardcoded to French — out of scope for this i18n pass, see ocrStatusLabel. */}
+                  <span className="font-medium text-primary-container">{ocrStatusLabel(active.ocr_status, 'fr')}</span>
                 </div>
               </div>
               <div className="flex flex-col items-center gap-2 text-primary-container">
@@ -487,7 +485,7 @@ export default function DocumentsPage() {
           <section className="space-y-4 rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-soft">
             <div className="flex items-center gap-2 text-error">
               <span className="material-symbols-outlined" style={{ fontSize: 18 }}>error</span>
-              <span className="text-sm font-bold">{STATUS_LABELS.failed}</span>
+              <span className="text-sm font-bold">{ocrStatusLabel('failed', 'fr')}</span>
             </div>
             <p className="text-sm text-onSurface-variant">{content.failed.notice}</p>
             <div className="grid grid-cols-2 gap-3">
@@ -647,10 +645,9 @@ export default function DocumentsPage() {
                 <div key={document.id} className="space-y-1">
                   <DocumentViewer document={toLocalEntry(document, fileNameOf(document))} previewUrl={document.url} />
                   <div className="flex items-center justify-between px-1 text-xs text-onSurface-variant">
-                    {/* DOCUMENT_TYPE_LABELS / STATUS_LABELS live in `@/lib/documents` (out of
-                        scope for this i18n pass) and always render hardcoded French labels. */}
+                    {/* Hardcoded to French — out of scope for this i18n pass. */}
                     <span>
-                      {DOCUMENT_TYPE_LABELS[document.type]} — {STATUS_LABELS[document.ocr_status]}
+                      {documentTypeLabel(document.type, 'fr')} — {ocrStatusLabel(document.ocr_status, 'fr')}
                     </span>
                     {active?.id !== document.id && !isScanning(document.ocr_status) && document.extraction && (
                       <Button

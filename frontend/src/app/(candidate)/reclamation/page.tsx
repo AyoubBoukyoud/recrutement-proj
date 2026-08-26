@@ -11,13 +11,8 @@ import { Button } from '@/components/shared/Button';
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { ApiError } from '@/lib/api';
-import {
-  listMyComplaints,
-  submitTextComplaint,
-  submitVoiceComplaint,
-  parseSubject,
-  type Complaint,
-} from '@/lib/complaints';
+import { parseSubject, type Complaint } from '@/lib/complaints';
+import { complaintsRepository } from '@/data/complaints';
 import { useLanguage } from '@/context/LanguageContext';
 import { candidateReclamationContentFor, categoryLabelFor } from '@/lib/candidateReclamationContent';
 
@@ -56,7 +51,8 @@ export default function ReclamationPage() {
 
   const refresh = useCallback(() => {
     if (!token) return;
-    listMyComplaints(token)
+    complaintsRepository
+      .list(token)
       .then(setEntries)
       .catch(() => setEntries([]));
   }, [token]);
@@ -64,6 +60,15 @@ export default function ReclamationPage() {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  // La maquette fait progresser un ticket (open -> in_review -> resolved) en
+  // tâche de fond : on réinterroge tant qu'un ticket n'est pas encore résolu,
+  // comme le ferait un vrai polling de statut support.
+  useEffect(() => {
+    if (!entries.some((e) => e.status !== 'resolved')) return;
+    const timer = setInterval(refresh, 3000);
+    return () => clearInterval(timer);
+  }, [entries, refresh]);
 
   const handleSubmit = async () => {
     if (!token) return;
@@ -76,8 +81,8 @@ export default function ReclamationPage() {
 
     try {
       const entry = voiceBlob
-        ? await submitVoiceComplaint(category, voiceBlob, token)
-        : await submitTextComplaint(category, message.trim(), token);
+        ? await complaintsRepository.submitVoice(category, voiceBlob, token)
+        : await complaintsRepository.submitText(category, message.trim(), token);
 
       setEntries((prev) => [entry, ...prev]);
       setCategory('');
@@ -94,7 +99,7 @@ export default function ReclamationPage() {
 
   return (
     <div className="min-h-screen bg-surface pb-24">
-      <header className="sticky top-0 z-10 flex h-16 items-center border-b border-surface-container bg-surface px-6 lg:px-10">
+      <header className="sticky top-0 z-10 flex h-16 items-center border-b border-surface-container bg-surface px-2.5 lg:px-4">
         <Link href="/dashboard" className="mr-4 text-primary-dark transition-transform active:scale-95">
           <span className="material-symbols-outlined" style={{ fontSize: 22 }}>arrow_back</span>
         </Link>
