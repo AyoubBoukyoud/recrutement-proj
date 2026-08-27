@@ -6,6 +6,7 @@
     "spaceLabel": "Candidate Space",
     "notificationsAriaLabel": "Notifications"
   },
+  "loading": "Loading…",
   "profileProgress": {
     "title": "Profile completeness",
     "description": "Complete your profile to appear first to German recruiters."
@@ -17,9 +18,15 @@
   "checklist": {
     "title": "To complete",
     "items": {
-      "personal": { "label": "Personal profile completed", "action": "Complete" },
+      "personal": {
+        "label": "Personal profile completed",
+        "action": "Complete"
+      },
       "education": { "label": "Education provided", "action": "Complete" },
-      "languages": { "label": "At least one language assessed", "action": "Complete" },
+      "languages": {
+        "label": "At least one language assessed",
+        "action": "Complete"
+      },
       "cv": { "label": "CV uploaded", "action": "Add" },
       "diploma": { "label": "Certificates / diplomas", "action": "Add" },
       "video": { "label": "Introduction video", "action": "Record" },
@@ -34,8 +41,10 @@
       "recordVideo": "Record a video",
       "languageTest": "Take the language test",
       "publicProfile": "View my public profile",
-      "germanLesson": "Today's German lesson",
+      "dailyTasks": "My daily tasks",
       "jobOffers": "View job offers",
+      "applications": "My applications",
+      "favorites": "My favorites",
       "salarySimulator": "Simulate my salary",
       "visibility": "My visibility",
       "referral": "Refer a friend",
@@ -45,23 +54,25 @@
   },
   "applications": {
     "title": "Application tracking",
-    "viewOffers": "View offers",
+    "viewAll": "All my applications",
+    "empty": "No application submitted yet.",
     "stages": ["Sent", "Shortlisting", "Interview", "Decision"],
-    "updatedOn": "Updated on {date}",
-    "items": [
-      { "id": 1, "title": "Qualified Nurse", "statusLabel": "Interview scheduled", "updatedAt": "August 18" },
-      { "id": 2, "title": "Building Electrician", "statusLabel": "In shortlisting", "updatedAt": "August 15" },
-      { "id": 3, "title": "Truck Driver", "statusLabel": "Application sent", "updatedAt": "August 12" }
-    ]
+    "statuses": {
+      "submitted": "Submitted",
+      "viewed": "Viewed",
+      "interview": "Interview",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "withdrawn": "Withdrawn"
+    },
+    "updatedOn": "Updated on {date}"
   },
   "recommendations": {
     "title": "Recommendations",
+    "empty": "Set your matching preferences to receive recommendations.",
     "matchBadge": "{value}% Match",
+    "viewDetails": "View requirements",
     "applyButton": "Apply",
-    "appliedButton": "Application sent",
-    "items": [
-      { "id": 1, "title": "Receptionist", "location": "Munich, Germany", "contract": "Permanent contract" },
-      { "id": 2, "title": "Care Assistant", "location": "Hamburg, Germany", "contract": "Full time" }
-    ]
+    "appliedButton": "Application sent"
   }
 }

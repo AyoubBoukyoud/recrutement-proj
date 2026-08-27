@@ -6,6 +6,7 @@
     "spaceLabel": "فضاء المرشح",
     "notificationsAriaLabel": "الإشعارات"
   },
+  "loading": "جارٍ التحميل…",
   "profileProgress": {
     "title": "نسبة اكتمال الملف الشخصي",
     "description": "أكمل ملفك الشخصي لتظهر في الأولوية لدى موظفي التوظيف الألمان."
@@ -34,8 +35,10 @@
       "recordVideo": "تسجيل فيديو",
       "languageTest": "اجتياز اختبار اللغة",
       "publicProfile": "عرض ملفي الشخصي العام",
-      "germanLesson": "درس الألمانية اليومي",
+      "dailyTasks": "مهامي اليومية",
       "jobOffers": "عرض فرص العمل",
+      "applications": "ترشيحاتي",
+      "favorites": "مفضلاتي",
       "salarySimulator": "محاكاة راتبي",
       "visibility": "مدى ظهوري",
       "referral": "دعوة صديق",
@@ -45,23 +48,25 @@
   },
   "applications": {
     "title": "متابعة الترشيحات",
-    "viewOffers": "عرض فرص العمل",
+    "viewAll": "كل ترشيحاتي",
+    "empty": "لم يتم إرسال أي ترشيح بعد.",
     "stages": ["مُرسلة", "الاختيار الأولي", "المقابلة", "القرار"],
-    "updatedOn": "آخر تحديث في {date}",
-    "items": [
-      { "id": 1, "title": "ممرض مؤهَّل", "statusLabel": "مقابلة مبرمجة", "updatedAt": "18 غشت" },
-      { "id": 2, "title": "كهربائي مباني", "statusLabel": "قيد الاختيار الأولي", "updatedAt": "15 غشت" },
-      { "id": 3, "title": "سائق شاحنة", "statusLabel": "تم إرسال الترشيح", "updatedAt": "12 غشت" }
-    ]
+    "statuses": {
+      "submitted": "مُرسلة",
+      "viewed": "تمت مشاهدتها",
+      "interview": "مقابلة",
+      "accepted": "مقبولة",
+      "rejected": "مرفوضة",
+      "withdrawn": "مسحوبة"
+    },
+    "updatedOn": "آخر تحديث في {date}"
   },
   "recommendations": {
     "title": "توصيات",
+    "empty": "حدد تفضيلات المطابقة لتلقي توصيات.",
     "matchBadge": "تطابق {value}%",
+    "viewDetails": "عرض الشروط",
     "applyButton": "التقديم",
-    "appliedButton": "تم إرسال الترشيح",
-    "items": [
-      { "id": 1, "title": "موظف استقبال", "location": "ميونخ، ألمانيا", "contract": "عقد دائم" },
-      { "id": 2, "title": "مساعد رعاية", "location": "هامبورغ، ألمانيا", "contract": "دوام كامل" }
-    ]
+    "appliedButton": "تم إرسال الترشيح"
   }
 }

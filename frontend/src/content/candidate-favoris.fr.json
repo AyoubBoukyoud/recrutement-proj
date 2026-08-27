@@ -1,0 +1,10 @@
+{
+  "title": "Offres favorites",
+  "backAria": "Retour aux offres",
+  "loading": "Chargement…",
+  "error": "Impossible de charger vos favoris.",
+  "empty": "Aucune offre favorite.",
+  "remove": "Retirer des favoris",
+  "open": "Voir l’offre",
+  "pagination": { "noun": "favori", "plural": "favoris" }
+}

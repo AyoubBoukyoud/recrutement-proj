@@ -1,0 +1,20 @@
+{
+  "title": "Notifications",
+  "backAria": "Retour au tableau de bord",
+  "readAll": "Tout lire",
+  "markReadAria": "Marquer comme lue",
+  "open": "Ouvrir",
+  "loading": "Chargement…",
+  "error": "Impossible de charger les notifications.",
+  "empty": "Aucune notification.",
+  "pagination": { "noun": "notification", "plural": "notifications" },
+  "types": {
+    "application.created": { "title": "Nouvelle candidature", "body": "Une candidature a été reçue pour {offer_title}." },
+    "application.status": { "title": "Candidature mise à jour", "body": "Votre candidature pour {offer_title} est maintenant : {status}." },
+    "offer.moderated": { "title": "Offre mise à jour", "body": "Le statut de {offer_title} est maintenant : {status}." },
+    "document.reviewed": { "title": "Document examiné", "body": "Votre document {document_type} est maintenant : {status}. {reason}" },
+    "complaint.answered": { "title": "Réponse à votre réclamation", "body": "{response}" },
+    "tasks.assigned": { "title": "Nouvelles tâches", "body": "{count} tâche(s) vous ont été assignées pour le {date}." },
+    "offer.matched": { "title": "Nouvelle offre correspondante", "body": "{offer_title} correspond à votre profil à {match_score} %." }
+  }
+}

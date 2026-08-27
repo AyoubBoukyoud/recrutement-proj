@@ -17,7 +17,7 @@ use App\Models\Document;
  */
 class RecruiterProfileView
 {
-    private const RELATIONS = ['educations', 'languages.certificateDocument', 'documents', 'languageAssessments'];
+    private const RELATIONS = ['educations', 'languages.certificateDocument', 'skills', 'documents', 'languageAssessments'];
 
     /** @return array<string, mixed> */
     public static function for(CandidateProfile $profile): array

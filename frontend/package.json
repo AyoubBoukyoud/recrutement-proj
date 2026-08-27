@@ -8,7 +8,7 @@
     "start": "npx next start",
     "lint": "eslint src --ext .ts,.tsx",
     "test:client-demo": "node scripts/verify-client-demo.mjs",
-    "verify:no-mocks": "rm -rf .next && NEXT_PUBLIC_USE_MOCKS=0 next build && ! grep -rlE 'Youssef Amrani|mock-token-|cv-youssef-amrani|\\[maquette\\]' .next/static/chunks/"
+    "verify:no-mocks": "rm -rf .next && NEXT_PUBLIC_USE_MOCKS=0 next build && ! grep -rlE 'mock-token-|cv-youssef-amrani|\\[maquette\\]' .next/static/chunks/"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.4",

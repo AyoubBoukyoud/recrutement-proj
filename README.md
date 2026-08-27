@@ -121,7 +121,7 @@ network and port 8000 must be open in the firewall.
 ## Tests and checks
 
 ```bash
-cd backend  && php artisan test          # 218 tests / 1,002 assertions
+cd backend  && php artisan test          # 241 tests / 1,204 assertions
 cd backend  && ./vendor/bin/pint         # formatter
 cd mobile-expo && npx tsc --noEmit
 cd frontend && npm run test:client-demo && npx tsc --noEmit && npm run lint && npm run build

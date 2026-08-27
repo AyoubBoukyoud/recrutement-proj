@@ -1,7 +1,7 @@
 // Helpers localStorage sûrs pour le rendu SSR (Next.js)
 
 export function readStorage<T>(key: string, fallback: T): T {
-  if (typeof window === 'undefined') return fallback;
+  if (typeof window === "undefined") return fallback;
   try {
     const raw = window.localStorage.getItem(key);
     if (!raw) return fallback;
@@ -12,7 +12,7 @@ export function readStorage<T>(key: string, fallback: T): T {
 }
 
 export function writeStorage<T>(key: string, value: T): void {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(key, JSON.stringify(value));
   } catch {
@@ -21,7 +21,7 @@ export function writeStorage<T>(key: string, value: T): void {
 }
 
 export function removeStorage(key: string): void {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return;
   try {
     window.localStorage.removeItem(key);
   } catch {
@@ -30,21 +30,17 @@ export function removeStorage(key: string): void {
 }
 
 export const STORAGE_KEYS = {
-  auth: 'as_auth_user',
-  token: 'as_auth_token',
-  profile: 'as_candidate_profile',
-  language: 'as_language',
-  theme: 'as_theme',
-  syncQueue: 'as_sync_queue',
-  installPromptDismissedAt: 'as_install_prompt_dismissed_at',
+  auth: "as_auth_user",
+  token: "as_auth_token",
+  profile: "as_candidate_profile",
+  language: "as_language",
+  theme: "as_theme",
+  syncQueue: "as_sync_queue",
+  installPromptDismissedAt: "as_install_prompt_dismissed_at",
   // Prototype candidat (maquette localStorage) — voir implementation_plan.md.
-  candidateProfileV2: 'as_candidate_profile_v2',
-  candidateDocuments: 'as_candidate_documents',
-  languageAssessments: 'as_language_assessments',
-  jobApplications: 'as_job_applications',
-  jobFavorites: 'as_job_favorites',
-  complaints: 'as_complaints',
-  germanStreak: 'as_german_streak',
-  quizMetier: 'as_quiz_metier',
-  salarySimulation: 'as_salary_simulation',
+  candidateProfileV2: "as_candidate_profile_v2",
+  candidateDocuments: "as_candidate_documents",
+  languageAssessments: "as_language_assessments",
+  complaints: "as_complaints",
+  quizMetier: "as_quiz_metier",
 } as const;

@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Jobs\NotifyAdminsOfComplaint;
 use App\Models\Complaint;
+use App\Services\Notifications;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ComplaintController extends Controller
 {
+    public function __construct(private readonly Notifications $notifications) {}
+
     /** Administrator triage queue. */
     public function index(Request $request): JsonResponse
     {
@@ -89,6 +92,10 @@ class ComplaintController extends Controller
         }
 
         $complaint->save();
+
+        if (filled($data['response'] ?? null)) {
+            $this->notifications->complaintAnswered($complaint);
+        }
 
         return response()->json($complaint->fresh(['user:id,name,phone', 'respondedBy:id,name,phone']));
     }

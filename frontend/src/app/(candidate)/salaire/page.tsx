@@ -1,30 +1,22 @@
-'use client';
+"use client";
 
 // Simulateur indicatif : hypothèses fixes clairement signalées dans l'UI.
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/shared/Button';
-import { useLanguage } from '@/context/LanguageContext';
-import { salaireContentFor } from '@/lib/candidateSalaireContent';
-import { readStorage, writeStorage, STORAGE_KEYS } from '@/lib/storage';
-
-interface SalarySimulation {
-  profession: string;
-  region: string;
-  experience: number;
-  result: { low: number; mid: number; high: number; net: number; resteAVivre: number };
-}
+import { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/shared/Button";
+import { useLanguage } from "@/context/LanguageContext";
+import { salaireContentFor } from "@/lib/candidateSalaireContent";
 
 // Mots-clés de correspondance métier → salaire de base. Volontairement non
 // traduits : c'est une heuristique interne sur le texte libre saisi par le
 // candidat dans le champ "Profession", indépendante de la langue d'affichage.
 const BASE_SALARIES: { keywords: string[]; base: number }[] = [
-  { keywords: ['infirmier', 'infirmière', 'santé'], base: 3200 },
-  { keywords: ['ingénieur', 'développeur', 'informatique'], base: 4200 },
-  { keywords: ['technicien'], base: 2900 },
-  { keywords: ['chauffeur', 'logistique'], base: 2900 },
-  { keywords: ['électricien', 'artisanat'], base: 3100 },
+  { keywords: ["infirmier", "infirmière", "santé"], base: 3200 },
+  { keywords: ["ingénieur", "développeur", "informatique"], base: 4200 },
+  { keywords: ["technicien"], base: 2900 },
+  { keywords: ["chauffeur", "logistique"], base: 2900 },
+  { keywords: ["électricien", "artisanat"], base: 3100 },
 ];
 const DEFAULT_BASE = 2600;
 
@@ -34,34 +26,42 @@ const REGION_FACTORS = [1, 1.08, 1.1, 1.05, 1.0];
 
 // Montants par poste de dépense migration, alignés avec `content.migrationCosts`.
 const MIGRATION_AMOUNTS = [80, 350, 120, 700, 150];
-const MIGRATION_TOTAL = MIGRATION_AMOUNTS.reduce((sum, amount) => sum + amount, 0);
+const MIGRATION_TOTAL = MIGRATION_AMOUNTS.reduce(
+  (sum, amount) => sum + amount,
+  0,
+);
 
 function estimateBase(profession: string) {
   const q = profession.trim().toLowerCase();
-  const match = BASE_SALARIES.find((entry) => entry.keywords.some((k) => q.includes(k)));
+  const match = BASE_SALARIES.find((entry) =>
+    entry.keywords.some((k) => q.includes(k)),
+  );
   return match?.base ?? DEFAULT_BASE;
 }
 
 export default function SalairePage() {
   const { language } = useLanguage();
   const content = salaireContentFor(language);
-  const regions = content.regions.map((name, i) => ({ name, factor: REGION_FACTORS[i] ?? 1 }));
-  const migrationCosts = content.migrationCosts.map((label, i) => ({ label, amount: MIGRATION_AMOUNTS[i] ?? 0 }));
+  const regions = content.regions.map((name, i) => ({
+    name,
+    factor: REGION_FACTORS[i] ?? 1,
+  }));
+  const migrationCosts = content.migrationCosts.map((label, i) => ({
+    label,
+    amount: MIGRATION_AMOUNTS[i] ?? 0,
+  }));
 
-  const [profession, setProfession] = useState('');
+  const [profession, setProfession] = useState("");
   const [region, setRegion] = useState(regions[0].name);
   const [experience, setExperience] = useState(0);
   const [isCalculating, setIsCalculating] = useState(false);
-  const [result, setResult] = useState<{ low: number; mid: number; high: number; net: number; resteAVivre: number } | null>(null);
-
-  useEffect(() => {
-    const saved = readStorage<SalarySimulation | null>(STORAGE_KEYS.salarySimulation, null);
-    if (!saved) return;
-    setProfession(saved.profession);
-    setRegion(saved.region);
-    setExperience(saved.experience);
-    setResult(saved.result);
-  }, []);
+  const [result, setResult] = useState<{
+    low: number;
+    mid: number;
+    high: number;
+    net: number;
+    resteAVivre: number;
+  } | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,7 +77,6 @@ export default function SalairePage() {
       const resteAVivre = Math.max(net - 700 - 500, 0);
       const nextResult = { low, mid, high, net, resteAVivre };
       setResult(nextResult);
-      writeStorage<SalarySimulation>(STORAGE_KEYS.salarySimulation, { profession, region, experience, result: nextResult });
       setIsCalculating(false);
     }, 800);
   };
@@ -85,26 +84,41 @@ export default function SalairePage() {
   return (
     <div className="min-h-screen bg-surface pb-32">
       <header className="sticky top-0 z-20 flex w-full items-center gap-4 border-b border-outline-variant/20 bg-surface px-1.5 py-1.5 lg:px-4">
-        <Link href="/dashboard" className="text-primary-dark transition-opacity hover:opacity-80">
+        <Link
+          href="/dashboard"
+          className="text-primary-dark transition-opacity hover:opacity-80"
+        >
           <span className="material-symbols-outlined">arrow_back</span>
         </Link>
-        <h1 className="text-lg font-bold text-primary-dark">{content.header.title}</h1>
+        <h1 className="text-lg font-bold text-primary-dark">
+          {content.header.title}
+        </h1>
       </header>
 
       <main className="mx-auto max-w-4xl space-y-6 px-4 py-6 lg:max-w-6xl lg:px-10 lg:py-8">
         <section className="space-y-1 text-center md:text-left">
-          <h2 className="text-2xl font-bold text-primary-dark">{content.intro.title}</h2>
+          <h2 className="text-2xl font-bold text-primary-dark">
+            {content.intro.title}
+          </h2>
           <p className="max-w-2xl text-sm text-onSurface-variant">
             {content.intro.body}
           </p>
         </section>
 
         <section className="rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-4 shadow-[0px_4px_20px_rgba(0,0,0,0.03)] md:p-6">
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 items-end gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-1 items-end gap-4 md:grid-cols-2 lg:grid-cols-3"
+          >
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-onSurface-variant">{content.form.professionLabel}</label>
+              <label className="text-xs font-semibold text-onSurface-variant">
+                {content.form.professionLabel}
+              </label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" style={{ fontSize: 20 }}>
+                <span
+                  className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline"
+                  style={{ fontSize: 20 }}
+                >
                   work
                 </span>
                 <input
@@ -116,9 +130,14 @@ export default function SalairePage() {
               </div>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-onSurface-variant">{content.form.regionLabel}</label>
+              <label className="text-xs font-semibold text-onSurface-variant">
+                {content.form.regionLabel}
+              </label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" style={{ fontSize: 20 }}>
+                <span
+                  className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline"
+                  style={{ fontSize: 20 }}
+                >
                   location_on
                 </span>
                 <select
@@ -127,20 +146,29 @@ export default function SalairePage() {
                   className="w-full appearance-none rounded-xl border border-outline py-3 pl-11 pr-3 text-sm outline-none transition-all focus:border-primary-dark focus:ring-2 focus:ring-primary-dark/10"
                 >
                   {regions.map((r) => (
-                    <option key={r.name} value={r.name}>{r.name}</option>
+                    <option key={r.name} value={r.name}>
+                      {r.name}
+                    </option>
                   ))}
                 </select>
               </div>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-onSurface-variant">{content.form.experienceLabel}</label>
+              <label className="text-xs font-semibold text-onSurface-variant">
+                {content.form.experienceLabel}
+              </label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" style={{ fontSize: 20 }}>
+                <span
+                  className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline"
+                  style={{ fontSize: 20 }}
+                >
                   work_history
                 </span>
                 <input
                   value={experience}
-                  onChange={(e) => setExperience(Math.max(0, Number(e.target.value)))}
+                  onChange={(e) =>
+                    setExperience(Math.max(0, Number(e.target.value)))
+                  }
                   min={0}
                   type="number"
                   className="w-full rounded-xl border border-outline py-3 pl-11 pr-3 text-sm outline-none transition-all focus:border-primary-dark focus:ring-2 focus:ring-primary-dark/10"
@@ -153,8 +181,10 @@ export default function SalairePage() {
                 disabled={isCalculating}
                 className="bg-primary-dark px-12 shadow-lg shadow-primary-dark/20 hover:enabled:-translate-y-0.5"
               >
-                <span className={`material-symbols-outlined ${isCalculating ? 'animate-spin' : ''}`}>
-                  {isCalculating ? 'sync' : 'calculate'}
+                <span
+                  className={`material-symbols-outlined ${isCalculating ? "animate-spin" : ""}`}
+                >
+                  {isCalculating ? "sync" : "calculate"}
                 </span>
                 {isCalculating ? content.form.submitting : content.form.submit}
               </Button>
@@ -167,16 +197,28 @@ export default function SalairePage() {
             <div className="space-y-6 lg:col-span-7">
               <div className="relative space-y-4 overflow-hidden rounded-2xl border border-primary-container/20 bg-surface-container-lowest p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.03)]">
                 <div className="space-y-1">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-primary-dark/70">{content.results.grossTitle}</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-primary-dark/70">
+                    {content.results.grossTitle}
+                  </h3>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-bold text-primary-dark">{result.mid.toLocaleString('fr-FR')} €</span>
-                    <span className="text-xs text-outline">{content.results.perMonth}</span>
+                    <span className="text-4xl font-bold text-primary-dark">
+                      {result.mid.toLocaleString("fr-FR")} €
+                    </span>
+                    <span className="text-xs text-outline">
+                      {content.results.perMonth}
+                    </span>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs text-onSurface-variant">
-                    <span>{content.results.low} ({result.low.toLocaleString('fr-FR')} €)</span>
-                    <span>{content.results.high} ({result.high.toLocaleString('fr-FR')} €)</span>
+                    <span>
+                      {content.results.low} (
+                      {result.low.toLocaleString("fr-FR")} €)
+                    </span>
+                    <span>
+                      {content.results.high} (
+                      {result.high.toLocaleString("fr-FR")} €)
+                    </span>
                   </div>
                   <div className="h-3 w-full overflow-hidden rounded-full bg-surface-container">
                     <div className="h-full w-2/3 rounded-full bg-primary-dark" />
@@ -184,28 +226,46 @@ export default function SalairePage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4 border-t border-outline-variant/40 pt-4">
                   <div className="space-y-1">
-                    <p className="text-xs text-onSurface-variant">{content.results.netLabel}</p>
-                    <p className="text-xl font-bold text-primary-dark">{result.net.toLocaleString('fr-FR')} €</p>
+                    <p className="text-xs text-onSurface-variant">
+                      {content.results.netLabel}
+                    </p>
+                    <p className="text-xl font-bold text-primary-dark">
+                      {result.net.toLocaleString("fr-FR")} €
+                    </p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs text-onSurface-variant">{content.results.resteAVivreLabel}</p>
-                    <p className="text-xl font-bold text-primary-dark">{result.resteAVivre.toLocaleString('fr-FR')} €</p>
-                    <span className="text-[10px] italic text-outline">{content.results.resteAVivreNote}</span>
+                    <p className="text-xs text-onSurface-variant">
+                      {content.results.resteAVivreLabel}
+                    </p>
+                    <p className="text-xl font-bold text-primary-dark">
+                      {result.resteAVivre.toLocaleString("fr-FR")} €
+                    </p>
+                    <span className="text-[10px] italic text-outline">
+                      {content.results.resteAVivreNote}
+                    </span>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-6 rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.03)]">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-primary-dark">{content.results.migrationTitle}</h3>
-                  <span className="rounded-full bg-primary-container/10 px-3 py-1 text-xs font-bold text-primary-dark">{content.results.migrationBadge}</span>
+                  <h3 className="text-lg font-bold text-primary-dark">
+                    {content.results.migrationTitle}
+                  </h3>
+                  <span className="rounded-full bg-primary-container/10 px-3 py-1 text-xs font-bold text-primary-dark">
+                    {content.results.migrationBadge}
+                  </span>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
                     <thead className="border-b border-outline-variant/40">
                       <tr>
-                        <th className="py-2 font-semibold text-onSurface-variant">{content.results.tableExpenseHeader}</th>
-                        <th className="py-2 text-right font-semibold text-onSurface-variant">{content.results.tableAmountHeader}</th>
+                        <th className="py-2 font-semibold text-onSurface-variant">
+                          {content.results.tableExpenseHeader}
+                        </th>
+                        <th className="py-2 text-right font-semibold text-onSurface-variant">
+                          {content.results.tableAmountHeader}
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-outline-variant/20">
@@ -218,17 +278,24 @@ export default function SalairePage() {
                     </tbody>
                     <tfoot>
                       <tr className="bg-surface-container-low">
-                        <td className="rounded-l-lg px-2 py-3 font-bold text-primary-dark">{content.results.totalLabel}</td>
-                        <td className="rounded-r-lg px-2 py-3 text-right font-bold text-primary-dark">{MIGRATION_TOTAL} €</td>
+                        <td className="rounded-l-lg px-2 py-3 font-bold text-primary-dark">
+                          {content.results.totalLabel}
+                        </td>
+                        <td className="rounded-r-lg px-2 py-3 text-right font-bold text-primary-dark">
+                          {MIGRATION_TOTAL} €
+                        </td>
                       </tr>
                     </tfoot>
                   </table>
                 </div>
                 <div className="flex items-start gap-3 rounded-xl border border-gold/40 bg-gold/10 p-4">
-                  <span className="material-symbols-outlined text-gold-dark">info</span>
+                  <span className="material-symbols-outlined text-gold-dark">
+                    info
+                  </span>
                   <div className="space-y-1 text-sm">
                     <p className="font-semibold text-onSurface">
-                      {content.results.aidLabel} <strong>{content.results.aidProgram}</strong>
+                      {content.results.aidLabel}{" "}
+                      <strong>{content.results.aidProgram}</strong>
                     </p>
                     <p className="text-xs text-onSurface-variant">
                       {content.results.aidBody}
@@ -240,7 +307,9 @@ export default function SalairePage() {
 
             <div className="space-y-6 lg:col-span-5">
               <div className="space-y-4 rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.03)]">
-                <h4 className="text-lg font-bold text-primary-dark">{content.sidebar.optimizeTitle}</h4>
+                <h4 className="text-lg font-bold text-primary-dark">
+                  {content.sidebar.optimizeTitle}
+                </h4>
                 <p className="text-sm text-onSurface-variant">
                   {content.sidebar.optimizeBody}
                 </p>
@@ -249,20 +318,35 @@ export default function SalairePage() {
                   className="flex items-center justify-center gap-2 rounded-xl border-2 border-primary-dark py-3 text-sm font-semibold text-primary-dark transition-all hover:bg-primary-dark hover:text-on-primary"
                 >
                   {content.sidebar.languageCoursesLink}
-                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: 18 }}
+                  >
+                    arrow_forward
+                  </span>
                 </Link>
               </div>
               <div className="space-y-3 rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.03)]">
-                <h4 className="text-lg font-bold text-primary-dark">{content.sidebar.supportTitle}</h4>
+                <h4 className="text-lg font-bold text-primary-dark">
+                  {content.sidebar.supportTitle}
+                </h4>
                 <p className="text-sm text-onSurface-variant">
                   {content.sidebar.supportBody}
                 </p>
                 <div className="flex flex-wrap gap-2 text-xs">
                   {content.sidebar.tags.map((tag) => (
-                    <span key={tag} className="rounded-full bg-surface-container-high px-3 py-1">{tag}</span>
+                    <span
+                      key={tag}
+                      className="rounded-full bg-surface-container-high px-3 py-1"
+                    >
+                      {tag}
+                    </span>
                   ))}
                 </div>
-                <Link href="/reclamation" className="block text-center text-xs font-semibold text-primary-dark hover:underline">
+                <Link
+                  href="/reclamation"
+                  className="block text-center text-xs font-semibold text-primary-dark hover:underline"
+                >
                   {content.sidebar.contactLink}
                 </Link>
               </div>
@@ -272,7 +356,10 @@ export default function SalairePage() {
 
         {result && (
           <div className="flex justify-center pb-4 pt-2">
-            <Button onClick={() => window.print()} className="bg-primary-dark px-8 shadow-md hover:enabled:opacity-90">
+            <Button
+              onClick={() => window.print()}
+              className="bg-primary-dark px-8 shadow-md hover:enabled:opacity-90"
+            >
               <span className="material-symbols-outlined">picture_as_pdf</span>
               {content.downloadPdf}
             </Button>

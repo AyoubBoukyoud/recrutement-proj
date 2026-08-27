@@ -1,34 +1,14 @@
 {
-  "header": {
-    "profileAlt": "Profil Candidat",
-    "notificationsAria": "Notifications"
-  },
-  "search": {
-    "title": "Offres pour vous",
-    "srLabel": "Rechercher un métier ou une ville",
-    "placeholder": "Rechercher un métier ou une ville..."
-  },
-  "filters": {
-    "button": "Filtres",
-    "labels": {
-      "Tous": "Tous",
-      "Santé": "Santé",
-      "Électricité": "Électricité",
-      "Hôtellerie": "Hôtellerie",
-      "Logistique": "Logistique",
-      "Disponibilité immédiate": "Disponibilité immédiate"
-    }
-  },
-  "job": {
-    "removeFavoriteAria": "Retirer des favoris",
-    "addFavoriteAria": "Ajouter aux favoris",
-    "interestedButton": "Je suis intéressé",
-    "appliedButton": "Candidature envoyée",
-    "noResults": "Aucune offre ne correspond à votre recherche."
-  },
-  "banner": {
-    "title": "Booster votre visibilité",
-    "body": "Complétez votre profil à 100% pour apparaître en priorité auprès des recruteurs allemands.",
-    "cta": "Optimiser mon profil"
-  }
+  "header": { "title": "Amud Careers", "backAria": "Retour au tableau de bord", "notificationsAria": "Notifications" },
+  "loading": "Chargement…",
+  "error": "Impossible de charger les offres.",
+  "search": { "title": "Offres pour vous", "srLabel": "Rechercher un métier ou une ville", "placeholder": "Rechercher un métier ou une ville…" },
+  "links": { "favorites": "Mes favoris", "applications": "Mes candidatures" },
+  "filters": { "button": "Filtres", "city": "Ville", "sector": "Secteur", "contract": "Type de contrat", "cefr": "Niveau CECR", "allContracts": "Tous les contrats", "allLevels": "Tous les niveaux", "apply": "Rechercher", "reset": "Réinitialiser", "labels": { "Tous": "Tous", "Santé": "Santé", "Électricité": "Électricité", "Hôtellerie": "Hôtellerie", "Logistique": "Logistique", "Disponibilité immédiate": "Disponibilité immédiate" } },
+  "contracts": { "permanent": "CDI", "fixed_term": "CDD", "apprenticeship": "Apprentissage", "temporary": "Intérim", "internship": "Stage" },
+  "job": { "removeFavoriteAria": "Retirer des favoris", "addFavoriteAria": "Ajouter aux favoris", "interestedButton": "Postuler", "appliedButton": "Candidature envoyée", "noResults": "Aucune offre ne correspond à votre recherche.", "details": "Voir la fiche", "cefr": "Niveau {level} requis", "match": "{value}% de correspondance" },
+  "business": { "submitProfile": "Soumettez votre dossier avant de postuler.", "cefrRequired": "Un niveau d’allemand {level} est requis.", "duplicate": "Vous avez déjà postulé à cette offre.", "failed": "Impossible d’envoyer la candidature." },
+  "detail": { "back": "Retour aux offres", "description": "Description du poste", "company": "Entreprise", "location": "Lieu", "contract": "Contrat", "salary": "Salaire", "level": "Niveau d’allemand", "notFound": "Cette offre n’est plus disponible.", "favorite": "Ajouter aux favoris", "unfavorite": "Retirer des favoris" },
+  "pagination": { "noun": "offre", "plural": "offres" },
+  "banner": { "title": "Booster votre visibilité", "body": "Complétez votre profil à 100% pour apparaître en priorité auprès des recruteurs allemands.", "cta": "Optimiser mon profil" }
 }

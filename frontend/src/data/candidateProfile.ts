@@ -26,35 +26,49 @@ import {
   type CandidateLanguageEntry,
   type LanguageCode,
   type CefrLevel,
-} from '@/lib/candidateProfile';
-import { fakeLatency } from './config';
-import { readStorage, writeStorage, STORAGE_KEYS } from '@/lib/storage';
+} from "@/lib/candidateProfile";
+import { fakeLatency } from "./config";
+import { readStorage, writeStorage, STORAGE_KEYS } from "@/lib/storage";
 
 export interface CandidateProfileRepository {
   get(token: string): Promise<CandidateProfileData>;
-  update(data: UpdateProfileInput, token: string): Promise<CandidateProfileData>;
+  update(
+    data: UpdateProfileInput,
+    token: string,
+  ): Promise<CandidateProfileData>;
   uploadVideo(file: File, token: string): Promise<CandidateProfileData>;
   preview(token: string): Promise<ProfilePreview>;
   submit(token: string): Promise<CandidateProfileData>;
   listEducations(token: string): Promise<EducationEntry[]>;
   createEducation(data: EducationInput, token: string): Promise<EducationEntry>;
-  updateEducation(id: number, data: Partial<EducationInput>, token: string): Promise<EducationEntry>;
+  updateEducation(
+    id: number,
+    data: Partial<EducationInput>,
+    token: string,
+  ): Promise<EducationEntry>;
   deleteEducation(id: number, token: string): Promise<void>;
   listLanguages(token: string): Promise<CandidateLanguageEntry[]>;
-  upsertLanguage(language: LanguageCode, cefrLevel: CefrLevel | null, token: string): Promise<CandidateLanguageEntry>;
+  upsertLanguage(
+    language: LanguageCode,
+    cefrLevel: CefrLevel | null,
+    token: string,
+  ): Promise<CandidateLanguageEntry>;
   attachCertificateFile(
     language: LanguageCode,
     file: File,
     cefrLevel: CefrLevel | undefined,
-    token: string
+    token: string,
   ): Promise<CandidateLanguageEntry>;
   attachCertificateDocument(
     language: LanguageCode,
     documentId: number,
     cefrLevel: CefrLevel | undefined,
-    token: string
+    token: string,
   ): Promise<CandidateLanguageEntry>;
-  detachCertificate(language: LanguageCode, token: string): Promise<CandidateLanguageEntry>;
+  detachCertificate(
+    language: LanguageCode,
+    token: string,
+  ): Promise<CandidateLanguageEntry>;
 }
 
 const httpCandidateProfile: CandidateProfileRepository = {
@@ -82,22 +96,28 @@ const httpCandidateProfile: CandidateProfileRepository = {
  * aussi bien /auth-phone que le contournement de AuthContext/middleware.
  * ------------------------------------------------------------------ */
 
-function emptyCompleteness(): CandidateProfileData['completeness'] {
+function emptyCompleteness(): CandidateProfileData["completeness"] {
   return {
     sections: [
-      { key: 'personal', complete: false, required: true },
-      { key: 'education', complete: false, required: true },
-      { key: 'languages', complete: false, required: true },
-      { key: 'availability', complete: false, required: true },
-      { key: 'consents', complete: false, required: true },
-      { key: 'video', complete: false, required: false },
-      { key: 'cv', complete: false, required: false },
-      { key: 'certificates', complete: false, required: false },
+      { key: "personal", complete: false, required: true },
+      { key: "education", complete: false, required: true },
+      { key: "languages", complete: false, required: true },
+      { key: "availability", complete: false, required: true },
+      { key: "consents", complete: false, required: true },
+      { key: "video", complete: false, required: false },
+      { key: "cv", complete: false, required: false },
+      { key: "certificates", complete: false, required: false },
     ],
     completed: 0,
     total: 8,
     percent: 0,
-    missing_required: ['personal', 'education', 'languages', 'availability', 'consents'],
+    missing_required: [
+      "personal",
+      "education",
+      "languages",
+      "availability",
+      "consents",
+    ],
     can_submit: false,
     submitted_at: null,
   };
@@ -107,13 +127,13 @@ function demoProfile(): CandidateProfileData {
   return {
     id: 1,
     user_id: 101,
-    first_name: 'Youssef',
-    last_name: 'Amrani',
-    profession: 'Développeur Full-Stack',
-    specialization: 'React / Laravel',
+    first_name: "Youssef",
+    last_name: "Amrani",
+    profession: "Développeur Full-Stack",
+    specialization: "React / Laravel",
     years_of_experience: 4,
-    date_of_birth: '1996-03-18',
-    availability_status: 'within_1_month',
+    date_of_birth: "1996-03-18",
+    availability_status: "within_1_month",
     matching_preferences: null,
     terms_consent_at: new Date().toISOString(),
     cndp_consent_at: new Date().toISOString(),
@@ -129,6 +149,7 @@ function demoProfile(): CandidateProfileData {
     updated_at: new Date().toISOString(),
     educations: [],
     languages: [],
+    skills: [],
     completeness: emptyCompleteness(),
   };
 }
@@ -137,11 +158,11 @@ function demoEducations(): EducationEntry[] {
   return [
     {
       id: 1,
-      level: 'master',
-      field: 'Génie logiciel',
-      institution: 'ENSIAS, Rabat',
-      started_at: '2017-09',
-      ended_at: '2019-07',
+      level: "master",
+      field: "Génie logiciel",
+      institution: "ENSIAS, Rabat",
+      started_at: "2017-09",
+      ended_at: "2019-07",
     },
   ];
 }
@@ -150,33 +171,33 @@ function demoLanguages(): CandidateLanguageEntry[] {
   return [
     {
       id: 1,
-      language: 'ar',
-      cefr_level: 'C2',
-      self_declared_cefr: 'C2',
+      language: "ar",
+      cefr_level: "C2",
+      self_declared_cefr: "C2",
       ai_cefr: null,
-      source: 'self_declared',
+      source: "self_declared",
       level_discrepancy: false,
       certificate_document_id: null,
       certificate_document: null,
     },
     {
       id: 2,
-      language: 'fr',
-      cefr_level: 'C1',
-      self_declared_cefr: 'C1',
+      language: "fr",
+      cefr_level: "C1",
+      self_declared_cefr: "C1",
       ai_cefr: null,
-      source: 'self_declared',
+      source: "self_declared",
       level_discrepancy: false,
       certificate_document_id: null,
       certificate_document: null,
     },
     {
       id: 3,
-      language: 'de',
-      cefr_level: 'B1',
-      self_declared_cefr: 'B1',
+      language: "de",
+      cefr_level: "B1",
+      self_declared_cefr: "B1",
       ai_cefr: null,
-      source: 'self_declared',
+      source: "self_declared",
       level_discrepancy: false,
       certificate_document_id: null,
       certificate_document: null,
@@ -195,7 +216,10 @@ let cache: PersistedState | null = null;
 
 function load(): PersistedState {
   if (cache === null) {
-    cache = readStorage<PersistedState | null>(STORAGE_KEYS.candidateProfileV2, null) ?? {
+    cache = readStorage<PersistedState | null>(
+      STORAGE_KEYS.candidateProfileV2,
+      null,
+    ) ?? {
       profile: demoProfile(),
       educations: demoEducations(),
       languages: demoLanguages(),
@@ -219,23 +243,34 @@ function state(): CandidateProfileData {
  * un `LanguageAssessment` complété. Pas d'export dans `CandidateProfileRepository`
  * — c'est un détail d'intégration entre deux maquettes, pas un appel d'écran.
  */
-export function applyLanguageAssessmentResult(language: LanguageCode, cefrLevel: CefrLevel): void {
+export function applyLanguageAssessmentResult(
+  language: LanguageCode,
+  cefrLevel: CefrLevel,
+): void {
   const s = load();
   const existing = s.languages.find((l) => l.language === language);
   const updated: CandidateLanguageEntry = existing
-    ? { ...existing, ai_cefr: cefrLevel, cefr_level: cefrLevel, source: 'ai_assessed' }
+    ? {
+        ...existing,
+        ai_cefr: cefrLevel,
+        cefr_level: cefrLevel,
+        source: "ai_assessed",
+      }
     : {
         id: s.languages.length + 1,
         language,
         cefr_level: cefrLevel,
         self_declared_cefr: null,
         ai_cefr: cefrLevel,
-        source: 'ai_assessed',
+        source: "ai_assessed",
         level_discrepancy: false,
         certificate_document_id: null,
         certificate_document: null,
       };
-  s.languages = [...s.languages.filter((l) => l.language !== language), updated];
+  s.languages = [
+    ...s.languages.filter((l) => l.language !== language),
+    updated,
+  ];
   recomputeCompleteness();
   save();
 }
@@ -255,13 +290,23 @@ function recomputeCompleteness(): void {
     certificates: s.languages.some((l) => l.certificate_document_id !== null),
   };
 
-  const required = ['personal', 'education', 'languages', 'availability', 'consents'] as const;
-  const all = [...required, 'video', 'cv', 'certificates'] as const;
+  const required = [
+    "personal",
+    "education",
+    "languages",
+    "availability",
+    "consents",
+  ] as const;
+  const all = [...required, "video", "cv", "certificates"] as const;
   const missing = required.filter((k) => !flags[k]);
   const completed = all.filter((k) => flags[k]).length;
 
   p.completeness = {
-    sections: all.map((key) => ({ key, complete: flags[key], required: (required as readonly string[]).includes(key) })),
+    sections: all.map((key) => ({
+      key,
+      complete: flags[key],
+      required: (required as readonly string[]).includes(key),
+    })),
     completed,
     total: all.length,
     percent: Math.round((completed / all.length) * 100),
@@ -273,7 +318,11 @@ function recomputeCompleteness(): void {
 
 function snapshot(): CandidateProfileData {
   const s = load();
-  return { ...s.profile, educations: [...s.educations], languages: [...s.languages] };
+  return {
+    ...s.profile,
+    educations: [...s.educations],
+    languages: [...s.languages],
+  };
 }
 
 const mockCandidateProfile: CandidateProfileRepository = {
@@ -287,13 +336,21 @@ const mockCandidateProfile: CandidateProfileRepository = {
     if (data.first_name !== undefined) p.first_name = data.first_name;
     if (data.last_name !== undefined) p.last_name = data.last_name;
     if (data.profession !== undefined) p.profession = data.profession;
-    if (data.specialization !== undefined) p.specialization = data.specialization;
-    if (data.years_of_experience !== undefined) p.years_of_experience = data.years_of_experience;
+    if (data.specialization !== undefined)
+      p.specialization = data.specialization;
+    if (data.years_of_experience !== undefined)
+      p.years_of_experience = data.years_of_experience;
     if (data.date_of_birth !== undefined) p.date_of_birth = data.date_of_birth;
-    if (data.availability_status !== undefined) p.availability_status = data.availability_status;
-    if (data.matching_preferences !== undefined) p.matching_preferences = data.matching_preferences;
-    if (data.terms_accepted !== undefined) p.terms_consent_at = data.terms_accepted ? new Date().toISOString() : null;
-    if (data.cndp_accepted !== undefined) p.cndp_consent_at = data.cndp_accepted ? new Date().toISOString() : null;
+    if (data.availability_status !== undefined)
+      p.availability_status = data.availability_status;
+    if (data.matching_preferences !== undefined)
+      p.matching_preferences = data.matching_preferences;
+    if (data.terms_accepted !== undefined)
+      p.terms_consent_at = data.terms_accepted
+        ? new Date().toISOString()
+        : null;
+    if (data.cndp_accepted !== undefined)
+      p.cndp_consent_at = data.cndp_accepted ? new Date().toISOString() : null;
     p.updated_at = new Date().toISOString();
     recomputeCompleteness();
     save();
@@ -345,7 +402,9 @@ const mockCandidateProfile: CandidateProfileRepository = {
 
   updateEducation: (id, data) => {
     const s = load();
-    s.educations = s.educations.map((e) => (e.id === id ? { ...e, ...data } : e));
+    s.educations = s.educations.map((e) =>
+      e.id === id ? { ...e, ...data } : e,
+    );
     const updated = s.educations.find((e) => e.id === id)!;
     save();
     return fakeLatency({ ...updated });
@@ -372,12 +431,15 @@ const mockCandidateProfile: CandidateProfileRepository = {
           cefr_level: cefrLevel,
           self_declared_cefr: cefrLevel,
           ai_cefr: null,
-          source: 'self_declared',
+          source: "self_declared",
           level_discrepancy: false,
           certificate_document_id: null,
           certificate_document: null,
         };
-    s.languages = [...s.languages.filter((l) => l.language !== language), updated];
+    s.languages = [
+      ...s.languages.filter((l) => l.language !== language),
+      updated,
+    ];
     recomputeCompleteness();
     save();
     return fakeLatency({ ...updated });
@@ -393,12 +455,19 @@ const mockCandidateProfile: CandidateProfileRepository = {
       cefr_level: cefrLevel ?? existing?.cefr_level ?? null,
       self_declared_cefr: cefrLevel ?? existing?.self_declared_cefr ?? null,
       ai_cefr: existing?.ai_cefr ?? null,
-      source: 'certified',
+      source: "certified",
       level_discrepancy: false,
       certificate_document_id: documentId,
-      certificate_document: { id: documentId, type: 'certificate', url: URL.createObjectURL(file) },
+      certificate_document: {
+        id: documentId,
+        type: "certificate",
+        url: URL.createObjectURL(file),
+      },
     };
-    s.languages = [...s.languages.filter((l) => l.language !== language), updated];
+    s.languages = [
+      ...s.languages.filter((l) => l.language !== language),
+      updated,
+    ];
     recomputeCompleteness();
     save();
     return fakeLatency({ ...updated }, 700);
@@ -413,12 +482,15 @@ const mockCandidateProfile: CandidateProfileRepository = {
       cefr_level: cefrLevel ?? existing?.cefr_level ?? null,
       self_declared_cefr: cefrLevel ?? existing?.self_declared_cefr ?? null,
       ai_cefr: existing?.ai_cefr ?? null,
-      source: 'certified',
+      source: "certified",
       level_discrepancy: false,
       certificate_document_id: documentId,
-      certificate_document: { id: documentId, type: 'certificate', url: null },
+      certificate_document: { id: documentId, type: "certificate", url: null },
     };
-    s.languages = [...s.languages.filter((l) => l.language !== language), updated];
+    s.languages = [
+      ...s.languages.filter((l) => l.language !== language),
+      updated,
+    ];
     recomputeCompleteness();
     save();
     return fakeLatency({ ...updated });
@@ -430,11 +502,14 @@ const mockCandidateProfile: CandidateProfileRepository = {
     if (!existing) return fakeLatency({} as CandidateLanguageEntry);
     const updated: CandidateLanguageEntry = {
       ...existing,
-      source: 'self_declared',
+      source: "self_declared",
       certificate_document_id: null,
       certificate_document: null,
     };
-    s.languages = [...s.languages.filter((l) => l.language !== language), updated];
+    s.languages = [
+      ...s.languages.filter((l) => l.language !== language),
+      updated,
+    ];
     recomputeCompleteness();
     save();
     return fakeLatency({ ...updated });
@@ -442,4 +517,6 @@ const mockCandidateProfile: CandidateProfileRepository = {
 };
 
 export const candidateProfileRepository: CandidateProfileRepository =
-  process.env.NEXT_PUBLIC_USE_MOCKS === '1' ? mockCandidateProfile : httpCandidateProfile;
+  process.env.NEXT_PUBLIC_USE_MOCKS === "1"
+    ? mockCandidateProfile
+    : httpCandidateProfile;

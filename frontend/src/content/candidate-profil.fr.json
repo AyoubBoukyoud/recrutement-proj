@@ -19,12 +19,14 @@
   "sections": {
     "languagesTitle": "Langues",
     "languagesEmpty": "Aucune langue renseignée.",
+    "skillsTitle": "Compétences",
     "presentationTitle": "Ma présentation",
     "timelineTitle": "Parcours",
     "toolsTitle": "Outils & Certifications",
     "documentsTitle": "Documents",
     "documentsEmpty": "Aucun document ajouté."
   },
+  "skills": { "empty": "Aucune compétence renseignée.", "placeholder": "Ajouter une compétence", "add": "Ajouter", "removeAria": "Retirer la compétence {skill}" },
   "tools": [
     { "label": "Score de visibilité candidat" },
     { "label": "Vérification d'identité" },
@@ -32,7 +34,9 @@
     { "label": "Préférences de matching" },
     { "label": "Simuler mon salaire" },
     { "label": "Quiz métier" },
-    { "label": "Allemand du quotidien" }
+    { "label": "Mes tâches du jour" },
+    { "label": "Mes candidatures" },
+    { "label": "Mes offres favorites" }
   ],
   "logout": "Se déconnecter",
   "qr": {

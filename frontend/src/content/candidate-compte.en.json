@@ -1,0 +1,10 @@
+{
+  "title": "My account",
+  "backAria": "Back to profile",
+  "loading": "Loading…",
+  "sessions": { "title": "Connected devices", "current": "Current device", "lastUsed": "Last used {date}", "never": "Never used", "disconnect": "Disconnect", "disconnectOthers": "Disconnect other devices" },
+  "phone": { "title": "Change my number", "hint": "A code will be sent to the new number.", "phonePlaceholder": "+212600000000", "codePlaceholder": "6-digit code", "send": "Send code", "confirm": "Confirm change", "error": "The change failed." },
+  "data": { "title": "My data", "export": "Export my data", "print": "Print my profile as PDF", "delete": "Delete my account", "confirm": "Your account will be blocked immediately and deleted after 30 days. You can cancel during this period by signing in again. Continue?" },
+  "deletion": { "title": "Deletion scheduled", "body": "Your account and files will be deleted on {date}.", "cancel": "Cancel deletion", "cancelled": "Account deletion was cancelled." },
+  "accessibility": { "title": "Accessibility", "textSize": "Text size", "small": "Small", "medium": "Medium", "large": "Large" }
+}

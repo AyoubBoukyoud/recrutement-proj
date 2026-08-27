@@ -1,0 +1,10 @@
+{
+  "title": "Favorite offers",
+  "backAria": "Back to offers",
+  "loading": "Loading…",
+  "error": "Unable to load your favorites.",
+  "empty": "No favorite offers.",
+  "remove": "Remove from favorites",
+  "open": "View offer",
+  "pagination": { "noun": "favorite", "plural": "favorites" }
+}

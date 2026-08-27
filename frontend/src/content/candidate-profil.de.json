@@ -19,12 +19,14 @@
   "sections": {
     "languagesTitle": "Sprachen",
     "languagesEmpty": "Keine Sprache angegeben.",
+    "skillsTitle": "Kompetenzen",
     "presentationTitle": "Meine Vorstellung",
     "timelineTitle": "Werdegang",
     "toolsTitle": "Tools & Zertifizierungen",
     "documentsTitle": "Dokumente",
     "documentsEmpty": "Kein Dokument hinzugefügt."
   },
+  "skills": { "empty": "Keine Kompetenzen angegeben.", "placeholder": "Kompetenz hinzufügen", "add": "Hinzufügen", "removeAria": "Kompetenz {skill} entfernen" },
   "tools": [
     { "label": "Sichtbarkeits-Score als Kandidat" },
     { "label": "Identitätsprüfung" },
@@ -32,7 +34,9 @@
     { "label": "Matching-Präferenzen" },
     { "label": "Mein Gehalt simulieren" },
     { "label": "Berufe-Quiz" },
-    { "label": "Alltagsdeutsch" }
+    { "label": "Meine täglichen Aufgaben" },
+    { "label": "Meine Bewerbungen" },
+    { "label": "Meine favorisierten Stellen" }
   ],
   "logout": "Abmelden",
   "qr": {

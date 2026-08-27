@@ -1,34 +1,14 @@
 {
-  "header": {
-    "profileAlt": "الصورة الشخصية للمرشح",
-    "notificationsAria": "الإشعارات"
-  },
-  "search": {
-    "title": "عروض مناسبة لك",
-    "srLabel": "ابحث عن مهنة أو مدينة",
-    "placeholder": "ابحث عن مهنة أو مدينة..."
-  },
-  "filters": {
-    "button": "التصفية",
-    "labels": {
-      "Tous": "الكل",
-      "Santé": "الصحة",
-      "Électricité": "الكهرباء",
-      "Hôtellerie": "الضيافة",
-      "Logistique": "اللوجستيات",
-      "Disponibilité immédiate": "متاح فورًا"
-    }
-  },
-  "job": {
-    "removeFavoriteAria": "إزالة من المفضلة",
-    "addFavoriteAria": "إضافة إلى المفضلة",
-    "interestedButton": "أنا مهتم",
-    "appliedButton": "تم إرسال الطلب",
-    "noResults": "لا توجد عروض مطابقة لبحثك."
-  },
-  "banner": {
-    "title": "عزّز ظهورك",
-    "body": "أكمل ملفك الشخصي بنسبة 100% لتظهر أولاً أمام مسؤولي التوظيف الألمان.",
-    "cta": "تحسين ملفي الشخصي"
-  }
+  "header": { "title": "Amud Careers", "backAria": "العودة إلى لوحة التحكم", "notificationsAria": "الإشعارات" },
+  "loading": "جارٍ التحميل…",
+  "error": "تعذر تحميل العروض.",
+  "search": { "title": "عروض مناسبة لك", "srLabel": "البحث عن مهنة أو مدينة", "placeholder": "ابحث عن مهنة أو مدينة…" },
+  "links": { "favorites": "مفضلاتي", "applications": "ترشيحاتي" },
+  "filters": { "button": "الفلاتر", "city": "المدينة", "sector": "القطاع", "contract": "نوع العقد", "cefr": "مستوى CEFR", "allContracts": "كل العقود", "allLevels": "كل المستويات", "apply": "بحث", "reset": "إعادة الضبط", "labels": { "Tous": "الكل", "Santé": "الصحة", "Électricité": "الكهرباء", "Hôtellerie": "الفندقة", "Logistique": "الخدمات اللوجستية", "Disponibilité immédiate": "متاح فورًا" } },
+  "contracts": { "permanent": "عقد دائم", "fixed_term": "عقد محدد المدة", "apprenticeship": "تدريب مهني", "temporary": "عمل مؤقت", "internship": "تدريب" },
+  "job": { "removeFavoriteAria": "إزالة من المفضلة", "addFavoriteAria": "إضافة إلى المفضلة", "interestedButton": "التقديم", "appliedButton": "تم إرسال الترشيح", "noResults": "لا يوجد عرض يطابق بحثك.", "details": "عرض التفاصيل", "cefr": "المستوى {level} مطلوب", "match": "تطابق {value}٪" },
+  "business": { "submitProfile": "أرسل ملفك قبل التقديم.", "cefrRequired": "مستوى الألمانية {level} مطلوب.", "duplicate": "لقد تقدمت بالفعل لهذا العرض.", "failed": "تعذر إرسال الترشيح." },
+  "detail": { "back": "العودة إلى العروض", "description": "وصف الوظيفة", "company": "الشركة", "location": "المكان", "contract": "العقد", "salary": "الراتب", "level": "مستوى الألمانية", "notFound": "لم يعد هذا العرض متاحًا.", "favorite": "إضافة إلى المفضلة", "unfavorite": "إزالة من المفضلة" },
+  "pagination": { "noun": "عرض", "plural": "عروض" },
+  "banner": { "title": "عزّز ظهورك", "body": "أكمل ملفك لتظهر أولًا لدى مسؤولي التوظيف الألمان.", "cta": "تحسين ملفي" }
 }

@@ -183,7 +183,7 @@ class CandidateProfileController extends Controller
     {
         // documents is loaded because completeness reads the CV and certificate
         // flags off it — and having it here spares the builder a second request.
-        $profile->load(['educations', 'languages.certificateDocument', 'documents']);
+        $profile->load(['educations', 'languages.certificateDocument', 'skills', 'documents']);
 
         return $profile->toArray() + ['completeness' => ProfileCompleteness::for($profile)];
     }

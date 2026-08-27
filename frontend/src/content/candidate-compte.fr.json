@@ -1,0 +1,10 @@
+{
+  "title": "Mon compte",
+  "backAria": "Retour au profil",
+  "loading": "Chargement…",
+  "sessions": { "title": "Appareils connectés", "current": "Appareil actuel", "lastUsed": "Dernière utilisation {date}", "never": "Jamais utilisé", "disconnect": "Déconnecter", "disconnectOthers": "Déconnecter les autres appareils" },
+  "phone": { "title": "Changer mon numéro", "hint": "Un code sera envoyé au nouveau numéro.", "phonePlaceholder": "+212600000000", "codePlaceholder": "Code à 6 chiffres", "send": "Envoyer le code", "confirm": "Confirmer le changement", "error": "La modification a échoué." },
+  "data": { "title": "Mes données", "export": "Exporter mes données", "print": "Imprimer mon dossier en PDF", "delete": "Supprimer mon compte", "confirm": "Votre compte sera bloqué immédiatement et supprimé après 30 jours. Vous pourrez annuler pendant ce délai en vous reconnectant. Continuer ?" },
+  "deletion": { "title": "Suppression programmée", "body": "Votre compte et vos fichiers seront supprimés le {date}.", "cancel": "Annuler la suppression", "cancelled": "La suppression du compte a été annulée." },
+  "accessibility": { "title": "Accessibilité", "textSize": "Taille du texte", "small": "Petite", "medium": "Moyenne", "large": "Grande" }
+}

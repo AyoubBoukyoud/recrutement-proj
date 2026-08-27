@@ -12,3 +12,6 @@ Artisan::command('inspire', function () {
 // This catches documents left behind when no worker was running, which is
 // otherwise invisible — the candidate just sees "Queued for scanning…" forever.
 Schedule::command('documents:scan-pending')->everyTenMinutes()->withoutOverlapping();
+
+// CNDP erasure requests become final after their 30-day cancellation window.
+Schedule::command('candidates:purge-deleted')->daily()->withoutOverlapping();

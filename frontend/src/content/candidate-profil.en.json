@@ -19,12 +19,14 @@
   "sections": {
     "languagesTitle": "Languages",
     "languagesEmpty": "No languages provided.",
+    "skillsTitle": "Skills",
     "presentationTitle": "My introduction",
     "timelineTitle": "Journey",
     "toolsTitle": "Tools & Certifications",
     "documentsTitle": "Documents",
     "documentsEmpty": "No documents added."
   },
+  "skills": { "empty": "No skills provided.", "placeholder": "Add a skill", "add": "Add", "removeAria": "Remove {skill} skill" },
   "tools": [
     { "label": "Candidate visibility score" },
     { "label": "Identity verification" },
@@ -32,7 +34,9 @@
     { "label": "Matching preferences" },
     { "label": "Simulate my salary" },
     { "label": "Job quiz" },
-    { "label": "Everyday German" }
+    { "label": "My daily tasks" },
+    { "label": "My applications" },
+    { "label": "My favorite offers" }
   ],
   "logout": "Log out",
   "qr": {

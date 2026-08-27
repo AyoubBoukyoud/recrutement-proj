@@ -19,12 +19,14 @@
   "sections": {
     "languagesTitle": "اللغات",
     "languagesEmpty": "لم يتم إدخال أي لغة.",
+    "skillsTitle": "المهارات",
     "presentationTitle": "تقديمي",
     "timelineTitle": "المسار",
     "toolsTitle": "الأدوات والشهادات",
     "documentsTitle": "المستندات",
     "documentsEmpty": "لم تتم إضافة أي مستند."
   },
+  "skills": { "empty": "لم تتم إضافة أي مهارة.", "placeholder": "إضافة مهارة", "add": "إضافة", "removeAria": "إزالة المهارة {skill}" },
   "tools": [
     { "label": "مؤشر ظهور المرشح" },
     { "label": "التحقق من الهوية" },
@@ -32,7 +34,9 @@
     { "label": "تفضيلات المطابقة" },
     { "label": "محاكاة راتبي" },
     { "label": "اختبار المهن" },
-    { "label": "الألمانية اليومية" }
+    { "label": "مهامي اليومية" },
+    { "label": "ترشيحاتي" },
+    { "label": "عروضي المفضلة" }
   ],
   "logout": "تسجيل الخروج",
   "qr": {

@@ -1,0 +1,10 @@
+{
+  "title": "My applications",
+  "backAria": "Back to dashboard",
+  "loading": "Loading…",
+  "error": "Unable to load your applications.",
+  "empty": "You have not submitted any application yet.",
+  "withdraw": "Withdraw my application",
+  "statuses": { "submitted": "Submitted", "viewed": "Viewed", "interview": "Interview", "accepted": "Accepted", "rejected": "Rejected", "withdrawn": "Withdrawn" },
+  "pagination": { "noun": "application", "plural": "applications" }
+}

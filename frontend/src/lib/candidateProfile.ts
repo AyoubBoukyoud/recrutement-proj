@@ -6,46 +6,54 @@
 // que les deux consentements sont enregistrés — pas à la soumission, qui ne
 // fait que déclarer le dossier prêt et qualifier le parrainage éventuel.
 
-import { apiDelete, apiGet, apiGetList, apiPost, apiPut } from '@/lib/api';
+import {
+  apiDelete,
+  apiGet,
+  apiGetList,
+  apiPatch,
+  apiPost,
+  apiPut,
+} from "@/lib/api";
 
-export type AvailabilityStatus = 'immediate' | 'within_1_month' | 'within_2_months';
+export type AvailabilityStatus =
+  "immediate" | "within_1_month" | "within_2_months";
 
 export const AVAILABILITY_LABELS: Record<AvailabilityStatus, string> = {
-  immediate: 'Immédiatement',
+  immediate: "Immédiatement",
   within_1_month: "Sous 1 mois",
-  within_2_months: 'Sous 2 mois',
+  within_2_months: "Sous 2 mois",
 };
 
 /** Les seuls codes acceptés par CandidateLanguageController. */
-export type LanguageCode = 'fr' | 'ar' | 'en' | 'de';
+export type LanguageCode = "fr" | "ar" | "en" | "de";
 
 export const LANGUAGE_LABELS: Record<LanguageCode, string> = {
-  fr: 'Français',
-  ar: 'Arabe',
-  en: 'Anglais',
-  de: 'Allemand',
+  fr: "Français",
+  ar: "Arabe",
+  en: "Anglais",
+  de: "Allemand",
 };
 
-export type CefrLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+export type CefrLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 
-export const CEFR_LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+export const CEFR_LEVELS: CefrLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
 
 /** Les seuls niveaux acceptés par EducationController. */
 export type EducationLevel =
-  | 'general_school'
-  | 'vocational'
-  | 'professional_training'
-  | 'bachelor'
-  | 'master'
-  | 'other';
+  | "general_school"
+  | "vocational"
+  | "professional_training"
+  | "bachelor"
+  | "master"
+  | "other";
 
 export const EDUCATION_LEVEL_LABELS: Record<EducationLevel, string> = {
-  general_school: 'Scolarité générale',
-  vocational: 'Formation professionnelle',
-  professional_training: 'Formation continue',
-  bachelor: 'Licence / Bachelor',
-  master: 'Master',
-  other: 'Autre',
+  general_school: "Scolarité générale",
+  vocational: "Formation professionnelle",
+  professional_training: "Formation continue",
+  bachelor: "Licence / Bachelor",
+  master: "Master",
+  other: "Autre",
 };
 
 export interface EducationEntry {
@@ -79,7 +87,7 @@ export interface CandidateLanguageEntry {
   cefr_level: CefrLevel | null;
   self_declared_cefr: CefrLevel | null;
   ai_cefr: CefrLevel | null;
-  source: 'self_declared' | 'ai_assessed' | 'certified';
+  source: "self_declared" | "ai_assessed" | "certified";
   level_discrepancy: boolean;
   certificate_document_id: number | null;
   certificate_document?: CertificateDocumentRef | null;
@@ -114,6 +122,13 @@ export interface MatchingPreferences {
   min_salary?: number | null;
 }
 
+export interface CandidateSkillEntry {
+  id: number;
+  skill: string;
+  level: "debutant" | "intermediaire" | "avance" | "expert";
+  years_of_experience: number | null;
+}
+
 export interface CandidateProfileData {
   id: number;
   user_id: number;
@@ -138,6 +153,7 @@ export interface CandidateProfileData {
   updated_at: string;
   educations: EducationEntry[];
   languages: CandidateLanguageEntry[];
+  skills: CandidateSkillEntry[];
   completeness: ProfileCompleteness;
 }
 
@@ -166,22 +182,28 @@ export interface ProfilePreview {
 }
 
 export function getProfile(token: string): Promise<CandidateProfileData> {
-  return apiGet<CandidateProfileData>('/candidate/profile', token);
+  return apiGet<CandidateProfileData>("/candidate/profile", token);
 }
 
-export function updateProfile(data: UpdateProfileInput, token: string): Promise<CandidateProfileData> {
-  return apiPut<CandidateProfileData>('/candidate/profile', data, token);
+export function updateProfile(
+  data: UpdateProfileInput,
+  token: string,
+): Promise<CandidateProfileData> {
+  return apiPut<CandidateProfileData>("/candidate/profile", data, token);
 }
 
-export function uploadPresentationVideo(file: File, token: string): Promise<CandidateProfileData> {
+export function uploadPresentationVideo(
+  file: File,
+  token: string,
+): Promise<CandidateProfileData> {
   const form = new FormData();
-  form.append('video', file);
+  form.append("video", file);
 
-  return apiPost<CandidateProfileData>('/candidate/profile/video', form, token);
+  return apiPost<CandidateProfileData>("/candidate/profile/video", form, token);
 }
 
 export function getProfilePreview(token: string): Promise<ProfilePreview> {
-  return apiGet<ProfilePreview>('/candidate/profile/preview', token);
+  return apiGet<ProfilePreview>("/candidate/profile/preview", token);
 }
 
 export interface TimelineMilestone {
@@ -190,25 +212,53 @@ export interface TimelineMilestone {
   completed_at: string | null;
 }
 
-export function getProfileTimeline(token: string): Promise<TimelineMilestone[]> {
-  return apiGetList<TimelineMilestone>('/candidate/profile/timeline', token);
+export function getProfileTimeline(
+  token: string,
+): Promise<TimelineMilestone[]> {
+  return apiGetList<TimelineMilestone>("/candidate/profile/timeline", token);
 }
 
 export function submitProfile(token: string): Promise<CandidateProfileData> {
-  return apiPost<CandidateProfileData>('/candidate/profile/submit', {}, token);
+  return apiPost<CandidateProfileData>("/candidate/profile/submit", {}, token);
+}
+
+export function createSkill(
+  skill: string,
+  token: string,
+): Promise<CandidateSkillEntry> {
+  return apiPost<CandidateSkillEntry>("/candidate/skills", { skill }, token);
+}
+
+export function updateSkill(
+  id: number,
+  data: Partial<CandidateSkillEntry>,
+  token: string,
+): Promise<CandidateSkillEntry> {
+  return apiPatch<CandidateSkillEntry>(`/candidate/skills/${id}`, data, token);
+}
+
+export function deleteSkill(id: number, token: string): Promise<void> {
+  return apiDelete<void>(`/candidate/skills/${id}`, token);
 }
 
 // --- Formation -------------------------------------------------------------
 
 export function listEducations(token: string): Promise<EducationEntry[]> {
-  return apiGetList<EducationEntry>('/candidate/educations', token);
+  return apiGetList<EducationEntry>("/candidate/educations", token);
 }
 
-export function createEducation(data: EducationInput, token: string): Promise<EducationEntry> {
-  return apiPost<EducationEntry>('/candidate/educations', data, token);
+export function createEducation(
+  data: EducationInput,
+  token: string,
+): Promise<EducationEntry> {
+  return apiPost<EducationEntry>("/candidate/educations", data, token);
 }
 
-export function updateEducation(id: number, data: Partial<EducationInput>, token: string): Promise<EducationEntry> {
+export function updateEducation(
+  id: number,
+  data: Partial<EducationInput>,
+  token: string,
+): Promise<EducationEntry> {
   return apiPut<EducationEntry>(`/candidate/educations/${id}`, data, token);
 }
 
@@ -218,16 +268,22 @@ export function deleteEducation(id: number, token: string): Promise<void> {
 
 // --- Langues -----------------------------------------------------------
 
-export function listLanguages(token: string): Promise<CandidateLanguageEntry[]> {
-  return apiGetList<CandidateLanguageEntry>('/candidate/languages', token);
+export function listLanguages(
+  token: string,
+): Promise<CandidateLanguageEntry[]> {
+  return apiGetList<CandidateLanguageEntry>("/candidate/languages", token);
 }
 
 export function upsertLanguage(
   language: LanguageCode,
   cefrLevel: CefrLevel | null,
-  token: string
+  token: string,
 ): Promise<CandidateLanguageEntry> {
-  return apiPut<CandidateLanguageEntry>('/candidate/languages', { language, cefr_level: cefrLevel }, token);
+  return apiPut<CandidateLanguageEntry>(
+    "/candidate/languages",
+    { language, cefr_level: cefrLevel },
+    token,
+  );
 }
 
 /** Preuve par fichier inline : le seul chemin qui produit une langue `certified`. */
@@ -235,13 +291,17 @@ export function attachLanguageCertificateFile(
   language: LanguageCode,
   file: File,
   cefrLevel: CefrLevel | undefined,
-  token: string
+  token: string,
 ): Promise<CandidateLanguageEntry> {
   const form = new FormData();
-  form.append('file', file);
-  if (cefrLevel) form.append('cefr_level', cefrLevel);
+  form.append("file", file);
+  if (cefrLevel) form.append("cefr_level", cefrLevel);
 
-  return apiPost<CandidateLanguageEntry>(`/candidate/languages/${language}/certificate`, form, token);
+  return apiPost<CandidateLanguageEntry>(
+    `/candidate/languages/${language}/certificate`,
+    form,
+    token,
+  );
 }
 
 /** Preuve par document déjà présent dans Documents. */
@@ -249,15 +309,24 @@ export function attachLanguageCertificateDocument(
   language: LanguageCode,
   documentId: number,
   cefrLevel: CefrLevel | undefined,
-  token: string
+  token: string,
 ): Promise<CandidateLanguageEntry> {
   return apiPost<CandidateLanguageEntry>(
     `/candidate/languages/${language}/certificate`,
-    { document_id: documentId, ...(cefrLevel ? { cefr_level: cefrLevel } : {}) },
-    token
+    {
+      document_id: documentId,
+      ...(cefrLevel ? { cefr_level: cefrLevel } : {}),
+    },
+    token,
   );
 }
 
-export function detachLanguageCertificate(language: LanguageCode, token: string): Promise<CandidateLanguageEntry> {
-  return apiDelete<CandidateLanguageEntry>(`/candidate/languages/${language}/certificate`, token);
+export function detachLanguageCertificate(
+  language: LanguageCode,
+  token: string,
+): Promise<CandidateLanguageEntry> {
+  return apiDelete<CandidateLanguageEntry>(
+    `/candidate/languages/${language}/certificate`,
+    token,
+  );
 }

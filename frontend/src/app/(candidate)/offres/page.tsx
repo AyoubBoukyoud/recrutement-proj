@@ -1,344 +1,400 @@
-'use client';
+"use client";
 
-// Page : Offres d'emploi - Candidat (Stitch exact template)
-//
-// L'habillage vient de la maquette Stitch ; les offres, favoris et
-// candidatures viennent de l'API réelle (`/offers`, `/candidate/favorites`,
-// `/candidate/applications` via `marketplaceApi`).
-//
-// La maquette était bâtie sur `@/data/jobOffers`, dont le modèle est plus
-// riche que celui du back (logo, nom d'entreprise, score de correspondance).
-// `toCardView` ci-dessous fait la conversion et n'affiche que ce que l'API
-// fournit réellement — pas de logo ni d'entreprise inventés.
+// Searchable, filterable and paginated candidate offer catalogue.
 
-import Link from 'next/link';
-import { useMemo, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, IconButton } from '@/components/shared/Button';
-import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
-import { ThemeToggle } from '@/components/shared/ThemeToggle';
-import { useAuth } from '@/context/AuthContext';
-import { useLanguage } from '@/context/LanguageContext';
-import { candidateOffresContentFor, filterLabelFor } from '@/lib/candidateOffresContent';
-import { marketplaceApi, type JobOffer, type JobApplication, type Page } from '@/lib/candidateMarketplace';
+import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Button, IconButton } from "@/components/shared/Button";
+import { Pagination } from "@/components/Pagination";
+import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
+import { ThemeToggle } from "@/components/shared/ThemeToggle";
+import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
+import { useCandidateProfile } from "@/lib/useCandidateProfile";
+import { candidateOffresContentFor } from "@/lib/candidateOffresContent";
+import {
+  marketplaceApi,
+  type ContractType,
+  type JobOffer,
+  type OfferFilters,
+} from "@/lib/candidateMarketplace";
+import { CEFR_LEVELS, type CefrLevel } from "@/lib/candidateProfile";
+import { ApiError } from "@/lib/api";
 
-// Valeurs canoniques (français) des puces de filtre : servent de clé de
-// comparaison (`selectedFilter === filter`) pour le style actif/inactif.
-// L'affichage traduit passe par `filterLabelFor`.
-const FILTERS = ['Santé', 'Électricité', 'Hôtellerie', 'Logistique', 'Disponibilité immédiate'];
-
-type BadgeType = 'secondary' | 'tertiary' | 'neutral' | 'urgent';
-
-/** Une offre de l'API, réduite à ce que la carte de la maquette sait afficher. */
-type CardView = {
-  id: number;
-  title: string;
-  subtitle: string;
-  location: string;
-  salary: string;
-  sector: string;
-  badges: { text: string; type: BadgeType }[];
-  immediate: boolean;
+const CEFR_RANK: Record<CefrLevel, number> = {
+  A1: 0,
+  A2: 1,
+  B1: 2,
+  B2: 3,
+  C1: 4,
+  C2: 5,
 };
+const CONTRACT_TYPES: ContractType[] = [
+  "permanent",
+  "fixed_term",
+  "apprenticeship",
+  "temporary",
+  "internship",
+];
 
-function formatSalary(offer: JobOffer): string {
-  if (offer.salary_min == null && offer.salary_max == null) return '—';
-  const min = offer.salary_min?.toLocaleString('fr-FR');
-  const max = offer.salary_max?.toLocaleString('fr-FR');
-  if (min && max) return `${min} - ${max} ${offer.currency}`;
-  return `${min ?? max} ${offer.currency}`;
-}
-
-function toCardView(offer: JobOffer): CardView {
-  const badges: { text: string; type: BadgeType }[] = [];
-  if (offer.required_cefr_level) badges.push({ text: `${offer.required_cefr_level} requis`, type: 'secondary' });
-  if (offer.contract_type) badges.push({ text: offer.contract_type, type: 'neutral' });
-
-  // « Disponibilité immédiate » n'existe pas comme champ côté back : la
-  // maquette s'appuyait sur un badge `urgent`. On l'approxime par une
-  // publication récente (moins de 14 jours), seule donnée temporelle fournie.
-  const publishedAt = Date.parse(offer.published_at);
-  const immediate = Number.isFinite(publishedAt) && Date.now() - publishedAt < 14 * 24 * 60 * 60 * 1000;
-  if (immediate) badges.push({ text: 'Publiée récemment', type: 'urgent' });
-
-  return {
-    id: offer.id,
-    title: offer.title,
-    // Le back ne renvoie pas d'entreprise : le secteur tient ce rôle de
-    // sous-titre plutôt que d'afficher un nom inventé.
-    subtitle: offer.sector,
-    location: [offer.city, offer.country].filter(Boolean).join(', '),
-    salary: formatSalary(offer),
-    sector: offer.sector,
-    badges,
-    immediate,
-  };
+function formatSalary(offer: JobOffer, locale: string): string {
+  if (offer.salary_min == null && offer.salary_max == null) return "—";
+  const min = offer.salary_min?.toLocaleString(locale);
+  const max = offer.salary_max?.toLocaleString(locale);
+  return `${min && max ? `${min} – ${max}` : (min ?? max)} ${offer.currency}`;
 }
 
 export default function OffresPage() {
   const { language } = useLanguage();
   const content = candidateOffresContentFor(language);
   const { token } = useAuth();
+  const { data: profile } = useCandidateProfile();
   const queryClient = useQueryClient();
-  const [search, setSearch] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('Tous');
+  const initialized = useRef(false);
+  const [page, setPage] = useState(1);
+  const [draft, setDraft] = useState<OfferFilters>({});
+  const [filters, setFilters] = useState<OfferFilters>({});
 
-  const offersQuery = useQuery<Page<JobOffer>>({
-    queryKey: ['offers'],
-    queryFn: () => marketplaceApi.offers(token as string),
+  useEffect(() => {
+    if (!profile || initialized.current) return;
+    initialized.current = true;
+    const preferred = {
+      sector: profile.matching_preferences?.sectors?.[0],
+      city: profile.matching_preferences?.regions?.[0],
+    };
+    setDraft(preferred);
+    setFilters(preferred);
+  }, [profile]);
+
+  const offers = useQuery({
+    queryKey: ["offers", filters, page],
+    queryFn: () => marketplaceApi.offers(token as string, { ...filters, page }),
     enabled: Boolean(token),
   });
-
-  const favoritesQuery = useQuery<Page<JobOffer>>({
-    queryKey: ['candidate-favorites'],
-    queryFn: () => marketplaceApi.favorites(token as string),
+  const favorites = useQuery({
+    queryKey: ["candidate-favorites", "offer-ids"],
+    queryFn: () => marketplaceApi.favorites(token as string, 1, 100),
     enabled: Boolean(token),
   });
-
-  const applicationsQuery = useQuery<Page<JobApplication>>({
-    queryKey: ['candidate-applications'],
-    queryFn: () => marketplaceApi.applications(token as string),
+  const applications = useQuery({
+    queryKey: ["candidate-applications", "offer-ids"],
+    queryFn: () => marketplaceApi.applications(token as string, 1, 100),
     enabled: Boolean(token),
   });
-
   const favoriteIds = useMemo(
-    () => new Set((favoritesQuery.data?.data ?? []).map((o) => o.id)),
-    [favoritesQuery.data],
+    () => new Set((favorites.data?.data ?? []).map((offer) => offer.id)),
+    [favorites.data],
   );
   const appliedIds = useMemo(
-    () => new Set((applicationsQuery.data?.data ?? []).map((a) => a.offer.id)),
-    [applicationsQuery.data],
+    () =>
+      new Set(
+        (applications.data?.data ?? []).map(
+          (application) => application.offer.id,
+        ),
+      ),
+    [applications.data],
   );
 
   const toggleFavorite = useMutation({
-    mutationFn: ({ id, isFav }: { id: number; isFav: boolean }) =>
-      isFav ? marketplaceApi.unfavorite(id, token as string) : marketplaceApi.favorite(id, token as string),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['candidate-favorites'] }),
+    mutationFn: async ({ id, favorite }: { id: number; favorite: boolean }) => {
+      if (favorite) await marketplaceApi.unfavorite(id, token as string);
+      else await marketplaceApi.favorite(id, token as string);
+    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["candidate-favorites"] }),
   });
-
   const apply = useMutation({
     mutationFn: (id: number) => marketplaceApi.apply(id, token as string),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['candidate-applications'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["candidate-applications"] }),
   });
 
-  const filteredOffers = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    // Filtrage côté client, comme la maquette : les libellés de puces sont des
-    // secteurs en français figés ici, on ne les envoie donc pas au back (dont
-    // les valeurs de `sector` peuvent différer) — « Tous » reste toujours juste.
-    return (offersQuery.data?.data ?? []).map(toCardView).filter((job) => {
-      const matchesQuery =
-        query === '' ||
-        job.title.toLowerCase().includes(query) ||
-        job.subtitle.toLowerCase().includes(query) ||
-        job.location.toLowerCase().includes(query);
-      const matchesFilter =
-        selectedFilter === 'Tous' ||
-        (selectedFilter === 'Disponibilité immédiate' ? job.immediate : job.sector === selectedFilter);
-      return matchesQuery && matchesFilter;
-    });
-  }, [search, selectedFilter, offersQuery.data]);
+  const applicationBlock = (offer: JobOffer): string | null => {
+    if (!profile?.submitted_at) return content.business.submitProfile;
+    if (offer.required_cefr_level) {
+      const best = profile.languages.reduce(
+        (rank, item) =>
+          item.cefr_level ? Math.max(rank, CEFR_RANK[item.cefr_level]) : rank,
+        -1,
+      );
+      if (best < CEFR_RANK[offer.required_cefr_level])
+        return content.business.cefrRequired.replace(
+          "{level}",
+          offer.required_cefr_level,
+        );
+    }
+    return null;
+  };
+  const applyError =
+    apply.error instanceof ApiError
+      ? apply.error.status === 409
+        ? content.business.duplicate
+        : content.business.failed
+      : content.business.failed;
 
   return (
     <div className="min-h-screen bg-surface pb-24 text-onSurface">
-      {/* TopAppBar */}
-      <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-outline-variant bg-surface px-1.5 shadow-subtle lg:px-4">
+      <header className="sticky top-0 z-40 flex min-h-16 items-center justify-between border-b border-outline-variant bg-surface px-2 shadow-subtle lg:px-4">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard" aria-label="Retour" className="flex h-10 w-10 items-center justify-center text-primary">
+          <Link
+            href="/dashboard"
+            aria-label={content.header.backAria}
+            className="flex h-11 w-11 items-center justify-center text-primary"
+          >
             <span className="material-symbols-outlined">arrow_back</span>
           </Link>
-          <h1 className="text-lg font-extrabold text-primary">Amud Careers</h1>
+          <h1 className="text-lg font-extrabold text-primary">
+            {content.header.title}
+          </h1>
         </div>
         <div className="flex items-center gap-1">
           <LanguageSwitcher compact />
           <ThemeToggle />
-          <IconButton variant="ghost" aria-label={content.header.notificationsAria}>
-            <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
-              notifications
-            </span>
-          </IconButton>
         </div>
       </header>
 
-      <main className="mx-auto max-w-xl px-4 py-6 lg:max-w-6xl lg:px-10 lg:py-8">
-        {/* Header & Search */}
-        <div className="mb-6 lg:max-w-xl">
-          <h2 className="mb-3 text-2xl font-extrabold text-primary">{content.search.title}</h2>
-          <div className="relative w-full">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" aria-hidden="true" style={{ fontSize: 20 }}>
-              search
-            </span>
-            <label htmlFor="offres-search" className="sr-only">{content.search.srLabel}</label>
-            <input
-              id="offres-search"
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={content.search.placeholder}
-              className="w-full rounded-xl border border-outline bg-surface-container-lowest py-3 pl-12 pr-4 text-sm font-semibold text-onSurface outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
-            />
-          </div>
-        </div>
-
-        {/* Filters Section */}
-        <div className="mb-6 flex items-center gap-2 overflow-x-auto pb-2 lg:flex-wrap lg:overflow-visible">
-          <Button
-            variant={selectedFilter === 'Tous' ? 'primary' : 'outline'}
-            size="sm"
-            pill
-            onClick={() => setSelectedFilter('Tous')}
-            aria-pressed={selectedFilter === 'Tous'}
-            className="shrink-0 gap-1.5 shadow-sm"
+      <main className="mx-auto max-w-6xl px-4 py-6 lg:px-10 lg:py-8">
+        <div className="mb-6 flex flex-wrap gap-2">
+          <Link
+            href="/favoris"
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-outline px-4 text-sm font-bold text-primary"
           >
-            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
-              tune
-            </span>
-            <span>{content.filters.button}</span>
-          </Button>
-          <div className="h-6 w-px shrink-0 bg-outline-variant" />
-          {FILTERS.map((filter) => (
-            <Button
-              key={filter}
-              variant={selectedFilter === filter ? 'primary' : 'outline'}
-              size="sm"
-              pill
-              onClick={() => setSelectedFilter(filter)}
-              aria-pressed={selectedFilter === filter}
-              className="shrink-0 whitespace-nowrap"
-            >
-              {filterLabelFor(content, filter)}
-            </Button>
-          ))}
+            <span className="material-symbols-outlined">favorite</span>
+            {content.links.favorites}
+          </Link>
+          <Link
+            href="/candidatures"
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-outline px-4 text-sm font-bold text-primary"
+          >
+            <span className="material-symbols-outlined">work_history</span>
+            {content.links.applications}
+          </Link>
         </div>
 
-        {/* États de chargement / erreur */}
-        {offersQuery.isLoading && (
-          <p className="rounded-xl bg-surface-container p-4 text-center text-sm text-onSurface-variant">Chargement…</p>
-        )}
-        {offersQuery.isError && (
-          <p role="alert" className="rounded-xl border border-error/30 bg-error/10 p-4 text-center text-sm font-medium text-error">
-            Impossible de charger les offres.
+        <form
+          className="mb-6 grid gap-3 rounded-2xl border border-outline-variant bg-surface-container-lowest p-4 md:grid-cols-2 lg:grid-cols-5"
+          onSubmit={(event) => {
+            event.preventDefault();
+            setPage(1);
+            setFilters(draft);
+          }}
+        >
+          <label className="lg:col-span-2">
+            <span className="sr-only">{content.search.srLabel}</span>
+            <input
+              value={draft.q ?? ""}
+              onChange={(event) =>
+                setDraft((value) => ({ ...value, q: event.target.value }))
+              }
+              placeholder={content.search.placeholder}
+              className="min-h-11 w-full rounded-xl border border-outline bg-surface px-3 text-sm"
+            />
+          </label>
+          <input
+            value={draft.city ?? ""}
+            onChange={(event) =>
+              setDraft((value) => ({ ...value, city: event.target.value }))
+            }
+            placeholder={content.filters.city}
+            aria-label={content.filters.city}
+            className="min-h-11 rounded-xl border border-outline bg-surface px-3 text-sm"
+          />
+          <input
+            value={draft.sector ?? ""}
+            onChange={(event) =>
+              setDraft((value) => ({ ...value, sector: event.target.value }))
+            }
+            placeholder={content.filters.sector}
+            aria-label={content.filters.sector}
+            className="min-h-11 rounded-xl border border-outline bg-surface px-3 text-sm"
+          />
+          <select
+            value={draft.contract_type ?? ""}
+            onChange={(event) =>
+              setDraft((value) => ({
+                ...value,
+                contract_type: (event.target.value || undefined) as
+                  ContractType | undefined,
+              }))
+            }
+            aria-label={content.filters.contract}
+            className="min-h-11 rounded-xl border border-outline bg-surface px-3 text-sm"
+          >
+            <option value="">{content.filters.allContracts}</option>
+            {CONTRACT_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {content.contracts[type]}
+              </option>
+            ))}
+          </select>
+          <select
+            value={draft.required_cefr_level ?? ""}
+            onChange={(event) =>
+              setDraft((value) => ({
+                ...value,
+                required_cefr_level: (event.target.value || undefined) as
+                  CefrLevel | undefined,
+              }))
+            }
+            aria-label={content.filters.cefr}
+            className="min-h-11 rounded-xl border border-outline bg-surface px-3 text-sm"
+          >
+            <option value="">{content.filters.allLevels}</option>
+            {CEFR_LEVELS.map((level) => (
+              <option key={level} value={level}>
+                {level}
+              </option>
+            ))}
+          </select>
+          <div className="flex gap-2 lg:col-span-4">
+            <Button type="submit" size="sm">
+              {content.filters.apply}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setDraft({});
+                setFilters({});
+                setPage(1);
+              }}
+            >
+              {content.filters.reset}
+            </Button>
+          </div>
+        </form>
+
+        {offers.isLoading && (
+          <p className="rounded-xl bg-surface-container p-4 text-center text-sm">
+            {content.loading}
           </p>
         )}
-
-        {/* Jobs Grid/List */}
-        {!offersQuery.isLoading && !offersQuery.isError && filteredOffers.length === 0 && (
-          <p className="rounded-xl bg-surface-container p-4 text-center text-sm text-onSurface-variant">
+        {offers.isError && (
+          <p
+            role="alert"
+            className="rounded-xl bg-error/10 p-4 text-center text-sm text-error"
+          >
+            {content.error}
+          </p>
+        )}
+        {!offers.isLoading && offers.data?.data.length === 0 && (
+          <p className="rounded-xl bg-surface-container p-4 text-center text-sm">
             {content.job.noResults}
           </p>
         )}
-        <div className="space-y-4 lg:grid lg:grid-cols-2 lg:gap-5 lg:space-y-0 xl:grid-cols-3">
-          {filteredOffers.map((job) => {
-            const isFav = favoriteIds.has(job.id);
-            const isApplied = appliedIds.has(job.id);
+
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {offers.data?.data.map((offer) => {
+            const favorite = favoriteIds.has(offer.id);
+            const applied = appliedIds.has(offer.id);
+            const blocked = applicationBlock(offer);
             return (
-              <div
-                key={job.id}
-                className="flex flex-col justify-between rounded-xl border border-outline-variant border-l-4 border-l-primary bg-surface-container-lowest p-5 shadow-subtle transition-all duration-200 hover:-translate-y-1"
+              <article
+                key={offer.id}
+                className="flex flex-col rounded-xl border border-outline-variant border-l-4 border-l-primary bg-surface-container-lowest p-5 shadow-subtle"
               >
-                <div>
-                  <div className="mb-4 flex items-start justify-between">
-                    <div className="flex gap-3">
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg border border-outline-variant bg-surface-container-high text-primary">
-                        <span className="material-symbols-outlined" style={{ fontSize: 26 }}>work</span>
-                      </div>
-                      <div>
-                        <h3 className="text-base font-extrabold text-onSurface">{job.title}</h3>
-                        <p className="flex items-center gap-1 text-xs font-semibold text-onSurface-variant mt-0.5">
-                          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>
-                            domain
-                          </span>{' '}
-                          {job.subtitle}
-                        </p>
-                      </div>
-                    </div>
-                    <IconButton
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggleFavorite.mutate({ id: job.id, isFav })}
-                      disabled={toggleFavorite.isPending}
-                      aria-pressed={isFav}
-                      aria-label={isFav ? content.job.removeFavoriteAria : content.job.addFavoriteAria}
-                      className={isFav ? 'text-secondary-dark' : 'text-outline hover:enabled:text-secondary-dark'}
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div>
+                    <Link
+                      href={`/offres/${offer.id}`}
+                      className="font-extrabold hover:underline"
                     >
-                      <span className={`material-symbols-outlined ${isFav ? 'fill' : ''}`} style={{ fontSize: 22 }}>
-                        favorite
-                      </span>
-                    </IconButton>
+                      {offer.title}
+                    </Link>
+                    <p className="mt-1 text-xs text-onSurface-variant">
+                      {offer.employer?.company_profile?.company_name ??
+                        offer.sector}
+                    </p>
                   </div>
-
-                  <div className="mb-5 space-y-2">
-                    <div className="flex items-center gap-2 text-xs font-medium text-onSurface-variant">
-                      <span className="material-symbols-outlined text-primary" style={{ fontSize: 16 }}>
-                        location_on
-                      </span>
-                      <span>{job.location}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs font-medium text-onSurface-variant">
-                      <span className="material-symbols-outlined text-primary" style={{ fontSize: 16 }}>
-                        payments
-                      </span>
-                      <span className="font-extrabold text-onSurface">{job.salary}</span>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2 pt-1">
-                      {job.badges.map((badge, idx) => (
-                        <span
-                          key={idx}
-                          className={`rounded-md px-2.5 py-1 text-[11px] font-bold ${
-                            badge.type === 'secondary'
-                              ? 'bg-secondary/20 text-tertiary'
-                              : badge.type === 'tertiary'
-                              ? 'bg-gold/20 text-tertiary'
-                              : badge.type === 'urgent'
-                              ? 'bg-error/15 text-error'
-                              : 'bg-surface-container-high text-onSurface-variant'
-                          }`}
-                        >
-                          {badge.text}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                  <IconButton
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      toggleFavorite.mutate({ id: offer.id, favorite })
+                    }
+                    disabled={toggleFavorite.isPending}
+                    aria-pressed={favorite}
+                    aria-label={
+                      favorite
+                        ? content.job.removeFavoriteAria
+                        : content.job.addFavoriteAria
+                    }
+                  >
+                    <span
+                      className={`material-symbols-outlined ${favorite ? "fill text-secondary-dark" : ""}`}
+                    >
+                      favorite
+                    </span>
+                  </IconButton>
                 </div>
-
-                <Button
-                  variant={isApplied ? 'tonal' : 'secondary'}
-                  fullWidth
-                  disabled={isApplied || apply.isPending}
-                  onClick={() => apply.mutate(job.id)}
-                  className="text-xs font-extrabold uppercase tracking-wider shadow-sm"
-                >
-                  {isApplied ? content.job.appliedButton : content.job.interestedButton}
-                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
-                    {isApplied ? 'check_circle' : 'arrow_forward'}
+                <p className="text-sm text-onSurface-variant">
+                  {offer.city}, {offer.country}
+                </p>
+                <p className="mt-1 text-sm font-bold">
+                  {formatSalary(offer, language)}
+                </p>
+                <div className="my-4 flex flex-wrap gap-2">
+                  <span className="rounded-md bg-surface-container-high px-2 py-1 text-xs">
+                    {content.contracts[offer.contract_type]}
                   </span>
-                </Button>
-              </div>
+                  {offer.required_cefr_level && (
+                    <span className="rounded-md bg-secondary/20 px-2 py-1 text-xs">
+                      {content.job.cefr.replace(
+                        "{level}",
+                        offer.required_cefr_level,
+                      )}
+                    </span>
+                  )}
+                  {offer.match_score != null && (
+                    <span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-bold text-primary">
+                      {content.job.match.replace(
+                        "{value}",
+                        String(offer.match_score),
+                      )}
+                    </span>
+                  )}
+                </div>
+                <div className="mt-auto space-y-2">
+                  <Link
+                    href={`/offres/${offer.id}`}
+                    className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-outline text-sm font-bold text-primary"
+                  >
+                    {content.job.details}
+                  </Link>
+                  <Button
+                    fullWidth
+                    size="sm"
+                    variant={applied ? "tonal" : "secondary"}
+                    disabled={applied || Boolean(blocked) || apply.isPending}
+                    onClick={() => apply.mutate(offer.id)}
+                  >
+                    {applied
+                      ? content.job.appliedButton
+                      : content.job.interestedButton}
+                  </Button>
+                  {blocked && !applied && (
+                    <p className="text-xs text-error">{blocked}</p>
+                  )}
+                </div>
+              </article>
             );
           })}
         </div>
-
         {apply.isError && (
           <p role="alert" className="mt-4 text-sm text-error">
-            {apply.error instanceof Error ? apply.error.message : 'Impossible de postuler.'}
+            {applyError}
           </p>
         )}
-
-        {/* Featured Banner */}
-        <div className="relative mt-8 overflow-hidden rounded-2xl bg-primary p-6 text-onPrimary shadow-lg">
-          <div className="relative z-10">
-            <h3 className="mb-2 text-xl font-extrabold">{content.banner.title}</h3>
-            <p className="mb-4 text-xs leading-relaxed text-onPrimary/90">{content.banner.body}</p>
-            <Link
-              href="/visibilite"
-              className="inline-block rounded-lg bg-onPrimary px-5 py-2.5 text-xs font-extrabold text-primary transition-colors hover:bg-surface-container-low"
-            >
-              {content.banner.cta}
-            </Link>
-          </div>
-          <span className="material-symbols-outlined absolute -bottom-4 -right-4 text-[120px] text-onPrimary/10 pointer-events-none">
-            trending_up
-          </span>
+        <div className="mt-6">
+          <Pagination
+            page={page}
+            data={offers.data}
+            onPage={setPage}
+            noun={content.pagination.noun}
+            nounPlural={content.pagination.plural}
+            language={language}
+          />
         </div>
       </main>
     </div>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CandidateProfile;
 use App\Models\Task;
 use App\Models\TaskAssignment;
+use App\Services\Notifications;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -17,6 +18,8 @@ use Illuminate\Validation\ValidationException;
  */
 class AdminTaskController extends Controller
 {
+    public function __construct(private readonly Notifications $notifications) {}
+
     /** The catalogue. Retired activities are included so their history reads. */
     public function index(Request $request): JsonResponse
     {
@@ -127,6 +130,8 @@ class AdminTaskController extends Controller
 
             return $assignment;
         });
+
+        $this->notifications->tasksAssigned($candidateProfile, $assignments);
 
         return response()->json($assignments->load('task')->values(), 201);
     }

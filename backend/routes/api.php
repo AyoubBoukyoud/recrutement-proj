@@ -2,27 +2,28 @@
 
 use App\Http\Controllers\Api\AdminAccountRecoveryController;
 use App\Http\Controllers\Api\AdminCandidateController;
+use App\Http\Controllers\Api\AdminMarketplaceController;
 use App\Http\Controllers\Api\AdminMetricsController;
-use App\Http\Controllers\Api\AdminReferralController;
 use App\Http\Controllers\Api\AdminRecruiterController;
+use App\Http\Controllers\Api\AdminReferralController;
 use App\Http\Controllers\Api\AdminTaskController;
 use App\Http\Controllers\Api\AdminUserController;
-use App\Http\Controllers\Api\AdminMarketplaceController;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\CandidateLanguageController;
-use App\Http\Controllers\Api\CandidateProfileController;
-use App\Http\Controllers\Api\CandidateTaskController;
-use App\Http\Controllers\Api\CandidateVisibilityController;
+use App\Http\Controllers\Api\CandidateAccountController;
 use App\Http\Controllers\Api\CandidateApplicationController;
 use App\Http\Controllers\Api\CandidateFavoriteController;
+use App\Http\Controllers\Api\CandidateLanguageController;
 use App\Http\Controllers\Api\CandidateNotificationController;
+use App\Http\Controllers\Api\CandidateProfileController;
 use App\Http\Controllers\Api\CandidateReferralController;
-use App\Http\Controllers\Api\CandidateAccountController;
-use App\Http\Controllers\Api\JobOfferController;
+use App\Http\Controllers\Api\CandidateSkillController;
+use App\Http\Controllers\Api\CandidateTaskController;
+use App\Http\Controllers\Api\CandidateVisibilityController;
 use App\Http\Controllers\Api\ComplaintController;
 use App\Http\Controllers\Api\DeviceSessionController;
 use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\EducationController;
+use App\Http\Controllers\Api\JobOfferController;
 use App\Http\Controllers\Api\LanguageAssessmentController;
 use App\Http\Controllers\Api\PhoneChangeController;
 use App\Http\Controllers\Api\RecruiterCandidateController;
@@ -76,7 +77,9 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
     Route::get('/candidate/notifications', [CandidateNotificationController::class, 'index']);
     Route::patch('/candidate/notifications/read-all', [CandidateNotificationController::class, 'readAll']);
     Route::patch('/candidate/notifications/{notification}/read', [CandidateNotificationController::class, 'read']);
+    Route::get('/candidate/account', [CandidateAccountController::class, 'show'])->name('candidate.account.show');
     Route::get('/candidate/account/export', [CandidateAccountController::class, 'export']);
+    Route::post('/candidate/account/cancel-deletion', [CandidateAccountController::class, 'cancel'])->name('candidate.account.cancel');
     Route::delete('/candidate/account', [CandidateAccountController::class, 'destroy']);
 
     Route::get('/candidate/educations', [EducationController::class, 'index']);
@@ -88,6 +91,11 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
     Route::put('/candidate/languages', [CandidateLanguageController::class, 'upsert']);
     Route::post('/candidate/languages/{language}/certificate', [CandidateLanguageController::class, 'attachCertificate']);
     Route::delete('/candidate/languages/{language}/certificate', [CandidateLanguageController::class, 'detachCertificate']);
+
+    Route::get('/candidate/skills', [CandidateSkillController::class, 'index']);
+    Route::post('/candidate/skills', [CandidateSkillController::class, 'store']);
+    Route::patch('/candidate/skills/{skill}', [CandidateSkillController::class, 'update']);
+    Route::delete('/candidate/skills/{skill}', [CandidateSkillController::class, 'destroy']);
 
     Route::get('/candidate/documents', [DocumentController::class, 'index']);
     Route::post('/candidate/documents', [DocumentController::class, 'store'])->middleware('throttle:document-upload');

@@ -1,0 +1,10 @@
+{
+  "title": "ترشيحاتي",
+  "backAria": "العودة إلى لوحة التحكم",
+  "loading": "جارٍ التحميل…",
+  "error": "تعذر تحميل ترشيحاتك.",
+  "empty": "لم ترسل أي ترشيح بعد.",
+  "withdraw": "سحب ترشيحي",
+  "statuses": { "submitted": "مُرسلة", "viewed": "تمت مشاهدتها", "interview": "مقابلة", "accepted": "مقبولة", "rejected": "مرفوضة", "withdrawn": "مسحوبة" },
+  "pagination": { "noun": "ترشيح", "plural": "ترشيحات" }
+}

@@ -1,15 +1,16 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from '@/context/AuthContext';
-import { ProfileProvider } from '@/context/ProfileContext';
-import { NetworkProvider } from '@/context/NetworkContext';
-import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
-import { ThemeProvider, useTheme } from '@/context/ThemeContext';
-import { OfflineBanner } from './OfflineBanner';
-import { SyncBadge } from './SyncBadge';
-import { InstallPrompt } from './InstallPrompt';
+import { useEffect, useState } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AuthProvider } from "@/context/AuthContext";
+import { ProfileProvider } from "@/context/ProfileContext";
+import { NetworkProvider } from "@/context/NetworkContext";
+import { LanguageProvider, useLanguage } from "@/context/LanguageContext";
+import { ThemeProvider, useTheme } from "@/context/ThemeContext";
+import { SettingsProvider } from "@/context/SettingsContext";
+import { OfflineBanner } from "./OfflineBanner";
+import { SyncBadge } from "./SyncBadge";
+import { InstallPrompt } from "./InstallPrompt";
 
 // Reflète la langue choisie sur <html lang/dir> (RTL pour l'arabe) partout dans l'app.
 function HtmlLangSync() {
@@ -30,7 +31,7 @@ function HtmlThemeSync() {
   const { resolvedTheme } = useTheme();
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', resolvedTheme === 'dark');
+    document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
     document.documentElement.style.colorScheme = resolvedTheme;
   }, [resolvedTheme]);
 
@@ -48,14 +49,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <ProfileProvider>
           <NetworkProvider>
             <LanguageProvider>
-              <ThemeProvider>
-                <HtmlLangSync />
-                <HtmlThemeSync />
-                <OfflineBanner />
-                {children}
-                <SyncBadge />
-                <InstallPrompt />
-              </ThemeProvider>
+              <SettingsProvider>
+                <ThemeProvider>
+                  <HtmlLangSync />
+                  <HtmlThemeSync />
+                  <OfflineBanner />
+                  {children}
+                  <SyncBadge />
+                  <InstallPrompt />
+                </ThemeProvider>
+              </SettingsProvider>
             </LanguageProvider>
           </NetworkProvider>
         </ProfileProvider>

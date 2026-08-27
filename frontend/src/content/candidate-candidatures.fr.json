@@ -1,0 +1,10 @@
+{
+  "title": "Mes candidatures",
+  "backAria": "Retour au tableau de bord",
+  "loading": "Chargement…",
+  "error": "Impossible de charger vos candidatures.",
+  "empty": "Vous n’avez encore envoyé aucune candidature.",
+  "withdraw": "Retirer ma candidature",
+  "statuses": { "submitted": "Envoyée", "viewed": "Vue", "interview": "Entretien", "accepted": "Acceptée", "rejected": "Refusée", "withdrawn": "Retirée" },
+  "pagination": { "noun": "candidature", "plural": "candidatures" }
+}

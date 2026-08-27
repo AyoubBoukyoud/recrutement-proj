@@ -1,0 +1,20 @@
+{
+  "title": "Notifications",
+  "backAria": "Back to dashboard",
+  "readAll": "Mark all read",
+  "markReadAria": "Mark as read",
+  "open": "Open",
+  "loading": "Loading…",
+  "error": "Unable to load notifications.",
+  "empty": "No notifications.",
+  "pagination": { "noun": "notification", "plural": "notifications" },
+  "types": {
+    "application.created": { "title": "New application", "body": "An application was received for {offer_title}." },
+    "application.status": { "title": "Application updated", "body": "Your application for {offer_title} is now: {status}." },
+    "offer.moderated": { "title": "Offer updated", "body": "The status of {offer_title} is now: {status}." },
+    "document.reviewed": { "title": "Document reviewed", "body": "Your {document_type} document is now: {status}. {reason}" },
+    "complaint.answered": { "title": "Complaint answered", "body": "{response}" },
+    "tasks.assigned": { "title": "New tasks", "body": "{count} task(s) were assigned to you for {date}." },
+    "offer.matched": { "title": "New matching offer", "body": "{offer_title} is a {match_score}% match for your profile." }
+  }
+}

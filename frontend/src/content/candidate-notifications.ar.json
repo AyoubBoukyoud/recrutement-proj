@@ -1,0 +1,20 @@
+{
+  "title": "الإشعارات",
+  "backAria": "العودة إلى لوحة التحكم",
+  "readAll": "تعليم الكل كمقروء",
+  "markReadAria": "تعليم كمقروء",
+  "open": "فتح",
+  "loading": "جارٍ التحميل…",
+  "error": "تعذر تحميل الإشعارات.",
+  "empty": "لا توجد إشعارات.",
+  "pagination": { "noun": "إشعار", "plural": "إشعارات" },
+  "types": {
+    "application.created": { "title": "ترشيح جديد", "body": "تم استلام ترشيح للعرض {offer_title}." },
+    "application.status": { "title": "تم تحديث الترشيح", "body": "أصبحت حالة ترشيحك للعرض {offer_title}: {status}." },
+    "offer.moderated": { "title": "تم تحديث العرض", "body": "أصبحت حالة العرض {offer_title}: {status}." },
+    "document.reviewed": { "title": "تمت مراجعة الوثيقة", "body": "أصبحت حالة وثيقة {document_type}: {status}. {reason}" },
+    "complaint.answered": { "title": "رد على شكواك", "body": "{response}" },
+    "tasks.assigned": { "title": "مهام جديدة", "body": "تم تعيين {count} مهمة لك بتاريخ {date}." },
+    "offer.matched": { "title": "عرض جديد مناسب", "body": "يتوافق العرض {offer_title} مع ملفك بنسبة {match_score}٪." }
+  }
+}

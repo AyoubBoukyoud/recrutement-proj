@@ -1,0 +1,20 @@
+{
+  "title": "Benachrichtigungen",
+  "backAria": "Zurück zum Dashboard",
+  "readAll": "Alle als gelesen markieren",
+  "markReadAria": "Als gelesen markieren",
+  "open": "Öffnen",
+  "loading": "Wird geladen…",
+  "error": "Benachrichtigungen konnten nicht geladen werden.",
+  "empty": "Keine Benachrichtigungen.",
+  "pagination": { "noun": "Benachrichtigung", "plural": "Benachrichtigungen" },
+  "types": {
+    "application.created": { "title": "Neue Bewerbung", "body": "Für {offer_title} ist eine Bewerbung eingegangen." },
+    "application.status": { "title": "Bewerbung aktualisiert", "body": "Ihre Bewerbung für {offer_title} hat jetzt den Status: {status}." },
+    "offer.moderated": { "title": "Stelle aktualisiert", "body": "Der Status von {offer_title} ist jetzt: {status}." },
+    "document.reviewed": { "title": "Dokument geprüft", "body": "Ihr Dokument {document_type} hat jetzt den Status: {status}. {reason}" },
+    "complaint.answered": { "title": "Antwort auf Ihre Beschwerde", "body": "{response}" },
+    "tasks.assigned": { "title": "Neue Aufgaben", "body": "Ihnen wurden {count} Aufgabe(n) für den {date} zugewiesen." },
+    "offer.matched": { "title": "Neues passendes Angebot", "body": "{offer_title} passt zu {match_score} % zu Ihrem Profil." }
+  }
+}

@@ -1,34 +1,14 @@
 {
-  "header": {
-    "profileAlt": "Candidate profile picture",
-    "notificationsAria": "Notifications"
-  },
-  "search": {
-    "title": "Jobs for you",
-    "srLabel": "Search for a job title or a city",
-    "placeholder": "Search for a job title or a city..."
-  },
-  "filters": {
-    "button": "Filters",
-    "labels": {
-      "Tous": "All",
-      "Santé": "Healthcare",
-      "Électricité": "Electrical",
-      "Hôtellerie": "Hospitality",
-      "Logistique": "Logistics",
-      "Disponibilité immédiate": "Available immediately"
-    }
-  },
-  "job": {
-    "removeFavoriteAria": "Remove from favorites",
-    "addFavoriteAria": "Add to favorites",
-    "interestedButton": "I'm interested",
-    "appliedButton": "Application sent",
-    "noResults": "No offers match your search."
-  },
-  "banner": {
-    "title": "Boost your visibility",
-    "body": "Complete your profile to 100% to appear first to German recruiters.",
-    "cta": "Optimize my profile"
-  }
+  "header": { "title": "Amud Careers", "backAria": "Back to dashboard", "notificationsAria": "Notifications" },
+  "loading": "Loading…",
+  "error": "Unable to load offers.",
+  "search": { "title": "Offers for you", "srLabel": "Search for a job or city", "placeholder": "Search for a job or city…" },
+  "links": { "favorites": "My favorites", "applications": "My applications" },
+  "filters": { "button": "Filters", "city": "City", "sector": "Sector", "contract": "Contract type", "cefr": "CEFR level", "allContracts": "All contracts", "allLevels": "All levels", "apply": "Search", "reset": "Reset", "labels": { "Tous": "All", "Santé": "Healthcare", "Électricité": "Electrical", "Hôtellerie": "Hospitality", "Logistique": "Logistics", "Disponibilité immédiate": "Immediate availability" } },
+  "contracts": { "permanent": "Permanent", "fixed_term": "Fixed-term", "apprenticeship": "Apprenticeship", "temporary": "Temporary", "internship": "Internship" },
+  "job": { "removeFavoriteAria": "Remove from favorites", "addFavoriteAria": "Add to favorites", "interestedButton": "Apply", "appliedButton": "Application submitted", "noResults": "No offer matches your search.", "details": "View details", "cefr": "Level {level} required", "match": "{value}% match" },
+  "business": { "submitProfile": "Submit your profile before applying.", "cefrRequired": "German level {level} is required.", "duplicate": "You have already applied to this offer.", "failed": "Unable to submit the application." },
+  "detail": { "back": "Back to offers", "description": "Job description", "company": "Company", "location": "Location", "contract": "Contract", "salary": "Salary", "level": "German level", "notFound": "This offer is no longer available.", "favorite": "Add to favorites", "unfavorite": "Remove from favorites" },
+  "pagination": { "noun": "offer", "plural": "offers" },
+  "banner": { "title": "Boost your visibility", "body": "Complete your profile to appear first to German recruiters.", "cta": "Optimize my profile" }
 }

@@ -1,0 +1,10 @@
+{
+  "title": "Meine Bewerbungen",
+  "backAria": "Zurück zum Dashboard",
+  "loading": "Wird geladen…",
+  "error": "Ihre Bewerbungen konnten nicht geladen werden.",
+  "empty": "Sie haben noch keine Bewerbung eingereicht.",
+  "withdraw": "Bewerbung zurückziehen",
+  "statuses": { "submitted": "Gesendet", "viewed": "Angesehen", "interview": "Vorstellungsgespräch", "accepted": "Angenommen", "rejected": "Abgelehnt", "withdrawn": "Zurückgezogen" },
+  "pagination": { "noun": "Bewerbung", "plural": "Bewerbungen" }
+}

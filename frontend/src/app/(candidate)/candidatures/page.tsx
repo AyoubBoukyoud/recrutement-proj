@@ -1,5 +1,75 @@
-'use client';
-import Link from'next/link';import{useMutation,useQuery,useQueryClient}from'@tanstack/react-query';import{Button}from'@/components/shared/Button';import{useAuth}from'@/context/AuthContext';import{marketplaceApi}from'@/lib/candidateMarketplace';
-const labels:Record<string,string>={submitted:'Envoyée',viewed:'Vue',interview:'Entretien',accepted:'Acceptée',rejected:'Refusée',withdrawn:'Retirée'};
-export default function ApplicationsPage(){const{token}=useAuth();const qc=useQueryClient();const q=useQuery({queryKey:['candidate-applications'],queryFn:()=>marketplaceApi.applications(token as string),enabled:Boolean(token)});const withdraw=useMutation({mutationFn:(id:number)=>marketplaceApi.withdrawApplication(id,token as string),onSuccess:()=>qc.invalidateQueries({queryKey:['candidate-applications']})});return <Page title="Mes candidatures">{q.isLoading&&<p>Chargement…</p>}{q.isError&&<ErrorText/>}{q.data?.data.length===0&&<Empty text="Vous n’avez encore envoyé aucune candidature."/>}{q.data?.data.map(a=><article key={a.id} className="rounded-xl border bg-surface-container-lowest p-5"><div className="flex justify-between gap-3"><div><h2 className="font-bold text-primary">{a.offer.title}</h2><p className="text-sm text-onSurface-variant">{a.offer.city} · {new Date(a.applied_at).toLocaleDateString()}</p></div><span className="h-fit rounded-full bg-surface-container-high px-3 py-1 text-xs font-bold">{labels[a.status]}</span></div>{!['accepted','rejected','withdrawn'].includes(a.status)&&<Button variant="destructive-ghost" size="sm" className="mt-4" onClick={()=>withdraw.mutate(a.id)}>Retirer ma candidature</Button>}</article>)}</Page>}
-function Page({title,children}:{title:string;children:React.ReactNode}){return <div className="min-h-screen bg-surface pb-24"><header className="flex h-16 items-center gap-3 border-b px-4"><Link href="/dashboard" aria-label="Retour"><span className="material-symbols-outlined">arrow_back</span></Link><h1 className="text-lg font-bold text-primary">{title}</h1></header><main className="mx-auto max-w-3xl space-y-4 p-6">{children}</main></div>};function Empty({text}:{text:string}){return <p className="rounded-xl border p-8 text-center text-onSurface-variant">{text}</p>};function ErrorText(){return <p role="alert" className="text-error">Impossible de charger les données.</p>}
+"use client";
+
+// Candidate application history, backed by the paginated marketplace API.
+
+import { useState } from "react";
+import Link from "next/link";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { CandidateApplicationCard } from "@/components/shared/CandidateApplicationCard";
+import { Pagination } from "@/components/Pagination";
+import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
+import { marketplaceApi } from "@/lib/candidateMarketplace";
+import { candidateCandidaturesContentFor } from "@/lib/candidateCandidaturesContent";
+
+export default function ApplicationsPage() {
+  const { token } = useAuth();
+  const { language } = useLanguage();
+  const content = candidateCandidaturesContentFor(language);
+  const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
+  const query = useQuery({
+    queryKey: ["candidate-applications", page],
+    queryFn: () => marketplaceApi.applications(token as string, page),
+    enabled: Boolean(token),
+  });
+  const withdraw = useMutation({
+    mutationFn: (id: number) =>
+      marketplaceApi.withdrawApplication(id, token as string),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["candidate-applications"] }),
+  });
+
+  return (
+    <div className="min-h-screen bg-surface pb-24">
+      <header className="flex h-16 items-center gap-3 border-b border-outline-variant px-4">
+        <Link href="/dashboard" aria-label={content.backAria}>
+          <span className="material-symbols-outlined">arrow_back</span>
+        </Link>
+        <h1 className="text-lg font-bold text-primary">{content.title}</h1>
+      </header>
+      <main className="mx-auto max-w-3xl space-y-4 p-6">
+        {query.isLoading && <p>{content.loading}</p>}
+        {query.isError && (
+          <p role="alert" className="text-error">
+            {content.error}
+          </p>
+        )}
+        {query.data?.data.length === 0 && (
+          <p className="rounded-xl border border-outline-variant p-8 text-center text-onSurface-variant">
+            {content.empty}
+          </p>
+        )}
+        {query.data?.data.map((application) => (
+          <CandidateApplicationCard
+            key={application.id}
+            application={application}
+            statusLabel={content.statuses[application.status]}
+            withdrawLabel={content.withdraw}
+            withdrawing={withdraw.isPending}
+            locale={language}
+            onWithdraw={() => withdraw.mutate(application.id)}
+          />
+        ))}
+        <Pagination
+          page={page}
+          data={query.data}
+          onPage={setPage}
+          noun={content.pagination.noun}
+          nounPlural={content.pagination.plural}
+          language={language}
+        />
+      </main>
+    </div>
+  );
+}

@@ -17,7 +17,10 @@ class EnsureAccountIsActive
     {
         $user = $request->user();
 
-        if ($user && $user->status !== 'active') {
+        $deletionRecoveryRoute = $user?->deletion_requested_at
+            && $request->routeIs('candidate.account.show', 'candidate.account.cancel');
+
+        if ($user && $user->status !== 'active' && ! $deletionRecoveryRoute) {
             $message = $user->status === 'blocked'
                 ? 'This account has been blocked.'
                 : 'This account has been deactivated.';

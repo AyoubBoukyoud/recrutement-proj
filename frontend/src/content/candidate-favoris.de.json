@@ -1,0 +1,10 @@
+{
+  "title": "Favorisierte Stellen",
+  "backAria": "Zurück zu den Stellen",
+  "loading": "Wird geladen…",
+  "error": "Ihre Favoriten konnten nicht geladen werden.",
+  "empty": "Keine favorisierten Stellen.",
+  "remove": "Aus Favoriten entfernen",
+  "open": "Stelle ansehen",
+  "pagination": { "noun": "Favorit", "plural": "Favoriten" }
+}

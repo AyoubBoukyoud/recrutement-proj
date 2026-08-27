@@ -7,6 +7,7 @@ use App\Models\AdminActivityLog;
 use App\Models\CandidateProfile;
 use App\Models\Document;
 use App\Services\ActivityFeed;
+use App\Services\Notifications;
 use App\Services\ProfileCompleteness;
 use App\Services\TaskEngagement;
 use Illuminate\Http\JsonResponse;
@@ -16,6 +17,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AdminCandidateController extends Controller
 {
+    public function __construct(private readonly Notifications $notifications) {}
+
     public function index(Request $request): JsonResponse
     {
         $filters = $request->validate([
@@ -235,6 +238,8 @@ class AdminCandidateController extends Controller
             'reviewed_by_id' => $request->user()->id,
             'reviewed_at' => now(),
         ]);
+
+        $this->notifications->documentReviewed($document);
 
         return response()->json($document->fresh(['extraction', 'reviewedBy:id,name,phone']));
     }

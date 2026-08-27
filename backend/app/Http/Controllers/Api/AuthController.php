@@ -40,7 +40,7 @@ class AuthController extends Controller
 
         // Blocked/deactivated accounts don't even get an OTP: no point paying
         // to send one to a number that can't reach `verifyOtp` anyway.
-        if (! $user->isActive()) {
+        if (! $user->isActive() && ! $user->deletion_requested_at) {
             return response()->json(['message' => 'This account cannot sign in.'], 403);
         }
 
@@ -90,7 +90,7 @@ class AuthController extends Controller
 
         // Re-checked here, not only at requestOtp: an admin can block an
         // account in the window between a code being sent and being typed in.
-        if (! $user->isActive()) {
+        if (! $user->isActive() && ! $user->deletion_requested_at) {
             return response()->json(['message' => 'This account cannot sign in.'], 403);
         }
 
@@ -109,6 +109,7 @@ class AuthController extends Controller
                 'phone' => $user->phone,
                 'roles' => $user->getRoleNames(),
             ],
+            'deletion_pending' => $user->deletion_requested_at !== null,
         ]);
     }
 

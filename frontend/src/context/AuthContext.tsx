@@ -1,24 +1,36 @@
-'use client';
+"use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { readStorage, writeStorage, removeStorage, STORAGE_KEYS } from '@/lib/storage';
-import { setCookie, deleteCookie } from '@/lib/cookies';
-import { ApiError } from '@/lib/api';
-import { authRepository } from '@/data/auth';
-import type { AuthUser, UserRole } from '@/lib/types';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import {
+  readStorage,
+  writeStorage,
+  removeStorage,
+  STORAGE_KEYS,
+} from "@/lib/storage";
+import { setCookie, deleteCookie } from "@/lib/cookies";
+import { ApiError } from "@/lib/api";
+import { authRepository } from "@/data/auth";
+import type { AuthUser, UserRole } from "@/lib/types";
 
 /**
  * Pourquoi une étape d'authentification a échoué, dans les termes de l'écran
  * plutôt que ceux d'HTTP : chaque page traduit ces cas en message localisé.
  */
 export type AuthFailure =
-  | 'invalid'
-  | 'expired'
-  | 'too_many_attempts'
-  | 'throttled'
-  | 'delivery'
-  | 'network'
-  | 'unknown';
+  | "invalid"
+  | "expired"
+  | "too_many_attempts"
+  | "throttled"
+  | "delivery"
+  | "network"
+  | "unknown";
 
 type Failure = { ok: false; reason: AuthFailure; retryAfter?: number };
 
@@ -36,7 +48,8 @@ export type AuthResult = ({ ok: true } & OtpDispatch) | Failure;
 
 /** Le rôle est connu dès la vérification réussie — inutile d'attendre le
  *  prochain rendu pour savoir où envoyer l'appelant. */
-export type VerifyResult = { ok: true; role: UserRole } | Failure;
+export type VerifyResult =
+  { ok: true; role: UserRole; deletionPending: boolean } | Failure;
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -56,26 +69,26 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 /** Les rôles Spatie du back, traduits dans le vocabulaire de l'application. */
 const ROLE_BY_BACKEND_NAME: Record<string, UserRole> = {
-  Administrator: 'admin',
-  Company: 'employer',
-  'Commercial Agent': 'agent',
-  User: 'candidate',
+  Administrator: "admin",
+  Company: "employer",
+  "Commercial Agent": "agent",
+  User: "candidate",
 };
 
 const DEFAULT_NAME_BY_ROLE: Record<UserRole, string> = {
-  candidate: 'Nouveau Candidat',
-  employer: 'Espace Employeur',
-  admin: 'Administrateur',
-  agent: 'Agent commercial',
+  candidate: "Nouveau Candidat",
+  employer: "Espace Employeur",
+  admin: "Administrateur",
+  agent: "Agent commercial",
 };
 
 function roleFrom(roles: string[]): UserRole {
   // Administrator l'emporte : un compte qui cumule les rôles doit atterrir sur
   // l'espace le plus large, pas sur le premier renvoyé par la base.
-  for (const name of ['Administrator', 'Company', 'Commercial Agent', 'User']) {
+  for (const name of ["Administrator", "Company", "Commercial Agent", "User"]) {
     if (roles.includes(name)) return ROLE_BY_BACKEND_NAME[name];
   }
-  return 'candidate';
+  return "candidate";
 }
 
 /**
@@ -84,46 +97,49 @@ function roleFrom(roles: string[]): UserRole {
  */
 function failureFrom(error: unknown): Failure {
   if (!(error instanceof ApiError)) {
-    return { ok: false, reason: 'unknown' };
+    return { ok: false, reason: "unknown" };
   }
 
   if (error.isNetworkFailure) {
-    return { ok: false, reason: 'network' };
+    return { ok: false, reason: "network" };
   }
 
   const retryAfter = error.retryAfter ?? undefined;
-  const reason = typeof error.payload.reason === 'string' ? error.payload.reason : null;
+  const reason =
+    typeof error.payload.reason === "string" ? error.payload.reason : null;
 
   switch (reason) {
-    case 'expired':
-    case 'not_requested':
-      return { ok: false, reason: 'expired' };
-    case 'invalid':
-      return { ok: false, reason: 'invalid' };
-    case 'too_many_attempts':
-      return { ok: false, reason: 'too_many_attempts' };
-    case 'cooldown':
-    case 'send_limit':
-      return { ok: false, reason: 'throttled', retryAfter };
+    case "expired":
+    case "not_requested":
+      return { ok: false, reason: "expired" };
+    case "invalid":
+      return { ok: false, reason: "invalid" };
+    case "too_many_attempts":
+      return { ok: false, reason: "too_many_attempts" };
+    case "cooldown":
+    case "send_limit":
+      return { ok: false, reason: "throttled", retryAfter };
   }
 
-  if (error.status === 429) return { ok: false, reason: 'throttled', retryAfter };
+  if (error.status === 429)
+    return { ok: false, reason: "throttled", retryAfter };
   // 502 : la chaîne WhatsApp/SMS n'a pas pu livrer le code.
-  if (error.status === 502 || error.status === 503) return { ok: false, reason: 'delivery' };
-  if (error.status === 422) return { ok: false, reason: 'invalid' };
+  if (error.status === 502 || error.status === 503)
+    return { ok: false, reason: "delivery" };
+  if (error.status === 422) return { ok: false, reason: "invalid" };
 
-  return { ok: false, reason: 'unknown' };
+  return { ok: false, reason: "unknown" };
 }
 
 function persistUser(user: AuthUser | null) {
   if (user) {
     writeStorage(STORAGE_KEYS.auth, user);
-    setCookie('as_role', user.role);
-    setCookie('as_uid', user.id);
+    setCookie("as_role", user.role);
+    setCookie("as_uid", user.id);
   } else {
     removeStorage(STORAGE_KEYS.auth);
-    deleteCookie('as_role');
-    deleteCookie('as_uid');
+    deleteCookie("as_role");
+    deleteCookie("as_uid");
   }
 }
 
@@ -132,7 +148,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [pendingPhone, setPendingPhone] = useState<string | null>(null);
-  const [resendAvailableIn, setResendAvailableIn] = useState<number | null>(null);
+  const [resendAvailableIn, setResendAvailableIn] = useState<number | null>(
+    null,
+  );
 
   useEffect(() => {
     let storedUser = readStorage<AuthUser | null>(STORAGE_KEYS.auth, null);
@@ -145,15 +163,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
      * `middleware.ts` pose déjà le cookie côté serveur pour ce même compte ;
      * ceci sème le localStorage que lit le reste de l'app (token, useAuth().user).
      */
-    if (!storedUser && process.env.NEXT_PUBLIC_USE_MOCKS === '1') {
+    if (!storedUser && process.env.NEXT_PUBLIC_USE_MOCKS === "1") {
       storedUser = {
-        id: '101',
-        role: 'candidate',
-        name: 'Youssef Amrani',
-        phone: '+212600000001',
-        roles: ['User'],
+        id: "101",
+        role: "candidate",
+        name: "Youssef Amrani",
+        phone: "+212600000001",
+        roles: ["User"],
       };
-      storedToken = 'mock-token-candidate-101';
+      storedToken = "mock-token-candidate-101";
       writeStorage(STORAGE_KEYS.token, storedToken);
       persistUser(storedUser);
     }
@@ -163,36 +181,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const requestOtp = useCallback(async (phone: string, referralToken?: string): Promise<AuthResult> => {
-    // Retenu avant l'appel : l'écran OTP affiche le numéro même si l'envoi
-    // échoue et que le candidat relance depuis « Renvoyer le code ».
-    setPendingPhone(phone);
+  const requestOtp = useCallback(
+    async (phone: string, referralToken?: string): Promise<AuthResult> => {
+      // Retenu avant l'appel : l'écran OTP affiche le numéro même si l'envoi
+      // échoue et que le candidat relance depuis « Renvoyer le code ».
+      setPendingPhone(phone);
 
-    try {
-      const data = await authRepository.requestOtp(phone, referralToken);
-      const dispatch: OtpDispatch = {
-        debugCode: data.debug_otp_code ?? null,
-        channel: data.channel ?? 'unknown',
-        resendAvailableIn: data.resend_available_in ?? 60,
-        expiresIn: data.expires_in ?? 600,
-      };
+      try {
+        const data = await authRepository.requestOtp(phone, referralToken);
+        const dispatch: OtpDispatch = {
+          debugCode: data.debug_otp_code ?? null,
+          channel: data.channel ?? "unknown",
+          resendAvailableIn: data.resend_available_in ?? 60,
+          expiresIn: data.expires_in ?? 600,
+        };
 
-      setResendAvailableIn(dispatch.resendAvailableIn);
+        setResendAvailableIn(dispatch.resendAvailableIn);
 
-      return { ok: true, ...dispatch };
-    } catch (error) {
-      const failure = failureFrom(error);
-      if (!failure.ok && failure.retryAfter) setResendAvailableIn(failure.retryAfter);
+        return { ok: true, ...dispatch };
+      } catch (error) {
+        const failure = failureFrom(error);
+        if (!failure.ok && failure.retryAfter)
+          setResendAvailableIn(failure.retryAfter);
 
-      return failure;
-    }
-  }, []);
+        return failure;
+      }
+    },
+    [],
+  );
 
   const verifyOtp = useCallback(
     async (code: string, phone?: string): Promise<VerifyResult> => {
       const target = phone ?? pendingPhone;
 
-      if (!target) return { ok: false, reason: 'expired' };
+      if (!target) return { ok: false, reason: "expired" };
 
       try {
         const data = await authRepository.verifyOtp(target, code);
@@ -216,12 +238,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         persistUser(authUser);
         setResendAvailableIn(null);
 
-        return { ok: true, role };
+        return {
+          ok: true,
+          role,
+          deletionPending: data.deletion_pending ?? false,
+        };
       } catch (error) {
         return failureFrom(error);
       }
     },
-    [pendingPhone, user?.name]
+    [pendingPhone, user?.name],
   );
 
   const logout = useCallback(() => {
@@ -250,7 +276,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       verifyOtp,
       logout,
     }),
-    [user, token, isLoading, pendingPhone, resendAvailableIn, requestOtp, verifyOtp, logout]
+    [
+      user,
+      token,
+      isLoading,
+      pendingPhone,
+      resendAvailableIn,
+      requestOtp,
+      verifyOtp,
+      logout,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -258,6 +293,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth doit être utilisé à l\'intérieur de <AuthProvider>');
+  if (!ctx)
+    throw new Error(
+      "useAuth doit être utilisé à l'intérieur de <AuthProvider>",
+    );
   return ctx;
 }
