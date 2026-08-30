@@ -11,16 +11,18 @@ import { IconButton } from '@/components/shared/Button';
 interface SiteHeaderProps {
   className?: string;
   /**
-   * Fond glass à 15% d'opacité (+ flou) tant que le hero vidéo est visible,
-   * ET position `fixed` (au lieu de `sticky`) pour flotter par-dessus le
-   * hero vidéo dès le chargement plutôt que de réserver sa propre bande
-   * opaque au-dessus — sans quoi le fond "transparent" ne montre que la
-   * couleur de page (blanche) tant qu'on n'a pas scrollé. Dès que le scroll
-   * dépasse la section `#hero-video-section`, le fond bascule vers un glass
-   * sombre (bg-black + flou) pour rester lisible au-dessus du contenu clair
-   * qui suit. Utilisé sur la landing page `/accueil-public` uniquement,
-   * pour ne pas changer l'apparence/mise en page du header sur les autres
-   * pages qui le partagent (`/produit`, `/employeurs`, `/metiers/[slug]`).
+   * À partir de `sm` (≥640px, tablette/desktop) : le header passe en
+   * position `fixed` et flotte par-dessus le hero vidéo avec un fond glass
+   * à 15% d'opacité (+ flou) tant que la vidéo est visible, puis bascule
+   * vers un glass sombre (bg-black + flou) dès que le scroll dépasse la
+   * section `#hero-video-section` — pour rester lisible au-dessus du
+   * contenu clair qui suit.
+   * En dessous de `sm` (mobile) : le header reste `sticky` dans le flux
+   * normal, avec l'apparence opaque standard (comme sur les autres pages),
+   * afin de précéder la vidéo au lieu de se superposer dessus.
+   * Utilisé sur la landing page `/accueil-public` uniquement, pour ne pas
+   * changer l'apparence/mise en page du header sur les autres pages qui le
+   * partagent (`/produit`, `/employeurs`, `/metiers/[slug]`).
    */
   glassTransparent?: boolean;
 }
@@ -45,11 +47,12 @@ export function SiteHeader({ className = '', glassTransparent = false }: SiteHea
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Sur la landing (glassTransparent), le header reste très transparent tant
-  // que le hero vidéo est visible, puis bascule en glass sombre dès que la
-  // section défile hors de la zone couverte par le header — quel que soit
-  // l'appareil (mobile/tablette/desktop), car on observe la position réelle
-  // de la section plutôt qu'un seuil de scroll fixe.
+  // Sur la landing (glassTransparent), à partir de `sm` le header reste très
+  // transparent tant que le hero vidéo est visible, puis bascule en glass
+  // sombre dès que la section défile hors de la zone couverte par le header
+  // — en observant la position réelle de la section plutôt qu'un seuil de
+  // scroll fixe. En dessous de `sm` (mobile), `pastHero` est calculé mais
+  // sans effet visuel : le header y est toujours sticky/opaque (cf. JSX).
   useEffect(() => {
     if (!glassTransparent) return;
     const heroEl = document.getElementById('hero-video-section');
@@ -72,10 +75,18 @@ export function SiteHeader({ className = '', glassTransparent = false }: SiteHea
 
   return (
     <header
-      className={`${glassTransparent ? 'fixed' : 'sticky'} top-0 z-50 w-full transition-all duration-300 pt-[env(safe-area-inset-top)] ${glassTransparent
-        ? pastHero || menuOpen
-          ? 'border-b border-white/10 bg-black/55 shadow-[0_8px_32px_rgba(0,0,0,0.25)] backdrop-blur-2xl backdrop-saturate-150'
-          : 'border-b border-white/10 dark:border-white/5 bg-white/15 dark:bg-surface/15 shadow-[0_4px_24px_rgba(0,0,0,0.04)] backdrop-blur-xl backdrop-saturate-150'
+      className={`${glassTransparent ? 'sticky sm:fixed' : 'sticky'} top-0 z-50 w-full transition-all duration-300 pt-[env(safe-area-inset-top)] ${glassTransparent
+        ? // En dessous de `sm`, le header reste dans le flux normal (sticky) et
+          // garde l'apparence opaque standard : sur mobile il précède la vidéo
+          // au lieu de se superposer dessus. À partir de `sm`, il repasse en
+          // `fixed` et adopte le glass clair/sombre flottant par-dessus le hero.
+          `${scrolled || menuOpen
+            ? 'border-b border-white/40 dark:border-white/10 bg-white/75 dark:bg-surface/80 shadow-[0_8px_32px_rgba(0,0,0,0.08)] backdrop-blur-2xl backdrop-saturate-180'
+            : 'border-b border-white/30 dark:border-white/10 bg-white/55 dark:bg-surface/60 shadow-[0_4px_24px_rgba(0,0,0,0.04)] backdrop-blur-xl backdrop-saturate-150'
+          } ${pastHero || menuOpen
+            ? 'sm:border-white/10 sm:bg-black/55 sm:shadow-[0_8px_32px_rgba(0,0,0,0.25)] sm:backdrop-blur-2xl sm:backdrop-saturate-150'
+            : 'sm:border-white/10 sm:dark:border-white/5 sm:bg-white/15 sm:dark:bg-surface/15 sm:shadow-[0_4px_24px_rgba(0,0,0,0.04)] sm:backdrop-blur-xl sm:backdrop-saturate-150'
+          }`
         : scrolled || menuOpen
           ? 'border-b border-white/40 dark:border-white/10 bg-white/75 dark:bg-surface/80 shadow-[0_8px_32px_rgba(0,0,0,0.08)] backdrop-blur-2xl backdrop-saturate-180'
           : 'border-b border-white/30 dark:border-white/10 bg-white/55 dark:bg-surface/60 shadow-[0_4px_24px_rgba(0,0,0,0.04)] backdrop-blur-xl backdrop-saturate-150'
@@ -89,7 +100,7 @@ export function SiteHeader({ className = '', glassTransparent = false }: SiteHea
           </div>
           <span
             className={`text-base font-black tracking-tight transition-colors duration-200 sm:text-lg ${
-              glassTransparent ? 'text-white' : 'text-primary-dark'
+              glassTransparent ? 'text-primary-dark sm:text-white' : 'text-primary-dark'
             }`}
           >
             Amud Skills
@@ -145,7 +156,7 @@ export function SiteHeader({ className = '', glassTransparent = false }: SiteHea
             aria-label={menuOpen ? nav.menuClose : nav.menuOpen}
             className={`rounded-xl border backdrop-blur-md lg:hidden ${
               glassTransparent
-                ? 'border-white/30 bg-white/10 text-white'
+                ? 'border-white/50 dark:border-white/10 bg-white/40 dark:bg-white/10 text-onSurface sm:border-white/30 sm:bg-white/10 sm:text-white'
                 : 'border-white/50 dark:border-white/10 bg-white/40 dark:bg-white/10 text-onSurface'
             }`}
           >

@@ -99,13 +99,15 @@ export function PublicHome() {
       <RevealNoScriptFallback />
 
       {/* ------------------------------------------------------------------------- */}
-      {/* 1. FULL-SCREEN 100VH HERO VIDEO COVER AT THE TOP                          */}
+      {/* 1. FULL-SCREEN HERO VIDEO COVER AT THE TOP (Responsive Mobile & Desktop)   */}
       {/* ------------------------------------------------------------------------- */}
-      <section id="hero-video-section" className="relative h-[calc(100vh*1.05)] min-h-[630px] w-full overflow-hidden bg-black">
+      <section
+        id="hero-video-section"
+        className="relative h-[calc(100svh-68px-env(safe-area-inset-top))] min-h-[480px] max-h-[740px] w-full overflow-hidden bg-black sm:h-screen sm:min-h-[640px] sm:max-h-none"
+      >
         <HeroVideo />
 
-
-        {/* Floating Dossier Card Over the Video with Bright, High-Contrast Text */}
+        {/* Floating Dossier Card Over the Video with Bright, High-Contrast Text (Tablet & Desktop) */}
         <div className="absolute bottom-16 end-6 z-30 hidden sm:block md:end-12 md:bottom-20 lg:w-96">
           <div className="rounded-3xl border border-white/30 bg-black/75 p-6 text-white shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl transition-all duration-300 hover:border-white/50">
             <div className="flex items-center justify-between border-b border-white/20 pb-4">
@@ -144,40 +146,19 @@ export function PublicHome() {
             <p className="mt-4 text-xs font-medium text-white/75">{content.hero.card.footnote}</p>
           </div>
         </div>
-
-        {/* Scroll down prompt over the video */}
-        <div className="absolute inset-x-0 bottom-8 z-30 flex justify-center">
-          <a
-            href="#main-content"
-            className="group flex flex-col items-center gap-2 rounded-full border border-white/20 bg-black/40 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-lg backdrop-blur-md transition-all hover:bg-white/20 hover:scale-105"
-          >
-            <span>{content.hero.scrollCue}</span>
-            <Icon name="keyboard_arrow_down" className="scroll-cue-nudge text-xl text-emerald-400 motion-reduce:animate-none" />
-          </a>
-        </div>
       </section>
-
-      <style>{`
-        @keyframes scrollCueNudge {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(5px); }
-        }
-        .scroll-cue-nudge {
-          animation: scrollCueNudge 1.8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-        }
-      `}</style>
 
       {/* ------------------------------------------------------------------------- */}
       {/* 2. RISING CONTENT SHEET (Slides UP over the Full-Screen Video)            */}
       {/* ------------------------------------------------------------------------- */}
-      <div 
+      <div
         id="main-content"
-        className="relative z-20 -mt-10 rounded-t-[2.5rem] border-t border-outline-variant/60 bg-surface shadow-[0_-25px_60px_rgba(0,0,0,0.18)] sm:-mt-16 sm:rounded-t-[3.5rem]"
+        className="relative z-20 -mt-6 sm:-mt-14 rounded-t-[2rem] sm:rounded-t-[3.5rem] border-t border-outline-variant/60 bg-surface shadow-[0_-25px_60px_rgba(0,0,0,0.18)]"
       >
         {/* HERO CONTENT SECTION: Travaillez en Allemagne. Nous préparons votre dossier avec vous. */}
         <section className="relative overflow-hidden pb-16 pt-16 sm:pb-20 sm:pt-20 lg:pt-24">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(16,185,129,0.15),transparent_50%)]" />
-          
+
           <div className="relative mx-auto max-w-4xl px-6 text-center lg:px-12">
             {/* Eyebrow Pill */}
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 backdrop-blur-sm">
@@ -288,7 +269,7 @@ export function PublicHome() {
                 return (
                   <Reveal key={step.title} delay={index * 80}>
                     <article className={`group relative flex h-full flex-col rounded-3xl border ${style.border} bg-gradient-to-b ${style.gradient} p-7 shadow-soft transition-all duration-300 hover:-translate-y-2 hover:bg-surface-lowest`}>
-                      
+
                       {/* Step Header with Icon & Index */}
                       <div className="mb-6 flex items-center justify-between">
                         <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${style.badge} shadow-sm transition-transform duration-300 group-hover:scale-110`}>
@@ -341,7 +322,7 @@ export function PublicHome() {
             className="absolute inset-0 h-full w-full object-cover object-[center_25%] opacity-20"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-primary-dark via-primary-dark/95 to-primary-dark/80" />
-          
+
           <div className="relative mx-auto grid max-w-[1280px] gap-12 px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-12">
             <Reveal>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-light/20 px-3.5 py-1 text-xs font-black uppercase tracking-[0.18em] text-primary-light">
@@ -388,7 +369,7 @@ export function PublicHome() {
         {/* ------------------------------------------------------------------------- */}
         <section id="sectors" className="relative overflow-hidden bg-surface-container/50 py-24 lg:py-32">
           <div className="relative mx-auto max-w-[1280px] px-6 lg:px-12">
-            
+
             <Reveal className="max-w-3xl">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-black uppercase tracking-wider text-primary">
                 🇩🇪 Marché Allemand du Travail
@@ -447,8 +428,8 @@ export function PublicHome() {
                               {trade.recognition === 'required'
                                 ? content.trades.recognition.required
                                 : trade.recognition === 'recommended'
-                                ? content.trades.recognition.recommended
-                                : content.trades.recognition.none}
+                                  ? content.trades.recognition.recommended
+                                  : content.trades.recognition.none}
                             </span>
                           </div>
                         </div>
