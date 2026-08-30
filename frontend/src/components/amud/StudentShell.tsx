@@ -29,6 +29,7 @@ const NAV: StudentNavItem[] = [
   { href: '/amud/student/planning', icon: 'calendar_month', label: 'Mon planning', group: 'Formation', inBottomNav: true },
   { href: '/amud/student/presences', icon: 'fact_check', label: 'Mes présences', group: 'Formation', inBottomNav: true },
   { href: '/amud/student/payments', icon: 'payments', label: 'Mes paiements', group: 'Finances', inBottomNav: true, bottomLabel: 'Paiements' },
+  { href: '/amud/student/quiz', icon: 'quiz', label: 'Quiz', group: 'Formation' },
   { href: '/amud/student/group', icon: 'diversity_3', label: 'Mon groupe', group: 'Formation' },
   { href: '/amud/student/teachers', icon: 'cast_for_education', label: 'Mes enseignants', group: 'Formation' },
   { href: '/amud/student/results', icon: 'grade', label: 'Mes résultats', group: 'Formation' },

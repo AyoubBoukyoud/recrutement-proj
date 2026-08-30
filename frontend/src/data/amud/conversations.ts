@@ -74,3 +74,15 @@ export function unreadCountForEntreprise(entrepriseId: string, all: Conversation
     0,
   );
 }
+
+/** Équivalents côté candidat self-service (`/amud/candidat/messages`) — `candidateId` référence `CandidateAccount.id`. */
+export function getConversationsForCandidate(candidateId: string, all: Conversation[] = conversationsSeed) {
+  return all.filter((c) => c.candidateId === candidateId);
+}
+
+export function unreadCountForCandidate(candidateId: string, all: Conversation[] = conversationsSeed): number {
+  return getConversationsForCandidate(candidateId, all).reduce(
+    (total, c) => total + c.messages.filter((m) => m.sender === 'employer' && !m.read).length,
+    0,
+  );
+}

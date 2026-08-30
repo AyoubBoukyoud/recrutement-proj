@@ -5,9 +5,11 @@ import Link from 'next/link';
 // l'impression de trois actions.
 
 const SIZES = {
+  sm: 'px-4 py-2 text-xs sm:text-sm',
   md: 'px-6 py-3 text-sm',
   lg: 'px-8 py-4 text-base',
 } as const;
+
 
 interface CtaProps {
   href: string;

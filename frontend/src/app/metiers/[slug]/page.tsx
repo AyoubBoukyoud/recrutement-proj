@@ -40,6 +40,8 @@ export default function TradePage({ params }: { params: { slug: string } }) {
     <>
       <SiteHeader />
 
+
+
       <main className="pt-28 lg:pt-36">
         <TradeDetail slug={params.slug} />
       </main>

@@ -7,3 +7,8 @@ export {
   removeLocalCenterAttendance as removeAttendance,
 } from '../localCenterAttendance';
 export { computeAttendanceRates } from '../centerCalculations';
+export {
+  centerSessionStatesCollection as sessionStatesCollection,
+  loadLocalCenterSessionStates as loadSessionStates,
+  getSessionStateBySchedule,
+} from '../localCenterSessionStates';

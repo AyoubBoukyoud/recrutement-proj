@@ -226,7 +226,42 @@ export type CenterAttendanceRecord = {
   studentId: string;
   date: string;
   statut: AttendanceStatus;
+  // --- Champs Smart Attendance QR (cahier des charges §11-17) ---
+  /** 'QR' quand la ligne vient d'un scan (check-in/check-out), absent/'MANUAL' pour une saisie enseignant/centre classique. */
+  source?: 'MANUAL' | 'QR';
+  checkInTime?: string; // ISO — horodatage du scan QR_CHECK_IN
+  checkOutTime?: string; // ISO — horodatage du scan QR_CHECK_OUT
+  durationMinutes?: number; // calculé à partir de checkInTime/checkOutTime
+  correctedBy?: string; // utilisateur ayant appliqué une correction manuelle
+  correctedAt?: string; // ISO
 };
+
+export type SessionQrStatus = 'NOT_STARTED' | 'CHECKIN_OPEN' | 'IN_PROGRESS' | 'CHECKOUT_OPEN' | 'ENDED';
+
+/**
+ * État éphémère d'exécution QR d'un cours (clé `amud_center_session_states`,
+ * cahier des charges §11-17) — sidecar 1:1 par `scheduleId`, PAS un doublon
+ * de `CenterSchedule` : le créneau (groupe/enseignant/salle/date/heure) reste
+ * entièrement porté par `CenterSchedule`, cette entité ne garde que ce qui
+ * change pendant le déroulement réel de la séance (jetons QR, horodatages).
+ */
+export type CenterSessionState = {
+  id: string;
+  centerId: string;
+  scheduleId: string;
+  status: SessionQrStatus;
+  checkInToken?: string; // régénéré à chaque (ré)ouverture du QR d'entrée
+  checkOutToken?: string; // régénéré à l'ouverture du QR de sortie
+  startedAt?: string;
+  checkOutOpenedAt?: string;
+  endedAt?: string;
+  startedBy: string; // teacherId
+};
+
+/** Contenu encodé dans les QR codes d'entrée/sortie/rejoindre-quiz — décodé côté scanner (`useQrScanner`). */
+export type QrPayload =
+  | { v: 1; type: 'CHECK_IN' | 'CHECK_OUT'; centerId: string; scheduleId: string; groupId: string; teacherId: string; sessionStateId: string; token: string; issuedAt: string }
+  | { v: 1; type: 'QUIZ_JOIN'; centerId: string; quizSessionId: string; quizId: string; groupId: string; teacherId: string; token: string; issuedAt: string };
 
 export type PaymentMode = 'Espèces' | 'Virement' | 'Carte' | 'Chèque';
 export const PAYMENT_MODES: PaymentMode[] = ['Espèces', 'Virement', 'Carte', 'Chèque'];
@@ -396,7 +431,17 @@ export type CenterActivityType =
   | 'PAYMENT_RECEIVED'
   | 'WEBSITE_UPDATED'
   | 'THEME_CHANGED'
-  | 'LEAD_CREATED';
+  | 'LEAD_CREATED'
+  // --- Smart Attendance QR + Quick Quiz (cahier des charges §55) ---
+  | 'SESSION_STARTED'
+  | 'CHECK_IN'
+  | 'CHECK_OUT'
+  | 'SESSION_COMPLETED'
+  | 'QUIZ_CREATED'
+  | 'QUIZ_STARTED'
+  | 'QUIZ_JOINED'
+  | 'QUIZ_COMPLETED'
+  | 'RESULT_RECORDED';
 
 export type CenterActivity = {
   id: string;

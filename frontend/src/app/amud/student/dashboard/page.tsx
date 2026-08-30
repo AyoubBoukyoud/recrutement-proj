@@ -25,6 +25,8 @@ import { notifications as notificationsCollection } from '@/lib/amud/storage/not
 import { notificationsSeed } from '@/data/amud/notifications';
 import { studentResultsCollection } from '@/lib/amud/localStudentResults';
 import { centerStudentResultsSeed } from '@/data/amud/centerStudentResults';
+import { quizResultsCollection } from '@/lib/amud/localQuizResults';
+import { quizResultsSeed } from '@/data/amud/quizResults';
 import { PAYMENT_STATUS_LABELS, PAYMENT_STATUS_CLASS, ATTENDANCE_LABELS } from '@/data/amud/centerTypes';
 import { AnalyticsCard } from '@/components/amud/analytics/AnalyticsCard';
 import { ProgressGauge } from '@/components/amud/analytics/ProgressGauge';
@@ -49,6 +51,7 @@ export default function StudentDashboardPage() {
   const [teachers] = useCollection(centerTeachersCollection, centerTeachersSeed);
   const [allNotifications] = useCollection(notificationsCollection, notificationsSeed);
   const [results] = useCollection(studentResultsCollection, centerStudentResultsSeed);
+  const [quizResults] = useCollection(quizResultsCollection, quizResultsSeed);
 
   const student = students.find((s) => s.id === studentId);
   const today = todayIso();
@@ -90,6 +93,11 @@ export default function StudentDashboardPage() {
   const studentStats = useMemo(
     () => getStudentStats(studentId, results, attendance, formation, today),
     [studentId, results, attendance, formation, today],
+  );
+
+  const lastQuizResult = useMemo(
+    () => quizResults.filter((r) => r.studentId === studentId).sort((a, b) => b.computedAt.localeCompare(a.computedAt))[0],
+    [quizResults, studentId],
   );
 
   if (!student) return <LoadingState label="Chargement de votre espace…" rows={4} />;
@@ -243,6 +251,25 @@ export default function StudentDashboardPage() {
               Voir toutes les présences →
             </Link>
           </div>
+        )}
+      </div>
+
+      {/* Dernier quiz */}
+      <div className="rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg shadow-sm">
+        <h2 className="mb-md flex items-center justify-between text-title-lg text-amud-on-surface">
+          <span className="flex items-center gap-sm">
+            <span className="material-symbols-outlined text-amud-primary">quiz</span>
+            Dernier quiz
+          </span>
+          <Link href="/amud/student/quiz" className="text-label-md text-amud-primary hover:underline">Scanner un quiz →</Link>
+        </h2>
+        {lastQuizResult ? (
+          <div className="flex items-center justify-between rounded-lg border border-amud-outline-variant px-md py-sm">
+            <p className="text-body-md text-amud-on-surface">{lastQuizResult.correctCount}/{lastQuizResult.correctCount + lastQuizResult.incorrectCount} bonnes réponses</p>
+            <span className="text-title-lg font-bold text-amud-primary">{lastQuizResult.percentage}%</span>
+          </div>
+        ) : (
+          <EmptyState compact icon="quiz" title="Aucun quiz passé" description="Scannez le QR affiché par votre enseignant pour rejoindre un Quick Quiz." />
         )}
       </div>
 

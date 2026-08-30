@@ -18,6 +18,8 @@
     "cta": "Profil erstellen",
     "secondaryCta": "Anforderungen meines Berufs ansehen",
     "microcopy": "Kostenlos · Ohne Passwort · Sie steuern, ob Ihr Profil sichtbar ist",
+    "scrollCue": "Entdecken Sie den Weg",
+    "mediaCaption": "Ihr Weg, von Marokko nach Deutschland",
     "card": {
       "title": "Bewerberprofil",
       "name": "Ihr Beruf",
@@ -59,6 +61,31 @@
       { "icon": "visibility", "label": "Sie können die Sichtbarkeit pausieren" }
     ]
   },
+  "journey": {
+    "title": "Ihr Weg, Schritt für Schritt",
+    "subtitle": "Von der Erstellung Ihres Profils bis zu Ihrem ersten Arbeitstag in Deutschland.",
+    "imageAlt": "Illustration, die marokkanische Kompetenzen mit beruflichen Chancen in Berlin verbindet.",
+    "startLabel": "Marokko",
+    "endLabel": "Deutschland",
+    "items": [
+      { "icon": "smartphone", "title": "Profil erstellen", "body": "Eine Telefonnummer genügt zum Start." },
+      { "icon": "quiz", "title": "Kompetenzen einschätzen", "body": "Ihr Lebenslauf wird automatisch gelesen, Ihr mündliches Deutschniveau wird geschätzt." },
+      { "icon": "handshake", "title": "Vermittelt werden", "body": "Ihr Profil wird für deutsche Unternehmen sichtbar, die Ihren Beruf suchen." },
+      { "icon": "forum", "title": "Vorstellungsgespräch führen", "body": "Sprechen Sie direkt mit dem Recruiter, der sich für Ihr Profil interessiert." },
+      { "icon": "folder_shared", "title": "Reiseunterlagen vorbereiten", "body": "Diplome, Zertifikate und Dokumente an einem Ort gesammelt." },
+      { "icon": "fact_check", "title": "Visum beantragen", "body": "Die in Ihrem Profil gesammelten Unterlagen unterstützen Ihren Antrag bei den zuständigen Behörden." },
+      { "icon": "flight_takeoff", "title": "Reise vorbereiten", "body": "Ticket, Unterkunft, erste Orientierung in Deutschland." },
+      { "icon": "flight_land", "title": "In Deutschland ankommen", "body": "Sie treten Ihre neue Stelle an." },
+      { "icon": "work", "title": "Neues Berufsleben beginnen", "body": "Der Beginn eines neuen Kapitels, beruflich und persönlich." }
+    ]
+  },
+  "techPreview": {
+    "eyebrow": "Mehr erfahren",
+    "title": "Entdecken Sie, wie Ihr Profil funktioniert",
+    "subtitle": "Vorstellungsvideo, automatische Dokumentenerkennung, Matching in Echtzeit: die Technologie hinter Ihrem Profil.",
+    "imageAlt": "Schema der automatisierten Vermittlung zwischen einem Bewerberprofil und einem Unternehmen.",
+    "cta": "Plattform im Detail entdecken"
+  },
   "trades": {
     "title": "Berufe, die in Deutschland gesucht werden",
     "subtitle": "Pflege, Industrie, Bau, Gastronomie, IT — hier steht, was jeder Beruf wirklich verlangt.",
@@ -73,6 +100,8 @@
   "steps": {
     "title": "Vier Schritte, in Ihrem Tempo",
     "subtitle": "Nichts zu bezahlen, nichts zu drucken, nichts bei einer Behörde abzugeben.",
+    "imageAlt": "Bewerber sieht sein Amud-Skills-Profil am Computer durch, mit Kompetenzen und Deutschniveau.",
+    "cta": "Profil erstellen",
     "items": [
       {
         "icon": "smartphone",
@@ -99,6 +128,7 @@
   "credible": {
     "title": "Ein strukturiertes Profil zur Prüfung durch Arbeitgeber",
     "subtitle": "Angegebene Informationen, Anhänge und automatische Indikatoren bleiben im Profil klar voneinander unterschieden.",
+    "imageAlt": "Gruppenschulung, die Bewerber auf die Anforderungen des deutschen Arbeitsmarkts vorbereitet.",
     "items": [
       {
         "icon": "folder_supervised",
@@ -147,6 +177,8 @@
     "eyebrow": "Arbeitgeberbereich",
     "title": "Sie stellen in Deutschland ein?",
     "subtitle": "Suchen Sie nach Beruf, Deutschniveau, Erfahrung und Verfügbarkeit. Öffnen Sie das vollständige Profil. Kontaktieren Sie nur die Kandidaten, die Sie ausgewählt haben.",
+    "previewLabel": "Suchvorschau",
+    "filters": ["Beruf", "Deutschniveau", "Erfahrung", "Verfügbarkeit"],
     "points": [
       {
         "icon": "filter_alt",
@@ -201,7 +233,8 @@
     "title": "Ihr Beruf wird anderswo gebraucht.",
     "subtitle": "Erstellen Sie Ihr Profil in Ihrem Tempo. Kostenlos, und Sie steuern, ob Recruiter es sehen können.",
     "cta": "Profil erstellen",
-    "microcopy": "Ohne Passwort · Jederzeit vollständig zurückziehbar"
+    "microcopy": "Ohne Passwort · Jederzeit vollständig zurückziehbar",
+    "imageAlt": "Junger marokkanischer Berufstätiger lächelt auf einer Straße in Berlin."
   },
   "footer": {
     "tagline": "Die Plattform, die marokkanische Fachkräfte auf den deutschen Arbeitsmarkt vorbereitet — und deutschen Unternehmen hilft, sie zu finden.",
@@ -210,6 +243,7 @@
         "title": "Bewerber",
         "links": [
           { "label": "Profil erstellen", "href": "/auth-phone" },
+          { "label": "Technologie entdecken", "href": "/produit" },
           { "label": "Gesuchte Berufe", "href": "/accueil-public#sectors" },
           { "label": "So funktioniert es", "href": "/accueil-public#methodology" }
         ]

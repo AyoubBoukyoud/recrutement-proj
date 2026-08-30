@@ -29,6 +29,8 @@ import { centerStudentPaymentsCollection } from '@/lib/amud/localCenterStudentPa
 import { centerStudentPaymentsSeed } from '@/data/amud/centerStudentPayments';
 import { centerLeadsCollection } from '@/lib/amud/localCenterLeads';
 import { centerLeadsSeed, LEAD_STATUSES, LEAD_STATUS_LABELS } from '@/data/amud/centerLeads';
+import { quizResultsCollection } from '@/lib/amud/localQuizResults';
+import { quizResultsSeed } from '@/data/amud/quizResults';
 import {
   computeCenterStats,
   computeStudentsEvolution,
@@ -54,6 +56,7 @@ export default function CentreStatistiquesPage() {
   const [attendance] = useCollection(centerAttendanceCollection, centerAttendanceSeed);
   const [payments] = useCollection(centerStudentPaymentsCollection, centerStudentPaymentsSeed);
   const [leads] = useCollection(centerLeadsCollection, centerLeadsSeed);
+  const [quizResults] = useCollection(quizResultsCollection, quizResultsSeed);
   const today = todayIso();
 
   const [period, setPeriod] = useState<PeriodKey>('30d');
@@ -72,6 +75,7 @@ export default function CentreStatistiquesPage() {
   const scopedAttendance = useMemo(() => attendance.filter((a) => a.centerId === centerId), [attendance, centerId]);
   const scopedPayments = useMemo(() => payments.filter((p) => p.centerId === centerId), [payments, centerId]);
   const scopedLeads = useMemo(() => leads.filter((l) => l.centerId === centerId), [leads, centerId]);
+  const scopedQuizResults = useMemo(() => quizResults.filter((r) => r.centerId === centerId), [quizResults, centerId]);
 
   const studentsEvolution = useMemo(() => computeStudentsEvolution(scopedStudents, range), [scopedStudents, range]);
   const studentsByLevel = useMemo(() => computeStudentsByLevel(scopedStudents), [scopedStudents]);
@@ -94,6 +98,15 @@ export default function CentreStatistiquesPage() {
     const previous = outstanding(scopedPayments.filter((p) => inRange(p.date, previousRange)));
     return comparePeriods(current, previous, { positiveIsGood: false });
   }, [scopedPayments, range]);
+
+  const quizStats = useMemo(() => {
+    if (scopedQuizResults.length === 0) return null;
+    const moyenne = Math.round(scopedQuizResults.reduce((sum, r) => sum + r.percentage, 0) / scopedQuizResults.length);
+    const quizzesTermines = new Set(scopedQuizResults.map((r) => r.quizSessionId)).size;
+    const bonnesReponses = scopedQuizResults.reduce((sum, r) => sum + r.correctCount, 0);
+    const mauvaisesReponses = scopedQuizResults.reduce((sum, r) => sum + r.incorrectCount, 0);
+    return { moyenne, quizzesTermines, participants: scopedQuizResults.length, donutData: [{ label: 'Bonnes réponses', value: bonnesReponses }, { label: 'Mauvaises réponses', value: mauvaisesReponses }] };
+  }, [scopedQuizResults]);
 
   return (
     <div className="space-y-lg">
@@ -145,6 +158,22 @@ export default function CentreStatistiquesPage() {
           </div>
         </div>
       </div>
+
+      {quizStats ? (
+        <div>
+          <h2 className="mb-md text-title-lg text-amud-on-surface">Résultats quiz</h2>
+          <div className="grid grid-cols-1 gap-lg lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-md lg:col-span-2 lg:grid-cols-3">
+              <KpiCard label="Moyenne des quiz" value={quizStats.moyenne} icon="grade" suffix=" %" />
+              <KpiCard label="Quiz terminés" value={quizStats.quizzesTermines} icon="quiz" />
+              <KpiCard label="Participations" value={quizStats.participants} icon="groups" />
+            </div>
+            <AnalyticsCard title="Bonnes vs mauvaises réponses">
+              <DonutChartAmud data={quizStats.donutData} ariaLabel="Répartition des bonnes et mauvaises réponses aux quiz" />
+            </AnalyticsCard>
+          </div>
+        </div>
+      ) : null}
 
       <div>
         <h2 className="mb-md text-title-lg text-amud-on-surface">Performance des formations</h2>

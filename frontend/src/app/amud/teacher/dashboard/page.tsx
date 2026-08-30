@@ -25,6 +25,8 @@ import { studentResultsCollection } from '@/lib/amud/localStudentResults';
 import { centerStudentResultsSeed } from '@/data/amud/centerStudentResults';
 import { centerStudentsCollection } from '@/lib/amud/localCenterStudents';
 import { centerStudentsSeed } from '@/data/amud/centerStudents';
+import { quizzesCollection } from '@/lib/amud/localQuizzes';
+import { quizzesSeed, QUIZ_STATUS_LABELS } from '@/data/amud/quizzes';
 import { AnalyticsCard } from '@/components/amud/analytics/AnalyticsCard';
 import { KpiCard } from '@/components/amud/analytics/KpiCard';
 import { BarChartAmud } from '@/components/amud/analytics/BarChartAmud';
@@ -55,6 +57,7 @@ export default function TeacherDashboardPage() {
   const [allNotifications] = useCollection(notificationsCollection, notificationsSeed);
   const [studentResults] = useCollection(studentResultsCollection, centerStudentResultsSeed);
   const [allStudents] = useCollection(centerStudentsCollection, centerStudentsSeed);
+  const [quizzes] = useCollection(quizzesCollection, quizzesSeed);
 
   const teacher = teachers.find((t) => t.id === teacherId);
   const today = todayIso();
@@ -62,6 +65,7 @@ export default function TeacherDashboardPage() {
 
   // Groupes de l'enseignant
   const myGroups = useMemo(() => groups.filter((g) => g.enseignantId === teacherId), [groups, teacherId]);
+  const myQuizzes = useMemo(() => quizzes.filter((q) => q.createdBy === teacherId), [quizzes, teacherId]);
 
   // Étudiants actifs dans mes groupes
   const myGroupIds = useMemo(() => new Set(myGroups.map((g) => g.id)), [myGroups]);
@@ -298,6 +302,26 @@ export default function TeacherDashboardPage() {
                 </Link>
               );
             })}
+          </div>
+        )}
+      </div>
+
+      {/* Mes quiz */}
+      <div className="rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg shadow-sm">
+        <h2 className="mb-md flex items-center justify-between text-title-lg text-amud-on-surface">
+          Mes quiz
+          <Link href="/amud/teacher/quizzes" className="text-label-md text-amud-primary hover:underline">Voir tous →</Link>
+        </h2>
+        {myQuizzes.length === 0 ? (
+          <EmptyState compact icon="quiz" title="Aucun quiz" description="Créez un Quick Quiz pour évaluer vos étudiants en direct." />
+        ) : (
+          <div className="grid grid-cols-1 gap-sm sm:grid-cols-2 lg:grid-cols-3">
+            {myQuizzes.slice(0, 3).map((q) => (
+              <Link key={q.id} href={`/amud/teacher/quizzes/${q.id}`} className="rounded-lg border border-amud-outline-variant p-md transition-colors hover:border-amud-primary hover:bg-amud-primary/5">
+                <p className="text-body-md font-semibold text-amud-on-surface">{q.titre}</p>
+                <p className="text-label-sm text-amud-on-surface-variant">{QUIZ_STATUS_LABELS[q.statut]} · {q.dureeMinutes} min</p>
+              </Link>
+            ))}
           </div>
         )}
       </div>

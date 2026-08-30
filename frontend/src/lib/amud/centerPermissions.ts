@@ -23,6 +23,7 @@ export type CenterAction =
   | 'manage-groups'
   | 'manage-schedule'
   | 'record-attendance'
+  | 'manage-quizzes'
   | 'manage-student-payments'
   | 'manage-teacher-payments'
   | 'manage-tarifs'
@@ -47,6 +48,7 @@ const MATRIX: Record<AppRole, CenterAction[]> = {
     'manage-groups',
     'manage-schedule',
     'record-attendance',
+    'manage-quizzes',
     'manage-student-payments',
     'manage-teacher-payments',
     'manage-tarifs',
@@ -69,6 +71,7 @@ const MATRIX: Record<AppRole, CenterAction[]> = {
     'manage-groups',
     'manage-schedule',
     'record-attendance',
+    'manage-quizzes',
     'manage-student-payments',
     'manage-teacher-payments',
     'manage-tarifs',
@@ -84,14 +87,15 @@ const MATRIX: Record<AppRole, CenterAction[]> = {
     'manage-groups',
     'manage-schedule',
     'record-attendance',
+    'manage-quizzes',
     'manage-student-payments',
     'manage-tarifs',
     'manage-site',
     'manage-leads',
     'view-financials',
   ],
-  COORDINATOR: ['manage-students', 'manage-formations', 'manage-groups', 'manage-schedule', 'record-attendance', 'manage-leads'],
-  TEACHER: ['record-attendance'],
+  COORDINATOR: ['manage-students', 'manage-formations', 'manage-groups', 'manage-schedule', 'record-attendance', 'manage-quizzes', 'manage-leads'],
+  TEACHER: ['record-attendance', 'manage-quizzes'],
   ACCOUNTANT: ['manage-student-payments', 'manage-teacher-payments', 'view-financials'],
   STUDENT: [],
 };

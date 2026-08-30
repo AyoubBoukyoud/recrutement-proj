@@ -18,6 +18,8 @@
     "cta": "Create my file",
     "secondaryCta": "See what my trade requires",
     "microcopy": "Free · No password · You control whether your file is visible",
+    "scrollCue": "Discover the journey",
+    "mediaCaption": "Your journey, from Morocco to Germany",
     "card": {
       "title": "Candidate file",
       "name": "Your trade",
@@ -59,6 +61,31 @@
       { "icon": "visibility", "label": "You can pause visibility" }
     ]
   },
+  "journey": {
+    "title": "Your journey, step by step",
+    "subtitle": "From creating your file to your first day of work in Germany.",
+    "imageAlt": "Illustration connecting Moroccan skills to professional opportunities in Berlin.",
+    "startLabel": "Morocco",
+    "endLabel": "Germany",
+    "items": [
+      { "icon": "smartphone", "title": "Create your file", "body": "A phone number is all it takes to get started." },
+      { "icon": "quiz", "title": "Assess your skills", "body": "Your CV is read automatically, your spoken German level is estimated." },
+      { "icon": "handshake", "title": "Get matched", "body": "Your file becomes visible to German companies looking for your trade." },
+      { "icon": "forum", "title": "Go through your interview", "body": "Speak directly with the recruiter interested in your profile." },
+      { "icon": "folder_shared", "title": "Prepare your travel file", "body": "Diplomas, certificates and documents gathered in one place." },
+      { "icon": "fact_check", "title": "Apply for your visa", "body": "The documents gathered in your file support your application with the relevant authorities." },
+      { "icon": "flight_takeoff", "title": "Prepare your journey", "body": "Ticket, housing, first bearings in Germany." },
+      { "icon": "flight_land", "title": "Arrive in Germany", "body": "You join your new employer." },
+      { "icon": "work", "title": "Start your new professional life", "body": "The beginning of a new chapter, professional and personal." }
+    ]
+  },
+  "techPreview": {
+    "eyebrow": "Go further",
+    "title": "See how your file works",
+    "subtitle": "Presentation video, automatic document reading, real-time matching: the technology behind your file.",
+    "imageAlt": "Diagram representing the automated matching between a candidate file and a company.",
+    "cta": "Explore the platform in detail"
+  },
   "trades": {
     "title": "The trades hiring in Germany",
     "subtitle": "Healthcare, industry, construction, hospitality, IT — here is what each trade actually requires.",
@@ -73,6 +100,8 @@
   "steps": {
     "title": "Four steps, at your own pace",
     "subtitle": "Nothing to pay, nothing to print, nothing to drop off at an office.",
+    "imageAlt": "Candidate reviewing their Amud Skills file on a computer, with their skills and German level.",
+    "cta": "Create my file",
     "items": [
       {
         "icon": "smartphone",
@@ -99,6 +128,7 @@
   "credible": {
     "title": "A structured file an employer can review",
     "subtitle": "Declared information, attachments, and automated indicators remain clearly distinguished in the file.",
+    "imageAlt": "Group training session preparing candidates for German workplace requirements.",
     "items": [
       {
         "icon": "folder_supervised",
@@ -147,6 +177,8 @@
     "eyebrow": "Recruiter space",
     "title": "Hiring in Germany?",
     "subtitle": "Search by trade, German level, experience and availability. Open the full file. Contact only the profiles you have kept.",
+    "previewLabel": "Search preview",
+    "filters": ["Trade", "German level", "Experience", "Availability"],
     "points": [
       {
         "icon": "filter_alt",
@@ -201,7 +233,8 @@
     "title": "Your trade is wanted elsewhere.",
     "subtitle": "Build your file at your own pace. It is free, and you control whether recruiters can see it.",
     "cta": "Create my file",
-    "microcopy": "No password · You can withdraw everything at any time"
+    "microcopy": "No password · You can withdraw everything at any time",
+    "imageAlt": "Young Moroccan professional smiling on a street in Berlin."
   },
   "footer": {
     "tagline": "The platform that prepares Moroccan candidates for the German labour market — and lets German companies find them.",
@@ -210,6 +243,7 @@
         "title": "Candidates",
         "links": [
           { "label": "Create my file", "href": "/auth-phone" },
+          { "label": "Discover the technology", "href": "/produit" },
           { "label": "Trades that are hiring", "href": "/accueil-public#sectors" },
           { "label": "How it works", "href": "/accueil-public#methodology" }
         ]

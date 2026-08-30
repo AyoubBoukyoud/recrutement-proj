@@ -59,13 +59,13 @@ const SHOW_PROTOTYPES = process.env.NEXT_PUBLIC_ENABLE_PROTOTYPES === '1';
 function realDestinationForAmud(pathname: string): string | null {
   if (!SHOW_PROTOTYPES && pathname.startsWith('/amud/marketing/employers')) return '/employeurs';
   if (!SHOW_PROTOTYPES && pathname.startsWith('/amud/marketing')) return '/accueil-public';
-  if (pathname === '/amud' || pathname.startsWith('/amud/centre')) return '/accueil-public';
+  if (!SHOW_PROTOTYPES && (pathname === '/amud' || pathname.startsWith('/amud/centre'))) return '/accueil-public';
   // Le back-office `/admin` a été retiré : il n'y a plus de console réelle
   // vers laquelle renvoyer, et `/admin/apercu` renverrait un 404. On suit donc
   // `destinationForRole('admin')`, qui envoie l'administrateur sur `/`.
-  if (pathname.startsWith('/amud/admin')) return '/';
-  if (pathname.startsWith('/amud/entreprise') || pathname === '/amud/employer') return '/recruiter';
-  if (pathname.startsWith('/amud/commercial')) return '/agent';
+  if (!SHOW_PROTOTYPES && pathname.startsWith('/amud/admin')) return '/';
+  if (!SHOW_PROTOTYPES && (pathname.startsWith('/amud/entreprise') || pathname === '/amud/employer')) return '/recruiter';
+  if (!SHOW_PROTOTYPES && pathname.startsWith('/amud/commercial')) return '/agent';
   return null;
 }
 

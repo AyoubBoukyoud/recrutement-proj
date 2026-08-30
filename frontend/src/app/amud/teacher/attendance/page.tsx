@@ -1,7 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { EmptyState, LoadingState } from '@/components/amud/ui';
+import { Drawer, EmptyState, LoadingState } from '@/components/amud/ui';
+import { QrCodeDisplay } from '@/components/amud/centre/QrCodeDisplay';
 import { useToast } from '@/components/amud/Toast';
 import { useCurrentTeacher } from '@/lib/amud/currentTeacher';
 import { useCollection } from '@/lib/amud/storage/useCollection';
@@ -9,7 +10,7 @@ import { centerTeachersCollection } from '@/lib/amud/localCenterTeachers';
 import { centerTeachersSeed } from '@/data/amud/centerTeachers';
 import { centerGroupsCollection } from '@/lib/amud/localCenterGroups';
 import { centerGroupsSeed } from '@/data/amud/centerGroups';
-import { centerEnrollmentsCollection } from '@/lib/amud/localCenterEnrollments';
+import { centerEnrollmentsCollection, activeStudentIdsForGroup } from '@/lib/amud/localCenterEnrollments';
 import { centerEnrollmentsSeed } from '@/data/amud/centerEnrollments';
 import { centerStudentsCollection } from '@/lib/amud/localCenterStudents';
 import { centerStudentsSeed } from '@/data/amud/centerStudents';
@@ -17,9 +18,12 @@ import { centerSchedulesCollection } from '@/lib/amud/localCenterSchedules';
 import { centerSchedulesSeed } from '@/data/amud/centerSchedules';
 import { centerAttendanceCollection } from '@/lib/amud/localCenterAttendance';
 import { centerAttendanceSeed } from '@/data/amud/centerAttendance';
+import { centerSessionStatesCollection } from '@/lib/amud/localCenterSessionStates';
+import { centerSessionStatesSeed } from '@/data/amud/centerSessionStates';
+import { startSession, openCheckOut, endSession } from '@/lib/amud/attendanceCascades';
 import { centerFormationsCollection } from '@/lib/amud/localCenterFormations';
 import { centerFormationsSeed } from '@/data/amud/centerFormations';
-import { ATTENDANCE_LABELS, ATTENDANCE_CLASS, type AttendanceStatus, type CenterAttendanceRecord } from '@/data/amud/centerTypes';
+import { ATTENDANCE_LABELS, ATTENDANCE_CLASS, type AttendanceStatus, type CenterAttendanceRecord, type QrPayload } from '@/data/amud/centerTypes';
 import { pushNotification } from '@/lib/amud/storage/notify';
 import { generateId } from '@/lib/amud/storage/ids';
 
@@ -35,11 +39,13 @@ export default function TeacherAttendancePage() {
   const [schedules] = useCollection(centerSchedulesCollection, centerSchedulesSeed);
   const [attendance, { add: addAttendance }] = useCollection(centerAttendanceCollection, centerAttendanceSeed);
   const [formations] = useCollection(centerFormationsCollection, centerFormationsSeed);
+  const [sessionStates] = useCollection(centerSessionStatesCollection, centerSessionStatesSeed);
 
   const [selectedGroupId, setSelectedGroupId] = useState('');
   const [selectedScheduleId, setSelectedScheduleId] = useState('');
   const [statuses, setStatuses] = useState<Record<string, AttendanceStatus>>({});
   const [saved, setSaved] = useState(false);
+  const [qrOpen, setQrOpen] = useState(false);
 
   const teacher = teachers.find((t) => t.id === teacherId);
   const myGroups = useMemo(() => groups.filter((g) => g.enseignantId === teacherId), [groups, teacherId]);
@@ -144,6 +150,40 @@ export default function TeacherAttendancePage() {
     setSaved(true);
   }
 
+  const actor = { utilisateur: teacher ? `${teacher.prenom} ${teacher.nom}` : 'Enseignant', role: 'TEACHER' };
+  const sessionState = useMemo(() => sessionStates.find((s) => s.scheduleId === selectedScheduleId), [sessionStates, selectedScheduleId]);
+  const groupStudentIds = useMemo(() => groupStudents.map((s) => s.id), [groupStudents]);
+
+  const checkInPayload: QrPayload | null =
+    sessionState && sessionState.status === 'CHECKIN_OPEN' && sessionState.checkInToken && selectedGroup && teacher
+      ? { v: 1, type: 'CHECK_IN', centerId: selectedGroup.centerId, scheduleId: sessionState.scheduleId, groupId: selectedGroup.id, teacherId: teacher.id, sessionStateId: sessionState.id, token: sessionState.checkInToken, issuedAt: sessionState.startedAt ?? new Date().toISOString() }
+      : null;
+  const checkOutPayload: QrPayload | null =
+    sessionState && sessionState.status === 'CHECKOUT_OPEN' && sessionState.checkOutToken && selectedGroup && teacher
+      ? { v: 1, type: 'CHECK_OUT', centerId: selectedGroup.centerId, scheduleId: sessionState.scheduleId, groupId: selectedGroup.id, teacherId: teacher.id, sessionStateId: sessionState.id, token: sessionState.checkOutToken, issuedAt: sessionState.checkOutOpenedAt ?? new Date().toISOString() }
+      : null;
+
+  const checkedInCount = attendance.filter((a) => a.scheduleId === selectedScheduleId && a.checkInTime).length;
+  const checkedOutCount = attendance.filter((a) => a.scheduleId === selectedScheduleId && a.checkOutTime).length;
+
+  function handleStartQrSession() {
+    if (!selectedSchedule || !teacher) return;
+    startSession(selectedSchedule, teacher.id, actor);
+    setQrOpen(true);
+  }
+
+  function handleOpenCheckOutQr() {
+    if (!sessionState) return;
+    openCheckOut(sessionState, actor);
+  }
+
+  function handleEndQrSession() {
+    if (!sessionState || !selectedGroup) return;
+    endSession(sessionState, selectedGroup.id, groupStudentIds, actor);
+    notify('Séance clôturée, présences enregistrées.', 'success');
+    setQrOpen(false);
+  }
+
   if (!teacher) return <LoadingState label="Chargement…" rows={3} />;
 
   return (
@@ -206,6 +246,63 @@ export default function TeacherAttendancePage() {
           )}
         </div>
       )}
+
+      {/* Présence QR — alternative recommandée à la saisie manuelle ci-dessous */}
+      {selectedScheduleId && groupStudents.length > 0 && (
+        <div className="rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg shadow-sm">
+          <h2 className="mb-md text-title-lg text-amud-on-surface">Présence QR (Smart Attendance)</h2>
+          {sessionState?.status === 'ENDED' ? (
+            <p className="text-body-md text-amud-on-surface-variant">Séance clôturée — {checkedInCount} présent(s), {checkedOutCount} sortie(s) enregistrée(s).</p>
+          ) : (
+            <button
+              onClick={handleStartQrSession}
+              className="flex min-h-[44px] items-center gap-2 rounded-lg bg-amud-primary px-lg text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark"
+            >
+              <span className="material-symbols-outlined text-[18px]">qr_code_2</span>
+              {sessionState ? 'Réafficher le QR de la séance' : 'Commencer la séance'}
+            </button>
+          )}
+        </div>
+      )}
+
+      <Drawer
+        open={qrOpen}
+        onClose={() => setQrOpen(false)}
+        anchor="full"
+        title={checkOutPayload ? 'QR de sortie' : 'QR d’entrée'}
+        subtitle={selectedGroup?.nom}
+      >
+        <div className="flex h-full flex-col items-center justify-center gap-lg p-lg text-center">
+          {checkOutPayload ? (
+            <QrCodeDisplay value={JSON.stringify(checkOutPayload)} label="QR code de sortie" />
+          ) : checkInPayload ? (
+            <QrCodeDisplay value={JSON.stringify(checkInPayload)} label="QR code d’entrée" />
+          ) : (
+            <p className="text-body-md text-amud-on-surface-variant">Cette séance est terminée.</p>
+          )}
+          <div>
+            <p className="text-title-lg font-semibold text-amud-on-surface">{selectedGroup?.nom}</p>
+            <p className="text-body-md text-amud-on-surface-variant">
+              {selectedSchedule ? `${selectedSchedule.heureDebut}–${selectedSchedule.heureFin} · Salle ${selectedSchedule.salle}` : ''}
+            </p>
+            <p className="mt-sm text-label-lg font-medium text-amud-primary">
+              {checkOutPayload ? `${checkedOutCount} sortie(s) enregistrée(s)` : `${checkedInCount} présent(s) sur ${groupStudents.length}`}
+            </p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-sm">
+            {sessionState?.status === 'CHECKIN_OPEN' ? (
+              <button onClick={handleOpenCheckOutQr} className="min-h-[44px] rounded-lg border border-amud-outline-variant px-lg text-label-md font-medium text-amud-on-surface hover:bg-amud-surface-container-low">
+                Ouvrir la sortie
+              </button>
+            ) : null}
+            {sessionState && sessionState.status !== 'ENDED' ? (
+              <button onClick={handleEndQrSession} className="min-h-[44px] rounded-lg bg-amud-error px-lg text-label-md font-medium text-white hover:bg-amud-error/90">
+                Clôturer la séance
+              </button>
+            ) : null}
+          </div>
+        </div>
+      </Drawer>
 
       {/* Étape 3 : Liste étudiants + statuts */}
       {selectedScheduleId && groupStudents.length > 0 && (

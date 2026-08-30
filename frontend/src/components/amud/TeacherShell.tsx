@@ -29,6 +29,7 @@ const NAV: TeacherNavItem[] = [
   { href: '/amud/teacher/students', icon: 'group', label: 'Mes étudiants', group: 'Pédagogie', inBottomNav: true, bottomLabel: 'Étudiants' },
   { href: '/amud/teacher/planning', icon: 'calendar_month', label: 'Mon planning', group: 'Pédagogie', inBottomNav: true, bottomLabel: 'Planning' },
   { href: '/amud/teacher/attendance', icon: 'fact_check', label: 'Présences', group: 'Pédagogie', inBottomNav: true },
+  { href: '/amud/teacher/quizzes', icon: 'quiz', label: 'Quiz', group: 'Pédagogie' },
   { href: '/amud/teacher/hours', icon: 'schedule', label: 'Mes heures', group: 'Finances' },
   { href: '/amud/teacher/remuneration', icon: 'account_balance_wallet', label: 'Rémunération', group: 'Finances' },
   { href: '/amud/teacher/resources', icon: 'library_books', label: 'Ressources', group: 'Pédagogie' },

@@ -21,6 +21,12 @@ const ESPACES = [
     description: 'Profil entreprise, offres, candidatures, candidats, entretiens, messages, statistiques — l’espace recruteur complet.',
   },
   {
+    href: '/amud/candidat',
+    icon: 'person',
+    titre: 'Espace Candidat',
+    description: 'Inscription, onboarding, profil et compétences, opportunités avec compatibilité, candidatures, entretiens, messages.',
+  },
+  {
     href: '/amud/centre/dashboard',
     icon: 'school',
     titre: 'Espace Centre',

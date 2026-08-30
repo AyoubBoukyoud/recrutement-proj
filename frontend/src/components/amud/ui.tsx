@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { createPortal } from 'react-dom';
 import { ButtonHTMLAttributes, ReactNode, useEffect, useRef, useState } from 'react';
 
 /**
@@ -93,6 +94,7 @@ export function Drawer({
   footer,
   widthClassName = 'max-w-md',
   anchor = 'right',
+  onBack,
 }: {
   open: boolean;
   onClose: () => void;
@@ -101,10 +103,37 @@ export function Drawer({
   children: ReactNode;
   footer?: ReactNode;
   widthClassName?: string;
-  /** 'bottom' rend un vrai bottom-sheet (menu "Plus" mobile de `CompanyShell`) plutôt qu'un panneau latéral. */
-  anchor?: 'right' | 'bottom';
+  /**
+   * 'bottom' rend un vrai bottom-sheet (menu "Plus" mobile de `CompanyShell`)
+   * plutôt qu'un panneau latéral. 'full' occupe tout le viewport, sans coins
+   * arrondis ni fermeture au clic sur l'arrière-plan — pour les surfaces
+   * immersives (scanner caméra, QR plein écran, lecteur de quiz) où un
+   * simple panneau/bottom-sheet 85vh serait trop exigu.
+   */
+  anchor?: 'right' | 'bottom' | 'full';
+  /** 'full' uniquement : bouton retour optionnel à gauche du titre. */
+  onBack?: () => void;
 }) {
+  // Piège le focus uniquement pour 'full' (surfaces immersives sans backdrop cliquable pour
+  // s'échapper) — laisse 'right'/'bottom' inchangés pour ne pas modifier leur comportement existant.
+  const fullPanelRef = useFocusTrap<HTMLElement>(anchor === 'full' && open);
   useBodyScrollLock(open);
+
+  /*
+   * `<main>` (dans chaque Shell) porte `animate-amud-rise-in`, dont le
+   * `transform` résiduel (matrice identité) après l'animation crée un bloc
+   * englobant pour les descendants `position: fixed` — un `fixed inset-0`
+   * plein écran se retrouve alors cadré dans la boîte de `<main>` au lieu du
+   * vrai viewport, et passe donc SOUS le header sticky et la barre de
+   * navigation basse. Invisible pour 'right'/'bottom' (assez petits pour ne
+   * pas déborder), mais bloquant pour 'full' — d'où le portail direct vers
+   * `document.body`, hors de cet arbre. Monté après hydratation (`document`
+   * n'existe pas côté serveur).
+   */
+  const [portalReady, setPortalReady] = useState(false);
+  useEffect(() => {
+    if (anchor === 'full') setPortalReady(true);
+  }, [anchor]);
 
   useEffect(() => {
     if (!open) return;
@@ -118,27 +147,44 @@ export function Drawer({
       ? `fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] w-full flex-col rounded-t-2xl border-t border-amud-outline-variant bg-amud-surface shadow-2xl transition-transform duration-300 ease-in-out ${
           open ? 'translate-y-0' : 'translate-y-full'
         }`
-      : `fixed right-0 top-0 z-50 flex h-full w-full ${widthClassName} flex-col border-l border-amud-outline-variant bg-amud-surface shadow-2xl transition-transform duration-300 ease-in-out ${
-          open ? 'translate-x-0' : 'translate-x-full'
-        }`;
+      : anchor === 'full'
+        ? `fixed inset-0 z-50 flex h-full w-full flex-col bg-amud-surface transition-opacity duration-200 ease-in-out ${
+            open ? 'opacity-100' : 'pointer-events-none opacity-0'
+          }`
+        : `fixed right-0 top-0 z-50 flex h-full w-full ${widthClassName} flex-col border-l border-amud-outline-variant bg-amud-surface shadow-2xl transition-transform duration-300 ease-in-out ${
+            open ? 'translate-x-0' : 'translate-x-full'
+          }`;
 
-  return (
+  const content = (
     <>
-      <div
-        className={`fixed inset-0 z-50 bg-amud-on-surface/20 backdrop-blur-sm transition-opacity ${
-          open ? 'opacity-100' : 'pointer-events-none opacity-0'
-        }`}
-        onClick={onClose}
-        aria-hidden="true"
-      />
-      <aside className={asideCls} role="dialog" aria-modal="true">
+      {anchor !== 'full' ? (
+        <div
+          className={`fixed inset-0 z-50 bg-amud-on-surface/20 backdrop-blur-sm transition-opacity ${
+            open ? 'opacity-100' : 'pointer-events-none opacity-0'
+          }`}
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      ) : null}
+      <aside ref={fullPanelRef} className={asideCls} role="dialog" aria-modal="true">
         {anchor === 'bottom' ? (
           <div className="mx-auto mt-2 h-1.5 w-10 shrink-0 rounded-full bg-amud-outline-variant" aria-hidden="true" />
         ) : null}
         <div className="flex shrink-0 items-center justify-between border-b border-amud-outline-variant bg-amud-surface-container-low px-lg py-md">
-          <div>
-            <h3 className="text-title-lg font-semibold text-amud-on-surface">{title}</h3>
-            {subtitle ? <p className="mt-0.5 text-label-sm text-amud-on-surface-variant">{subtitle}</p> : null}
+          <div className="flex items-center gap-sm">
+            {anchor === 'full' && onBack ? (
+              <button
+                className="-ml-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-high hover:text-amud-on-surface"
+                onClick={onBack}
+                aria-label="Retour"
+              >
+                <span className="material-symbols-outlined">arrow_back</span>
+              </button>
+            ) : null}
+            <div>
+              <h3 className="text-title-lg font-semibold text-amud-on-surface">{title}</h3>
+              {subtitle ? <p className="mt-0.5 text-label-sm text-amud-on-surface-variant">{subtitle}</p> : null}
+            </div>
           </div>
           <button
             className="rounded-full p-2 text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-high hover:text-amud-on-surface"
@@ -148,13 +194,21 @@ export function Drawer({
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-lg" style={anchor === 'bottom' ? { paddingBottom: 'max(24px, env(safe-area-inset-bottom))' } : undefined}>
+        <div
+          className={`flex-1 overflow-y-auto ${anchor === 'full' ? '' : 'p-lg'}`}
+          style={anchor === 'bottom' ? { paddingBottom: 'max(24px, env(safe-area-inset-bottom))' } : undefined}
+        >
           {children}
         </div>
         {footer ? <div className="shrink-0 border-t border-amud-outline-variant bg-amud-surface p-md">{footer}</div> : null}
       </aside>
     </>
   );
+
+  if (anchor === 'full') {
+    return portalReady ? createPortal(content, document.body) : null;
+  }
+  return content;
 }
 
 /* ------------------------------------------------------------------ *

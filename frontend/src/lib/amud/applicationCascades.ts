@@ -10,7 +10,10 @@ import { STATUS_LABEL, type Application, type ApplicationStatus } from '@/data/a
  * Changement de statut d'une candidature (cahier des charges §22) — fonction
  * unique partagée par le drag-and-drop du Kanban et le sélecteur de statut
  * de la page de détail, pour que toute transition passe par le même chemin
- * d'écriture (maj + notification + audit).
+ * d'écriture (maj + notification + audit). Notifie aussi le candidat
+ * (`scope: 'candidate'`) depuis l'ajout du module self-service
+ * `/amud/candidat/*` (§26 : tout changement de statut doit notifier le
+ * candidat) — additif, ne change rien pour l'espace entreprise.
  */
 export function changeApplicationStatus(application: Application, next: ApplicationStatus) {
   if (application.status === next) return;
@@ -21,6 +24,13 @@ export function changeApplicationStatus(application: Application, next: Applicat
     title: `${application.candidateNom} est passé(e) à « ${STATUS_LABEL[next]} » pour « ${application.offerTitre} ».`,
     category: 'Applications',
     href: `/amud/entreprise/candidatures/${application.id}`,
+  });
+  pushNotification({
+    scope: 'candidate',
+    targetId: application.candidateId,
+    title: `Votre candidature pour « ${application.offerTitre} » est passée à « ${STATUS_LABEL[next]} ».`,
+    category: 'Candidatures',
+    href: `/amud/candidat/candidatures/${application.id}`,
   });
   logAudit({
     utilisateur: CURRENT_EMPLOYER.userNom,

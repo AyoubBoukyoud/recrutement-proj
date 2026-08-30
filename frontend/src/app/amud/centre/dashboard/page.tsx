@@ -33,6 +33,10 @@ import { centerStudentPaymentsCollection } from '@/lib/amud/localCenterStudentPa
 import { centerStudentPaymentsSeed } from '@/data/amud/centerStudentPayments';
 import { centerLeadsCollection } from '@/lib/amud/localCenterLeads';
 import { centerLeadsSeed } from '@/data/amud/centerLeads';
+import { centerSessionStatesCollection } from '@/lib/amud/localCenterSessionStates';
+import { centerSessionStatesSeed } from '@/data/amud/centerSessionStates';
+import { quizSessionsCollection } from '@/lib/amud/localQuizSessions';
+import { quizSessionsSeed } from '@/data/amud/quizSessions';
 import { computeCenterStats, todayIso } from '@/lib/amud/centerCalculations';
 
 const KPI_LINKS: Record<string, string> = {
@@ -44,6 +48,8 @@ const KPI_LINKS: Record<string, string> = {
   'Taux de présence': '/amud/centre/presences',
   'Revenus étudiants': '/amud/centre/paiements-etudiants',
   'Paiements en attente': '/amud/centre/paiements-etudiants',
+  'Séances QR aujourd’hui': '/amud/centre/presences',
+  'Quiz en cours': '/amud/centre/statistiques',
 };
 
 /**
@@ -80,6 +86,8 @@ export default function CentreDashboardPage() {
   const [payments] = useCollection(centerStudentPaymentsCollection, centerStudentPaymentsSeed);
   const [leads] = useCollection(centerLeadsCollection, centerLeadsSeed);
   const [logs] = useCollection(auditLogs, auditLogSeed);
+  const [sessionStates] = useCollection(centerSessionStatesCollection, centerSessionStatesSeed);
+  const [quizSessions] = useCollection(quizSessionsCollection, quizSessionsSeed);
 
   const centre = centres.find((c) => c.id === centerId);
   const today = todayIso();
@@ -95,6 +103,8 @@ export default function CentreDashboardPage() {
   );
   const newLeads = leads.filter((l) => l.centerId === centerId && l.statut === 'NOUVEAU').length;
   const todaySchedules = schedules.filter((s) => s.centerId === centerId && s.date === today);
+  const qrSessionsToday = sessionStates.filter((s) => s.centerId === centerId && todaySchedules.some((sch) => sch.id === s.scheduleId)).length;
+  const quizzesLive = quizSessions.filter((s) => s.centerId === centerId && s.status === 'LIVE').length;
   const groupById = (id: string) => groups.find((g) => g.id === id);
 
   if (!centre || !stats) {
@@ -120,6 +130,8 @@ export default function CentreDashboardPage() {
     { label: 'Taux de présence', value: stats.tauxPresence, icon: 'fact_check', suffix: '%' },
     { label: 'Revenus étudiants', value: stats.revenus, icon: 'payments', suffix: ' MAD' },
     { label: 'Paiements en attente', value: stats.paiementsEnAttente, icon: 'hourglass_empty', suffix: ' MAD' },
+    { label: 'Séances QR aujourd’hui', value: qrSessionsToday, icon: 'qr_code_2' },
+    { label: 'Quiz en cours', value: quizzesLive, icon: 'quiz' },
   ];
 
   return (

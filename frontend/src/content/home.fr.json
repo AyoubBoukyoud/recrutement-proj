@@ -18,6 +18,8 @@
     "cta": "Créer mon dossier",
     "secondaryCta": "Voir ce que mon métier demande",
     "microcopy": "Gratuit · Aucun mot de passe · Vous contrôlez si votre dossier est visible",
+    "scrollCue": "Découvrez le parcours",
+    "mediaCaption": "Votre parcours, du Maroc à l'Allemagne",
     "card": {
       "title": "Dossier candidat",
       "name": "Votre métier",
@@ -59,6 +61,31 @@
       { "icon": "visibility", "label": "Vous pouvez suspendre la visibilité" }
     ]
   },
+  "journey": {
+    "title": "Votre parcours, étape par étape",
+    "subtitle": "De la création de votre dossier à votre premier jour de travail en Allemagne.",
+    "imageAlt": "Illustration reliant les compétences marocaines aux opportunités professionnelles à Berlin.",
+    "startLabel": "Maroc",
+    "endLabel": "Allemagne",
+    "items": [
+      { "icon": "smartphone", "title": "Créer votre dossier", "body": "Un numéro de téléphone suffit pour commencer." },
+      { "icon": "quiz", "title": "Évaluer vos compétences", "body": "CV lu automatiquement, niveau d'allemand estimé à l'oral." },
+      { "icon": "handshake", "title": "Être mis en relation", "body": "Votre dossier devient visible par les entreprises allemandes qui recherchent votre métier." },
+      { "icon": "forum", "title": "Passer votre entretien", "body": "Échangez directement avec le recruteur intéressé par votre profil." },
+      { "icon": "folder_shared", "title": "Préparer votre dossier de voyage", "body": "Diplômes, certificats et pièces rassemblés au même endroit." },
+      { "icon": "fact_check", "title": "Faire votre demande de visa", "body": "Les pièces réunies dans votre dossier vous servent pour votre demande auprès des autorités compétentes." },
+      { "icon": "flight_takeoff", "title": "Préparer votre voyage", "body": "Billet, logement, premiers repères en Allemagne." },
+      { "icon": "flight_land", "title": "Arriver en Allemagne", "body": "Vous rejoignez votre nouvel employeur." },
+      { "icon": "work", "title": "Commencer votre nouvelle vie professionnelle", "body": "Le début d'un nouveau chapitre, professionnel et personnel." }
+    ]
+  },
+  "techPreview": {
+    "eyebrow": "Aller plus loin",
+    "title": "Découvrez comment fonctionne votre dossier",
+    "subtitle": "Vidéo de présentation, lecture automatique de vos documents, mise en relation en temps réel : la technologie derrière votre dossier.",
+    "imageAlt": "Schéma représentant la mise en relation automatisée entre un dossier candidat et une entreprise.",
+    "cta": "Découvrir la plateforme en détail"
+  },
   "trades": {
     "title": "Les métiers qui recrutent en Allemagne",
     "subtitle": "Santé, industrie, bâtiment, hôtellerie, informatique — voici ce que chaque métier demande vraiment.",
@@ -73,6 +100,8 @@
   "steps": {
     "title": "Quatre étapes, à votre rythme",
     "subtitle": "Rien à payer, rien à imprimer, rien à déposer dans un bureau.",
+    "imageAlt": "Candidat consultant son dossier Amud Skills sur ordinateur, avec ses compétences et son niveau d'allemand.",
+    "cta": "Créer mon dossier",
     "items": [
       {
         "icon": "smartphone",
@@ -99,6 +128,7 @@
   "credible": {
     "title": "Un dossier structuré qu’un employeur peut examiner",
     "subtitle": "Les informations déclarées, les pièces jointes et les indicateurs automatiques restent distingués dans le dossier.",
+    "imageAlt": "Séance de formation collective préparant des candidats aux exigences professionnelles allemandes.",
     "items": [
       {
         "icon": "folder_supervised",
@@ -147,6 +177,8 @@
     "eyebrow": "Espace recruteur",
     "title": "Vous recrutez en Allemagne ?",
     "subtitle": "Cherchez par métier, niveau d'allemand, expérience et disponibilité. Ouvrez le dossier complet. Contactez uniquement les profils que vous avez retenus.",
+    "previewLabel": "Aperçu de la recherche",
+    "filters": ["Métier", "Niveau d'allemand", "Expérience", "Disponibilité"],
     "points": [
       {
         "icon": "filter_alt",
@@ -201,7 +233,8 @@
     "title": "Votre métier vous attend ailleurs.",
     "subtitle": "Créez votre dossier à votre rythme. C’est gratuit, et vous contrôlez s’il est visible par les recruteurs.",
     "cta": "Créer mon dossier",
-    "microcopy": "Aucun mot de passe · Vous pouvez tout retirer à tout moment"
+    "microcopy": "Aucun mot de passe · Vous pouvez tout retirer à tout moment",
+    "imageAlt": "Jeune professionnel marocain souriant dans une rue de Berlin."
   },
   "footer": {
     "tagline": "La plateforme qui prépare les candidats marocains au marché du travail allemand — et permet aux entreprises allemandes de les trouver.",
@@ -210,6 +243,7 @@
         "title": "Candidats",
         "links": [
           { "label": "Créer mon dossier", "href": "/auth-phone" },
+          { "label": "Découvrir la technologie", "href": "/produit" },
           { "label": "Les métiers qui recrutent", "href": "/accueil-public#sectors" },
           { "label": "Comment ça marche", "href": "/accueil-public#methodology" }
         ]

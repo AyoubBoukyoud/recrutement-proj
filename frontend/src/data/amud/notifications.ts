@@ -4,7 +4,7 @@
  * `*_ALERTS` de `alerts.ts` (comptes fixes, jamais recalculés, aucun
  * lu/non-lu) — la cloche de chaque Shell filtre cette collection par `scope`.
  */
-export type NotificationScope = 'admin' | 'commercial' | 'employer' | 'centre' | 'student' | 'teacher';
+export type NotificationScope = 'admin' | 'commercial' | 'employer' | 'centre' | 'student' | 'teacher' | 'candidate';
 
 export type Notification = {
   id: string;

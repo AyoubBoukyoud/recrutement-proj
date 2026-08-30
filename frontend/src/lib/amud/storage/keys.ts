@@ -56,6 +56,22 @@ export const AMUD_KEYS = {
   // Nouvelles collections pour les espaces Étudiant et Enseignant
   studentResults: 'amud_student_results',
   teacherResources: 'amud_teacher_resources',
+  // Espace Candidat self-service (`/amud/candidat/*`) — distinct de
+  // `candidates` (fiche CRM) : profil géré par le candidat lui-même.
+  candidateAccounts: 'amud_candidate_accounts',
+  candidateAuth: 'amud_candidate_auth',
+  candidateDocuments: 'amud_candidate_documents',
+  candidateOfferFavorites: 'amud_candidate_offer_favorites',
+  candidateActivities: 'amud_candidate_activities',
+  // Smart Attendance QR (état d'exécution éphémère, réutilise `centerAttendance`
+  // pour les présences elles-mêmes) + Quick Quiz (cahier des charges §11-37).
+  centerSessionStates: 'amud_center_session_states',
+  quizzes: 'amud_quizzes',
+  quizQuestions: 'amud_quiz_questions',
+  quizSessions: 'amud_quiz_sessions',
+  quizParticipants: 'amud_quiz_participants',
+  quizAnswers: 'amud_quiz_answers',
+  quizResults: 'amud_quiz_results',
 } as const;
 
 export type AmudKey = (typeof AMUD_KEYS)[keyof typeof AMUD_KEYS];

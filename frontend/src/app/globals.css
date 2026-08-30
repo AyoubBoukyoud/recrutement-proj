@@ -1,14 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 /* IBM Plex Mono ne sert qu'aux écrans recruteur/admin/agent (portés depuis
    web-admin) : colonnes chiffrées des tableaux, où l'alignement des chiffres
    prime — c'est le `font-mono` du preset partagé. */
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&display=swap');
-/* Pairing DM Sans / Space Grotesk repris de la démo de référence
-   (ui-ux-pro-max-skill.nextlevelbuilder.io/demo/pet-grooming), appliqué
-   uniquement à la page d'accueil via `.home-font-pairing` — le reste du
-   produit garde Inter. */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 
 @tailwind base;
 @tailwind components;
@@ -229,20 +226,21 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Page d'accueil (`/`) uniquement : pairing DM Sans (texte courant) /
-   Space Grotesk (titres h1-h4) repris de la démo de référence. Ne pas
-   étendre à SiteHeader/SiteFooter ailleurs — la classe n'est posée que
-   par app/page.tsx. */
+/* Page d'accueil publique : pairing Plus Jakarta Sans (texte courant) /
+   Outfit (titres h1-h4) pour une lisibilité cristalline, moderne et percutante. */
 .home-font-pairing {
-  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: -0.012em;
 }
 
 .home-font-pairing h1,
 .home-font-pairing h2,
 .home-font-pairing h3,
 .home-font-pairing h4 {
-  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: -0.025em;
 }
+
 
 /* Bague de focus commune à toute l'application. Les écrans candidat s'en
    passaient — chaque bouton porte la sienne — mais les champs/menus déroulants

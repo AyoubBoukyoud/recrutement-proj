@@ -1,7 +1,9 @@
 'use client';
 
-import { useMemo } from 'react';
-import { EmptyState, LoadingState } from '@/components/amud/ui';
+import { useMemo, useState } from 'react';
+import { Drawer, EmptyState, LoadingState } from '@/components/amud/ui';
+import { QrScanner } from '@/components/amud/centre/QrScanner';
+import { useToast } from '@/components/amud/Toast';
 import { useCurrentStudent } from '@/lib/amud/currentStudent';
 import { useCollection } from '@/lib/amud/storage/useCollection';
 import { centerStudentsCollection } from '@/lib/amud/localCenterStudents';
@@ -12,16 +14,46 @@ import { centerSchedulesCollection } from '@/lib/amud/localCenterSchedules';
 import { centerSchedulesSeed } from '@/data/amud/centerSchedules';
 import { centerFormationsCollection } from '@/lib/amud/localCenterFormations';
 import { centerFormationsSeed } from '@/data/amud/centerFormations';
-import { ATTENDANCE_LABELS, ATTENDANCE_CLASS } from '@/data/amud/centerTypes';
+import { centerEnrollmentsCollection, activeStudentIdsForGroup } from '@/lib/amud/localCenterEnrollments';
+import { centerEnrollmentsSeed } from '@/data/amud/centerEnrollments';
+import { checkInStudent, checkOutStudent } from '@/lib/amud/attendanceCascades';
+import { ATTENDANCE_LABELS, ATTENDANCE_CLASS, type QrPayload } from '@/data/amud/centerTypes';
 
 export default function StudentPresencesPage() {
+  const notify = useToast();
   const { studentId } = useCurrentStudent();
   const [students] = useCollection(centerStudentsCollection, centerStudentsSeed);
   const [attendance] = useCollection(centerAttendanceCollection, centerAttendanceSeed);
   const [schedules] = useCollection(centerSchedulesCollection, centerSchedulesSeed);
   const [formations] = useCollection(centerFormationsCollection, centerFormationsSeed);
+  const [enrollments] = useCollection(centerEnrollmentsCollection, centerEnrollmentsSeed);
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   const student = students.find((s) => s.id === studentId);
+
+  function handleScan(text: string) {
+    setScannerOpen(false);
+    let payload: QrPayload;
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      notify('QR code invalide.', 'error');
+      return;
+    }
+    if (!payload || payload.v !== 1 || (payload.type !== 'CHECK_IN' && payload.type !== 'CHECK_OUT')) {
+      notify('Ce QR ne correspond pas à une entrée/sortie de cours.', 'error');
+      return;
+    }
+    if (!student) return;
+    const groupStudentIds = activeStudentIdsForGroup(enrollments, payload.groupId);
+    const actor = { utilisateur: `${student.prenom} ${student.nom}`, role: 'STUDENT' };
+    const result = payload.type === 'CHECK_IN' ? checkInStudent(payload, student.id, groupStudentIds, actor) : checkOutStudent(payload, student.id, groupStudentIds, actor);
+    if (result.ok) {
+      notify(payload.type === 'CHECK_IN' ? `Présence enregistrée — entrée à ${result.record.checkInTime?.slice(11, 16)}.` : `Sortie enregistrée — durée ${result.record.durationMinutes ?? 0} min.`, 'success');
+    } else {
+      notify(result.error.message, 'error');
+    }
+  }
 
   const myAttendance = useMemo(
     () => attendance.filter((a) => a.studentId === studentId).sort((a, b) => b.date.localeCompare(a.date)),
@@ -41,8 +73,21 @@ export default function StudentPresencesPage() {
   if (!student) return <LoadingState label="Chargement…" rows={3} />;
 
   return (
-    <div className="space-y-lg">
-      <h1 className="text-headline-md text-amud-on-surface">Mes présences</h1>
+    <div className="space-y-lg pb-24 md:pb-0">
+      <div className="flex flex-wrap items-center justify-between gap-md">
+        <h1 className="text-headline-md text-amud-on-surface">Mes présences</h1>
+        <button
+          onClick={() => setScannerOpen(true)}
+          className="flex min-h-[44px] items-center gap-2 rounded-lg bg-amud-primary px-lg text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark"
+        >
+          <span className="material-symbols-outlined text-[18px]">qr_code_scanner</span>
+          Scanner QR
+        </button>
+      </div>
+
+      <Drawer open={scannerOpen} onClose={() => setScannerOpen(false)} anchor="full" title="Scanner le QR du cours">
+        <QrScanner active={scannerOpen} onScan={handleScan} />
+      </Drawer>
 
       {/* Statistiques */}
       <div className="grid grid-cols-2 gap-md sm:grid-cols-4">
