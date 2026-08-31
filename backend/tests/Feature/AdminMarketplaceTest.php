@@ -1,7 +1,54 @@
 <?php
+
 namespace Tests\Feature;
-use App\Models\JobApplication;use App\Models\JobOffer;use App\Models\User;use App\Services\CandidateProfileResolver;use Database\Seeders\RoleSeeder;use Illuminate\Foundation\Testing\RefreshDatabase;use Tests\TestCase;
-class AdminMarketplaceTest extends TestCase{use RefreshDatabase;protected function setUp():void{parent::setUp();$this->seed(RoleSeeder::class);}private function user(string $role):User{$u=User::factory()->create();$u->assignRole($role);return $u;}
- public function test_only_admin_can_list_and_moderate_offers():void{$company=$this->user('Company');$offer=JobOffer::create(['user_id'=>$company->id,'title'=>'Nurse','description'=>'Role','sector'=>'Health','city'=>'Berlin','contract_type'=>'permanent']);$this->actingAs($company,'sanctum')->getJson('/api/admin/offers')->assertForbidden();$admin=$this->user('Administrator');$this->actingAs($admin,'sanctum')->getJson('/api/admin/offers')->assertOk()->assertJsonPath('data.0.id',$offer->id);$this->patchJson("/api/admin/offers/$offer->id",['status'=>'published'])->assertOk()->assertJsonPath('status','published');$this->assertDatabaseHas('admin_activity_logs',['subject_id'=>$offer->id,'action'=>'offer_status_changed']);$this->assertDatabaseHas('app_notifications',['user_id'=>$company->id,'type'=>'offer.moderated']);}
- public function test_admin_application_queue_and_metrics_are_real():void{$company=$this->user('Company');$candidate=$this->user('User');$profile=CandidateProfileResolver::resolve($candidate);$offer=JobOffer::create(['user_id'=>$company->id,'title'=>'Cook','description'=>'Role','sector'=>'Hospitality','city'=>'Munich','contract_type'=>'permanent','status'=>'published','published_at'=>now()]);JobApplication::create(['candidate_profile_id'=>$profile->id,'job_offer_id'=>$offer->id,'status'=>'interview','applied_at'=>now(),'status_changed_at'=>now()]);$admin=$this->user('Administrator');$this->actingAs($admin,'sanctum')->getJson('/api/admin/applications?status=interview')->assertOk()->assertJsonPath('total',1);$this->getJson('/api/admin/metrics')->assertOk()->assertJsonPath('marketplace.offers_published',1)->assertJsonPath('marketplace.interviews',1);}
+
+use App\Models\JobApplication;
+use App\Models\JobOffer;
+use App\Models\User;
+use App\Services\CandidateProfileResolver;
+use Database\Seeders\RoleSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class AdminMarketplaceTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed(RoleSeeder::class);
+    }
+
+    private function user(string $role): User
+    {
+        $u = User::factory()->create();
+        $u->assignRole($role);
+
+        return $u;
+    }
+
+    public function test_only_admin_can_list_and_moderate_offers(): void
+    {
+        $company = $this->user('Company');
+        $offer = JobOffer::create(['user_id' => $company->id, 'title' => 'Nurse', 'description' => 'Role', 'sector' => 'Health', 'city' => 'Berlin', 'contract_type' => 'permanent']);
+        $this->actingAs($company, 'sanctum')->getJson('/api/admin/offers')->assertForbidden();
+        $admin = $this->user('Administrator');
+        $this->actingAs($admin, 'sanctum')->getJson('/api/admin/offers')->assertOk()->assertJsonPath('data.0.id', $offer->id);
+        $this->patchJson("/api/admin/offers/$offer->id", ['status' => 'published'])->assertOk()->assertJsonPath('status', 'published');
+        $this->assertDatabaseHas('admin_activity_logs', ['subject_id' => $offer->id, 'action' => 'offer_status_changed']);
+        $this->assertDatabaseHas('app_notifications', ['user_id' => $company->id, 'type' => 'offer.moderated']);
+    }
+
+    public function test_admin_application_queue_and_metrics_are_real(): void
+    {
+        $company = $this->user('Company');
+        $candidate = $this->user('User');
+        $profile = CandidateProfileResolver::resolve($candidate);
+        $offer = JobOffer::create(['user_id' => $company->id, 'title' => 'Cook', 'description' => 'Role', 'sector' => 'Hospitality', 'city' => 'Munich', 'contract_type' => 'permanent', 'status' => 'published', 'published_at' => now()]);
+        JobApplication::create(['candidate_profile_id' => $profile->id, 'job_offer_id' => $offer->id, 'status' => 'interview', 'applied_at' => now(), 'status_changed_at' => now()]);
+        $admin = $this->user('Administrator');
+        $this->actingAs($admin, 'sanctum')->getJson('/api/admin/applications?status=interview')->assertOk()->assertJsonPath('total', 1);
+        $this->getJson('/api/admin/metrics')->assertOk()->assertJsonPath('marketplace.offers_published', 1)->assertJsonPath('marketplace.interviews',1);
+    }
 }

@@ -95,8 +95,16 @@ class CandidateProfile extends Model
     {
         return $this->hasMany(TaskAssignment::class);
     }
-    public function jobApplications(): HasMany { return $this->hasMany(JobApplication::class); }
-    public function favoriteOffers() { return $this->belongsToMany(JobOffer::class, 'job_offer_favorites')->withTimestamps(); }
+
+    public function jobApplications(): HasMany
+    {
+        return $this->hasMany(JobApplication::class);
+    }
+
+    public function favoriteOffers()
+    {
+        return $this->belongsToMany(JobOffer::class, 'job_offer_favorites')->withTimestamps();
+    }
 
     /** The administrator who vouched for this dossier, if one has. */
     public function verifiedBy(): BelongsTo

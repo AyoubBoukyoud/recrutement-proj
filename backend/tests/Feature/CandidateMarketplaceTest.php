@@ -1,8 +1,70 @@
 <?php
+
 namespace Tests\Feature;
-use App\Models\CandidateLanguage;use App\Models\JobOffer;use App\Models\User;use App\Services\CandidateProfileResolver;use Database\Seeders\RoleSeeder;use Illuminate\Foundation\Testing\RefreshDatabase;use Tests\TestCase;
-class CandidateMarketplaceTest extends TestCase{use RefreshDatabase;protected function setUp():void{parent::setUp();$this->seed(RoleSeeder::class);}private function user(string $role):User{$u=User::factory()->create();$u->assignRole($role);return $u;}
- public function test_offer_application_favorite_and_notifications_flow():void{$company=$this->user('Company');$candidate=$this->user('User');$p=CandidateProfileResolver::resolve($candidate);$p->update(['submitted_at'=>now()]);$p->languages()->create(['language'=>'de','cefr_level'=>'B2']);$this->actingAs($company,'sanctum');$offerId=$this->postJson('/api/recruiter/offers',['title'=>'Nurse','description'=>'Hospital role','sector'=>'Health','city'=>'Berlin','contract_type'=>'permanent','required_cefr_level'=>'B1','status'=>'published'])->assertCreated()->json('id');$this->actingAs($candidate,'sanctum');$this->getJson('/api/offers')->assertOk()->assertJsonPath('data.0.id',$offerId);$this->postJson("/api/offers/$offerId/favorite")->assertCreated();$applicationId=$this->postJson("/api/offers/$offerId/apply")->assertCreated()->json('id');$this->postJson("/api/offers/$offerId/apply")->assertConflict();$this->actingAs($company,'sanctum')->patchJson("/api/recruiter/applications/$applicationId",['status'=>'interview'])->assertOk();$this->actingAs($candidate,'sanctum')->getJson('/api/candidate/notifications')->assertOk()->assertJsonPath('data.0.type','application.status');}
- public function test_paused_candidate_disappears_and_can_resume():void{$candidate=$this->user('User');$p=CandidateProfileResolver::resolve($candidate);$p->update(['terms_consent_at'=>now(),'cndp_consent_at'=>now()]);$company=$this->user('Company');$this->actingAs($company,'sanctum')->getJson('/api/recruiter/candidates')->assertJsonPath('total',1);$this->actingAs($candidate,'sanctum')->postJson('/api/candidate/visibility/pause')->assertJsonPath('visible',false);$this->actingAs($company,'sanctum')->getJson('/api/recruiter/candidates')->assertJsonPath('total',0);$this->actingAs($candidate,'sanctum')->postJson('/api/candidate/visibility/resume')->assertJsonPath('visible',true);}
- public function test_candidate_referral_code_is_personal_and_export_is_private():void{$a=$this->user('User');$b=$this->user('User');$this->actingAs($a,'sanctum');$codeA=$this->getJson('/api/referrals/me')->assertOk()->json('code');$this->getJson('/api/candidate/account/export')->assertOk()->assertJsonPath('user.id',$a->id);$this->actingAs($b,'sanctum');$codeB=$this->getJson('/api/referrals/me')->assertOk()->json('code');$this->assertNotSame($codeA,$codeB);}
+
+use App\Models\User;
+use App\Services\CandidateProfileResolver;
+use Database\Seeders\RoleSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class CandidateMarketplaceTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed(RoleSeeder::class);
+    }
+
+    private function user(string $role): User
+    {
+        $u = User::factory()->create();
+        $u->assignRole($role);
+
+        return $u;
+    }
+
+    public function test_offer_application_favorite_and_notifications_flow(): void
+    {
+        $company = $this->user('Company');
+        $candidate = $this->user('User');
+        $p = CandidateProfileResolver::resolve($candidate);
+        $p->update(['submitted_at' => now()]);
+        $p->languages()->create(['language' => 'de', 'cefr_level' => 'B2']);
+        $this->actingAs($company, 'sanctum');
+        $offerId = $this->postJson('/api/recruiter/offers', ['title' => 'Nurse', 'description' => 'Hospital role', 'sector' => 'Health', 'city' => 'Berlin', 'contract_type' => 'permanent', 'required_cefr_level' => 'B1', 'status' => 'published'])->assertCreated()->json('id');
+        $this->actingAs($candidate, 'sanctum');
+        $this->getJson('/api/offers')->assertOk()->assertJsonPath('data.0.id', $offerId);
+        $this->postJson("/api/offers/$offerId/favorite")->assertCreated();
+        $applicationId = $this->postJson("/api/offers/$offerId/apply")->assertCreated()->json('id');
+        $this->postJson("/api/offers/$offerId/apply")->assertConflict();
+        $this->actingAs($company, 'sanctum')->patchJson("/api/recruiter/applications/$applicationId", ['status' => 'interview'])->assertOk();
+        $this->actingAs($candidate, 'sanctum')->getJson('/api/candidate/notifications')->assertOk()->assertJsonPath('data.0.type', 'application.status');
+    }
+
+    public function test_paused_candidate_disappears_and_can_resume(): void
+    {
+        $candidate = $this->user('User');
+        $p = CandidateProfileResolver::resolve($candidate);
+        $p->update(['terms_consent_at' => now(), 'cndp_consent_at' => now()]);
+        $company = $this->user('Company');
+        $this->actingAs($company, 'sanctum')->getJson('/api/recruiter/candidates')->assertJsonPath('total', 1);
+        $this->actingAs($candidate, 'sanctum')->postJson('/api/candidate/visibility/pause')->assertJsonPath('visible', false);
+        $this->actingAs($company, 'sanctum')->getJson('/api/recruiter/candidates')->assertJsonPath('total', 0);
+        $this->actingAs($candidate, 'sanctum')->postJson('/api/candidate/visibility/resume')->assertJsonPath('visible', true);
+    }
+
+    public function test_candidate_referral_code_is_personal_and_export_is_private(): void
+    {
+        $a = $this->user('User');
+        $b = $this->user('User');
+        $this->actingAs($a, 'sanctum');
+        $codeA = $this->getJson('/api/referrals/me')->assertOk()->json('code');
+        $this->getJson('/api/candidate/account/export')->assertOk()->assertJsonPath('user.id', $a->id);
+        $this->actingAs($b, 'sanctum');
+        $codeB = $this->getJson('/api/referrals/me')->assertOk()->json('code');
+        $this->assertNotSame($codeA,$codeB);
+    }
 }

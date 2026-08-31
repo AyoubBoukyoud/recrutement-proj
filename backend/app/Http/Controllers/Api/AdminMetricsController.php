@@ -6,13 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\CandidateProfile;
 use App\Models\Complaint;
 use App\Models\Document;
+use App\Models\JobApplication;
+use App\Models\JobOffer;
 use App\Models\LanguageAssessment;
 use App\Models\RecruiterShortlist;
 use App\Models\ReferralRegistration;
 use App\Models\TaskAssignment;
 use App\Models\User;
-use App\Models\JobOffer;
-use App\Models\JobApplication;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 

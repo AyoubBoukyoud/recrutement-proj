@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "npx next dev",
-    "build": "npx next build",
+    "build": "NODE_OPTIONS=--max-old-space-size=4096 npx next build",
     "start": "npx next start",
     "lint": "eslint src --ext .ts,.tsx",
     "test:client-demo": "node scripts/verify-client-demo.mjs",
