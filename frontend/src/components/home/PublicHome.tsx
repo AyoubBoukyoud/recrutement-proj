@@ -8,6 +8,7 @@ import { HeroVideo } from './HeroVideo';
 import { JourneyTimeline } from './JourneyTimeline';
 import { RecruiterPreview } from './RecruiterPreview';
 import { TechPreview } from './TechPreview';
+import { MobileActionBar } from './MobileActionBar';
 
 function Icon({ name, className = '' }: { name: string; className?: string }) {
   return <span className={`material-symbols-outlined ${className}`}>{name}</span>;
@@ -184,12 +185,13 @@ export function PublicHome() {
                   <Icon name="arrow_forward" className="text-xl rtl:rotate-180" />
                 </span>
               </PrimaryCta>
-              <GhostCta href="/employeurs" size="lg">
-                <span className="flex items-center gap-2">
-                  <Icon name="business" className="text-xl" />
-                  <span>{content.recruiter.eyebrow}</span>
-                </span>
-              </GhostCta>
+              <Link
+                href="/employeurs"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-primary bg-primary/10 px-8 py-4 text-base font-black text-primary-dark shadow-sm transition-colors hover:bg-primary/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-[0.99]"
+              >
+                <Icon name="business" className="text-xl" />
+                <span>{content.recruiter.eyebrow}</span>
+              </Link>
             </div>
 
             <p className="mt-4 text-xs font-bold text-outline sm:text-sm">
@@ -524,30 +526,45 @@ export function PublicHome() {
         </section>
 
         {/* ------------------------------------------------------------------------- */}
-        {/* FAQ ACCORDION SECTION                                                     */}
+        {/* FAQ ACCORDION SECTION (Responsive & Rich Interactive Mobile/Desktop)      */}
         {/* ------------------------------------------------------------------------- */}
-        <section className="border-y border-outline-variant/60 bg-surface-lowest py-24">
+        <section className="border-y border-outline-variant/60 bg-surface-lowest/70 py-20 lg:py-28">
           <div className="mx-auto max-w-4xl px-6">
             <Reveal className="text-center">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-black uppercase tracking-wider text-primary">
-                FAQ
+                <Icon name="help" className="text-sm" />
+                FAQ · Vos Questions
               </span>
               <h2 className="mt-3 text-3xl font-black text-primary-dark sm:text-4xl">{content.faq.title}</h2>
               <p className="mt-4 text-onSurface-variant">{content.faq.subtitle}</p>
             </Reveal>
 
-            <div className="mt-12 divide-y divide-outline-variant/60 rounded-3xl border border-outline-variant/60 bg-surface px-6 sm:px-8 shadow-soft">
-              {content.faq.items.map((item) => (
-                <details key={item.question} className="group py-6">
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-black text-primary-dark sm:text-lg">
-                    {item.question}
-                    <Icon name="expand_more" className="text-2xl text-primary transition-transform duration-200 group-open:rotate-180" />
-                  </summary>
-                  <p className="mt-4 max-w-3xl text-sm leading-relaxed text-onSurface-variant sm:text-base">
-                    {item.answer}
-                  </p>
-                </details>
-              ))}
+            <div className="mt-12 space-y-3.5">
+              {content.faq.items.map((item, index) => {
+                const icons = ['toll', 'work_outline', 'visibility', 'lock', 'translate', 'schedule'];
+                const icon = icons[index % icons.length];
+
+                return (
+                  <Reveal key={item.question} delay={index * 40}>
+                    <details className="group rounded-2xl border border-outline-variant/70 bg-surface p-4 sm:p-6 shadow-xs transition-all duration-200 hover:border-primary/40 hover:shadow-soft">
+                      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-black text-primary-dark sm:text-lg">
+                        <div className="flex items-center gap-3">
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary text-sm">
+                            <Icon name={icon} className="text-lg" />
+                          </span>
+                          <span>{item.question}</span>
+                        </div>
+                        <Icon name="expand_more" className="text-2xl text-primary transition-transform duration-200 group-open:rotate-180 shrink-0" />
+                      </summary>
+                      <div className="mt-3.5 ps-11 pe-2 border-t border-outline-variant/40 pt-3">
+                        <p className="text-sm leading-relaxed text-onSurface-variant sm:text-base">
+                          {item.answer}
+                        </p>
+                      </div>
+                    </details>
+                  </Reveal>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -600,6 +617,9 @@ export function PublicHome() {
           </div>
         </section>
       </div>
+
+      {/* Barre d'action rapide flottante pour mobile */}
+      <MobileActionBar />
     </main>
   );
 }

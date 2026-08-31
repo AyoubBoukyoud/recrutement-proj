@@ -100,7 +100,11 @@ export function SiteHeader({ className = '', glassTransparent = false }: SiteHea
           </div>
           <span
             className={`text-base font-black tracking-tight transition-colors duration-200 sm:text-lg ${
-              glassTransparent ? 'text-primary-dark sm:text-white' : 'text-primary-dark'
+              glassTransparent
+                ? pastHero
+                  ? 'text-primary-dark'
+                  : 'text-primary-dark sm:text-white'
+                : 'text-primary-dark'
             }`}
           >
             Amud Skills
@@ -169,7 +173,7 @@ export function SiteHeader({ className = '', glassTransparent = false }: SiteHea
 
       {/* Mobile Menu Drawer with Glassmorphism */}
       {menuOpen && (
-        <div className="fixed inset-0 top-[calc(68px+env(safe-area-inset-top))] z-50 overflow-y-auto bg-white/35 dark:bg-surface/50 px-6 py-8 shadow-2xl backdrop-blur-3xl lg:hidden">
+        <div className="fixed inset-0 top-[calc(68px+env(safe-area-inset-top))] z-50 overflow-y-auto bg-white/98 dark:bg-surface/98 px-6 py-8 shadow-2xl backdrop-blur-3xl lg:hidden">
           <nav className="flex flex-col gap-2" aria-label="Navigation mobile">
             {nav.links.map((link) => (
               <a
