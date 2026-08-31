@@ -303,7 +303,7 @@ export function JourneyTimeline() {
 
             return (
               <Reveal key={step.title} delay={index * 40}>
-                <div 
+                <div
                   onClick={() => setActiveStep(isSelected ? null : index)}
                   className="relative flex items-start gap-4 ps-2 cursor-pointer active:scale-[0.98] transition-transform"
                 >

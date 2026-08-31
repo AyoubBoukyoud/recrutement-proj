@@ -12,7 +12,7 @@ export function MobileActionBar() {
     const handleScroll = () => {
       // Afficher la barre dès qu'on a dépassé le hero vidéo (scroll > 450px)
       const isPastHero = window.scrollY > 450;
-      
+
       // Masquer si on est tout en bas (près du footer)
       const isNearBottom =
         window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 200;

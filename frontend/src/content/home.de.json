@@ -20,6 +20,8 @@
     "microcopy": "Kostenlos · Ohne Passwort · Sie steuern, ob Ihr Profil sichtbar ist",
     "scrollCue": "Entdecken Sie den Weg",
     "mediaCaption": "Ihr Weg, von Marokko nach Deutschland",
+    "videoProgress": "Videofortschritt",
+    "videoError": "Das Video konnte nicht geladen werden. Das Vorschaubild bleibt verfügbar.",
     "card": {
       "title": "Bewerberprofil",
       "name": "Ihr Beruf",

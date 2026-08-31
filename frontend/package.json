@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "npx next dev",
-    "build": "npx next build",
+    "build": "NODE_OPTIONS=--max-old-space-size=4096 npx next build",
     "start": "npx next start",
     "lint": "eslint src --ext .ts,.tsx",
     "test:client-demo": "node scripts/verify-client-demo.mjs",
@@ -20,7 +20,8 @@
     "qrcode": "^1.5.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "recharts": "^3.10.1"
+    "recharts": "^3.10.1",
+    "scrolly-video": "^0.0.24"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
