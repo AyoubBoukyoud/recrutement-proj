@@ -299,17 +299,21 @@ export function JourneyTimeline() {
           {journey.items.map((step, index) => {
             const theme = STEP_THEMES[index];
             const isFinal = index === 8;
+            const isSelected = activeStep === index;
 
             return (
               <Reveal key={step.title} delay={index * 40}>
-                <div className="relative flex items-start gap-4 ps-2">
+                <div
+                  onClick={() => setActiveStep(isSelected ? null : index)}
+                  className="relative flex items-start gap-4 ps-2 cursor-pointer active:scale-[0.98] transition-transform"
+                >
                   {/* Glowing Node Icon */}
-                  <div className={`relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${theme.badgeBg} shadow-md ring-4 ring-surface`}>
+                  <div className={`relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${theme.badgeBg} shadow-md ring-4 ring-surface ${isSelected ? 'scale-110 ring-emerald-500/30' : ''} transition-all`}>
                     <Icon name={step.icon} className="text-2xl" />
                   </div>
 
                   {/* Step Card Content */}
-                  <div className={`flex-1 rounded-2xl border ${theme.border} bg-surface-lowest p-5 shadow-soft transition-all`}>
+                  <div className={`flex-1 rounded-2xl border ${isSelected ? 'border-emerald-500 bg-surface-lowest shadow-floating' : `${theme.border} bg-surface-lowest`} p-5 shadow-soft transition-all`}>
                     <div className="mb-2 flex items-center justify-between gap-2">
                       <span className="text-xs font-black uppercase text-primary">
                         Étape 0{index + 1}
@@ -325,8 +329,8 @@ export function JourneyTimeline() {
                       {step.body}
                     </p>
                     {isFinal && (
-                      <div className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-emerald-100 px-3 py-1 text-xs font-extrabold text-emerald-800">
-                        <span>🇩🇪 CDI & Début de mission en Allemagne</span>
+                      <div className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 px-3 py-1.5 text-xs font-extrabold text-emerald-800 dark:text-emerald-300 shadow-xs">
+                        <span>🎯 Objectif : CDI & Embauche directe en Allemagne</span>
                       </div>
                     )}
                   </div>
