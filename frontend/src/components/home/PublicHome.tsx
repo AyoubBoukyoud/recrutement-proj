@@ -89,61 +89,65 @@ function getTradeBadgeStyle(sector: string) {
   }
 }
 
-/** Canonical public home with Fullscreen Cover Video and Upward Scroll Curtain Effect. */
+/** Canonical public home with a scroll-controlled video journey. */
 export function PublicHome() {
   const content = useHomeContent();
   const { popular } = useTrades();
 
   return (
-    <main className="force-light overflow-x-hidden bg-surface text-onSurface">
+    <main className="force-light overflow-x-clip bg-surface text-onSurface">
       <RevealNoScriptFallback />
 
       {/* ------------------------------------------------------------------------- */}
-      {/* 1. FULL-SCREEN HERO VIDEO COVER AT THE TOP (Responsive Mobile & Desktop)   */}
+      {/* 1. STICKY SCROLL-CONTROLLED VIDEO JOURNEY                                 */}
       {/* ------------------------------------------------------------------------- */}
       <section
         id="hero-video-section"
-        className="relative h-[calc(100svh-68px-env(safe-area-inset-top))] min-h-[480px] max-h-[740px] w-full overflow-hidden bg-black sm:h-screen sm:min-h-[640px] sm:max-h-none"
+        className="relative w-full bg-black"
       >
         <HeroVideo />
 
-        {/* Floating Dossier Card Over the Video with Bright, High-Contrast Text (Tablet & Desktop) */}
-        <div className="absolute bottom-16 end-6 z-30 hidden sm:block md:end-12 md:bottom-20 lg:w-96">
-          <div className="rounded-3xl border border-white/30 bg-black/75 p-6 text-white shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl transition-all duration-300 hover:border-white/50">
-            <div className="flex items-center justify-between border-b border-white/20 pb-4">
-              <div>
-                <p className="text-[11px] font-black uppercase tracking-wider text-emerald-400">
-                  {content.hero.card.title}
-                </p>
-                <h2 className="mt-1 text-2xl font-black text-white">
-                  {content.hero.card.name}
-                </h2>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/25 text-emerald-300 ring-1 ring-white/20">
-                <Icon name="folder_supervised" className="text-2xl" />
+        {/* The dossier remains anchored while the video advances beneath it. */}
+        <div className="pointer-events-none absolute inset-0 z-30 hidden sm:block">
+          <div className="sticky top-0 h-[100svh] min-h-[640px]">
+            <div className="pointer-events-auto absolute bottom-20 end-6 md:end-12 lg:w-96">
+              <div className="rounded-3xl border border-white/30 bg-black/75 p-6 text-white shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl transition-all duration-300 hover:border-white/50">
+                <div className="flex items-center justify-between border-b border-white/20 pb-4">
+                  <div>
+                    <p className="text-[11px] font-black uppercase tracking-wider text-emerald-400">
+                      {content.hero.card.title}
+                    </p>
+                    <h2 className="mt-1 text-2xl font-black text-white">
+                      {content.hero.card.name}
+                    </h2>
+                  </div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/25 text-emerald-300 ring-1 ring-white/20">
+                    <Icon name="folder_supervised" className="text-2xl" />
+                  </div>
+                </div>
+
+                <dl className="mt-5 grid grid-cols-2 gap-3">
+                  <div className="rounded-2xl border border-white/15 bg-white/10 p-3.5 backdrop-blur-md">
+                    <dt className="text-xs font-bold text-white/80">{content.hero.card.levelLabel}</dt>
+                    <dd className="mt-1 text-xl font-black text-emerald-300">{content.hero.card.level}</dd>
+                  </div>
+                  <div className="rounded-2xl border border-white/15 bg-white/10 p-3.5 backdrop-blur-md">
+                    <dt className="text-xs font-bold text-white/80">{content.hero.card.availabilityLabel}</dt>
+                    <dd className="mt-1 text-sm font-black text-white">{content.hero.card.availability}</dd>
+                  </div>
+                </dl>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {content.hero.card.documents.map((document) => (
+                    <span key={document} className="inline-flex items-center gap-1 rounded-full border border-white/25 bg-white/15 px-3 py-1 text-xs font-bold text-white">
+                      <Icon name="check_circle" className="text-xs text-emerald-400" />
+                      {document}
+                    </span>
+                  ))}
+                </div>
+                <p className="mt-4 text-xs font-medium text-white/75">{content.hero.card.footnote}</p>
               </div>
             </div>
-
-            <dl className="mt-5 grid grid-cols-2 gap-3">
-              <div className="rounded-2xl border border-white/15 bg-white/10 p-3.5 backdrop-blur-md">
-                <dt className="text-xs font-bold text-white/80">{content.hero.card.levelLabel}</dt>
-                <dd className="mt-1 text-xl font-black text-emerald-300">{content.hero.card.level}</dd>
-              </div>
-              <div className="rounded-2xl border border-white/15 bg-white/10 p-3.5 backdrop-blur-md">
-                <dt className="text-xs font-bold text-white/80">{content.hero.card.availabilityLabel}</dt>
-                <dd className="mt-1 text-sm font-black text-white">{content.hero.card.availability}</dd>
-              </div>
-            </dl>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              {content.hero.card.documents.map((document) => (
-                <span key={document} className="inline-flex items-center gap-1 rounded-full border border-white/25 bg-white/15 px-3 py-1 text-xs font-bold text-white">
-                  <Icon name="check_circle" className="text-xs text-emerald-400" />
-                  {document}
-                </span>
-              ))}
-            </div>
-            <p className="mt-4 text-xs font-medium text-white/75">{content.hero.card.footnote}</p>
           </div>
         </div>
       </section>

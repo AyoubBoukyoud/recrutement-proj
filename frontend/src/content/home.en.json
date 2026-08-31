@@ -20,6 +20,8 @@
     "microcopy": "Free · No password · You control whether your file is visible",
     "scrollCue": "Discover the journey",
     "mediaCaption": "Your journey, from Morocco to Germany",
+    "videoProgress": "Video progress",
+    "videoError": "The video could not load. The preview image is still available.",
     "card": {
       "title": "Candidate file",
       "name": "Your trade",

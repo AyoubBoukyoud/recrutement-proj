@@ -20,6 +20,8 @@
     "microcopy": "Gratuit · Aucun mot de passe · Vous contrôlez si votre dossier est visible",
     "scrollCue": "Découvrez le parcours",
     "mediaCaption": "Votre parcours, du Maroc à l'Allemagne",
+    "videoProgress": "Progression de la vidéo",
+    "videoError": "La vidéo ne peut pas être chargée. L'image de présentation reste disponible.",
     "card": {
       "title": "Dossier candidat",
       "name": "Votre métier",
