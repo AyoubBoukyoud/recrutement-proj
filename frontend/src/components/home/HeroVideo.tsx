@@ -22,6 +22,8 @@ interface NavigatorWithNetwork extends Navigator {
   deviceMemory?: number;
 }
 
+const PLAYBACK_RATE = 0.5;
+
 const VIDEO_SOURCES = {
   '1080': '/assets/videos/landing/video_hero_1080.webm',
   '720': '/assets/videos/landing/video_hero_720.webm',
@@ -147,6 +149,8 @@ export function HeroVideo() {
     if (!isCurrentSrc) {
       // Si la vidéo a déjà démarré, bascule transparente en conservant le curseur
       video.src = targetSrc;
+      video.defaultPlaybackRate = PLAYBACK_RATE;
+      video.playbackRate = PLAYBACK_RATE;
       video.load();
 
       if (currentPos > 0) {
@@ -159,6 +163,13 @@ export function HeroVideo() {
     } else if (video.paused) {
       video.play().catch(() => {});
     }
+
+    video.playbackRate = PLAYBACK_RATE;
+
+    const handleLoadedMetadata = () => {
+      video.playbackRate = PLAYBACK_RATE;
+    };
+    video.addEventListener('loadedmetadata', handleLoadedMetadata);
 
     // Détection de buffering/stalling pour rétrograder automatiquement
     const handleWaitingOrStalled = () => {
@@ -188,6 +199,7 @@ export function HeroVideo() {
       video.removeEventListener('waiting', handleWaitingOrStalled);
       video.removeEventListener('stalled', handleWaitingOrStalled);
       video.removeEventListener('playing', handlePlaying);
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
     };
   }, [effectiveQuality]);
 
