@@ -33,6 +33,7 @@ lerna-debug.log*
 .env
 .env.*
 !.env.example
+!deploy/.env.prod.example
 
 # Service worker / Next PWA auto-generated files
 /mobile/public/sw.js

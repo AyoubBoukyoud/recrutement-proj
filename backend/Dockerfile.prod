@@ -1,0 +1,51 @@
+FROM php:8.3-fpm-bookworm
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git unzip curl ca-certificates \
+        libzip-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev libicu-dev \
+        default-mysql-client \
+        tesseract-ocr tesseract-ocr-eng tesseract-ocr-fra tesseract-ocr-ara tesseract-ocr-deu \
+        python3 python3-venv ffmpeg \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j"$(nproc)" pdo_mysql mbstring bcmath gd zip pcntl intl \
+    && python3 -m venv /opt/whisper-venv \
+    && /opt/whisper-venv/bin/pip install --no-cache-dir faster-whisper \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV PATH="/opt/whisper-venv/bin:$PATH" \
+    HF_HOME="/var/www/html/storage/app/models"
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+
+COPY composer.json composer.lock ./
+RUN composer install \
+    --no-dev \
+    --no-interaction \
+    --no-scripts \
+    --prefer-dist \
+    --optimize-autoloader
+
+COPY . .
+
+RUN composer dump-autoload --no-dev --optimize --no-interaction \
+    && mkdir -p \
+        storage/app/private \
+        storage/app/public \
+        storage/framework/cache/data \
+        storage/framework/sessions \
+        storage/framework/views \
+        storage/logs \
+        bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod +x docker/entrypoint.prod.sh
+
+COPY docker/php-production.ini /usr/local/etc/php/conf.d/production.ini
+
+USER www-data
+
+EXPOSE 9000
+
+ENTRYPOINT ["docker/entrypoint.prod.sh"]
+CMD ["php-fpm", "-F"]

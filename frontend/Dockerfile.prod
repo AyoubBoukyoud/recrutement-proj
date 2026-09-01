@@ -1,0 +1,42 @@
+FROM node:22-bookworm-slim AS dependencies
+
+WORKDIR /app/frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+
+FROM node:22-bookworm-slim AS builder
+
+WORKDIR /app
+COPY --from=dependencies /app/frontend/node_modules ./frontend/node_modules
+COPY packages ./packages
+COPY frontend ./frontend
+
+ARG NEXT_PUBLIC_API_URL=/api
+ARG NEXT_PUBLIC_USE_MOCKS=0
+ARG NEXT_PUBLIC_ENABLE_PROTOTYPES=0
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
+    NEXT_PUBLIC_USE_MOCKS=$NEXT_PUBLIC_USE_MOCKS \
+    NEXT_PUBLIC_ENABLE_PROTOTYPES=$NEXT_PUBLIC_ENABLE_PROTOTYPES \
+    NEXT_TELEMETRY_DISABLED=1
+
+WORKDIR /app/frontend
+RUN npm run build
+
+FROM node:22-bookworm-slim AS runner
+
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME=0.0.0.0
+
+WORKDIR /app/frontend
+COPY --from=builder --chown=node:node /app/frontend/package.json /app/frontend/package-lock.json ./
+COPY --from=builder --chown=node:node /app/frontend/node_modules ./node_modules
+COPY --from=builder --chown=node:node /app/frontend/.next ./.next
+COPY --from=builder --chown=node:node /app/frontend/public ./public
+
+USER node
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start", "--", "-H", "0.0.0.0", "-p", "3000"]
