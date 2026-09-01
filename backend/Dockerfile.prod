@@ -2,7 +2,7 @@ FROM php:8.3-fpm-bookworm
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git unzip curl ca-certificates \
-        libzip-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev libicu-dev \
+        libzip-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev libicu-dev libonig-dev \
         default-mysql-client \
         tesseract-ocr tesseract-ocr-eng tesseract-ocr-fra tesseract-ocr-ara tesseract-ocr-deu \
         python3 python3-venv ffmpeg \
