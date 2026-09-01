@@ -22,7 +22,10 @@ php artisan storage:link >/dev/null 2>&1 || true
 
 if [ "${RUN_MIGRATIONS:-0}" = "1" ]; then
     attempts=0
-    until php artisan migrate --force --isolated; do
+    # This is the only service allowed to migrate. Do not use --isolated on a
+    # fresh database: its lock uses CACHE_STORE=database before the cache table
+    # has itself been created by the first migration batch.
+    until php artisan migrate --force; do
         attempts=$((attempts + 1))
         if [ "$attempts" -ge 30 ]; then
             echo "Database did not become ready after 30 attempts" >&2
