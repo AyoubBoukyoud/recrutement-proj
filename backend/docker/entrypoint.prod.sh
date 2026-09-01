@@ -34,6 +34,11 @@ if [ "${RUN_MIGRATIONS:-0}" = "1" ]; then
         echo "Waiting for the database (attempt $attempts/30)..." >&2
         sleep 3
     done
+
+    # Roles are required reference data, not demo content. Keep them present
+    # on fresh databases without running DatabaseSeeder's test accounts and
+    # demo records in production.
+    php artisan db:seed --class='Database\Seeders\RoleSeeder' --force
 fi
 
 exec "$@"
