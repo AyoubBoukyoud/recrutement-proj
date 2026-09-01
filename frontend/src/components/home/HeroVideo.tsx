@@ -9,20 +9,8 @@ interface ScrollyVideoInstance {
 }
 
 const VIDEO_SOURCE = "/assets/videos/landing/video_hero.mp4";
-
-<<<<<<< HEAD
-const PLAYBACK_RATE = 0.5;
-
-const VIDEO_SOURCES = {
-  '1080': '/assets/videos/landing/video_hero_1080.webm',
-  '720': '/assets/videos/landing/video_hero_720.webm',
-  '480': '/assets/videos/landing/video_hero_480.webm',
-  mp4Fallback: '/assets/videos/landing/video_hero.mp4',
-} as const;
-=======
 const POSTER_DESKTOP = "/assets/images/landing/hero-poster-1600.webp";
 const POSTER_MOBILE = "/assets/images/landing/hero-poster-800.webp";
->>>>>>> 9c0854953a7defabc7d969148f6dc4ae4f535ddf
 
 /**
  * A long scroll track containing one sticky video viewport. ScrollyVideo maps
@@ -104,52 +92,17 @@ export function HeroVideo() {
           setIsReady(true);
         };
 
-<<<<<<< HEAD
-    if (!isCurrentSrc) {
-      // Si la vidéo a déjà démarré, bascule transparente en conservant le curseur
-      video.src = targetSrc;
-      video.defaultPlaybackRate = PLAYBACK_RATE;
-      video.playbackRate = PLAYBACK_RATE;
-      video.load();
-
-      if (currentPos > 0) {
-        video.currentTime = currentPos;
-      }
-
-      if (wasPlaying) {
-        video.play().catch(() => {});
-      }
-    } else if (video.paused) {
-      video.play().catch(() => {});
-    }
-
-    video.playbackRate = PLAYBACK_RATE;
-
-    const handleLoadedMetadata = () => {
-      video.playbackRate = PLAYBACK_RATE;
-    };
-    video.addEventListener('loadedmetadata', handleLoadedMetadata);
-
-    // Détection de buffering/stalling pour rétrograder automatiquement
-    const handleWaitingOrStalled = () => {
-      if (stallTimeoutRef.current) clearTimeout(stallTimeoutRef.current);
-      stallTimeoutRef.current = setTimeout(() => {
-        if (effectiveQuality === '1080') {
-          setEffectiveQuality('720');
-        } else if (effectiveQuality === '720') {
-          setEffectiveQuality('480');
-=======
         video.addEventListener("loadeddata", handleReady, { once: true });
         video.addEventListener("canplay", handleReady, { once: true });
         video.addEventListener("error", handleError, { once: true });
 
-        if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA)
+        if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
           handleReady();
+        }
       } catch {
         if (!cancelled) {
           setHasError(true);
           setIsReady(true);
->>>>>>> 9c0854953a7defabc7d969148f6dc4ae4f535ddf
         }
       }
     };
@@ -157,16 +110,8 @@ export function HeroVideo() {
     void start();
 
     return () => {
-<<<<<<< HEAD
-      if (stallTimeoutRef.current) clearTimeout(stallTimeoutRef.current);
-      video.removeEventListener('waiting', handleWaitingOrStalled);
-      video.removeEventListener('stalled', handleWaitingOrStalled);
-      video.removeEventListener('playing', handlePlaying);
-      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-=======
       cancelled = true;
       instance?.destroy();
->>>>>>> 9c0854953a7defabc7d969148f6dc4ae4f535ddf
     };
   }, [content.hero.mediaCaption]);
 
