@@ -23,8 +23,7 @@ const MARKETING_LINKS: MenuItem[] = [
 ];
 
 const REAL_OTP_ACCOUNTS: RealAccount[] = [
-  // `/admin/apercu` n'existe plus : `destinationForRole('admin')` renvoie sur `/`.
-  { phone: '+212600000001', label: 'Admin — 06 00 00 00 01', path: '/' },
+  { phone: '+212600000001', label: 'Admin — 06 00 00 00 01', path: '/admin' },
   { phone: '+212600000002', label: 'Recruteur — 06 00 00 00 02', path: '/recruiter' },
   { phone: '+212600000003', label: 'Agent — 06 00 00 00 03', path: '/agent' },
 ];
@@ -65,11 +64,12 @@ const REAL_APP_LINKS: LinkGroup[] = [
   {
     key: 'admin-real',
     label: 'Back-office admin (réel)',
-    // La console `/admin` historique (aperçu, candidats, recruteurs,
-    // réclamations, utilisateurs) a été retirée en amont ; seules ces quatre
-    // pages subsistent. Elles n'ont plus de `layout.tsx` dédié et ne sont
-    // reliées à rien d'autre : ce menu est leur seul point d'entrée.
+    // La console a son propre `layout.tsx` et sa navigation depuis que
+    // `destinationForRole('admin')` y renvoie ; ce menu n'est plus le seul
+    // point d'entrée, il reste pratique pour sauter directement à un écran.
     items: [
+      { path: '/admin', label: 'Vue d’ensemble' },
+      { path: '/admin/utilisateurs', label: 'Utilisateurs et rôles' },
       { path: '/admin/offres', label: 'Offres' },
       { path: '/admin/candidatures', label: 'Candidatures' },
       { path: '/admin/journal', label: 'Journal' },

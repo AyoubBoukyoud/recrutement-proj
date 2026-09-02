@@ -26,6 +26,11 @@ x-backend-environment: &backend-environment
   GEMINI_API_KEY: ${GEMINI_API_KEY:-}
   GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.6-flash}
   OTP_CHANNELS: ${OTP_CHANNELS:-evolution,sms}
+  # The way into the admin console on a database that has no administrator
+  # yet: these numbers are granted the role on their first OTP request, and
+  # the entrypoint provisions them as accounts. See deploy/README.md.
+  ADMIN_PHONES: ${ADMIN_PHONES:-}
+  ADMIN_PHONE_COUNTRY: ${ADMIN_PHONE_COUNTRY:-+212}
   EVOLUTION_BASE_URL: http://evolution-go:4000
   EVOLUTION_INSTANCE_TOKEN: ${EVOLUTION_INSTANCE_TOKEN:?EVOLUTION_INSTANCE_TOKEN must be set in deploy/.env.prod}
   TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}

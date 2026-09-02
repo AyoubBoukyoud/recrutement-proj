@@ -39,6 +39,11 @@ if [ "${RUN_MIGRATIONS:-0}" = "1" ]; then
     # on fresh databases without running DatabaseSeeder's test accounts and
     # demo records in production.
     php artisan db:seed --class='Database\Seeders\RoleSeeder' --force
+
+    # The administrators from ADMIN_PHONES. Creates the account and adds the
+    # role, never touching an existing name, phone or another user's roles, so
+    # this is safe on every redeploy. Skips itself when the list is empty.
+    php artisan db:seed --class='Database\Seeders\AdminPhoneSeeder' --force
 fi
 
 exec "$@"

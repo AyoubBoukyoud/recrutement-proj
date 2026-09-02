@@ -371,6 +371,54 @@ class AdminOperationsTest extends TestCase
         $this->assertTrue($user->fresh()->hasRole('Commercial Agent'));
     }
 
+    public function test_an_administrator_creates_a_staff_account(): void
+    {
+        $this->admin();
+
+        $this->postJson('/api/admin/users', [
+            'name' => 'Yassin Recruiter',
+            'phone' => '00212 655-112233',
+            'roles' => ['Company'],
+        ])
+            ->assertCreated()
+            // Normalised on the way in, so the account this creates is the one
+            // the OTP flow will find when they sign in with the same number.
+            ->assertJsonPath('phone', '+212655112233')
+            ->assertJsonPath('roles', ['Company']);
+
+        $created = User::where('phone', '+212655112233')->firstOrFail();
+        $this->assertTrue($created->hasRole('Company'));
+        // No password is set: the account signs in by OTP like every other.
+        $this->assertNull($created->password);
+    }
+
+    public function test_a_staff_account_cannot_reuse_an_existing_number(): void
+    {
+        $this->admin();
+        User::factory()->create(['phone' => '+212655112233']);
+
+        $this->postJson('/api/admin/users', [
+            'name' => 'Duplicate',
+            'phone' => '+212655112233',
+            'roles' => ['Company'],
+        ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('phone');
+    }
+
+    public function test_creating_a_user_is_administrator_only(): void
+    {
+        $candidate = User::factory()->create();
+        $candidate->assignRole('User');
+        $this->actingAs($candidate, 'sanctum');
+
+        $this->postJson('/api/admin/users', [
+            'name' => 'Self promotion',
+            'phone' => '+212655112234',
+            'roles' => ['Administrator'],
+        ])->assertForbidden();
+    }
+
     public function test_an_administrator_cannot_remove_their_own_administrator_role(): void
     {
         $admin = $this->admin();

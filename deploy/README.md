@@ -18,6 +18,25 @@ sudo docker compose --env-file deploy/.env.prod -f deploy/docker-compose.prod.ym
 The `backend` container runs database migrations before PHP-FPM starts. Queue
 and scheduler containers wait for the API health check.
 
+## The first administrator
+
+Roles are granted from the admin console at `/admin/utilisateurs`, and reaching
+that console requires the `Administrator` role — so a fresh database needs a way
+in that does not depend on already being in. Set it in `deploy/.env.prod`:
+
+```dotenv
+ADMIN_PHONES=0632594914          # comma-separated; "+212632594914" is the same
+```
+
+The entrypoint provisions those numbers as accounts on every deploy, and the API
+grants the role on their first OTP request either way. Sign in at `/auth-phone`
+with the number — the code arrives over WhatsApp, so the pairing below must be
+working first.
+
+The number is not a secret: it names the account, and the code sent to that
+handset is what proves it is yours. Removing an entry does **not** revoke the
+role; take it away in the console instead.
+
 ## WhatsApp pairing
 
 Evolution Go 0.7 requires one-time server activation and a paired WhatsApp

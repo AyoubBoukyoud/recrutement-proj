@@ -7,6 +7,7 @@ use App\Models\OtpCode;
 use App\Models\ReferralAgent;
 use App\Models\User;
 use App\Services\OtpService;
+use App\Support\AdminPhones;
 use App\Support\PhoneNumber;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -42,6 +43,16 @@ class AuthController extends Controller
         // to send one to a number that can't reach `verifyOtp` anyway.
         if (! $user->isActive() && ! $user->deletion_requested_at) {
             return response()->json(['message' => 'This account cannot sign in.'], 403);
+        }
+
+        // A number on the ADMIN_PHONES allowlist holds Administrator from its
+        // very first sign-in. Without it a fresh deployment has no way in at
+        // all: every role is granted from the admin console, and reaching that
+        // console requires the role. Re-checked on every request rather than
+        // only on the create path above, because a number added to the list
+        // later already has an account and would otherwise never be promoted.
+        if (AdminPhones::contains($user->phone) && ! $user->hasRole('Administrator')) {
+            $user->assignRole('Administrator');
         }
 
         if (! $user->hasAnyRole(['User', 'Administrator', 'Commercial Agent', 'Company'])) {

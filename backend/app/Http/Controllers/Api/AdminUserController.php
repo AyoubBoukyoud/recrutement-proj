@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\PhoneNumber;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -50,6 +51,53 @@ class AdminUserController extends Controller
         ]);
 
         return response()->json($users);
+    }
+
+    /**
+     * Create an account the person has not signed up for themselves.
+     *
+     * There is no password to set: this only reserves the phone number and its
+     * roles, and the recruiter or agent still signs in by OTP like everybody
+     * else. Without it the only way to onboard staff is to ask them to log in
+     * as a candidate first so an administrator can find them and promote them,
+     * which puts them through the candidate profile wizard for nothing.
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $request->merge(['phone' => PhoneNumber::normalize((string) $request->input('phone', ''))]);
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            // Unique against the whole table, not just staff: the phone number
+            // IS the credential here, so a duplicate would be two accounts
+            // racing for the same sign-in.
+            'phone' => ['required', 'string', 'max:20', PhoneNumber::E164_RULE, 'unique:users,phone'],
+            'email' => ['sometimes', 'nullable', 'email', 'max:255', 'unique:users,email'],
+            'roles' => ['present', 'array', 'min:1'],
+            'roles.*' => ['string', 'exists:roles,name'],
+        ], [
+            'phone.regex' => 'Enter the number in international format, for example +212600000000.',
+            'phone.unique' => 'An account already exists for this number — change its roles instead.',
+        ]);
+
+        $user = User::create([
+            'name' => $data['name'],
+            'phone' => $data['phone'],
+            'email' => $data['email'] ?? null,
+            'status' => 'active',
+        ]);
+
+        $user->syncRoles($data['roles']);
+
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'phone' => $user->phone,
+            'email' => $user->email,
+            'roles' => $user->roles->pluck('name')->values(),
+            'has_candidate_profile' => false,
+            'created_at' => $user->created_at,
+        ], 201);
     }
 
     /** The roles a user can be given, so the UI does not hardcode them. */

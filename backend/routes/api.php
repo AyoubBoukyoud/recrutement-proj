@@ -174,6 +174,7 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
         Route::patch('/admin/complaints/{complaint}', [ComplaintController::class, 'update']);
 
         Route::get('/admin/users', [AdminUserController::class, 'index']);
+        Route::post('/admin/users', [AdminUserController::class, 'store']);
         Route::get('/admin/roles', [AdminUserController::class, 'roles']);
         Route::patch('/admin/users/{user}/roles', [AdminUserController::class, 'updateRoles']);
         // Recovery for a candidate who lost both the number and every session.

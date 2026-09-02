@@ -92,15 +92,41 @@ curl -X POST http://127.0.0.1:8000/api/auth/otp/request \
 ```
 
 A number that has never been seen becomes a candidate. Which console the web app shows you depends
-on your role — `Administrator`, `Company` (recruiter) or `Commercial Agent` — which an administrator
-assigns; grant one by hand with:
+on your role, and each one lands somewhere different after sign-in:
 
-```bash
-cd backend && php artisan tinker --execute='App\Models\User::where("phone","+212600000001")->first()->assignRole("Company");'
-```
+| Role | Lands on |
+| --- | --- |
+| `Administrator` | `/admin` |
+| `Company` | `/recruiter` |
+| `Commercial Agent` | `/agent` |
+| `User` | `/dashboard` |
+
+Roles are granted at **`/admin/utilisateurs`**. The normal way to onboard a recruiter or an agent is
+to have them sign in with their own number first — which makes them a candidate — then find them
+there and tick their role. "Créer un compte" on that screen covers the other direction, reserving
+the number before they ever log in. Neither sets a password, because there isn't one: they still
+sign in with a six-digit code.
 
 To send real codes instead, fill the `WHATSAPP_*` / `TWILIO_*` keys in `.env` and set
 `OTP_CHANNELS=whatsapp,sms`. WhatsApp is tried first, SMS is the fallback.
+
+### The first administrator
+
+Granting a role requires the admin console, and reaching the console requires the `Administrator`
+role — so a fresh deployment needs a way in that does not depend on already being in. That is
+`ADMIN_PHONES` in `backend/.env`:
+
+```dotenv
+ADMIN_PHONES=0632594914          # comma-separated; "+212632594914" is the same entry
+```
+
+Those numbers are granted `Administrator` on their **first OTP request**, so nothing has to be run
+by hand. `php artisan db:seed --class=AdminPhoneSeeder` provisions them up front instead, so they
+show up in the user list before their first login — safe to re-run, and safe in production.
+
+The number is not a secret: it identifies the account, and the code sent to that handset is what
+proves it is yours. Removing an entry does **not** revoke anything — the list only ever adds, so
+take the role away in the console instead.
 
 ---
 

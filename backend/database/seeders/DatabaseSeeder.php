@@ -18,6 +18,9 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(RoleSeeder::class);
 
+        // The real administrators from ADMIN_PHONES, before the fake ones below.
+        $this->call(AdminPhoneSeeder::class);
+
         $admin = User::factory()->create([
             'name' => 'Test Admin',
             'email' => 'admin@example.com',

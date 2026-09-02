@@ -30,6 +30,40 @@ class PhoneNumber
         return $trimmed;
     }
 
+    /**
+     * E.164 from a number that may have been written nationally.
+     *
+     * Deliberately separate from normalize(): that one must never guess a
+     * country for a number a stranger typed into the sign-in form, because
+     * guessing wrong sends the code to somebody else. Here the number comes
+     * from our own .env, where a Moroccan number is written down the way it is
+     * printed on a business card — "0632594914" — so the country is known and
+     * assuming it is the point. Mirrors the frontend's toInternationalPhone().
+     */
+    public static function toE164(string $phone, string $defaultCountryCode = '+212'): string
+    {
+        $normalized = self::normalize($phone);
+
+        if (str_starts_with($normalized, '+')) {
+            return '+'.self::digits($normalized);
+        }
+
+        $digits = self::digits($normalized);
+
+        if ($digits === '') {
+            return '';
+        }
+
+        // Already carries the country code, just without the plus.
+        $countryDigits = self::digits($defaultCountryCode);
+        if ($countryDigits !== '' && str_starts_with($digits, $countryDigits)) {
+            return '+'.$digits;
+        }
+
+        // The national trunk prefix is not part of the international form.
+        return $defaultCountryCode.ltrim($digits, '0');
+    }
+
     /** Digits only, no leading +, which is the form WhatsApp's API wants. */
     public static function digits(string $phone): string
     {
