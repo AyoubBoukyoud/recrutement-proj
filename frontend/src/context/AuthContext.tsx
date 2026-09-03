@@ -51,11 +51,23 @@ export type AuthResult = ({ ok: true } & OtpDispatch) | Failure;
 export type VerifyResult =
   { ok: true; role: UserRole; deletionPending: boolean } | Failure;
 
+/** Le compte réellement consulté pendant une session empruntée. */
+export type Impersonation = {
+  token: string;
+  user: AuthUser;
+};
+
 interface AuthContextValue {
   user: AuthUser | null;
   token: string | null;
   isLoading: boolean;
   pendingPhone: string | null;
+  /** L'administrateur mis de côté, non nul uniquement pendant un emprunt. */
+  impersonator: AuthUser | null;
+  /** Ouvre la session de quelqu'un d'autre en gardant la sienne de côté. */
+  impersonate: (token: string, user: AuthUser) => void;
+  /** Rend la session empruntée et restaure celle de l'administrateur. */
+  stopImpersonating: () => void;
   /** Secondes avant de pouvoir redemander un code, telles qu'annoncées par l'API. */
   resendAvailableIn: number | null;
   requestOtp: (phone: string, referralToken?: string) => Promise<AuthResult>;
@@ -148,6 +160,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [pendingPhone, setPendingPhone] = useState<string | null>(null);
+  const [impersonator, setImpersonator] = useState<AuthUser | null>(null);
   const [resendAvailableIn, setResendAvailableIn] = useState<number | null>(
     null,
   );
@@ -178,7 +191,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     setUser(storedUser);
     setToken(storedToken);
+    setImpersonator(readStorage<AuthUser | null>(STORAGE_KEYS.impersonatorUser, null));
     setIsLoading(false);
+  }, []);
+
+  /*
+   * Emprunt de session. La session de l'administrateur est mise de côté plutôt
+   * qu'écrasée : sans elle, revenir à son propre compte demanderait de
+   * redemander un code par WhatsApp, et l'écran d'où l'on vient exige déjà le
+   * rôle qu'on vient de quitter.
+   */
+  const impersonate = useCallback(
+    (nextToken: string, nextUser: AuthUser) => {
+      if (!user || !token) return;
+
+      writeStorage(STORAGE_KEYS.impersonatorToken, token);
+      writeStorage(STORAGE_KEYS.impersonatorUser, user);
+      setImpersonator(user);
+
+      setToken(nextToken);
+      writeStorage(STORAGE_KEYS.token, nextToken);
+      setUser(nextUser);
+      persistUser(nextUser);
+    },
+    [token, user],
+  );
+
+  const stopImpersonating = useCallback(() => {
+    const adminToken = readStorage<string | null>(STORAGE_KEYS.impersonatorToken, null);
+    const adminUser = readStorage<AuthUser | null>(STORAGE_KEYS.impersonatorUser, null);
+
+    removeStorage(STORAGE_KEYS.impersonatorToken);
+    removeStorage(STORAGE_KEYS.impersonatorUser);
+    setImpersonator(null);
+
+    // Rien à restaurer : mieux vaut une session fermée qu'une session empruntée
+    // qu'on ne sait plus quitter.
+    if (!adminToken || !adminUser) {
+      setUser(null);
+      setToken(null);
+      persistUser(null);
+      removeStorage(STORAGE_KEYS.token);
+      return;
+    }
+
+    setToken(adminToken);
+    writeStorage(STORAGE_KEYS.token, adminToken);
+    setUser(adminUser);
+    persistUser(adminUser);
   }, []);
 
   const requestOtp = useCallback(
@@ -261,8 +321,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setToken(null);
     setPendingPhone(null);
     setResendAvailableIn(null);
+    setImpersonator(null);
     persistUser(null);
     removeStorage(STORAGE_KEYS.token);
+    removeStorage(STORAGE_KEYS.impersonatorToken);
+    removeStorage(STORAGE_KEYS.impersonatorUser);
   }, [token]);
 
   const value = useMemo(
@@ -272,6 +335,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoading,
       pendingPhone,
       resendAvailableIn,
+      impersonator,
+      impersonate,
+      stopImpersonating,
       requestOtp,
       verifyOtp,
       logout,
@@ -282,6 +348,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoading,
       pendingPhone,
       resendAvailableIn,
+      impersonator,
+      impersonate,
+      stopImpersonating,
       requestOtp,
       verifyOtp,
       logout,

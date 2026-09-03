@@ -7,8 +7,11 @@ import { api } from '@/lib/opsApi';
 import { Avatar, Badge, Button, Card, DropdownMenu, Field, Modal, Notice, SelectField } from '@/components/ui';
 import { Pagination } from '@/components/Pagination';
 import { useAuth } from '@/context/AuthContext';
+import { destinationForRole } from '@/lib/roleDestination';
+import { useRouter } from 'next/navigation';
 import { toInternationalPhone } from '@/lib/phoneNumber';
 import type { PaginatedResponse } from '@/types/candidate';
+import type { UserRole } from '@/lib/types';
 
 /*
  * Utilisateurs et rôles.
@@ -61,6 +64,19 @@ const STATUS_LABEL: Record<AdminUser['status'], string> = {
   blocked: 'Bloqué',
 };
 
+const APP_ROLE_BY_BACKEND_NAME: Record<string, UserRole> = {
+  Administrator: 'admin',
+  Company: 'employer',
+  'Commercial Agent': 'agent',
+  User: 'candidate',
+};
+
+/** Le vocabulaire de l'application, dans le même ordre de priorité qu'AuthContext. */
+function roleForApp(roles: string[]): UserRole {
+  const role = effectiveRole(roles);
+  return role ? APP_ROLE_BY_BACKEND_NAME[role] : 'candidate';
+}
+
 /** Le rôle effectif : celui qui décide de la redirection après connexion. */
 function effectiveRole(roles: string[]): string | null {
   return ROLE_PRIORITY.find((role) => roles.includes(role)) ?? null;
@@ -81,7 +97,8 @@ function errorMessage(error: unknown, fallback: string) {
 
 export default function AdminUsers() {
   const qc = useQueryClient();
-  const { user: currentUser } = useAuth();
+  const router = useRouter();
+  const { user: currentUser, impersonate } = useAuth();
 
   const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
@@ -139,6 +156,31 @@ export default function AdminUsers() {
     },
   });
 
+  /*
+   * « Voir son compte » : l'API rend un jeton court au nom de cet utilisateur,
+   * AuthContext met celui de l'administrateur de côté, et on atterrit sur
+   * l'espace de son rôle. Le retour se fait par la bande jaune, qui reste
+   * affichée tant que la session est empruntée.
+   */
+  const openAs = useMutation({
+    mutationFn: (user: AdminUser) =>
+      api.post(`/admin/users/${user.id}/impersonate`).then((r) => r.data as {
+        token: string;
+        user: { id: number; name: string | null; phone: string; roles: string[] };
+      }),
+    onSuccess: (data) => {
+      const role = roleForApp(data.user.roles);
+      impersonate(data.token, {
+        id: String(data.user.id),
+        role,
+        name: data.user.name || data.user.phone,
+        phone: data.user.phone,
+        roles: data.user.roles,
+      });
+      router.push(destinationForRole(role, null));
+    },
+  });
+
   const createUser = useMutation({
     mutationFn: (body: { name: string; phone: string; roles: string[] }) => api.post('/admin/users', body),
     onSuccess: () => {
@@ -155,9 +197,9 @@ export default function AdminUsers() {
 
   const rows = users.data?.data ?? [];
   const writeError =
-    updateRole.error || setStatus.error || remove.error
+    updateRole.error || setStatus.error || remove.error || openAs.error
       ? errorMessage(
-          updateRole.error ?? setStatus.error ?? remove.error,
+          updateRole.error ?? setStatus.error ?? remove.error ?? openAs.error,
           'Action impossible.'
         )
       : null;
@@ -293,8 +335,31 @@ export default function AdminUsers() {
                         )}
                       </td>
 
-                      <td className="px-4 py-3 text-right">
-                        <DropdownMenu
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="compact"
+                            // Le back refuse les trois ; les griser explique
+                            // pourquoi avant le clic plutôt qu'après.
+                            disabled={
+                              isSelf ||
+                              user.status !== 'active' ||
+                              user.roles.includes('Administrator') ||
+                              openAs.isPending
+                            }
+                            title={
+                              user.roles.includes('Administrator')
+                                ? 'Un administrateur ne peut pas être emprunté'
+                                : user.status !== 'active'
+                                  ? 'Compte inactif ou bloqué'
+                                  : undefined
+                            }
+                            onClick={() => openAs.mutate(user)}
+                          >
+                            Voir son compte
+                          </Button>
+                          <DropdownMenu
                           label={`Actions pour ${displayName(user)}`}
                           items={[
                             { label: 'Renommer…', onClick: () => setRenaming(user) },
@@ -317,8 +382,9 @@ export default function AdminUsers() {
                               disabled: isSelf || user.has_candidate_profile,
                               onClick: () => setDeleting(user),
                             },
-                          ]}
-                        />
+                            ]}
+                          />
+                        </div>
                       </td>
                     </tr>
                   );

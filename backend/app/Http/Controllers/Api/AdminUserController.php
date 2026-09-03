@@ -224,6 +224,72 @@ class AdminUserController extends Controller
         return response()->json(['message' => 'Account deleted.']);
     }
 
+    /**
+     * Open a session as another user, to see what they see.
+     *
+     * The support case this exists for is "it does not work on my account",
+     * which is otherwise unanswerable: dossiers, offers and notifications all
+     * render from the signed-in user, so an administrator cannot reproduce a
+     * complaint without becoming that person.
+     *
+     * Three refusals, all about accountability rather than capability:
+     *
+     *  - another administrator, because it would let one administrator act as
+     *    another and leave the audit trail pointing at the wrong person, and
+     *    grants nothing this account does not already have;
+     *  - yourself, which is a no-op that would still burn a token;
+     *  - a blocked account, because the impersonator would be holding a
+     *    session its owner is currently refused.
+     *
+     * The token is short-lived and named for the administrator behind it, so
+     * an impersonated session is identifiable in the tokens table rather than
+     * looking like an ordinary login.
+     */
+    public function impersonate(Request $request, User $user): JsonResponse
+    {
+        $admin = $request->user();
+
+        if ($user->is($admin)) {
+            throw ValidationException::withMessages([
+                'user' => 'You are already signed in as this account.',
+            ]);
+        }
+
+        if ($user->hasRole('Administrator')) {
+            throw ValidationException::withMessages([
+                'user' => 'Administrators cannot be impersonated. Ask them to sign in themselves.',
+            ]);
+        }
+
+        if (! $user->isActive()) {
+            throw ValidationException::withMessages([
+                'user' => 'This account is not active. Reactivate it first.',
+            ]);
+        }
+
+        AdminActivityLog::record($admin, $user, 'impersonated', [
+            'phone' => $user->phone,
+            'roles' => $user->roles->pluck('name')->values()->all(),
+        ]);
+
+        $token = $user->createToken(
+            "Impersonation par l'administrateur #{$admin->id}",
+            ['*'],
+            now()->addMinutes((int) config('admin.impersonation_minutes', 60)),
+        );
+
+        return response()->json([
+            'token' => $token->plainTextToken,
+            'expires_at' => $token->accessToken->expires_at,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'phone' => $user->phone,
+                'roles' => $user->roles->pluck('name')->values(),
+            ],
+        ]);
+    }
+
     /** The row shape the console renders, shared by every write above. */
     private function present(User $user): array
     {

@@ -28,6 +28,20 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Impersonation
+    |--------------------------------------------------------------------------
+    |
+    | How long a "sign in as this user" token stays valid. Short on purpose:
+    | it is meant to last a support call, not a working day, and it is the only
+    | thing standing between a closed browser tab and a live session on
+    | somebody else's account.
+    |
+    */
+
+    'impersonation_minutes' => (int) env('ADMIN_IMPERSONATION_MINUTES', 60),
+
     'phones' => array_values(array_unique(array_filter(array_map(
         fn (string $entry) => PhoneNumber::toE164($entry, $defaultCountryCode),
         preg_split('/[,\s]+/', (string) env('ADMIN_PHONES', '')) ?: []

@@ -512,6 +512,70 @@ class AdminOperationsTest extends TestCase
             ->assertJsonStructure(['data' => [['id', 'name', 'phone', 'roles', 'status']]]);
     }
 
+    public function test_an_administrator_signs_in_as_a_candidate(): void
+    {
+        $admin = $this->admin();
+        $candidate = $this->candidate();
+
+        $response = $this->postJson("/api/admin/users/{$candidate->id}/impersonate")
+            ->assertSuccessful()
+            ->assertJsonPath('user.id', $candidate->id)
+            ->assertJsonStructure(['token', 'expires_at', 'user' => ['id', 'phone', 'roles']]);
+
+        // The token really is the candidate's, not a re-issued admin one.
+        $this->app['auth']->forgetGuards();
+        $this->withHeader('Authorization', 'Bearer '.$response->json('token'))
+            ->getJson('/api/admin/users')
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('admin_activity_logs', [
+            'actor_id' => $admin->id,
+            'subject_id' => $candidate->id,
+            'action' => 'impersonated',
+        ]);
+    }
+
+    public function test_the_impersonation_token_expires(): void
+    {
+        $this->admin();
+        $candidate = $this->candidate();
+
+        $this->postJson("/api/admin/users/{$candidate->id}/impersonate")
+            ->assertSuccessful()
+            // A session meant to last a support call, not a working day.
+            ->assertJsonPath('expires_at', fn (?string $at) => $at !== null);
+    }
+
+    public function test_an_administrator_cannot_be_impersonated(): void
+    {
+        $this->admin();
+        $other = User::factory()->create();
+        $other->assignRole('Administrator');
+
+        $this->postJson("/api/admin/users/{$other->id}/impersonate")
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('user');
+    }
+
+    public function test_a_blocked_account_cannot_be_impersonated(): void
+    {
+        $this->admin();
+        $user = User::factory()->create(['status' => 'blocked']);
+
+        $this->postJson("/api/admin/users/{$user->id}/impersonate")
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('user');
+    }
+
+    public function test_impersonation_is_administrator_only(): void
+    {
+        $candidate = $this->candidate();
+        $target = User::factory()->create();
+        $this->actingAs($candidate, 'sanctum');
+
+        $this->postJson("/api/admin/users/{$target->id}/impersonate")->assertForbidden();
+    }
+
     public function test_an_administrator_cannot_remove_their_own_administrator_role(): void
     {
         $admin = $this->admin();
