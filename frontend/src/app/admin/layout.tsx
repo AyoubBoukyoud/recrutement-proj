@@ -2,13 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { TopBar } from '@/components/TopBar';
 
 /*
- * La coquille de la console d'administration. Les quatre écrans historiques
- * (`offres`, `candidatures`, `journal`, `notifications`) vivaient sans layout
- * ni navigation : on ne pouvait passer de l'un à l'autre qu'en tapant l'URL.
- * `utilisateurs` est le seul point d'entrée pour attribuer un rôle, donc il
- * ouvre la liste.
+ * La coquille de la console d'administration.
+ *
+ * `TopBar` est la même barre que les espaces recruteur et agent : elle porte
+ * le sélecteur de thème clair/sombre, le sélecteur de langue et la
+ * déconnexion. L'admin était le seul rôle à ne l'avoir pas — donc le seul
+ * sans bascule de thème, et surtout le seul sans aucun moyen de se
+ * déconnecter autrement qu'en vidant le stockage du navigateur.
  */
 const nav = [
   ['/admin', 'Vue d’ensemble'],
@@ -22,11 +25,17 @@ const nav = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
+  // Le libellé de l'onglet courant plutôt qu'un titre fixe : la barre dit où
+  // l'on est, comme chez le recruteur où chaque écran passe le sien.
+  const current = nav.find(([href]) => href === pathname);
+
   return (
-    <div>
+    <div className="min-h-screen bg-surface">
+      <TopBar title={current ? current[1] : 'Administration'} />
+
       <nav
         aria-label="Navigation de la console d’administration"
-        className="overflow-x-auto border-b bg-surface-lowest px-4 py-3 sm:px-6"
+        className="overflow-x-auto border-b border-outline-variant bg-surface-container-lowest px-4 py-3 sm:px-6"
       >
         <div className="flex min-w-max gap-2">
           {nav.map(([href, label]) => {
@@ -36,8 +45,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 key={href}
                 href={href}
                 aria-current={active ? 'page' : undefined}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-bold ${
-                  active ? 'bg-primary text-onPrimary' : 'text-primary hover:bg-primary/5'
+                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-bold transition-colors ${
+                  active
+                    ? 'bg-primary text-onPrimary'
+                    : 'text-primary hover:bg-primary/5'
                 }`}
               >
                 {label}
@@ -46,7 +57,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </div>
       </nav>
-      {children}
+
+      {/* La TopBar passe en barre fixe en bas sous md : sans cette réserve, le
+          dernier élément de la page se retrouve dessous. */}
+      <div className="pb-24 md:pb-0">{children}</div>
     </div>
   );
 }
