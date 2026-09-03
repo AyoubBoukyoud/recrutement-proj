@@ -33,7 +33,7 @@ export function MobileActionBar() {
       aria-label="Action rapide mobile"
       className="fixed bottom-0 inset-x-0 z-40 sm:hidden transition-all duration-300 animate-in slide-in-from-bottom-5 pb-[env(safe-area-inset-bottom)]"
     >
-      <div className="mx-3 mb-3 rounded-2xl border border-white/30 dark:border-white/10 bg-surface/90 dark:bg-surface/95 p-3 shadow-[0_10px_35px_rgba(0,0,0,0.2)] backdrop-blur-xl">
+      <div className="mx-3 mb-3 rounded-2xl border border-black/10 dark:border-white/10 bg-white/92 dark:bg-[#181513]/95 p-3 shadow-[0_10px_35px_rgba(0,0,0,0.2)] backdrop-blur-xl">
         <div className="flex items-center justify-between gap-3">
           <div className="flex flex-col min-w-0 ps-1">
             <span className="text-[11px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex items-center gap-1">

@@ -52,52 +52,52 @@ html.text-size-large { font-size: 18px; }
   color-scheme: dark;
 
   /* --- Palette partagée (candidat, admin réel, auth...) --- */
-  --primary: #5ec8cc;
-  --primary-dark: #3b9195;
-  --primary-light: #0e4547;
-  --on-primary: #00363a;
-  --on-primary-container: #b8eaec;
+  --primary: #82db7e;
+  --primary-dark: #106d20;
+  --primary-light: #4da24e;
+  --on-primary: #00390a;
+  --on-primary-container: #003207;
 
-  --secondary: #f0cb6b;
-  --secondary-dark: #c99a2e;
-  --secondary-light: #4a3600;
-  --gold: #f0cb6b;
-  --on-secondary: #402d00;
-  --on-secondary-container: #ffe9b3;
+  --secondary: #cec5c0;
+  --secondary-dark: #4c4542;
+  --secondary-light: #2e2928;
+  --gold: #cec5c0;
+  --on-secondary: #352f2c;
+  --on-secondary-container: #bdb3af;
 
-  --tertiary: #e68ca0;
-  --tertiary-dark: #b85a70;
-  --tertiary-light: #450012;
-  --on-tertiary: #4a0018;
-  --on-tertiary-container: #ffd9e1;
+  --tertiary: #88d982;
+  --tertiary-dark: #53a152;
+  --tertiary-light: #326131;
+  --on-tertiary: #003909;
+  --on-tertiary-container: #003207;
 
   --error: #ffb4ab;
-  --error-light: #5c1a16;
+  --error-light: #93000a;
   --on-error: #690005;
   --on-error-container: #ffdad6;
 
-  --success: #5ec8cc;
-  --success-light: #0e4547;
+  --success: #82db7e;
+  --success-light: #4da24e;
 
-  --attention: #c99a2e;
-  --attention-light: #4a3600;
-  --on-attention-container: #ffe9b3;
+  --attention: #4c4542;
+  --attention-light: #2e2928;
+  --on-attention-container: #bdb3af;
 
-  --background: #121316;
-  --surface: #121316;
-  --surface-bright: #38393c;
-  --surface-dim: #0b0c0e;
-  --surface-lowest: #0a0b0d;
-  --surface-low: #1b1c1f;
-  --surface-container: #1f2023;
-  --surface-high: #292a2d;
-  --surface-highest: #343538;
+  --background: #161311;
+  --surface: #161311;
+  --surface-bright: #3d3632;
+  --surface-dim: #161311;
+  --surface-lowest: #110d0c;
+  --surface-low: #1f1b19;
+  --surface-container: #26211e;
+  --surface-high: #2e2927;
+  --surface-highest: #393431;
 
-  --on-surface: #e2e2e6;
-  --on-surface-variant: #c4c6cf;
+  --on-surface: #e5e2e1;
+  --on-surface-variant: #bfcab9;
 
-  --outline: #8e9099;
-  --outline-variant: #43474e;
+  --outline: #899485;
+  --outline-variant: #40493d;
 
   /* --- Palette amud-* (espaces Admin/Commercial/Employeur/Candidat mock) --- */
   --amud-primary: #6fb3b6;
