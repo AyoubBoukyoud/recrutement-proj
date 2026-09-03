@@ -419,6 +419,99 @@ class AdminOperationsTest extends TestCase
         ])->assertForbidden();
     }
 
+    public function test_an_administrator_renames_an_account(): void
+    {
+        $this->admin();
+        // Every account the OTP flow creates starts nameless.
+        $user = User::factory()->create(['name' => null]);
+
+        $this->patchJson("/api/admin/users/{$user->id}", ['name' => 'Fatima Zahra'])
+            ->assertSuccessful()
+            ->assertJsonPath('name', 'Fatima Zahra');
+
+        $this->assertSame('Fatima Zahra', $user->fresh()->name);
+    }
+
+    public function test_an_administrator_blocks_and_restores_an_account(): void
+    {
+        $admin = $this->admin();
+        $user = User::factory()->create(['status' => 'active']);
+
+        $this->patchJson("/api/admin/users/{$user->id}/status", [
+            'status' => 'blocked',
+            'status_reason' => 'Numéro frauduleux',
+        ])
+            ->assertSuccessful()
+            ->assertJsonPath('status', 'blocked');
+
+        $user->refresh();
+        $this->assertTrue($user->isBlocked());
+        $this->assertSame($admin->id, $user->status_changed_by_id);
+
+        $this->patchJson("/api/admin/users/{$user->id}/status", ['status' => 'active'])
+            ->assertSuccessful()
+            ->assertJsonPath('status', 'active');
+    }
+
+    public function test_the_last_administrator_cannot_be_blocked(): void
+    {
+        $admin = $this->admin();
+        $this->assertSame(1, User::role('Administrator')->count());
+
+        $this->patchJson("/api/admin/users/{$admin->id}/status", ['status' => 'blocked'])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('status');
+
+        $this->assertTrue($admin->fresh()->isActive());
+    }
+
+    public function test_an_administrator_deletes_an_account(): void
+    {
+        $this->admin();
+        $user = User::factory()->create();
+
+        $this->deleteJson("/api/admin/users/{$user->id}")->assertSuccessful();
+
+        $this->assertDatabaseMissing('users', ['id' => $user->id]);
+    }
+
+    public function test_an_administrator_cannot_delete_themselves(): void
+    {
+        $admin = $this->admin();
+        User::factory()->create()->assignRole('Administrator');
+
+        $this->deleteJson("/api/admin/users/{$admin->id}")
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('user');
+
+        $this->assertDatabaseHas('users', ['id' => $admin->id]);
+    }
+
+    public function test_an_account_with_a_candidate_dossier_is_not_deleted_here(): void
+    {
+        $this->admin();
+        // Deleting this row would orphan the documents and applications that
+        // hang off the dossier, so the candidate screen owns that unwind.
+        $candidate = $this->candidate();
+
+        $this->deleteJson("/api/admin/users/{$candidate->id}")
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('user');
+
+        $this->assertDatabaseHas('users', ['id' => $candidate->id]);
+    }
+
+    public function test_the_user_list_carries_status(): void
+    {
+        $this->admin();
+        User::factory()->create(['status' => 'blocked']);
+
+        $this->getJson('/api/admin/users?role=User')->assertSuccessful();
+        $this->getJson('/api/admin/users')
+            ->assertSuccessful()
+            ->assertJsonStructure(['data' => [['id', 'name', 'phone', 'roles', 'status']]]);
+    }
+
     public function test_an_administrator_cannot_remove_their_own_administrator_role(): void
     {
         $admin = $this->admin();

@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdminActivityLog;
 use App\Models\User;
 use App\Support\PhoneNumber;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Role;
 
@@ -46,6 +48,8 @@ class AdminUserController extends Controller
             'phone' => $user->phone,
             'email' => $user->email,
             'roles' => $user->roles->pluck('name')->values(),
+            'status' => $user->status,
+            'status_reason' => $user->status_reason,
             'has_candidate_profile' => $user->candidateProfile()->exists(),
             'created_at' => $user->created_at,
         ]);
@@ -128,6 +132,130 @@ class AdminUserController extends Controller
             'phone' => $user->phone,
             'roles' => $user->fresh()->roles->pluck('name')->values(),
         ]);
+    }
+
+    /**
+     * Rename an account, or give it an email.
+     *
+     * Every account created by the OTP flow arrives with a null name, because
+     * nobody is asked for one before they have signed in — which is why the
+     * user list was a column of "Sans nom". An administrator who knows who a
+     * number belongs to can now say so.
+     */
+    public function update(Request $request, User $user): JsonResponse
+    {
+        $data = $request->validate([
+            'name' => ['sometimes', 'nullable', 'string', 'max:120'],
+            'email' => ['sometimes', 'nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+        ]);
+
+        $user->update($data);
+
+        return response()->json($this->present($user->fresh()));
+    }
+
+    /**
+     * Suspend or restore an account.
+     *
+     * A blocked account is refused at requestOtp, before a code is even sent,
+     * so this is what actually stops somebody signing in — removing their
+     * roles only strands them on a console they cannot use.
+     */
+    public function updateStatus(Request $request, User $user): JsonResponse
+    {
+        $data = $request->validate([
+            'status' => ['required', 'in:active,inactive,blocked'],
+            'status_reason' => ['sometimes', 'nullable', 'string', 'max:500'],
+        ]);
+
+        if ($data['status'] !== 'active') {
+            $this->guardAgainstLosingTheLastAdministrator($request, $user, 'status');
+        }
+
+        $user->update([
+            'status' => $data['status'],
+            'status_reason' => $data['status_reason'] ?? null,
+            'status_changed_at' => now(),
+            'status_changed_by_id' => $request->user()->id,
+        ]);
+
+        AdminActivityLog::record($request->user(), $user, 'status_changed', [
+            'status' => $data['status'],
+            'reason' => $data['status_reason'] ?? null,
+        ]);
+
+        return response()->json($this->present($user->fresh()));
+    }
+
+    /**
+     * Delete an account outright.
+     *
+     * Blocking is almost always the right action instead — it is reversible
+     * and keeps the audit trail attached to a real row. This exists for the
+     * genuine mistakes: a typo'd number, a duplicate staff account. An account
+     * carrying a candidate dossier is refused, because deleting it here would
+     * orphan documents and applications that belong to a person; those go
+     * through the candidate screen, which knows how to unwind them.
+     */
+    public function destroy(Request $request, User $user): JsonResponse
+    {
+        if ($user->is($request->user())) {
+            throw ValidationException::withMessages([
+                'user' => 'You cannot delete your own account.',
+            ]);
+        }
+
+        $this->guardAgainstLosingTheLastAdministrator($request, $user, 'user');
+
+        if ($user->candidateProfile()->exists()) {
+            throw ValidationException::withMessages([
+                'user' => 'This account has a candidate dossier. Delete it from the candidate screen, or block the account instead.',
+            ]);
+        }
+
+        AdminActivityLog::record($request->user(), $user, 'user_deleted', [
+            'phone' => $user->phone,
+            'roles' => $user->roles->pluck('name')->values()->all(),
+        ]);
+
+        $user->tokens()->delete();
+        $user->delete();
+
+        return response()->json(['message' => 'Account deleted.']);
+    }
+
+    /** The row shape the console renders, shared by every write above. */
+    private function present(User $user): array
+    {
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'phone' => $user->phone,
+            'email' => $user->email,
+            'roles' => $user->roles->pluck('name')->values(),
+            'status' => $user->status,
+            'status_reason' => $user->status_reason,
+            'has_candidate_profile' => $user->candidateProfile()->exists(),
+            'created_at' => $user->created_at,
+        ];
+    }
+
+    /**
+     * Blocking or deleting the last administrator locks everybody out of the
+     * console exactly as surely as demoting them does, and neither is
+     * recoverable from inside the product.
+     */
+    private function guardAgainstLosingTheLastAdministrator(Request $request, User $user, string $field): void
+    {
+        if (! $user->hasRole('Administrator')) {
+            return;
+        }
+
+        if (User::role('Administrator')->count() <= 1) {
+            throw ValidationException::withMessages([
+                $field => 'This is the last administrator. Promote somebody else first.',
+            ]);
+        }
     }
 
     /**
