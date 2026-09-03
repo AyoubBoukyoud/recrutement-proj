@@ -5,6 +5,11 @@ import { useHomeContent } from "@/lib/useLocalizedContent";
 
 interface ScrollyVideoInstance {
   video: HTMLVideoElement;
+  transitioningRaf?: number;
+  setVideoPercentage: (
+    percentage: number,
+    options?: { transitionSpeed?: number },
+  ) => void;
   destroy: () => void;
 }
 
@@ -38,6 +43,8 @@ export function HeroVideo() {
 
     let instance: ScrollyVideoInstance | null = null;
     let cancelled = false;
+    let scrollRaf: number | null = null;
+    let removeScrollTracking = () => {};
 
     const start = async () => {
       try {
@@ -52,10 +59,12 @@ export function HeroVideo() {
           cover: true,
           sticky: true,
           full: true,
-          trackScroll: true,
-          lockScroll: false,
-          transitionSpeed: 10,
-          frameThreshold: 0.04,
+          // The package's built-in listener starts a fresh transition for every
+          // raw scroll event. Driving it ourselves below keeps one transition
+          // alive at a time and lets the browser batch work to animation frames.
+          trackScroll: false,
+          transitionSpeed: 6,
+          frameThreshold: 0.03,
           // The 1080p MP4 is encoded with every frame as a keyframe.
           // Keeping native video seeking avoids retaining all 900 decoded frames.
           useWebCodecs: false,
@@ -82,6 +91,55 @@ export function HeroVideo() {
         video.setAttribute("aria-label", content.hero.mediaCaption);
         video.setAttribute("playsinline", "");
         video.disablePictureInPicture = true;
+
+        const track = container.parentElement;
+        const updateFromScroll = () => {
+          scrollRaf = null;
+          if (!instance || !track) return;
+
+          const bounds = track.getBoundingClientRect();
+          const scrollableDistance = Math.max(
+            bounds.height - window.innerHeight,
+            1,
+          );
+          const progress = Math.max(
+            0,
+            Math.min(1, -bounds.top / scrollableDistance),
+          );
+
+          // Duration is unavailable until metadata has loaded. The progress
+          // rail can still update immediately; video scrubbing starts once it
+          // has a real timeline to seek through.
+          if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
+            instance.setVideoPercentage(progress);
+          } else if (progressRef.current) {
+            progressRef.current.style.transform = `scaleX(${progress})`;
+          }
+        };
+
+        const scheduleScrollUpdate = () => {
+          if (scrollRaf !== null) return;
+          scrollRaf = window.requestAnimationFrame(updateFromScroll);
+        };
+
+        window.addEventListener("scroll", scheduleScrollUpdate, {
+          passive: true,
+        });
+        window.addEventListener("resize", scheduleScrollUpdate, {
+          passive: true,
+        });
+        video.addEventListener("loadedmetadata", scheduleScrollUpdate);
+        scheduleScrollUpdate();
+
+        removeScrollTracking = () => {
+          window.removeEventListener("scroll", scheduleScrollUpdate);
+          window.removeEventListener("resize", scheduleScrollUpdate);
+          video.removeEventListener("loadedmetadata", scheduleScrollUpdate);
+          if (scrollRaf !== null) {
+            window.cancelAnimationFrame(scrollRaf);
+            scrollRaf = null;
+          }
+        };
 
         const handleReady = () => {
           setHasError(false);
@@ -111,12 +169,17 @@ export function HeroVideo() {
 
     return () => {
       cancelled = true;
+      removeScrollTracking();
+      if (instance?.transitioningRaf) {
+        window.cancelAnimationFrame(instance.transitioningRaf);
+      }
+      instance?.video.pause();
       instance?.destroy();
     };
   }, [content.hero.mediaCaption]);
 
   return (
-    <div className="relative h-[320svh] min-h-[1440px] bg-black motion-reduce:h-[100svh] motion-reduce:min-h-[480px]">
+    <div className="relative h-[420svh] min-h-[1900px] bg-black motion-reduce:h-[100svh] motion-reduce:min-h-[480px]">
       <div
         ref={videoContainerRef}
         className="sticky top-0 h-[100svh] min-h-[480px] overflow-hidden bg-cover bg-center"
