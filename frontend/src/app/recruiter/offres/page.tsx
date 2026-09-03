@@ -292,17 +292,24 @@ export default function Offers() {
             </SelectField>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
+            {/* Mensuel, pas annuel : JobOfferMatching divise par douze la
+                préférence annuelle du candidat avant de la comparer à ce
+                montant, et la fiche candidat l'affiche tel quel. Saisir un
+                salaire annuel ici le rendrait douze fois trop élevé face à
+                chaque candidat ayant exprimé une attente salariale. */}
             <Field
               label="Salaire min."
-              hint="par an, optionnel"
+              hint="€ par mois"
               inputMode="numeric"
+              placeholder="2400"
               value={form.salary_min}
               onChange={(e) => setForm({ ...form, salary_min: e.target.value.replace(/\D/g, '') })}
             />
             <Field
               label="Salaire max."
-              hint="optionnel"
+              hint="€ par mois"
               inputMode="numeric"
+              placeholder="3100"
               value={form.salary_max}
               onChange={(e) => setForm({ ...form, salary_max: e.target.value.replace(/\D/g, '') })}
             />
