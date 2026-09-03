@@ -371,6 +371,211 @@ class AdminOperationsTest extends TestCase
         $this->assertTrue($user->fresh()->hasRole('Commercial Agent'));
     }
 
+    public function test_an_administrator_creates_a_staff_account(): void
+    {
+        $this->admin();
+
+        $this->postJson('/api/admin/users', [
+            'name' => 'Yassin Recruiter',
+            'phone' => '00212 655-112233',
+            'roles' => ['Company'],
+        ])
+            ->assertCreated()
+            // Normalised on the way in, so the account this creates is the one
+            // the OTP flow will find when they sign in with the same number.
+            ->assertJsonPath('phone', '+212655112233')
+            ->assertJsonPath('roles', ['Company']);
+
+        $created = User::where('phone', '+212655112233')->firstOrFail();
+        $this->assertTrue($created->hasRole('Company'));
+        // No password is set: the account signs in by OTP like every other.
+        $this->assertNull($created->password);
+    }
+
+    public function test_a_staff_account_cannot_reuse_an_existing_number(): void
+    {
+        $this->admin();
+        User::factory()->create(['phone' => '+212655112233']);
+
+        $this->postJson('/api/admin/users', [
+            'name' => 'Duplicate',
+            'phone' => '+212655112233',
+            'roles' => ['Company'],
+        ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('phone');
+    }
+
+    public function test_creating_a_user_is_administrator_only(): void
+    {
+        $candidate = User::factory()->create();
+        $candidate->assignRole('User');
+        $this->actingAs($candidate, 'sanctum');
+
+        $this->postJson('/api/admin/users', [
+            'name' => 'Self promotion',
+            'phone' => '+212655112234',
+            'roles' => ['Administrator'],
+        ])->assertForbidden();
+    }
+
+    public function test_an_administrator_renames_an_account(): void
+    {
+        $this->admin();
+        // Every account the OTP flow creates starts nameless.
+        $user = User::factory()->create(['name' => null]);
+
+        $this->patchJson("/api/admin/users/{$user->id}", ['name' => 'Fatima Zahra'])
+            ->assertSuccessful()
+            ->assertJsonPath('name', 'Fatima Zahra');
+
+        $this->assertSame('Fatima Zahra', $user->fresh()->name);
+    }
+
+    public function test_an_administrator_blocks_and_restores_an_account(): void
+    {
+        $admin = $this->admin();
+        $user = User::factory()->create(['status' => 'active']);
+
+        $this->patchJson("/api/admin/users/{$user->id}/status", [
+            'status' => 'blocked',
+            'status_reason' => 'Numéro frauduleux',
+        ])
+            ->assertSuccessful()
+            ->assertJsonPath('status', 'blocked');
+
+        $user->refresh();
+        $this->assertTrue($user->isBlocked());
+        $this->assertSame($admin->id, $user->status_changed_by_id);
+
+        $this->patchJson("/api/admin/users/{$user->id}/status", ['status' => 'active'])
+            ->assertSuccessful()
+            ->assertJsonPath('status', 'active');
+    }
+
+    public function test_the_last_administrator_cannot_be_blocked(): void
+    {
+        $admin = $this->admin();
+        $this->assertSame(1, User::role('Administrator')->count());
+
+        $this->patchJson("/api/admin/users/{$admin->id}/status", ['status' => 'blocked'])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('status');
+
+        $this->assertTrue($admin->fresh()->isActive());
+    }
+
+    public function test_an_administrator_deletes_an_account(): void
+    {
+        $this->admin();
+        $user = User::factory()->create();
+
+        $this->deleteJson("/api/admin/users/{$user->id}")->assertSuccessful();
+
+        $this->assertDatabaseMissing('users', ['id' => $user->id]);
+    }
+
+    public function test_an_administrator_cannot_delete_themselves(): void
+    {
+        $admin = $this->admin();
+        User::factory()->create()->assignRole('Administrator');
+
+        $this->deleteJson("/api/admin/users/{$admin->id}")
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('user');
+
+        $this->assertDatabaseHas('users', ['id' => $admin->id]);
+    }
+
+    public function test_an_account_with_a_candidate_dossier_is_not_deleted_here(): void
+    {
+        $this->admin();
+        // Deleting this row would orphan the documents and applications that
+        // hang off the dossier, so the candidate screen owns that unwind.
+        $candidate = $this->candidate();
+
+        $this->deleteJson("/api/admin/users/{$candidate->id}")
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('user');
+
+        $this->assertDatabaseHas('users', ['id' => $candidate->id]);
+    }
+
+    public function test_the_user_list_carries_status(): void
+    {
+        $this->admin();
+        User::factory()->create(['status' => 'blocked']);
+
+        $this->getJson('/api/admin/users?role=User')->assertSuccessful();
+        $this->getJson('/api/admin/users')
+            ->assertSuccessful()
+            ->assertJsonStructure(['data' => [['id', 'name', 'phone', 'roles', 'status']]]);
+    }
+
+    public function test_an_administrator_signs_in_as_a_candidate(): void
+    {
+        $admin = $this->admin();
+        $candidate = $this->candidate();
+
+        $response = $this->postJson("/api/admin/users/{$candidate->id}/impersonate")
+            ->assertSuccessful()
+            ->assertJsonPath('user.id', $candidate->id)
+            ->assertJsonStructure(['token', 'expires_at', 'user' => ['id', 'phone', 'roles']]);
+
+        // The token really is the candidate's, not a re-issued admin one.
+        $this->app['auth']->forgetGuards();
+        $this->withHeader('Authorization', 'Bearer '.$response->json('token'))
+            ->getJson('/api/admin/users')
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('admin_activity_logs', [
+            'actor_id' => $admin->id,
+            'subject_id' => $candidate->id,
+            'action' => 'impersonated',
+        ]);
+    }
+
+    public function test_the_impersonation_token_expires(): void
+    {
+        $this->admin();
+        $candidate = $this->candidate();
+
+        $this->postJson("/api/admin/users/{$candidate->id}/impersonate")
+            ->assertSuccessful()
+            // A session meant to last a support call, not a working day.
+            ->assertJsonPath('expires_at', fn (?string $at) => $at !== null);
+    }
+
+    public function test_an_administrator_cannot_be_impersonated(): void
+    {
+        $this->admin();
+        $other = User::factory()->create();
+        $other->assignRole('Administrator');
+
+        $this->postJson("/api/admin/users/{$other->id}/impersonate")
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('user');
+    }
+
+    public function test_a_blocked_account_cannot_be_impersonated(): void
+    {
+        $this->admin();
+        $user = User::factory()->create(['status' => 'blocked']);
+
+        $this->postJson("/api/admin/users/{$user->id}/impersonate")
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('user');
+    }
+
+    public function test_impersonation_is_administrator_only(): void
+    {
+        $candidate = $this->candidate();
+        $target = User::factory()->create();
+        $this->actingAs($candidate, 'sanctum');
+
+        $this->postJson("/api/admin/users/{$target->id}/impersonate")->assertForbidden();
+    }
+
     public function test_an_administrator_cannot_remove_their_own_administrator_role(): void
     {
         $admin = $this->admin();

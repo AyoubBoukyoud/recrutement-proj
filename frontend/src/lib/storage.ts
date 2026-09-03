@@ -37,6 +37,10 @@ export const STORAGE_KEYS = {
   theme: "as_theme",
   syncQueue: "as_sync_queue",
   installPromptDismissedAt: "as_install_prompt_dismissed_at",
+  /* La session de l'administrateur mise de côté pendant qu'il consulte le
+   * compte de quelqu'un d'autre — c'est ce qui lui permet de revenir. */
+  impersonatorToken: "as_impersonator_token",
+  impersonatorUser: "as_impersonator_user",
   // Prototype candidat (maquette localStorage) — voir implementation_plan.md.
   candidateProfileV2: "as_candidate_profile_v2",
   candidateDocuments: "as_candidate_documents",

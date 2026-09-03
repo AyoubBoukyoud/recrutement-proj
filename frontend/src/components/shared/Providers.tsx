@@ -9,6 +9,7 @@ import { LanguageProvider, useLanguage } from "@/context/LanguageContext";
 import { ThemeProvider, useTheme } from "@/context/ThemeContext";
 import { SettingsProvider } from "@/context/SettingsContext";
 import { OfflineBanner } from "./OfflineBanner";
+import { ImpersonationBanner } from '@/components/ImpersonationBanner';
 import { SyncBadge } from "./SyncBadge";
 import { InstallPrompt } from "./InstallPrompt";
 
@@ -54,6 +55,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                   <HtmlLangSync />
                   <HtmlThemeSync />
                   <OfflineBanner />
+                  <ImpersonationBanner />
                   {children}
                   <SyncBadge />
                   <InstallPrompt />

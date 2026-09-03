@@ -60,10 +60,7 @@ function realDestinationForAmud(pathname: string): string | null {
   if (!SHOW_PROTOTYPES && pathname.startsWith('/amud/marketing/employers')) return '/employeurs';
   if (!SHOW_PROTOTYPES && pathname.startsWith('/amud/marketing')) return '/accueil-public';
   if (!SHOW_PROTOTYPES && (pathname === '/amud' || pathname.startsWith('/amud/centre'))) return '/accueil-public';
-  // Le back-office `/admin` a été retiré : il n'y a plus de console réelle
-  // vers laquelle renvoyer, et `/admin/apercu` renverrait un 404. On suit donc
-  // `destinationForRole('admin')`, qui envoie l'administrateur sur `/`.
-  if (!SHOW_PROTOTYPES && pathname.startsWith('/amud/admin')) return '/';
+  if (!SHOW_PROTOTYPES && pathname.startsWith('/amud/admin')) return '/admin';
   if (!SHOW_PROTOTYPES && (pathname.startsWith('/amud/entreprise') || pathname === '/amud/employer')) return '/recruiter';
   if (!SHOW_PROTOTYPES && pathname.startsWith('/amud/commercial')) return '/agent';
   return null;
@@ -79,6 +76,10 @@ function isRecruiterPath(pathname: string) {
 
 function isAgentPath(pathname: string) {
   return pathname.startsWith('/agent');
+}
+
+function isAdminPath(pathname: string) {
+  return pathname.startsWith('/admin');
 }
 
 function redirectTo(request: NextRequest, targetPathname: string) {
@@ -143,6 +144,20 @@ export function middleware(request: NextRequest) {
     }
   }
 
+  /*
+   * Routes administrateur. Ces pages existaient sans être protégées : absentes
+   * du `matcher`, elles s'affichaient pour n'importe quel visiteur, l'API
+   * renvoyant 401 derrière un écran déjà rendu.
+   */
+  if (isAdminPath(pathname)) {
+    if (role === 'candidate') {
+      return redirectTo(request, '/dashboard');
+    }
+    if (role !== 'admin') {
+      return redirectTo(request, '/auth-phone');
+    }
+  }
+
   return NextResponse.next();
 }
 
@@ -174,6 +189,7 @@ export const config = {
     '/compte/:path*',
     '/recruiter/:path*',
     '/agent/:path*',
+    '/admin/:path*',
     '/amud/:path*',
   ],
 };

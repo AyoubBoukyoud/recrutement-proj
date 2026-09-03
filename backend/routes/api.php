@@ -174,8 +174,13 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
         Route::patch('/admin/complaints/{complaint}', [ComplaintController::class, 'update']);
 
         Route::get('/admin/users', [AdminUserController::class, 'index']);
+        Route::post('/admin/users', [AdminUserController::class, 'store']);
         Route::get('/admin/roles', [AdminUserController::class, 'roles']);
+        Route::patch('/admin/users/{user}', [AdminUserController::class, 'update']);
         Route::patch('/admin/users/{user}/roles', [AdminUserController::class, 'updateRoles']);
+        Route::patch('/admin/users/{user}/status', [AdminUserController::class, 'updateStatus']);
+        Route::delete('/admin/users/{user}', [AdminUserController::class, 'destroy']);
+        Route::post('/admin/users/{user}/impersonate', [AdminUserController::class, 'impersonate']);
         // Recovery for a candidate who lost both the number and every session.
         Route::patch('/admin/users/{user}/phone', [AdminAccountRecoveryController::class, 'reassignPhone']);
         // Referral commissions: qualified automatically, approved and paid by hand.

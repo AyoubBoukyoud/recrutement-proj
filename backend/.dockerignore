@@ -1,8 +1,9 @@
 .git
 .env
-.env.backup
-node_modules
+.env.*
+!.env.example
 vendor
+node_modules
 public/build
 public/hot
 storage/logs/*

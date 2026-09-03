@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useHomeContent } from '@/lib/useLocalizedContent';
 
+<<<<<<< HEAD
 export type ConcreteQuality = '720' | '480';
 
 interface NetworkInformation extends EventTarget {
@@ -28,6 +29,21 @@ const VIDEO_SOURCES = {
   '480': '/assets/videos/landing/video_hero_480.webm',
   mp4Fallback: '/assets/videos/landing/video_hero.mp4',
 } as const;
+=======
+interface ScrollyVideoInstance {
+  video: HTMLVideoElement;
+  transitioningRaf?: number;
+  setVideoPercentage: (
+    percentage: number,
+    options?: { transitionSpeed?: number },
+  ) => void;
+  destroy: () => void;
+}
+
+const VIDEO_SOURCE = "/assets/videos/landing/video_hero.mp4";
+const POSTER_DESKTOP = "/assets/images/landing/hero-poster-1600.webp";
+const POSTER_MOBILE = "/assets/images/landing/hero-poster-800.webp";
+>>>>>>> 1bf3fe961d4cdb0a42b5aec5bc65e7d0fde6339e
 
 /**
  * Détermine intelligemment la résolution optimale en combinant :
@@ -105,6 +121,7 @@ export function HeroVideo() {
       conn.addEventListener('change', computeAndApplyQuality);
     }
 
+<<<<<<< HEAD
     return () => {
       window.removeEventListener('resize', handleResize);
       if (conn) {
@@ -112,18 +129,58 @@ export function HeroVideo() {
       }
     };
   }, [computeAndApplyQuality]);
+=======
+    let instance: ScrollyVideoInstance | null = null;
+    let cancelled = false;
+    let scrollRaf: number | null = null;
+    let removeScrollTracking = () => {};
+>>>>>>> 1bf3fe961d4cdb0a42b5aec5bc65e7d0fde6339e
 
   // Synchronisation de la source vidéo et maintien du currentTime
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
+<<<<<<< HEAD
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) return;
+=======
+        instance = new ScrollyVideo({
+          src: VIDEO_SOURCE,
+          scrollyVideoContainer: container,
+          cover: true,
+          sticky: true,
+          full: true,
+          // The package's built-in listener starts a fresh transition for every
+          // raw scroll event. Driving it ourselves below keeps one transition
+          // alive at a time and lets the browser batch work to animation frames.
+          trackScroll: false,
+          transitionSpeed: 6,
+          frameThreshold: 0.03,
+          // The 1080p MP4 is encoded with every frame as a keyframe.
+          // Keeping native video seeking avoids retaining all 900 decoded frames.
+          useWebCodecs: false,
+          // The package declaration omits this callback argument, although the
+          // implementation passes the current percentage on every update.
+          onChange: ((percentage: number) => {
+            const progress = Math.max(0, Math.min(1, percentage));
+            if (progressRef.current) {
+              progressRef.current.style.transform = `scaleX(${progress})`;
+            }
+            if (progressValueRef.current) {
+              progressValueRef.current.setAttribute(
+                "aria-valuenow",
+                String(Math.round(progress * 100)),
+              );
+            }
+          }) as () => void,
+        }) as ScrollyVideoInstance;
+>>>>>>> 1bf3fe961d4cdb0a42b5aec5bc65e7d0fde6339e
 
     const targetSrc = VIDEO_SOURCES[effectiveQuality];
     const currentPos = video.currentTime || 0;
     const wasPlaying = !video.paused;
 
+<<<<<<< HEAD
     // Vérifier si la source actuelle correspond déjà à la qualité désirée
     const isCurrentSrc = video.currentSrc?.endsWith(targetSrc) || video.src?.endsWith(targetSrc);
 
@@ -158,6 +215,77 @@ export function HeroVideo() {
       stallTimeoutRef.current = setTimeout(() => {
         if (effectiveQuality === '720') {
           setEffectiveQuality('480');
+=======
+        const track = container.parentElement;
+        const updateFromScroll = () => {
+          scrollRaf = null;
+          if (!instance || !track) return;
+
+          const bounds = track.getBoundingClientRect();
+          const scrollableDistance = Math.max(
+            bounds.height - window.innerHeight,
+            1,
+          );
+          const progress = Math.max(
+            0,
+            Math.min(1, -bounds.top / scrollableDistance),
+          );
+
+          // Duration is unavailable until metadata has loaded. The progress
+          // rail can still update immediately; video scrubbing starts once it
+          // has a real timeline to seek through.
+          if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
+            instance.setVideoPercentage(progress);
+          } else if (progressRef.current) {
+            progressRef.current.style.transform = `scaleX(${progress})`;
+          }
+        };
+
+        const scheduleScrollUpdate = () => {
+          if (scrollRaf !== null) return;
+          scrollRaf = window.requestAnimationFrame(updateFromScroll);
+        };
+
+        window.addEventListener("scroll", scheduleScrollUpdate, {
+          passive: true,
+        });
+        window.addEventListener("resize", scheduleScrollUpdate, {
+          passive: true,
+        });
+        video.addEventListener("loadedmetadata", scheduleScrollUpdate);
+        scheduleScrollUpdate();
+
+        removeScrollTracking = () => {
+          window.removeEventListener("scroll", scheduleScrollUpdate);
+          window.removeEventListener("resize", scheduleScrollUpdate);
+          video.removeEventListener("loadedmetadata", scheduleScrollUpdate);
+          if (scrollRaf !== null) {
+            window.cancelAnimationFrame(scrollRaf);
+            scrollRaf = null;
+          }
+        };
+
+        const handleReady = () => {
+          setHasError(false);
+          setIsReady(true);
+        };
+        const handleError = () => {
+          setHasError(true);
+          setIsReady(true);
+        };
+
+        video.addEventListener("loadeddata", handleReady, { once: true });
+        video.addEventListener("canplay", handleReady, { once: true });
+        video.addEventListener("error", handleError, { once: true });
+
+        if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+          handleReady();
+        }
+      } catch {
+        if (!cancelled) {
+          setHasError(true);
+          setIsReady(true);
+>>>>>>> 1bf3fe961d4cdb0a42b5aec5bc65e7d0fde6339e
         }
       }, 1200);
     };
@@ -174,15 +302,26 @@ export function HeroVideo() {
     video.addEventListener('playing', handlePlaying);
 
     return () => {
+<<<<<<< HEAD
       if (stallTimeoutRef.current) clearTimeout(stallTimeoutRef.current);
       video.removeEventListener('waiting', handleWaitingOrStalled);
       video.removeEventListener('stalled', handleWaitingOrStalled);
       video.removeEventListener('playing', handlePlaying);
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+=======
+      cancelled = true;
+      removeScrollTracking();
+      if (instance?.transitioningRaf) {
+        window.cancelAnimationFrame(instance.transitioningRaf);
+      }
+      instance?.video.pause();
+      instance?.destroy();
+>>>>>>> 1bf3fe961d4cdb0a42b5aec5bc65e7d0fde6339e
     };
   }, [effectiveQuality]);
 
   return (
+<<<<<<< HEAD
     <div className="relative h-full w-full overflow-hidden bg-black">
       {/* Balise vidéo principale en pur arrière-plan, sans aucune commande */}
       <video
@@ -193,6 +332,13 @@ export function HeroVideo() {
         playsInline
         webkit-playsinline="true"
         preload="metadata"
+=======
+    <div className="relative h-[420svh] min-h-[1900px] bg-black motion-reduce:h-[100svh] motion-reduce:min-h-[480px]">
+      <div
+        ref={videoContainerRef}
+        className="sticky top-0 h-[100svh] min-h-[480px] overflow-hidden bg-cover bg-center"
+        style={{ backgroundImage: `url(${POSTER_DESKTOP})` }}
+>>>>>>> 1bf3fe961d4cdb0a42b5aec5bc65e7d0fde6339e
         aria-label={content.hero.mediaCaption}
         className="pointer-events-none h-full w-full object-cover object-center"
       >
