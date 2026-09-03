@@ -20,6 +20,7 @@
     "previousRejectedEnd": ".",
     "capturedAlt": "الصورة الملتقطة",
     "toggleFlashAriaLabel": "تشغيل الفلاش أو إيقافه",
+    "captureAriaLabel": "التقاط الصورة",
     "retake": "إعادة الالتقاط",
     "send": "إرسال",
     "sending": "جارٍ الإرسال…"

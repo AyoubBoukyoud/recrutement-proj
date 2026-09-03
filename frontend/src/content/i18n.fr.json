@@ -48,6 +48,8 @@
   "recruiter_access_pending_cta": "Continuer en tant que candidat",
   "phone_field_label": "Numéro de mobile",
   "phone_field_hint": "Numéro marocain (+212) commençant par 6 ou 7, ou allemand (+49).",
+  "phone_country_label": "Indicatif du pays",
+  "otp_digit_label": "Chiffre du code, position",
   "phone_consent": "Votre numéro sert à envoyer un code de connexion et à retrouver votre compte. Le canal d’envoi dépend du service disponible.",
   "phone_submit_cta": "Recevoir le code",
   "phone_sending": "Envoi en cours…",

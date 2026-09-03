@@ -48,6 +48,8 @@
   "recruiter_access_pending_cta": "Als Kandidat fortfahren",
   "phone_field_label": "Mobilnummer",
   "phone_field_hint": "Marokkanische Nummer (+212), beginnend mit 6 oder 7, oder deutsche Nummer (+49).",
+  "phone_country_label": "Ländervorwahl",
+  "otp_digit_label": "Ziffer des Bestätigungscodes, Stelle",
   "phone_consent": "Ihre Nummer wird verwendet, um einen Anmeldecode zu senden und Ihr Konto zu finden. Der Versandkanal hängt vom verfügbaren Dienst ab.",
   "phone_submit_cta": "Code erhalten",
   "phone_sending": "Wird gesendet…",

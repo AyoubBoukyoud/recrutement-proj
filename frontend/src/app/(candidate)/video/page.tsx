@@ -117,7 +117,7 @@ export default function VideoRecordingPage() {
   return (
     <div>
       <header className="flex items-center gap-3 bg-primary p-2.5 pb-3 lg:px-4">
-        <Link href="/dashboard" className="text-onPrimary">
+        <Link href="/dashboard" aria-label={content.header.backAria} className="text-onPrimary">
           <ChevronLeft size={22} />
         </Link>
         <h1 className="text-lg font-bold text-onPrimary">{content.header.title}</h1>
@@ -154,6 +154,7 @@ export default function VideoRecordingPage() {
             <button
               type="button"
               onClick={isRecording ? stopRecording : startRecording}
+              aria-label={isRecording ? content.stopRecordingAria : content.startRecordingAria}
               className={`flex h-16 w-16 items-center justify-center rounded-full shadow-floating ${
                 isRecording ? 'bg-red-500 animate-pulse' : 'bg-primary'
               }`}

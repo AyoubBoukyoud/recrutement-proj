@@ -20,6 +20,7 @@
     "previousRejectedEnd": ".",
     "capturedAlt": "Captured photo",
     "toggleFlashAriaLabel": "Turn flash on or off",
+    "captureAriaLabel": "Take the photo",
     "retake": "Retake",
     "send": "Send",
     "sending": "Sending…"

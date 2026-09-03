@@ -32,11 +32,14 @@ export function ShortlistPanel({ candidate }: { candidate: CandidateDetail }) {
   const [savedNotes, setSavedNotes] = useState(entry?.notes ?? '')
 
   // Un autre candidat ouvert dans le même panneau repart de ses notes à lui,
-  // pas de celles du précédent.
+  // pas de celles du précédent. Clé sur `entry?.id` (pas `entry?.notes`) pour
+  // absorber le chargement asynchrone de la sélection sans écraser une saisie
+  // en cours à chaque invalidation de requête qui laisse les notes inchangées.
   useEffect(() => {
     setNotes(entry?.notes ?? '')
     setSavedNotes(entry?.notes ?? '')
-  }, [candidate.id])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [candidate.id, entry?.id])
 
   const invalidate = () =>
     Promise.all([

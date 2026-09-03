@@ -158,7 +158,8 @@ export function PublicHome() {
       {/* ------------------------------------------------------------------------- */}
       <div
         id="main-content"
-        className="relative z-20 -mt-6 sm:-mt-14 rounded-t-[2rem] sm:rounded-t-[3.5rem] border-t border-outline-variant/60 bg-surface shadow-[0_-25px_60px_rgba(0,0,0,0.18)]"
+        tabIndex={-1}
+        className="relative z-20 -mt-6 outline-none sm:-mt-14 rounded-t-[2rem] sm:rounded-t-[3.5rem] border-t border-outline-variant/60 bg-surface shadow-[0_-25px_60px_rgba(0,0,0,0.18)]"
       >
         {/* HERO CONTENT SECTION: Travaillez en Allemagne. Nous préparons votre dossier avec vous. */}
         <section className="relative overflow-hidden pb-16 pt-16 sm:pb-20 sm:pt-20 lg:pt-24">

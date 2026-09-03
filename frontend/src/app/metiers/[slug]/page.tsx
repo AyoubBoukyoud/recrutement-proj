@@ -42,7 +42,7 @@ export default function TradePage({ params }: { params: { slug: string } }) {
 
 
 
-      <main className="pt-28 lg:pt-36">
+      <main id="main-content" tabIndex={-1} className="pt-28 outline-none lg:pt-36">
         <TradeDetail slug={params.slug} />
       </main>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
@@ -37,6 +37,8 @@ export function SiteHeader({ className = '', glassTransparent = false }: SiteHea
   const [scrolled, setScrolled] = useState(false);
   const [pastHero, setPastHero] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const menuPanelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => {
@@ -70,6 +72,44 @@ export function SiteHeader({ className = '', glassTransparent = false }: SiteHea
     document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => {
       document.body.style.overflow = '';
+    };
+  }, [menuOpen]);
+
+  // Le tiroir mobile se comporte comme une boîte de dialogue modale : Echap
+  // le referme, le focus part sur son premier lien puis y reste piégé, et
+  // revient sur le bouton hamburger à la fermeture.
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const panel = menuPanelRef.current;
+    const focusable = panel?.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled])',
+    );
+    focusable?.[0]?.focus();
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setMenuOpen(false);
+        return;
+      }
+      if (event.key !== 'Tab' || !focusable || focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    const trigger = menuButtonRef.current;
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      trigger?.focus();
     };
   }, [menuOpen]);
 
@@ -154,9 +194,11 @@ export function SiteHeader({ className = '', glassTransparent = false }: SiteHea
 
           {/* Mobile Menu Hamburger */}
           <IconButton
+            ref={menuButtonRef}
             variant="ghost"
             onClick={() => setMenuOpen((open) => !open)}
             aria-expanded={menuOpen}
+            aria-controls="site-mobile-menu"
             aria-label={menuOpen ? nav.menuClose : nav.menuOpen}
             className={`rounded-xl border backdrop-blur-md lg:hidden ${
               glassTransparent
@@ -173,7 +215,14 @@ export function SiteHeader({ className = '', glassTransparent = false }: SiteHea
 
       {/* Mobile Menu Drawer with Glassmorphism */}
       {menuOpen && (
-        <div className="fixed inset-0 top-[calc(68px+env(safe-area-inset-top))] z-50 overflow-y-auto bg-white/98 dark:bg-surface/98 px-6 py-8 shadow-2xl backdrop-blur-3xl lg:hidden">
+        <div
+          id="site-mobile-menu"
+          ref={menuPanelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Navigation mobile"
+          className="fixed inset-0 top-[calc(68px+env(safe-area-inset-top))] z-50 overflow-y-auto bg-white/98 dark:bg-surface/98 px-6 py-8 shadow-2xl backdrop-blur-3xl lg:hidden"
+        >
           <nav className="flex flex-col gap-2" aria-label="Navigation mobile">
             {nav.links.map((link) => (
               <a

@@ -48,6 +48,8 @@
   "recruiter_access_pending_cta": "المتابعة كمرشح",
   "phone_field_label": "رقم الهاتف المحمول",
   "phone_field_hint": "رقم مغربي (+212) يبدأ بـ 6 أو 7، أو رقم ألماني (+49).",
+  "phone_country_label": "مفتاح الدولة",
+  "otp_digit_label": "رقم من رمز التحقق، الخانة",
   "phone_consent": "يُستخدم رقمك لإرسال رمز الدخول والعثور على حسابك. تعتمد قناة الإرسال على الخدمة المتاحة.",
   "phone_submit_cta": "استلام الرمز",
   "phone_sending": "جارٍ الإرسال…",

@@ -13,7 +13,7 @@ export function EmployeursBody() {
   const content = useEmployeursContent();
 
   return (
-    <main className="force-light overflow-x-hidden bg-surface text-onSurface">
+    <main id="main-content" tabIndex={-1} className="force-light overflow-x-hidden bg-surface text-onSurface outline-none">
       <RevealNoScriptFallback />
 
       <section className="relative overflow-hidden pb-20 pt-32 lg:pb-28 lg:pt-44">

@@ -1,7 +1,9 @@
 {
-  "header": { "title": "Vorstellungsvideo" },
+  "header": { "title": "Vorstellungsvideo", "backAria": "Zurück zum Dashboard" },
   "instructions": "Nehmen Sie ein kurzes Video (60 Sekunden) auf, um sich Arbeitgebern vorzustellen.",
   "cameraPreview": "Kameravorschau",
+  "startRecordingAria": "Aufnahme starten",
+  "stopRecordingAria": "Aufnahme stoppen",
   "saved": "Video in Ihrem Profil gespeichert.",
   "restart": "Neu starten",
   "validate": "Bestätigen",

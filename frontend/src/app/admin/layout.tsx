@@ -33,34 +33,39 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="min-h-screen bg-surface">
       <TopBar title={current ? current[1] : 'Administration'} />
 
-      <nav
-        aria-label="Navigation de la console d’administration"
-        className="overflow-x-auto border-b border-outline-variant bg-surface-container-lowest px-4 py-3 sm:px-6"
-      >
-        <div className="flex min-w-max gap-2">
-          {nav.map(([href, label]) => {
-            const active = pathname === href;
-            return (
-              <Link
-                key={href}
-                href={href}
-                aria-current={active ? 'page' : undefined}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-bold transition-colors ${
-                  active
-                    ? 'bg-primary text-onPrimary'
-                    : 'text-primary hover:bg-primary/5'
-                }`}
-              >
-                {label}
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
+      <div className="relative border-b border-outline-variant bg-surface-container-lowest">
+        <nav
+          aria-label="Navigation de la console d’administration"
+          className="overflow-x-auto px-4 py-3 sm:px-6"
+        >
+          <div className="flex min-w-max gap-2">
+            {nav.map(([href, label]) => {
+              const active = pathname === href;
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  aria-current={active ? 'page' : undefined}
+                  className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-bold transition-colors ${
+                    active
+                      ? 'bg-primary text-onPrimary'
+                      : 'text-primary hover:bg-primary/5'
+                  }`}
+                >
+                  {label}
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+        {/* Affordance de défilement : la barre d'onglets déborde souvent sur
+            mobile sans autre indice qu'un onglet coupé net en bord d'écran. */}
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-surface-container-lowest to-transparent sm:hidden" aria-hidden="true" />
+      </div>
 
       {/* La TopBar passe en barre fixe en bas sous md : sans cette réserve, le
           dernier élément de la page se retrouve dessous. */}
-      <div className="pb-24 md:pb-0">{children}</div>
+      <div id="main-content" tabIndex={-1} className="pb-24 outline-none md:pb-0">{children}</div>
     </div>
   );
 }

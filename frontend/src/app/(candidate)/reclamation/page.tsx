@@ -188,10 +188,11 @@ export default function ReclamationPage() {
 
             <section className="space-y-6">
               <div className="space-y-2">
-                <label className="block px-1 text-sm font-medium text-onSurface-variant">
+                <label htmlFor="complaint-category" className="block px-1 text-sm font-medium text-onSurface-variant">
                   {content.form.subjectLabel}
                 </label>
                 <select
+                  id="complaint-category"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                   className="w-full rounded-xl border border-outline bg-surface-container-lowest px-4 py-3.5 text-sm outline-none transition-all focus:border-primary-dark focus:ring-2 focus:ring-primary-dark/20"
@@ -209,7 +210,7 @@ export default function ReclamationPage() {
 
               <div className="space-y-2">
                 <div className="flex justify-between px-1">
-                  <label className="text-sm font-medium text-onSurface-variant">
+                  <label htmlFor="complaint-message" className="text-sm font-medium text-onSurface-variant">
                     {content.form.messageLabel}
                   </label>
                   <span className="text-xs text-onSurface-variant">
@@ -217,6 +218,7 @@ export default function ReclamationPage() {
                   </span>
                 </div>
                 <textarea
+                  id="complaint-message"
                   value={message}
                   onChange={(e) => setMessage(e.target.value.slice(0, 1000))}
                   placeholder={content.form.messagePlaceholder}

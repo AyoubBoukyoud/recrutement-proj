@@ -211,6 +211,7 @@ export default function MatchingPreferencesPage() {
             <input
               type="number"
               step="1000"
+              aria-label={content.salarySection.title}
               value={minSalary}
               onChange={(e) => setMinSalary(Number(e.target.value))}
               placeholder="45,000"
@@ -223,6 +224,7 @@ export default function MatchingPreferencesPage() {
               min="30000"
               max="120000"
               step="5000"
+              aria-label={content.salarySection.title}
               value={minSalary}
               onChange={(e) => setMinSalary(Number(e.target.value))}
               className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-surface-container accent-primary"

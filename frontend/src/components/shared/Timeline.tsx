@@ -1,4 +1,13 @@
-import type { TimelineStep } from '@/lib/types';
+import { useLanguage } from '@/context/LanguageContext';
+import type { Language, TimelineStep } from '@/lib/types';
+
+const DATE_LOCALE: Record<Language, string> = { fr: 'fr-FR', ar: 'ar-MA', en: 'en-GB', de: 'de-DE' };
+
+function formatStepDate(value: string, locale: string): string {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'long', year: 'numeric' }).format(parsed);
+}
 
 const STATUS_ICON: Record<TimelineStep['status'], string> = {
   termine: 'check',
@@ -17,6 +26,8 @@ interface TimelineProps {
 }
 
 export function Timeline({ steps }: TimelineProps) {
+  const { language } = useLanguage();
+  const locale = DATE_LOCALE[language];
   return (
     <div className="relative space-y-6 pl-9">
       <div className="absolute bottom-4 left-[15px] top-4 w-0.5 bg-outline-variant" />
@@ -32,7 +43,9 @@ export function Timeline({ steps }: TimelineProps) {
           <div className="rounded-xl border border-outline-variant/30 bg-surface-lowest p-4 shadow-soft">
             <div className="flex items-center justify-between gap-2">
               <span className="text-sm font-bold text-onSurface">{step.label}</span>
-              {step.date && <span className="shrink-0 text-[11px] font-medium text-outline">{step.date}</span>}
+              {step.date && (
+                <span className="shrink-0 text-[11px] font-medium text-outline">{formatStepDate(step.date, locale)}</span>
+              )}
             </div>
             <p className="mt-1 text-xs text-onSurface-variant">{step.description}</p>
             {step.status === 'en_cours' && (

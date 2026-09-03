@@ -1,7 +1,9 @@
 {
-  "header": { "title": "Introduction video" },
+  "header": { "title": "Introduction video", "backAria": "Back to dashboard" },
   "instructions": "Record a short video (60 seconds) to introduce yourself to employers.",
   "cameraPreview": "Camera preview",
+  "startRecordingAria": "Start recording",
+  "stopRecordingAria": "Stop recording",
   "saved": "Video saved to your profile.",
   "restart": "Start over",
   "validate": "Confirm",

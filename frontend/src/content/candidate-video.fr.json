@@ -1,7 +1,9 @@
 {
-  "header": { "title": "Vidéo de présentation" },
+  "header": { "title": "Vidéo de présentation", "backAria": "Retour au tableau de bord" },
   "instructions": "Enregistrez une courte vidéo (60 secondes) pour vous présenter aux employeurs.",
   "cameraPreview": "Aperçu caméra",
+  "startRecordingAria": "Démarrer l'enregistrement",
+  "stopRecordingAria": "Arrêter l'enregistrement",
   "saved": "Vidéo enregistrée dans votre profil.",
   "restart": "Recommencer",
   "validate": "Valider",

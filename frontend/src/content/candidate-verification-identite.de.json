@@ -20,6 +20,7 @@
     "previousRejectedEnd": ".",
     "capturedAlt": "Aufgenommenes Foto",
     "toggleFlashAriaLabel": "Blitz ein- oder ausschalten",
+    "captureAriaLabel": "Foto aufnehmen",
     "retake": "Erneut aufnehmen",
     "send": "Senden",
     "sending": "Wird gesendet…"

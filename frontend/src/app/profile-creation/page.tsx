@@ -8,7 +8,7 @@
 // enregistrés — pas à la soumission finale, qui ne fait que déclarer le dossier
 // prêt (et qualifie un parrainage en attente).
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useId, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useNetwork } from '@/context/NetworkContext';
@@ -583,10 +583,12 @@ function TextField({
   type?: string;
   placeholder?: string;
 }) {
+  const id = useId();
   return (
     <div>
-      <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-onSurface">{label}</label>
+      <label htmlFor={id} className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-onSurface">{label}</label>
       <input
+        id={id}
         type={type}
         value={value}
         placeholder={placeholder}

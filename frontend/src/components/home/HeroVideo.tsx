@@ -36,7 +36,13 @@ export function HeroVideo() {
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    if (reducedMotion) {
+    // En dessous de `sm`, la piste de scroll de 420svh retombe à 100svh (cf.
+    // le conteneur plus bas) : inutile d'y lancer le décodage d'une vidéo de
+    // 70 Mo qu'aucun scroll ne viendra parcourir — la même affiche statique
+    // que le mode "mouvement réduit" suffit, et c'est justement le public le
+    // plus sensible au poids de la page (mobile, réseau cellulaire).
+    const skipVideo = reducedMotion || window.innerWidth < 640;
+    if (skipVideo) {
       setIsReady(true);
       return;
     }
@@ -86,7 +92,10 @@ export function HeroVideo() {
 
         const video = instance.video;
         video.poster = window.innerWidth < 768 ? POSTER_MOBILE : POSTER_DESKTOP;
-        video.preload = "auto";
+        // "metadata" plutôt que "auto" : le navigateur récupère juste la durée
+        // et la première frame au chargement de la page, pas les 70 Mo entiers
+        // avant même que quelqu'un ait commencé à défiler.
+        video.preload = "metadata";
         video.tabIndex = -1;
         video.setAttribute("aria-label", content.hero.mediaCaption);
         video.setAttribute("playsinline", "");
@@ -179,7 +188,7 @@ export function HeroVideo() {
   }, [content.hero.mediaCaption]);
 
   return (
-    <div className="relative h-[420svh] min-h-[1900px] bg-black motion-reduce:h-[100svh] motion-reduce:min-h-[480px]">
+    <div className="relative h-[100svh] min-h-[480px] bg-black sm:h-[420svh] sm:min-h-[1900px] motion-reduce:h-[100svh] motion-reduce:min-h-[480px]">
       <div
         ref={videoContainerRef}
         className="sticky top-0 h-[100svh] min-h-[480px] overflow-hidden bg-cover bg-center"
@@ -205,7 +214,9 @@ export function HeroVideo() {
             </div>
           )}
 
-          <div className="absolute inset-x-5 bottom-8 sm:inset-x-10 sm:bottom-10">
+          {/* Piste de progression du scroll-scrub : sans objet en dessous de
+              `sm`, où la vidéo est remplacée par une affiche statique. */}
+          <div className="hidden sm:absolute sm:inset-x-10 sm:bottom-10 sm:block">
             <div className="mb-2 flex items-center justify-between text-[11px] font-bold text-white/85 sm:text-xs">
               <span>{content.journey.startLabel}</span>
               <span>{content.journey.endLabel}</span>

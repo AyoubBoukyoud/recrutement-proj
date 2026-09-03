@@ -318,6 +318,16 @@ body {
   vertical-align: middle;
   display: inline-block;
   user-select: none;
+  /* Le glyphe est un mot ligaturé (`"arrow_back"` -> icône) : tant que la
+     police n'a pas fini de charger, ou si elle est bloquée, le navigateur
+     affiche ce mot en clair. Sans cette contrainte, il prend toute sa largeur
+     de texte et pousse la mise en page — c'est la cause du débordement
+     horizontal mobile relevé par l'audit (AUD-10). Fixée à `1em` (indexée sur
+     `font-size`, jamais codée en dur), la boîte de l'icône ne bouge jamais ;
+     le mot de repli est simplement tronqué le temps que la police arrive. */
+  width: 1em;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .material-symbols-outlined.fill {

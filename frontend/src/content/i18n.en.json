@@ -48,6 +48,8 @@
   "recruiter_access_pending_cta": "Continue as a candidate",
   "phone_field_label": "Mobile number",
   "phone_field_hint": "Moroccan number (+212) starting with 6 or 7, or German number (+49).",
+  "phone_country_label": "Country code",
+  "otp_digit_label": "Verification code digit, position",
   "phone_consent": "Your number is used to send a sign-in code and find your account. The delivery channel depends on service availability.",
   "phone_submit_cta": "Receive the code",
   "phone_sending": "Sending…",

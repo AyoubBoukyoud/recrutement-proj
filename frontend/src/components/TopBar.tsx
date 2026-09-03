@@ -5,6 +5,7 @@ import { Button, Wordmark } from '@/components/ui'
 import { useAuth } from '@/context/AuthContext'
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher'
 import { ThemeToggle } from '@/components/shared/ThemeToggle'
+import { IconButton } from '@/components/shared/Button'
 import type { Language } from '@/lib/types'
 import { translate } from '@/lib/i18n'
 
@@ -36,14 +37,23 @@ export function TopBar({
           <LanguageSwitcher compact />
           <ThemeToggle />
         </div>
-        <div className="grid gap-0.5 text-right">
+        {/* En dessous de `md`, TopBar est une barre fixe en bas de l'écran :
+            le numéro/rôle n'y ajoute rien d'actionnable et pousse la barre à
+            deux lignes sur les petits écrans. Il reste disponible dès `md`,
+            où TopBar redevient une barre statique en haut. */}
+        <div className="hidden gap-0.5 text-right md:grid">
           {/* Chasse fixe pour le numéro : c'est ainsi que le formulaire l'aurait imprimé. */}
           <span className="font-mono text-[13px] tracking-[0.5px] text-on-surface">{user?.phone}</span>
           <span className="eyebrow">{user?.roles?.join(' · ')}</span>
         </div>
-        <Button variant="ghost" size="compact" onClick={logout}>
+        <Button variant="ghost" size="compact" onClick={logout} className="hidden md:inline-flex">
           {translate(language, 'logout')}
         </Button>
+        <IconButton variant="ghost" aria-label={translate(language, 'logout')} onClick={logout} className="md:hidden">
+          <span className="material-symbols-outlined" style={{ fontSize: 20 }} aria-hidden="true">
+            logout
+          </span>
+        </IconButton>
       </div>
     </header>
   )

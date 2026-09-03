@@ -111,17 +111,19 @@ export default function SalairePage() {
             className="grid grid-cols-1 items-end gap-4 md:grid-cols-2 lg:grid-cols-3"
           >
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-onSurface-variant">
+              <label htmlFor="salary-profession" className="text-xs font-semibold text-onSurface-variant">
                 {content.form.professionLabel}
               </label>
               <div className="relative">
                 <span
+                  aria-hidden="true"
                   className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline"
                   style={{ fontSize: 20 }}
                 >
                   work
                 </span>
                 <input
+                  id="salary-profession"
                   value={profession}
                   onChange={(e) => setProfession(e.target.value)}
                   placeholder={content.form.professionPlaceholder}
@@ -130,17 +132,19 @@ export default function SalairePage() {
               </div>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-onSurface-variant">
+              <label htmlFor="salary-region" className="text-xs font-semibold text-onSurface-variant">
                 {content.form.regionLabel}
               </label>
               <div className="relative">
                 <span
+                  aria-hidden="true"
                   className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline"
                   style={{ fontSize: 20 }}
                 >
                   location_on
                 </span>
                 <select
+                  id="salary-region"
                   value={region}
                   onChange={(e) => setRegion(e.target.value)}
                   className="w-full appearance-none rounded-xl border border-outline py-3 pl-11 pr-3 text-sm outline-none transition-all focus:border-primary-dark focus:ring-2 focus:ring-primary-dark/10"
@@ -154,17 +158,19 @@ export default function SalairePage() {
               </div>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-onSurface-variant">
+              <label htmlFor="salary-experience" className="text-xs font-semibold text-onSurface-variant">
                 {content.form.experienceLabel}
               </label>
               <div className="relative">
                 <span
+                  aria-hidden="true"
                   className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline"
                   style={{ fontSize: 20 }}
                 >
                   work_history
                 </span>
                 <input
+                  id="salary-experience"
                   value={experience}
                   onChange={(e) =>
                     setExperience(Math.max(0, Number(e.target.value)))

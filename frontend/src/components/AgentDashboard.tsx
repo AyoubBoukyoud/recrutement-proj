@@ -187,6 +187,7 @@ export default function AgentDashboard() {
     <div className="min-h-screen bg-surface">
       <TopBar title="QR de parrainage" />
       <main className="mx-auto grid max-w-[520px] gap-6 px-6 py-8">
+        <h1 className="sr-only">QR de parrainage</h1>
         <Card>
           <SectionHeader
             eyebrow="Parrainage"

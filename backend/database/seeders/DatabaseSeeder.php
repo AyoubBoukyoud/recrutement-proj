@@ -48,7 +48,24 @@ class DatabaseSeeder extends Seeder
             'phone' => '+212600000004',
         ]);
         $candidate->assignRole('User');
-        CandidateProfile::factory()->verified()->create(['user_id' => $candidate->id]);
+        $candidateProfile = CandidateProfile::factory()->verified()->create(['user_id' => $candidate->id]);
+        // `verified()` only stamps submission/verification dates — the profile
+        // also needs at least one education row and one assessed language to
+        // clear ProfileCompleteness::REQUIRED, or the candidate layout keeps
+        // redirecting this documented demo account back to profile-creation
+        // instead of the dashboard.
+        $candidateProfile->educations()->create([
+            'level' => 'vocational',
+            'field' => 'Soins infirmiers',
+            'institution' => 'ISPITS Casablanca',
+            'started_at' => '2016-09-01',
+            'ended_at' => '2019-06-30',
+        ]);
+        $candidateProfile->languages()->create([
+            'language' => 'fr',
+            'cefr_level' => 'B2',
+            'source' => 'self_declared',
+        ]);
 
         // Dev/demo volume for the admin Candidats/Recruteurs screens — see
         // DemoDataSeeder. Needs the admin above to already exist (it stamps
