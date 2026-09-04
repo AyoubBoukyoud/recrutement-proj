@@ -44,7 +44,7 @@ export function ThemeToggle() {
       {isOpen ? (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
-          <div className="absolute right-0 z-20 mt-2 w-40 overflow-hidden rounded-xl border border-outline-variant bg-surface-lowest shadow-floating">
+          <div className="absolute end-0 z-20 mt-2 w-40 overflow-hidden rounded-xl border border-outline-variant bg-surface-lowest shadow-floating">
             {THEME_OPTIONS.map((opt) => (
               <button
                 key={opt.mode}
