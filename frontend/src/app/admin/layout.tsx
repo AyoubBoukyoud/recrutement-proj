@@ -18,6 +18,7 @@ const nav = [
   ['/admin/utilisateurs', 'Utilisateurs'],
   ['/admin/offres', 'Offres'],
   ['/admin/candidatures', 'Candidatures'],
+  ['/admin/reclamations', 'Réclamations'],
   ['/admin/journal', 'Journal'],
   ['/admin/notifications', 'Notifications'],
 ] as const;

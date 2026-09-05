@@ -79,7 +79,7 @@ export default function AdminOverview() {
             <Tile
               label="Réclamations ouvertes"
               value={q.data.complaints.open + q.data.complaints.in_review}
-              href="/admin/journal"
+              href="/admin/reclamations"
             />
           </section>
 
