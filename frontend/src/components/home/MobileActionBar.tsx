@@ -26,12 +26,13 @@ export function MobileActionBar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  if (!visible) return null;
-
   return (
     <aside
       aria-label="Action rapide mobile"
-      className="fixed bottom-0 inset-x-0 z-40 sm:hidden transition-all duration-300 animate-in slide-in-from-bottom-5 pb-[env(safe-area-inset-bottom)]"
+      aria-hidden={!visible}
+      className={`fixed bottom-0 inset-x-0 z-40 sm:hidden pb-[env(safe-area-inset-bottom)] transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
+        visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-full opacity-0'
+      }`}
     >
       <div className="mx-3 mb-3 rounded-2xl border border-black/10 dark:border-white/10 bg-white/92 dark:bg-[#181513]/95 p-3 shadow-[0_10px_35px_rgba(0,0,0,0.2)] backdrop-blur-xl">
         <div className="flex items-center justify-between gap-3">

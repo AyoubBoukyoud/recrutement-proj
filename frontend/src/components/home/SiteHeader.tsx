@@ -296,13 +296,13 @@ export function SiteHeader({ className = '', glassTransparent = false }: SiteHea
             >
               {/* Semi-transparent backdrop */}
               <div
-                className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-xs transition-opacity duration-300"
+                className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-xs animate-amud-fade-in motion-reduce:animate-none"
                 onClick={() => setMenuOpen(false)}
                 aria-hidden="true"
               />
 
               {/* Drawer Container positioned directly below the header */}
-              <div className="fixed top-[calc(68px+env(safe-area-inset-top))] inset-x-0 bottom-0 overflow-y-auto bg-white/98 dark:bg-[#161311] dark:text-[#e5e2e1] backdrop-blur-3xl border-t border-black/10 dark:border-white/10 shadow-2xl transition-all duration-300 animate-in slide-in-from-top-4 flex flex-col justify-between p-5 pb-[calc(28px+env(safe-area-inset-bottom))]">
+              <div className="fixed top-[calc(68px+env(safe-area-inset-top))] inset-x-0 bottom-0 overflow-y-auto bg-white/98 dark:bg-[#161311] dark:text-[#e5e2e1] backdrop-blur-3xl border-t border-black/10 dark:border-white/10 shadow-2xl animate-menu-drawer-in motion-reduce:animate-none flex flex-col justify-between p-5 pb-[calc(28px+env(safe-area-inset-bottom))]">
                 <div className="space-y-6">
                   {/* Eyebrow / Tag */}
                   <div className="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">

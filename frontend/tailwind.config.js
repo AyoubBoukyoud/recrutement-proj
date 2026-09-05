@@ -78,6 +78,9 @@ module.exports = {
         'amud-rise-in': { from: { opacity: '0', transform: 'translateY(6px)' }, to: { opacity: '1', transform: 'translateY(0)' } },
         // Entrée des bottom-sheets mobiles (Modal < sm, Drawer anchor="bottom").
         'amud-sheet-up': { from: { opacity: '0', transform: 'translateY(24px)' }, to: { opacity: '1', transform: 'translateY(0)' } },
+        // Entrée du tiroir de navigation mobile (SiteHeader, hors module /amud) :
+        // ancré sous le header, donc glisse depuis le haut plutôt que le bas.
+        'menu-drawer-in': { from: { opacity: '0', transform: 'translateY(-12px)' }, to: { opacity: '1', transform: 'translateY(0)' } },
       },
       animation: {
         'amud-fade-in': 'amud-fade-in 0.2s ease-out',
@@ -85,6 +88,7 @@ module.exports = {
         'amud-slide-in-right': 'amud-slide-in-right 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
         'amud-rise-in': 'amud-rise-in 0.25s ease-out both',
         'amud-sheet-up': 'amud-sheet-up 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+        'menu-drawer-in': 'menu-drawer-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both',
       },
     },
   },
