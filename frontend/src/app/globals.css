@@ -20,6 +20,23 @@ html.text-size-small { font-size: 14px; }
 html.text-size-medium { font-size: 16px; }
 html.text-size-large { font-size: 18px; }
 
+/* iOS Safari zooms the whole page in on focus for any text input under 16px,
+   independent of the "small/medium/large" text-size preference above — most
+   candidate forms set their inputs at `text-sm`/`text-xs` (14/12px) for
+   density, which triggers that zoom on every tap. Fixed at exactly 16px
+   (not `rem`, so the accessibility text-size setting can't drop it back
+   under the threshold) and scoped to real form controls only, so it never
+   touches surrounding label/caption text or desktop layout. The `:not()`
+   list excludes controls already deliberately set larger than 16px (the
+   OTP digit boxes are `text-xl`) so this only ever raises, never shrinks. */
+@media (max-width: 639px) {
+  input:not(.text-lg):not(.text-xl):not(.text-2xl):not(.text-3xl),
+  select:not(.text-lg):not(.text-xl):not(.text-2xl):not(.text-3xl),
+  textarea:not(.text-lg):not(.text-xl):not(.text-2xl):not(.text-3xl) {
+    font-size: 16px !important;
+  }
+}
+
 /* Les variables :root proviennent de packages/design-tokens via le plugin
    Tailwind configuré dans tailwind.config.js — ne rien redéclarer ici. */
 
