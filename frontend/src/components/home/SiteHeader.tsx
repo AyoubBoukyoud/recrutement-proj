@@ -13,21 +13,6 @@ import { IconButton } from '@/components/shared/Button';
 
 interface SiteHeaderProps {
   className?: string;
-  /**
-   * À partir de `sm` (≥640px, tablette/desktop) : le header passe en
-   * position `fixed` et flotte par-dessus le hero vidéo avec un fond glass
-   * à 15% d'opacité (+ flou) tant que la vidéo est visible, puis bascule
-   * vers un glass sombre (bg-black + flou) dès que le scroll dépasse la
-   * section `#hero-video-section` — pour rester lisible au-dessus du
-   * contenu clair qui suit.
-   * En dessous de `sm` (mobile) : le header reste `sticky` dans le flux
-   * normal, avec l'apparence opaque standard (comme sur les autres pages),
-   * afin de précéder la vidéo au lieu de se superposer dessus.
-   * Utilisé sur la landing page `/accueil-public` uniquement, pour ne pas
-   * changer l'apparence/mise en page du header sur les autres pages qui le
-   * partagent (`/produit`, `/employeurs`, `/metiers/[slug]`).
-   */
-  glassTransparent?: boolean;
 }
 
 const HEADER_HEIGHT_PX = 68;
@@ -54,13 +39,12 @@ const PREFERENCES_LABELS: Record<string, string> = {
  * Le menu mobile est monté via un React Portal directement dans le document.body pour
  * éviter que le backdrop-filter du header ne crée un containing block qui écrase le drawer.
  */
-export function SiteHeader({ className = '', glassTransparent = false }: SiteHeaderProps) {
+export function SiteHeader({ className = '' }: SiteHeaderProps) {
   const content = useHomeContent();
   const { nav } = content;
   const { language } = useLanguage();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
-  const [pastHero, setPastHero] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -78,22 +62,6 @@ export function SiteHeader({ className = '', glassTransparent = false }: SiteHea
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-
-  // Sur la landing (glassTransparent), à partir de `sm` le header reste très
-  // transparent tant que le hero vidéo est visible, puis bascule en glass
-  // sombre dès que la section défile hors de la zone couverte par le header.
-  useEffect(() => {
-    if (!glassTransparent) return;
-    const heroEl = document.getElementById('hero-video-section');
-    if (!heroEl) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setPastHero(!entry.isIntersecting),
-      { rootMargin: `-${HEADER_HEIGHT_PX}px 0px 0px 0px`, threshold: 0 }
-    );
-    observer.observe(heroEl);
-    return () => observer.disconnect();
-  }, [glassTransparent]);
 
   // Lock scroll when mobile menu is open
   useEffect(() => {
@@ -181,20 +149,10 @@ export function SiteHeader({ className = '', glassTransparent = false }: SiteHea
   return (
     <>
       <header
-        className={`${glassTransparent ? 'sticky sm:fixed' : 'sticky'} top-0 z-50 w-full transition-all duration-300 pt-[env(safe-area-inset-top)] ${
-          glassTransparent
-            ? scrolled || menuOpen
-              ? 'border-b border-black/5 dark:border-white/10 bg-white/85 dark:bg-[#12100e]/90 shadow-[0_8px_32px_rgba(0,0,0,0.08)] backdrop-blur-2xl backdrop-saturate-180'
-              : 'border-b border-black/5 dark:border-white/10 bg-white/70 dark:bg-[#12100e]/70 shadow-[0_4px_24px_rgba(0,0,0,0.04)] backdrop-blur-xl backdrop-saturate-150'
-            : scrolled || menuOpen
-            ? 'border-b border-black/5 dark:border-white/10 bg-white/85 dark:bg-[#12100e]/90 shadow-[0_8px_32px_rgba(0,0,0,0.08)] backdrop-blur-2xl backdrop-saturate-180'
-            : 'border-b border-black/5 dark:border-white/10 bg-white/70 dark:bg-[#12100e]/70 shadow-[0_4px_24px_rgba(0,0,0,0.04)] backdrop-blur-xl backdrop-saturate-150'
-        } ${
-          glassTransparent && (pastHero || menuOpen)
-            ? 'sm:border-white/10 sm:bg-black/60 sm:shadow-[0_8px_32px_rgba(0,0,0,0.3)] sm:backdrop-blur-2xl sm:backdrop-saturate-150'
-            : glassTransparent
-            ? 'sm:border-white/10 sm:dark:border-white/5 sm:bg-white/15 sm:dark:bg-black/25 sm:shadow-[0_4px_24px_rgba(0,0,0,0.04)] sm:backdrop-blur-xl sm:backdrop-saturate-150'
-            : ''
+        className={`sticky top-0 z-50 w-full border-b border-black/5 pt-[env(safe-area-inset-top)] backdrop-blur-xl backdrop-saturate-150 transition-all duration-300 dark:border-white/10 ${
+          scrolled || menuOpen
+            ? 'bg-white/90 shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:bg-[#12100e]/92'
+            : 'bg-white/75 dark:bg-[#12100e]/75'
         } ${className}`}
       >
         <div className="mx-auto flex h-[68px] w-full max-w-[1360px] items-center justify-between gap-4 px-6 lg:px-12">
@@ -203,15 +161,7 @@ export function SiteHeader({ className = '', glassTransparent = false }: SiteHea
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 p-1 shadow-sm ring-1 ring-white/40 transition-transform duration-200 group-hover:scale-105">
               <img src="/assets/images/logo-mark.png" alt="Amud Skills" className="h-full w-full object-contain" />
             </div>
-            <span
-              className={`text-base font-black tracking-tight transition-colors duration-200 sm:text-lg ${
-                glassTransparent
-                  ? pastHero
-                    ? 'text-primary-dark dark:text-white'
-                    : 'text-primary-dark sm:text-white'
-                  : 'text-primary-dark dark:text-white'
-              }`}
-            >
+            <span className="text-base font-bold tracking-tight text-primary-dark transition-colors duration-200 dark:text-white sm:text-lg">
               Amud Skills
             </span>
           </Link>
@@ -222,11 +172,7 @@ export function SiteHeader({ className = '', glassTransparent = false }: SiteHea
               <a
                 key={link.href}
                 href={link.href}
-                className={`text-sm font-bold transition-all duration-200 hover:-translate-y-0.5 ${
-                  glassTransparent && !pastHero
-                    ? 'text-white/90 hover:text-white'
-                    : 'text-onSurface-variant hover:text-primary'
-                }`}
+                className="text-sm font-semibold text-onSurface-variant transition-colors duration-200 hover:text-primary"
               >
                 {link.label}
               </a>
@@ -246,11 +192,7 @@ export function SiteHeader({ className = '', glassTransparent = false }: SiteHea
 
             <Link
               href="/auth-phone"
-              className={`hidden rounded-xl border px-3.5 py-2 text-sm font-bold transition-all duration-200 hover:scale-105 backdrop-blur-md shadow-xs sm:inline-flex ${
-                glassTransparent && !pastHero
-                  ? 'border-white/30 bg-white/10 text-white hover:bg-white/25'
-                  : 'border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/10 text-onSurface hover:bg-white/80 hover:text-primary'
-              }`}
+              className="hidden rounded-xl border border-black/10 bg-white/50 px-3.5 py-2 text-sm font-semibold text-onSurface backdrop-blur-md transition-colors duration-200 hover:bg-white/80 hover:text-primary dark:border-white/10 dark:bg-white/10 sm:inline-flex"
             >
               {nav.signIn}
             </Link>
@@ -269,10 +211,8 @@ export function SiteHeader({ className = '', glassTransparent = false }: SiteHea
               aria-label={menuOpen ? nav.menuClose : nav.menuOpen}
               className={`rounded-xl border backdrop-blur-md transition-all duration-200 lg:hidden ${
                 menuOpen
-                  ? 'border-primary/40 bg-primary/15 text-primary rotate-90'
-                  : glassTransparent && !pastHero
-                  ? 'border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/10 text-onSurface sm:border-white/30 sm:bg-white/10 sm:text-white'
-                  : 'border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/10 text-onSurface'
+                  ? 'rotate-90 border-primary/40 bg-primary/15 text-primary'
+                  : 'border-black/10 bg-white/50 text-onSurface dark:border-white/10 dark:bg-white/10'
               }`}
             >
               <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
@@ -305,13 +245,9 @@ export function SiteHeader({ className = '', glassTransparent = false }: SiteHea
               <div className="fixed top-[calc(68px+env(safe-area-inset-top))] inset-x-0 bottom-0 overflow-y-auto bg-white/98 dark:bg-[#161311] dark:text-[#e5e2e1] backdrop-blur-3xl border-t border-black/10 dark:border-white/10 shadow-2xl animate-menu-drawer-in motion-reduce:animate-none flex flex-col justify-between p-5 pb-[calc(28px+env(safe-area-inset-bottom))]">
                 <div className="space-y-6">
                   {/* Eyebrow / Tag */}
-                  <div className="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
-                    <span className="text-[11px] font-black uppercase tracking-wider text-primary">
-                      🇲🇦 Maroc → 🇩🇪 Allemagne
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
-                      <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                      100% Gratuit
+                  <div className="border-b border-black/5 pb-3 dark:border-white/10">
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+                      {content.hero.eyebrow}
                     </span>
                   </div>
 

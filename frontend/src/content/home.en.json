@@ -33,6 +33,12 @@
       "footnote": "What a recruiter sees"
     }
   },
+  "video": {
+    "eyebrow": "In video",
+    "playLabel": "Play the video",
+    "posterAlt": "Preview image of the candidate journey video.",
+    "unsupported": "Your browser cannot play this video."
+  },
   "search": {
     "label": "What is your trade?",
     "placeholder": "Nurse, electrician, welder…",
@@ -89,6 +95,7 @@
     "cta": "Explore the platform in detail"
   },
   "trades": {
+    "eyebrow": "Trades in demand",
     "title": "The trades hiring in Germany",
     "subtitle": "Healthcare, industry, construction, hospitality, IT — here is what each trade actually requires.",
     "cardCta": "See the path",
@@ -128,6 +135,7 @@
     ]
   },
   "credible": {
+    "eyebrow": "The file",
     "title": "A structured file an employer can review",
     "subtitle": "Declared information, attachments, and automated indicators remain clearly distinguished in the file.",
     "imageAlt": "Group training session preparing candidates for German workplace requirements.",
@@ -155,6 +163,7 @@
     ]
   },
   "proof": {
+    "eyebrow": "Our commitments",
     "title": "What we can prove",
     "subtitle": "No unverifiable promises. Three commitments you can hold us to.",
     "items": [

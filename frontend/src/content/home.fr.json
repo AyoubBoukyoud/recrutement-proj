@@ -33,6 +33,12 @@
       "footnote": "Aperçu de ce que voit un recruteur"
     }
   },
+  "video": {
+    "eyebrow": "En vidéo",
+    "playLabel": "Lire la vidéo",
+    "posterAlt": "Image de présentation de la vidéo du parcours candidat.",
+    "unsupported": "Votre navigateur ne peut pas lire cette vidéo."
+  },
   "search": {
     "label": "Quel est votre métier ?",
     "placeholder": "Infirmier, électricien, soudeur…",
@@ -89,6 +95,7 @@
     "cta": "Découvrir la plateforme en détail"
   },
   "trades": {
+    "eyebrow": "Métiers en tension",
     "title": "Les métiers qui recrutent en Allemagne",
     "subtitle": "Santé, industrie, bâtiment, hôtellerie, informatique — voici ce que chaque métier demande vraiment.",
     "cardCta": "Voir le parcours",
@@ -128,6 +135,7 @@
     ]
   },
   "credible": {
+    "eyebrow": "Le dossier",
     "title": "Un dossier structuré qu’un employeur peut examiner",
     "subtitle": "Les informations déclarées, les pièces jointes et les indicateurs automatiques restent distingués dans le dossier.",
     "imageAlt": "Séance de formation collective préparant des candidats aux exigences professionnelles allemandes.",
@@ -155,6 +163,7 @@
     ]
   },
   "proof": {
+    "eyebrow": "Nos engagements",
     "title": "Ce que nous pouvons prouver",
     "subtitle": "Pas de promesse invérifiable. Trois engagements que vous pouvez nous opposer.",
     "items": [

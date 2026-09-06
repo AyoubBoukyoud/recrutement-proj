@@ -1,21 +1,22 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useHomeContent } from '@/lib/useLocalizedContent';
+import { PrimaryCta } from './Cta';
 
+/**
+ * Barre d'action mobile persistante (plan §2.12) : apparaît une fois le hero
+ * sorti du viewport, disparaît près du CTA final pour ne pas le doubler.
+ */
 export function MobileActionBar() {
   const content = useHomeContent();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      // Afficher la barre dès qu'on a dépassé le hero vidéo (scroll > 450px)
-      const isPastHero = window.scrollY > 450;
-
-      // Masquer si on est tout en bas (près du footer)
+      const isPastHero = window.scrollY > window.innerHeight * 0.6;
       const isNearBottom =
-        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 200;
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 400;
 
       setVisible(isPastHero && !isNearBottom);
     };
@@ -28,32 +29,19 @@ export function MobileActionBar() {
 
   return (
     <aside
-      aria-label="Action rapide mobile"
+      aria-label={content.mobileBar.cta}
       aria-hidden={!visible}
       className={`fixed bottom-0 inset-x-0 z-40 sm:hidden pb-[env(safe-area-inset-bottom)] transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
         visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-full opacity-0'
       }`}
     >
-      <div className="mx-3 mb-3 rounded-2xl border border-black/10 dark:border-white/10 bg-white/92 dark:bg-[#181513]/95 p-3 shadow-[0_10px_35px_rgba(0,0,0,0.2)] backdrop-blur-xl">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex flex-col min-w-0 ps-1">
-            <span className="text-[11px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              100% Gratuit
-            </span>
-            <span className="text-xs font-bold text-onSurface truncate">
-              {content.hero.eyebrow}
-            </span>
-          </div>
-
-          <Link
-            href="/auth-phone"
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 px-4 py-2.5 text-xs font-black text-white shadow-md active:scale-95 transition-transform"
-          >
-            <span>{content.hero.cta}</span>
-            <span className="material-symbols-outlined text-sm rtl:rotate-180">arrow_forward</span>
-          </Link>
-        </div>
+      <div className="mx-3 mb-3 flex items-center gap-3 rounded-2xl border border-black/10 bg-white/95 p-3 shadow-[0_10px_35px_rgba(0,0,0,0.15)] backdrop-blur-xl dark:border-white/10 dark:bg-[#181513]/95">
+        <p className="line-clamp-2 min-w-0 flex-1 ps-1 text-[11px] font-medium leading-snug text-onSurface-variant">
+          {content.hero.microcopy}
+        </p>
+        <PrimaryCta href="/auth-phone" size="sm" className="shrink-0">
+          {content.mobileBar.cta}
+        </PrimaryCta>
       </div>
     </aside>
   );

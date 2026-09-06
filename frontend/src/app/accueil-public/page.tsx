@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 export default function AccueilPublicPage() {
   return (
     <div className="home-font-pairing">
-      <SiteHeader glassTransparent />
+      <SiteHeader />
 
       <PublicHome />
 

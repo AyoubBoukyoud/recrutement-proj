@@ -33,6 +33,12 @@
       "footnote": "So sieht es ein Arbeitgeber"
     }
   },
+  "video": {
+    "eyebrow": "Im Video",
+    "playLabel": "Video abspielen",
+    "posterAlt": "Vorschaubild des Videos zum Bewerberweg.",
+    "unsupported": "Ihr Browser kann dieses Video nicht abspielen."
+  },
   "search": {
     "label": "Was ist Ihr Beruf?",
     "placeholder": "Pflegefachkraft, Elektriker, Schweißer…",
@@ -89,6 +95,7 @@
     "cta": "Plattform im Detail entdecken"
   },
   "trades": {
+    "eyebrow": "Gefragte Berufe",
     "title": "Berufe, die in Deutschland gesucht werden",
     "subtitle": "Pflege, Industrie, Bau, Gastronomie, IT — hier steht, was jeder Beruf wirklich verlangt.",
     "cardCta": "Weg ansehen",
@@ -128,6 +135,7 @@
     ]
   },
   "credible": {
+    "eyebrow": "Das Profil",
     "title": "Ein strukturiertes Profil zur Prüfung durch Arbeitgeber",
     "subtitle": "Angegebene Informationen, Anhänge und automatische Indikatoren bleiben im Profil klar voneinander unterschieden.",
     "imageAlt": "Gruppenschulung, die Bewerber auf die Anforderungen des deutschen Arbeitsmarkts vorbereitet.",
@@ -155,6 +163,7 @@
     ]
   },
   "proof": {
+    "eyebrow": "Unsere Zusagen",
     "title": "Was wir belegen können",
     "subtitle": "Keine unüberprüfbaren Versprechen. Drei Zusagen, an denen Sie uns messen können.",
     "items": [
