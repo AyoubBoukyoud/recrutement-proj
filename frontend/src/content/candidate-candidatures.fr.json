@@ -6,5 +6,6 @@
   "empty": "Vous n’avez encore envoyé aucune candidature.",
   "withdraw": "Retirer ma candidature",
   "statuses": { "submitted": "Envoyée", "viewed": "Vue", "interview": "Entretien", "accepted": "Acceptée", "rejected": "Refusée", "withdrawn": "Retirée" },
+  "decisionMessages": { "accepted": "Félicitations, votre candidature a été acceptée !", "rejected": "Nous sommes désolés, votre candidature n’a pas été retenue cette fois-ci." },
   "pagination": { "noun": "candidature", "plural": "candidatures" }
 }

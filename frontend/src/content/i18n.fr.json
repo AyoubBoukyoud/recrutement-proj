@@ -39,6 +39,7 @@
   "auth_intent_job_seeker": "Je cherche un emploi",
   "auth_intent_recruiter": "Je recrute",
   "auth_session_expired": "Votre session a expiré. Saisissez votre numéro pour vous reconnecter.",
+  "referral_notice": "Un agent vous a recommandé — votre inscription lui sera associée.",
   "phone_screen_title": "Quel est votre numéro ?",
   "phone_screen_subtitle": "Nous vous envoyons un code à 6 chiffres pour vérifier votre numéro. Pas de mot de passe à retenir.",
   "phone_screen_title_recruiter": "Accès recruteur",

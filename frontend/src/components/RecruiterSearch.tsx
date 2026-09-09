@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/opsApi'
-import { TopBar } from '@/components/TopBar'
 import { CandidateDossier } from '@/components/CandidateDossier'
 import { Pagination } from '@/components/Pagination'
 import { Card, Field, SelectField, Button, Badge, SectionHeader } from '@/components/ui'
@@ -259,11 +258,8 @@ export default function RecruiterSearch() {
   }
 
   return (
-    <div className="min-h-screen bg-surface">
-      <TopBar title="Recherche recruteur" />
-
-      <main className="mx-auto grid max-w-5xl gap-6 px-6 py-8">
-        <h1 className="sr-only">Recherche recruteur</h1>
+    <div className="mx-auto grid max-w-5xl gap-6">
+      <h1 className="sr-only">Recherche recruteur</h1>
         {openId ? (
           <CandidateDossier id={openId} onBack={() => setOpenId(null)} />
         ) : (
@@ -451,7 +447,6 @@ export default function RecruiterSearch() {
             )}
           </>
         )}
-      </main>
     </div>
   )
 }

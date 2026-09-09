@@ -67,13 +67,13 @@ export default function AdminOverview() {
             <Tile
               label="Dossiers à vérifier"
               value={q.data.candidates.submitted - q.data.candidates.verified}
-              href="/admin/candidatures"
+              href="/admin/candidats?status=submitted"
               hint={`${q.data.candidates.total} candidats`}
             />
             <Tile
               label="Documents en attente"
               value={q.data.documents.awaiting_approval}
-              href="/admin/candidatures"
+              href="/admin/candidats"
               hint={q.data.documents.unreadable > 0 ? `${q.data.documents.unreadable} illisibles` : undefined}
             />
             <Tile

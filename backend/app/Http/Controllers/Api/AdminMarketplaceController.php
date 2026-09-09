@@ -82,6 +82,27 @@ class AdminMarketplaceController extends Controller
         return response()->json($query->latest('applied_at')->paginate($data['per_page'] ?? 20));
     }
 
+    /**
+     * Move an application along the pipeline from the admin console —
+     * mirrors CandidateApplicationController::updateStatus (the recruiter's
+     * own equivalent), minus `submitted`/`withdrawn`, which are not an
+     * admin's to set: the former is the application's initial state, the
+     * latter is the candidate's own action.
+     */
+    public function updateApplicationStatus(Request $request, JobApplication $application): JsonResponse
+    {
+        $data = $request->validate(['status' => 'required|in:viewed,interview,accepted,rejected']);
+        $before = $application->status;
+        $application->update(['status' => $data['status'], 'status_changed_at' => now()]);
+        AdminActivityLog::record($request->user(), $application, 'application_status_changed', [
+            'from' => $before,
+            'to' => $data['status'],
+        ]);
+        $this->notifications->applicationStatusChanged($application);
+
+        return response()->json($application->fresh(['offer.employer.companyProfile', 'candidateProfile.user']));
+    }
+
     public function activity(Request $request): JsonResponse
     {
         $data = $request->validate([

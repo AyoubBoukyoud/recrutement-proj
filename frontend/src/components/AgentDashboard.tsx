@@ -39,7 +39,10 @@ type ReferralRow = {
   commission_currency: string | null
 }
 
-const deepLink = (token: string) => `recruitment://register?ref=${token}`
+// Un lien web, pas un schéma d'app : l'appareil photo natif d'un téléphone
+// n'ouvre jamais un lien recruitment://, mais suit toujours un https:// vers
+// le navigateur, où /auth-phone lit `ref` et l'attribue au candidat.
+const referralLink = (token: string) => `${window.location.origin}/auth-phone?ref=${token}`
 
 const STATUS_COPY: Record<ReferralRow['commission_status'], string> = {
   pending: 'en attente de leur dossier',
@@ -159,7 +162,7 @@ export default function AgentDashboard() {
       const ink =
         getComputedStyle(document.documentElement).getPropertyValue('--on-surface').trim() || '#191C1D'
 
-      QRCode.toCanvas(canvasRef.current, deepLink(data.qr_code_token), {
+      QRCode.toCanvas(canvasRef.current, referralLink(data.qr_code_token), {
         width: 240,
         margin: 1,
         color: { dark: ink, light: '#ffffff' },
@@ -178,7 +181,7 @@ export default function AgentDashboard() {
 
   async function copyLink() {
     if (!data) return
-    await navigator.clipboard.writeText(deepLink(data.qr_code_token))
+    await navigator.clipboard.writeText(referralLink(data.qr_code_token))
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }

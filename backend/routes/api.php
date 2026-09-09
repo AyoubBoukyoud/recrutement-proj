@@ -26,8 +26,13 @@ use App\Http\Controllers\Api\EducationController;
 use App\Http\Controllers\Api\JobOfferController;
 use App\Http\Controllers\Api\LanguageAssessmentController;
 use App\Http\Controllers\Api\PhoneChangeController;
+use App\Http\Controllers\Api\PushSubscriptionController;
 use App\Http\Controllers\Api\RecruiterCandidateController;
+use App\Http\Controllers\Api\RecruiterInterviewController;
+use App\Http\Controllers\Api\RecruiterProfileController;
 use App\Http\Controllers\Api\RecruiterShortlistController;
+use App\Http\Controllers\Api\RecruiterStatsController;
+use App\Http\Controllers\Api\RecruiterTeamController;
 use App\Http\Controllers\Api\ReferralAgentController;
 use Illuminate\Support\Facades\Route;
 
@@ -51,6 +56,10 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
     // Account recovery: move the account to a new number from a signed-in device.
     Route::post('/auth/phone/change', [PhoneChangeController::class, 'request'])->middleware('throttle:otp-request');
     Route::post('/auth/phone/change/confirm', [PhoneChangeController::class, 'confirm'])->middleware('throttle:otp-verify');
+
+    // Web Push subscriptions — any role, see PushSubscriptionController.
+    Route::post('/push/subscriptions', [PushSubscriptionController::class, 'store']);
+    Route::delete('/push/subscriptions', [PushSubscriptionController::class, 'destroy']);
 
     Route::get('/candidate/profile', [CandidateProfileController::class, 'show']);
     Route::put('/candidate/profile', [CandidateProfileController::class, 'update']);
@@ -133,6 +142,7 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
         Route::get('/admin/offers', [AdminMarketplaceController::class, 'offers']);
         Route::patch('/admin/offers/{offer}', [AdminMarketplaceController::class, 'updateOffer']);
         Route::get('/admin/applications', [AdminMarketplaceController::class, 'applications']);
+        Route::patch('/admin/applications/{application}', [AdminMarketplaceController::class, 'updateApplicationStatus']);
         Route::get('/admin/activity', [AdminMarketplaceController::class, 'activity']);
 
         Route::get('/admin/candidates', [AdminCandidateController::class, 'index']);
@@ -213,5 +223,28 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
         // Discloses phone/email — an attributable disclosure, and the
         // tightest limiter in the file (see AppServiceProvider).
         Route::post('/recruiter/candidates/{candidateProfile}/contact', [RecruiterShortlistController::class, 'revealContact'])->middleware('throttle:recruiter-contact-reveal');
+
+        // Self-service company profile — previously only an administrator
+        // could touch `CompanyProfile`, and only status/verification.
+        Route::get('/recruiter/profile', [RecruiterProfileController::class, 'show']);
+        Route::patch('/recruiter/profile', [RecruiterProfileController::class, 'update']);
+        Route::post('/recruiter/profile/logo', [RecruiterProfileController::class, 'uploadLogo']);
+
+        // A roster of the recruiter's own colleagues — not a second login,
+        // see CompanyTeamMember's migration.
+        Route::get('/recruiter/team', [RecruiterTeamController::class, 'index']);
+        Route::post('/recruiter/team', [RecruiterTeamController::class, 'store']);
+        Route::patch('/recruiter/team/{teamMember}', [RecruiterTeamController::class, 'update']);
+        Route::delete('/recruiter/team/{teamMember}', [RecruiterTeamController::class, 'destroy']);
+
+        // Interview scheduling, distinct from `JobApplication::status`.
+        Route::get('/recruiter/interviews', [RecruiterInterviewController::class, 'index']);
+        Route::post('/recruiter/interviews', [RecruiterInterviewController::class, 'store']);
+        Route::get('/recruiter/interviews/{interview}', [RecruiterInterviewController::class, 'show']);
+        Route::patch('/recruiter/interviews/{interview}', [RecruiterInterviewController::class, 'update']);
+        Route::post('/recruiter/interviews/{interview}/feedback', [RecruiterInterviewController::class, 'storeFeedback']);
+
+        // "My stats" — a per-recruiter equivalent of /admin/metrics.
+        Route::get('/recruiter/stats', [RecruiterStatsController::class, 'index']);
     });
 });

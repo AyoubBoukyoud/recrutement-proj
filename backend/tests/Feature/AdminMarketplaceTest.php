@@ -51,4 +51,28 @@ class AdminMarketplaceTest extends TestCase
         $this->actingAs($admin, 'sanctum')->getJson('/api/admin/applications?status=interview')->assertOk()->assertJsonPath('total', 1);
         $this->getJson('/api/admin/metrics')->assertOk()->assertJsonPath('marketplace.offers_published', 1)->assertJsonPath('marketplace.interviews',1);
     }
+
+    public function test_admin_can_move_an_application_along_the_pipeline(): void
+    {
+        $company = $this->user('Company');
+        $candidate = $this->user('User');
+        $profile = CandidateProfileResolver::resolve($candidate);
+        $offer = JobOffer::create(['user_id' => $company->id, 'title' => 'Nurse', 'description' => 'Role', 'sector' => 'Health', 'city' => 'Rabat', 'contract_type' => 'permanent']);
+        $application = JobApplication::create(['candidate_profile_id' => $profile->id, 'job_offer_id' => $offer->id, 'status' => 'submitted', 'applied_at' => now(), 'status_changed_at' => now()]);
+
+        $this->actingAs($company, 'sanctum')->patchJson("/api/admin/applications/$application->id", ['status' => 'interview'])->assertForbidden();
+
+        $admin = $this->user('Administrator');
+        $this->actingAs($admin, 'sanctum')
+            ->patchJson("/api/admin/applications/$application->id", ['status' => 'interview'])
+            ->assertOk()
+            ->assertJsonPath('status', 'interview');
+        $this->assertDatabaseHas('admin_activity_logs', ['subject_id' => $application->id, 'action' => 'application_status_changed']);
+        $this->assertDatabaseHas('app_notifications', ['user_id' => $candidate->id, 'type' => 'application.status']);
+
+        // `submitted`/`withdrawn` stay outside the admin's pipeline actions —
+        // the former is the initial state, the latter the candidate's own.
+        $this->patchJson("/api/admin/applications/$application->id", ['status' => 'submitted'])->assertStatus(422);
+        $this->patchJson("/api/admin/applications/$application->id", ['status' => 'withdrawn'])->assertStatus(422);
+    }
 }

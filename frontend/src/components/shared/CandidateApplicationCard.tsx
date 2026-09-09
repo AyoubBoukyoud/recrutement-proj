@@ -1,6 +1,16 @@
 import Link from "next/link";
 import { Button } from "./Button";
+import { Badge } from "@/components/ui";
 import type { JobApplication } from "@/lib/candidateMarketplace";
+
+const STATUS_BADGE_TONE: Record<JobApplication["status"], "done" | "pending" | "error" | "neutral"> = {
+  submitted: "pending",
+  viewed: "pending",
+  interview: "pending",
+  accepted: "done",
+  rejected: "error",
+  withdrawn: "neutral",
+};
 
 export function CandidateApplicationCard({
   application,
@@ -9,6 +19,7 @@ export function CandidateApplicationCard({
   onWithdraw,
   withdrawing = false,
   locale,
+  decisionMessage,
 }: {
   application: JobApplication;
   statusLabel: string;
@@ -16,10 +27,13 @@ export function CandidateApplicationCard({
   onWithdraw?: () => void;
   withdrawing?: boolean;
   locale?: string;
+  /** Shown under the header for `accepted`/`rejected` — the moment a status badge alone reads as too quiet. */
+  decisionMessage?: string;
 }) {
   const terminal = ["accepted", "rejected", "withdrawn"].includes(
     application.status,
   );
+  const decided = application.status === "accepted" || application.status === "rejected";
 
   return (
     <article className="rounded-xl border border-outline-variant bg-surface-container-lowest p-5 shadow-subtle">
@@ -36,10 +50,20 @@ export function CandidateApplicationCard({
             {new Date(application.applied_at).toLocaleDateString(locale)}
           </p>
         </div>
-        <span className="h-fit rounded-full bg-surface-container-high px-3 py-1 text-xs font-bold">
-          {statusLabel}
-        </span>
+        <Badge tone={STATUS_BADGE_TONE[application.status]}>{statusLabel}</Badge>
       </div>
+      {decided && decisionMessage && (
+        <p
+          role="status"
+          className={`mt-3 rounded-lg px-3 py-2 text-sm ${
+            application.status === "accepted"
+              ? "bg-primary-light text-primary-dark"
+              : "bg-surface-container text-onSurface-variant"
+          }`}
+        >
+          {decisionMessage}
+        </p>
+      )}
       {!terminal && withdrawLabel && onWithdraw && (
         <Button
           variant="destructive-ghost"

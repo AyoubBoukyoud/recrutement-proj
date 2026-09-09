@@ -39,6 +39,7 @@
   "auth_intent_job_seeker": "أبحث عن عمل",
   "auth_intent_recruiter": "أنا موظِّف",
   "auth_session_expired": "انتهت جلستك. أدخل رقم هاتفك لتسجيل الدخول من جديد.",
+  "referral_notice": "أحالك أحد الوكلاء — سيُربط تسجيلك به.",
   "phone_screen_title": "ما هو رقم هاتفك؟",
   "phone_screen_subtitle": "سنرسل لك رمزًا مكونًا من 6 أرقام للتحقق من رقمك. لا حاجة لتذكر كلمة مرور.",
   "phone_screen_title_recruiter": "وصول الموظِّفين",

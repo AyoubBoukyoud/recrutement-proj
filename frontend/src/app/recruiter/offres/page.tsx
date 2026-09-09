@@ -4,23 +4,17 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import { api } from '@/lib/opsApi';
-import { TopBar } from '@/components/TopBar';
-import { Badge, Button, Card, Field, Modal, Notice, SelectField, TextareaField } from '@/components/ui';
+import { ConfirmDialog, Modal, PageHeader } from '@/components/amud/ui';
+import { SelectField, TextareaField, TextField } from '@/components/amud/form';
+import { Button } from '@/components/amud/ui';
+import { useToast } from '@/components/amud/Toast';
 import type { Page, JobOffer } from '@/lib/candidateMarketplace';
 
 /*
- * Mes offres.
- *
- * Le formulaire vivait dans une colonne fixe à gauche : il occupait la moitié
- * de l'écran en permanence, y compris quand on venait seulement relire ses
- * offres, et poussait la liste dans une colonne étroite qui s'étirait en un
- * grand cadre vide dès qu'il y avait moins de trois offres. Il passe en
- * dialogue, la liste prend toute la largeur.
- *
- * Le formulaire expose aussi le salaire et le niveau d'allemand exigé, que
- * l'API acceptait déjà (JobOfferController::validated) sans que rien ne
- * permette de les saisir — sur ce produit, le niveau CECRL est précisément ce
- * sur quoi candidats et postes sont rapprochés.
+ * Mes offres — porte le style de la maquette `/amud/entreprise/offres` sur
+ * la page déjà pleinement fonctionnelle (création/édition/suppression,
+ * salaire, niveau d'allemand exigé) : même logique métier, présentation
+ * amud pour rester cohérent avec la nouvelle coquille `RecruiterShell`.
  */
 type OwnOffer = JobOffer & {
   status: 'draft' | 'published' | 'closed';
@@ -67,10 +61,10 @@ const STATUSES: Record<OwnOffer['status'], string> = {
   closed: 'Fermée',
 };
 
-const STATUS_TONE: Record<OwnOffer['status'], 'done' | 'pending' | 'neutral'> = {
-  draft: 'neutral',
-  published: 'done',
-  closed: 'pending',
+const STATUS_CLASS: Record<OwnOffer['status'], string> = {
+  draft: 'bg-amud-surface-container-highest text-amud-on-surface-variant',
+  published: 'bg-amud-primary-fixed text-amud-on-primary-fixed',
+  closed: 'bg-amud-error-container text-amud-on-error-container',
 };
 
 function errorMessage(error: unknown, fallback: string) {
@@ -91,7 +85,8 @@ function payloadFrom(form: OfferForm) {
   };
 }
 
-export default function Offers() {
+export default function RecruiterOffresPage() {
+  const notify = useToast();
   const qc = useQueryClient();
   const [form, setForm] = useState<OfferForm>(EMPTY);
   const [editing, setEditing] = useState<number | null>(null);
@@ -111,22 +106,23 @@ export default function Offers() {
   };
 
   const save = useMutation({
-    mutationFn: () =>
-      editing
-        ? api.patch(`/recruiter/offers/${editing}`, payloadFrom(form))
-        : api.post('/recruiter/offers', payloadFrom(form)),
+    mutationFn: () => (editing ? api.patch(`/recruiter/offers/${editing}`, payloadFrom(form)) : api.post('/recruiter/offers', payloadFrom(form))),
     onSuccess: () => {
       close();
+      notify(editing ? 'Offre mise à jour.' : 'Offre créée.');
       qc.invalidateQueries({ queryKey: ['recruiter-offers'] });
     },
+    onError: (error) => notify(errorMessage(error, 'Enregistrement impossible.'), 'error'),
   });
 
   const remove = useMutation({
     mutationFn: (id: number) => api.delete(`/recruiter/offers/${id}`),
     onSuccess: () => {
       setDeleting(null);
+      notify('Offre supprimée.', 'info');
       qc.invalidateQueries({ queryKey: ['recruiter-offers'] });
     },
+    onError: (error) => notify(errorMessage(error, 'Suppression impossible.'), 'error'),
   });
 
   const startCreate = () => {
@@ -158,74 +154,59 @@ export default function Offers() {
   const incomplete = !form.title || !form.description || !form.sector || !form.city;
 
   return (
-    <div className="min-h-screen bg-surface">
-      <TopBar title="Mes offres" />
+    <div>
+      <PageHeader
+        title="Mes offres"
+        subtitle={
+          q.isLoading
+            ? 'Chargement…'
+            : `${offers.length} offre${offers.length > 1 ? 's' : ''} · ${offers.filter((o) => o.status === 'published').length} publiée${offers.filter((o) => o.status === 'published').length > 1 ? 's' : ''}`
+        }
+        actionLabel="Nouvelle offre"
+        onAction={startCreate}
+      />
 
-      <main className="mx-auto grid max-w-4xl gap-5 p-6 pb-24 md:pb-6">
-        <header className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold">Mes offres</h1>
-            <p className="helper-text mt-0.5">
-              {q.isLoading
-                ? 'Chargement…'
-                : `${offers.length} offre${offers.length > 1 ? 's' : ''} · ${offers.filter((o) => o.status === 'published').length} publiée${offers.filter((o) => o.status === 'published').length > 1 ? 's' : ''}`}
-            </p>
-          </div>
-          <Button onClick={startCreate}>Nouvelle offre</Button>
-        </header>
+      {q.isError ? <p className="mb-md rounded-lg bg-amud-error-container p-md text-body-md text-amud-on-error-container">Impossible de charger vos offres. Rechargez la page.</p> : null}
 
-        {q.isError && <Notice>Impossible de charger vos offres. Rechargez la page.</Notice>}
-
-        {!q.isLoading && offers.length === 0 && (
-          <Card>
-            <div className="grid justify-items-center gap-3 py-8 text-center">
-              <p className="font-bold">Aucune offre pour l’instant</p>
-              <p className="helper-text max-w-sm">
-                Une offre publiée devient visible par les candidats dont le dossier correspond, et
-                leur est signalée automatiquement.
-              </p>
-              <Button onClick={startCreate}>Créer ma première offre</Button>
-            </div>
-          </Card>
-        )}
-
-        <div className="grid gap-3">
-          {offers.map((o) => (
-            <Card key={o.id}>
-              <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-start">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="font-bold">{o.title}</h2>
-                    <Badge tone={STATUS_TONE[o.status]}>{STATUSES[o.status]}</Badge>
-                  </div>
-                  <p className="helper-text mt-1">
-                    {[o.sector, o.city, CONTRACTS[o.contract_type] ?? o.contract_type]
-                      .filter(Boolean)
-                      .join(' · ')}
-                    {o.required_cefr_level ? ` · allemand ${o.required_cefr_level}` : ''}
-                    {o.salary_min || o.salary_max
-                      ? ` · ${[o.salary_min, o.salary_max].filter(Boolean).join('–')} ${o.currency ?? ''}`.trimEnd()
-                      : ''}
-                  </p>
-                  <p className="helper-text mt-1">
-                    {o.applications_count === 0
-                      ? 'Aucune candidature'
-                      : `${o.applications_count} candidature${o.applications_count > 1 ? 's' : ''}`}
-                  </p>
-                </div>
-                <div className="flex shrink-0 gap-2">
-                  <Button size="compact" variant="ghost" onClick={() => startEdit(o)}>
-                    Modifier
-                  </Button>
-                  <Button size="compact" variant="ghost" onClick={() => setDeleting(o)}>
-                    Supprimer
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))}
+      {!q.isLoading && offers.length === 0 ? (
+        <div className="flex flex-col items-center gap-md rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-xl text-center">
+          <span className="material-symbols-outlined text-4xl text-amud-outline">work_off</span>
+          <p className="font-semibold text-amud-on-surface">Aucune offre pour l’instant</p>
+          <p className="max-w-sm text-body-md text-amud-on-surface-variant">
+            Une offre publiée devient visible par les candidats dont le dossier correspond, et leur est signalée automatiquement.
+          </p>
+          <Button onClick={startCreate}>Créer ma première offre</Button>
         </div>
-      </main>
+      ) : null}
+
+      <div className="grid gap-md">
+        {offers.map((o) => (
+          <div key={o.id} className="grid gap-sm rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg shadow-[0_4px_12px_rgba(0,0,0,0.02)] sm:grid-cols-[1fr_auto] sm:items-start">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-title-lg text-amud-on-surface">{o.title}</h2>
+                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_CLASS[o.status]}`}>{STATUSES[o.status]}</span>
+              </div>
+              <p className="mt-1 text-label-md text-amud-on-surface-variant">
+                {[o.sector, o.city, CONTRACTS[o.contract_type] ?? o.contract_type].filter(Boolean).join(' · ')}
+                {o.required_cefr_level ? ` · allemand ${o.required_cefr_level}` : ''}
+                {o.salary_min || o.salary_max ? ` · ${[o.salary_min, o.salary_max].filter(Boolean).join('–')} ${o.currency ?? ''}`.trimEnd() : ''}
+              </p>
+              <p className="mt-1 text-label-md text-amud-on-surface-variant">
+                {o.applications_count === 0 ? 'Aucune candidature' : `${o.applications_count} candidature${o.applications_count > 1 ? 's' : ''}`}
+              </p>
+            </div>
+            <div className="flex shrink-0 gap-sm">
+              <button onClick={() => startEdit(o)} className="rounded-lg border border-amud-outline-variant px-3 py-1.5 text-label-sm font-medium text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
+                Modifier
+              </button>
+              <button onClick={() => setDeleting(o)} className="rounded-lg border border-amud-outline-variant px-3 py-1.5 text-label-sm font-medium text-amud-error transition-colors hover:bg-amud-error-container">
+                Supprimer
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
 
       <Modal open={open} onClose={close} title={editing ? 'Modifier l’offre' : 'Nouvelle offre'}>
         <form
@@ -235,14 +216,7 @@ export default function Offers() {
             save.mutate();
           }}
         >
-          <Field
-            label="Intitulé"
-            placeholder="Infirmier·ère en soins généraux"
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            autoFocus
-            required
-          />
+          <TextField label="Intitulé" placeholder="Infirmier·ère en soins généraux" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} autoFocus required />
           <TextareaField
             label="Description"
             placeholder="Missions, équipe, conditions, accompagnement à l’installation…"
@@ -251,53 +225,29 @@ export default function Offers() {
             required
           />
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field
-              label="Secteur"
-              placeholder="Santé"
-              value={form.sector}
-              onChange={(e) => setForm({ ...form, sector: e.target.value })}
-              required
-            />
-            <Field
-              label="Ville"
-              placeholder="Berlin"
-              value={form.city}
-              onChange={(e) => setForm({ ...form, city: e.target.value })}
-              required
-            />
+            <TextField label="Secteur" placeholder="Santé" value={form.sector} onChange={(e) => setForm({ ...form, sector: e.target.value })} required />
+            <TextField label="Ville" placeholder="Berlin" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} required />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <SelectField
               label="Contrat"
               value={form.contract_type}
               onChange={(e) => setForm({ ...form, contract_type: e.target.value })}
-            >
-              {Object.entries(CONTRACTS).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </SelectField>
+              options={Object.entries(CONTRACTS).map(([value, label]) => ({ value, label }))}
+            />
             <SelectField
               label="Allemand exigé"
               value={form.required_cefr_level}
               onChange={(e) => setForm({ ...form, required_cefr_level: e.target.value })}
-            >
-              <option value="">Sans exigence</option>
-              {['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map((level) => (
-                <option key={level} value={level}>
-                  {level}
-                </option>
-              ))}
-            </SelectField>
+              placeholder="Sans exigence"
+              options={['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map((level) => ({ value: level, label: level }))}
+            />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             {/* Mensuel, pas annuel : JobOfferMatching divise par douze la
                 préférence annuelle du candidat avant de la comparer à ce
-                montant, et la fiche candidat l'affiche tel quel. Saisir un
-                salaire annuel ici le rendrait douze fois trop élevé face à
-                chaque candidat ayant exprimé une attente salariale. */}
-            <Field
+                montant. */}
+            <TextField
               label="Salaire min."
               hint="€ par mois"
               inputMode="numeric"
@@ -305,7 +255,7 @@ export default function Offers() {
               value={form.salary_min}
               onChange={(e) => setForm({ ...form, salary_min: e.target.value.replace(/\D/g, '') })}
             />
-            <Field
+            <TextField
               label="Salaire max."
               hint="€ par mois"
               inputMode="numeric"
@@ -319,19 +269,14 @@ export default function Offers() {
             hint={form.status === 'published' ? 'visible par les candidats' : undefined}
             value={form.status}
             onChange={(e) => setForm({ ...form, status: e.target.value })}
-          >
-            {Object.entries(STATUSES).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </SelectField>
+            options={Object.entries(STATUSES).map(([value, label]) => ({ value, label }))}
+          />
 
-          {save.error && <Notice>{errorMessage(save.error, 'Enregistrement impossible.')}</Notice>}
+          {save.error ? <p className="rounded-lg bg-amud-error-container p-md text-body-md text-amud-on-error-container">{errorMessage(save.error, 'Enregistrement impossible.')}</p> : null}
 
-          <div className="flex flex-wrap gap-2">
-            <Button type="submit" disabled={incomplete || save.isPending}>
-              {save.isPending ? 'Enregistrement…' : editing ? 'Enregistrer' : 'Créer l’offre'}
+          <div className="flex flex-wrap gap-sm">
+            <Button type="submit" disabled={incomplete || save.isPending} loading={save.isPending} loadingLabel="Enregistrement…">
+              {editing ? 'Enregistrer' : 'Créer l’offre'}
             </Button>
             <Button type="button" variant="ghost" onClick={close}>
               Annuler
@@ -340,36 +285,18 @@ export default function Offers() {
         </form>
       </Modal>
 
-      <Modal open={deleting !== null} onClose={() => setDeleting(null)} title="Supprimer l’offre">
-        {deleting && (
-          <div className="grid gap-4">
-            <p className="text-[15px]">
-              Supprimer <strong>{deleting.title}</strong> ?
-            </p>
-            {deleting.applications_count > 0 && (
-              <Notice tone="pending">
-                {deleting.applications_count} candidature
-                {deleting.applications_count > 1 ? 's ont' : ' a'} été déposée
-                {deleting.applications_count > 1 ? 's' : ''} sur cette offre. La fermer plutôt que la
-                supprimer la retire des recherches sans effacer ce qui s’y rattache.
-              </Notice>
-            )}
-            {remove.error && <Notice>{errorMessage(remove.error, 'Suppression impossible.')}</Notice>}
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant="danger"
-                disabled={remove.isPending}
-                onClick={() => remove.mutate(deleting.id)}
-              >
-                {remove.isPending ? 'Suppression…' : 'Supprimer'}
-              </Button>
-              <Button variant="ghost" onClick={() => setDeleting(null)}>
-                Annuler
-              </Button>
-            </div>
-          </div>
-        )}
-      </Modal>
+      <ConfirmDialog
+        open={deleting !== null}
+        onClose={() => setDeleting(null)}
+        onConfirm={() => deleting && remove.mutate(deleting.id)}
+        title="Supprimer l’offre ?"
+        description={
+          deleting && deleting.applications_count > 0
+            ? `${deleting.applications_count} candidature(s) ont été déposée(s) sur cette offre. La fermer plutôt que la supprimer la retire des recherches sans effacer ce qui s’y rattache.`
+            : 'Cette action est irréversible.'
+        }
+        confirmLabel="Supprimer"
+      />
     </div>
   );
 }

@@ -6,5 +6,6 @@
   "empty": "You have not submitted any application yet.",
   "withdraw": "Withdraw my application",
   "statuses": { "submitted": "Submitted", "viewed": "Viewed", "interview": "Interview", "accepted": "Accepted", "rejected": "Rejected", "withdrawn": "Withdrawn" },
+  "decisionMessages": { "accepted": "Congratulations, your application has been accepted!", "rejected": "We're sorry, your application was not selected this time." },
   "pagination": { "noun": "application", "plural": "applications" }
 }

@@ -39,6 +39,7 @@
   "auth_intent_job_seeker": "Ich suche einen Job",
   "auth_intent_recruiter": "Ich stelle ein",
   "auth_session_expired": "Ihre Sitzung ist abgelaufen. Geben Sie Ihre Telefonnummer ein, um sich erneut anzumelden.",
+  "referral_notice": "Ein Agent hat Sie empfohlen — Ihre Registrierung wird ihm zugeordnet.",
   "phone_screen_title": "Wie lautet Ihre Telefonnummer?",
   "phone_screen_subtitle": "Wir senden Ihnen einen 6-stelligen Code zur Bestätigung. Kein Passwort nötig.",
   "phone_screen_title_recruiter": "Recruiter-Zugang",

@@ -10,6 +10,7 @@ import { useProfile } from "@/context/ProfileContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useCandidateProfile } from "@/lib/useCandidateProfile";
 import { useUnreadNotifications } from "@/lib/useUnreadNotifications";
+import { PushNotificationPrompt } from "@/components/shared/PushNotificationPrompt";
 import {
   marketplaceApi,
   type JobApplication,
@@ -210,6 +211,7 @@ export default function DashboardPage() {
       </header>
 
       <main className="mx-auto max-w-md space-y-6 px-6 pb-8 pt-4 lg:max-w-6xl lg:px-10 lg:pt-8">
+        <PushNotificationPrompt />
         <div className="space-y-6 lg:grid lg:grid-cols-5 lg:items-start lg:gap-8 lg:space-y-0">
           <div className="space-y-6 lg:col-span-2">
             <section className="flex flex-col items-center rounded-pillar border border-outline-variant bg-surface-container-lowest p-6 text-center shadow-subtle">

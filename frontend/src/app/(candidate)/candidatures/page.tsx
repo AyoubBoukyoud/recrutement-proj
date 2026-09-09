@@ -55,6 +55,11 @@ export default function ApplicationsPage() {
             key={application.id}
             application={application}
             statusLabel={content.statuses[application.status]}
+            decisionMessage={
+              content.decisionMessages[
+                application.status as keyof typeof content.decisionMessages
+              ]
+            }
             withdrawLabel={content.withdraw}
             withdrawing={withdraw.isPending}
             locale={language}

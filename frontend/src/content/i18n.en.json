@@ -39,6 +39,7 @@
   "auth_intent_job_seeker": "I'm looking for a job",
   "auth_intent_recruiter": "I'm hiring",
   "auth_session_expired": "Your session expired. Enter your phone number to sign in again.",
+  "referral_notice": "An agent referred you — your registration will be linked to them.",
   "phone_screen_title": "What's your phone number?",
   "phone_screen_subtitle": "We'll send you a 6-digit code to verify your number. No password to remember.",
   "phone_screen_title_recruiter": "Recruiter access",

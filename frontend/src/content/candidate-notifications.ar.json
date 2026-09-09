@@ -11,6 +11,8 @@
   "types": {
     "application.created": { "title": "ترشيح جديد", "body": "تم استلام ترشيح للعرض {offer_title}." },
     "application.status": { "title": "تم تحديث الترشيح", "body": "أصبحت حالة ترشيحك للعرض {offer_title}: {status}." },
+    "application.accepted": { "title": "تهانينا!", "body": "تم قبول ترشيحك للعرض {offer_title}!" },
+    "application.rejected": { "title": "الرد على ترشيحك", "body": "نأسف، لم يتم قبول ترشيحك للعرض {offer_title} هذه المرة." },
     "offer.moderated": { "title": "تم تحديث العرض", "body": "أصبحت حالة العرض {offer_title}: {status}." },
     "document.reviewed": { "title": "تمت مراجعة الوثيقة", "body": "أصبحت حالة وثيقة {document_type}: {status}. {reason}" },
     "complaint.answered": { "title": "رد على شكواك", "body": "{response}" },

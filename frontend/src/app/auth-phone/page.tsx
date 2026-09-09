@@ -46,11 +46,13 @@ export default function AuthPhonePage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
+  const [referralToken, setReferralToken] = useState<string | null>(null);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     if (query.get('intent') === 'recruiter') setIntent('recruiter');
     setSessionExpired(query.get('reason') === 'session_expired');
+    setReferralToken(query.get('ref'));
   }, []);
 
   const submit = async () => {
@@ -61,7 +63,7 @@ export default function AuthPhonePage() {
     }
     setError(null);
     setIsSubmitting(true);
-    const result = await requestOtp(fullPhone);
+    const result = await requestOtp(fullPhone, referralToken ?? undefined);
     setIsSubmitting(false);
 
     // On ne navigue que si le code est réellement parti : envoyer le candidat
@@ -106,6 +108,12 @@ export default function AuthPhonePage() {
           <div role="status" className="mb-4 flex items-start gap-2 rounded-pillar border border-gold/30 bg-gold/10 p-3 text-xs font-medium text-onSurface">
             <span className="material-symbols-outlined text-gold-dark" style={{ fontSize: 18 }}>schedule</span>
             {t('auth_session_expired')}
+          </div>
+        )}
+        {referralToken && (
+          <div role="status" className="mb-4 flex items-start gap-2 rounded-pillar border border-primary/20 bg-primary/10 p-3 text-xs font-medium text-onSurface">
+            <span className="material-symbols-outlined text-primary" style={{ fontSize: 18 }}>how_to_reg</span>
+            {t('referral_notice')}
           </div>
         )}
         <div className="fade-in-entry opacity-0 mb-6 flex rounded-pillar border border-outline-variant bg-surface-container-lowest p-1">

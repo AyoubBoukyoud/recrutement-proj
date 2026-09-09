@@ -7,6 +7,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/shared/Button";
+import { PushNotificationPrompt } from "@/components/shared/PushNotificationPrompt";
 import { Pagination } from "@/components/Pagination";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -99,6 +100,7 @@ export default function NotificationsPage() {
         </Button>
       </header>
       <main className="mx-auto max-w-3xl p-6">
+        <PushNotificationPrompt />
         {query.isLoading && <p>{content.loading}</p>}
         {query.isError && (
           <p role="alert" className="text-error">

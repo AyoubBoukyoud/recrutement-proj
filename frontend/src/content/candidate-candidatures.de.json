@@ -6,5 +6,6 @@
   "empty": "Sie haben noch keine Bewerbung eingereicht.",
   "withdraw": "Bewerbung zurückziehen",
   "statuses": { "submitted": "Gesendet", "viewed": "Angesehen", "interview": "Vorstellungsgespräch", "accepted": "Angenommen", "rejected": "Abgelehnt", "withdrawn": "Zurückgezogen" },
+  "decisionMessages": { "accepted": "Herzlichen Glückwunsch, Ihre Bewerbung wurde angenommen!", "rejected": "Es tut uns leid, Ihre Bewerbung wurde diesmal nicht berücksichtigt." },
   "pagination": { "noun": "Bewerbung", "plural": "Bewerbungen" }
 }
