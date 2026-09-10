@@ -49,7 +49,7 @@ jobs:
               echo '## Backend test failure (first 12 KiB)'
               head -c 12000 /tmp/backend-test-output.json
             } >> "$GITHUB_STEP_SUMMARY"
-            annotation=$(head -c 3000 /tmp/backend-test-output.json | tr '\n' ' ' | tr '\r' ' ')
+            annotation=$(tail -c 3000 /tmp/backend-test-output.json | tr '\n' ' ' | tr '\r' ' ')
             echo "::error file=backend/tests::$annotation"
           fi
           cat /tmp/backend-test-output.json
