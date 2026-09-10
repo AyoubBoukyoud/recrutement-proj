@@ -32,6 +32,11 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
 
+      - name: Prepare Laravel test environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate --force --no-interaction
+
       - name: Audit Composer dependencies
         run: composer audit --no-interaction --format=plain
 
@@ -40,28 +45,7 @@ jobs:
           php -r 'foreach (["pdo_sqlite", "sqlite3"] as $extension) { if (! extension_loaded($extension)) { fwrite(STDERR, "Missing PHP extension: ".$extension.PHP_EOL); exit(1); } }'
 
       - name: Run backend tests
-        run: |
-          set +e
-          php artisan test --compact > /tmp/backend-test-output.json 2>&1
-          status=$?
-          if [ "$status" -ne 0 ]; then
-            {
-              echo '## Backend test failure (first 12 KiB)'
-              head -c 12000 /tmp/backend-test-output.json
-            } >> "$GITHUB_STEP_SUMMARY"
-            annotation=$(tail -c 3000 /tmp/backend-test-output.json | tr '\n' ' ' | tr '\r' ' ')
-            echo "::error file=backend/tests::$annotation"
-          fi
-          cat /tmp/backend-test-output.json
-          exit "$status"
-
-      - name: Upload backend test diagnostics
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-test-output
-          path: /tmp/backend-test-output.json
-          if-no-files-found: error
+        run: php artisan test --compact
 
       - name: Check PHP formatting
         run: ./vendor/bin/pint --test
