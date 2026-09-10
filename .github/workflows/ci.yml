@@ -35,6 +35,10 @@ jobs:
       - name: Audit Composer dependencies
         run: composer audit --no-interaction --format=plain
 
+      - name: Verify test database extensions
+        run: |
+          php -r 'foreach (["pdo_sqlite", "sqlite3"] as $extension) { if (! extension_loaded($extension)) { fwrite(STDERR, "Missing PHP extension: ".$extension.PHP_EOL); exit(1); } }'
+
       - name: Run backend tests
         run: php artisan test --compact
 
