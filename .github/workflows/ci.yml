@@ -53,6 +53,14 @@ jobs:
           cat /tmp/backend-test-output.json
           exit "$status"
 
+      - name: Upload backend test diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-output
+          path: /tmp/backend-test-output.json
+          if-no-files-found: error
+
       - name: Check PHP formatting
         run: ./vendor/bin/pint --test
 
