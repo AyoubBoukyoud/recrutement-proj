@@ -149,19 +149,19 @@ export function SiteHeader({ className = '' }: SiteHeaderProps) {
   return (
     <>
       <header
-        className={`sticky top-0 z-50 w-full border-b border-black/5 pt-[env(safe-area-inset-top)] backdrop-blur-xl backdrop-saturate-150 transition-all duration-300 dark:border-white/10 ${
+        className={`sticky top-0 z-50 w-full border-b border-black/5 pt-[env(safe-area-inset-top)] backdrop-blur-xl backdrop-saturate-150 transition-all duration-300 dark:border-[#303641] ${
           scrolled || menuOpen
-            ? 'bg-white/90 shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:bg-[#12100e]/92'
-            : 'bg-white/75 dark:bg-[#12100e]/75'
+            ? 'bg-white/90 shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:bg-[#101216]/95'
+            : 'bg-white/75 dark:bg-[#101216]/90'
         } ${className}`}
       >
         <div className="mx-auto flex h-[68px] w-full max-w-[1360px] items-center justify-between gap-4 px-6 lg:px-12">
           {/* Logo and Brand */}
           <Link href="/accueil-public" className="group flex items-center gap-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 p-1 shadow-sm ring-1 ring-white/40 transition-transform duration-200 group-hover:scale-105">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 dark:from-[#8fb5a1] dark:to-[#4c6e5d] p-1 shadow-sm ring-1 ring-white/40 transition-transform duration-200 group-hover:scale-105">
               <img src="/assets/images/logo-mark.png" alt="Amud Skills" className="h-full w-full object-contain" />
             </div>
-            <span className="text-base font-bold tracking-tight text-primary-dark transition-colors duration-200 dark:text-white sm:text-lg">
+            <span className="text-base font-bold tracking-tight text-primary-dark transition-colors duration-200 dark:text-[#f3f4f6] sm:text-lg">
               Amud Skills
             </span>
           </Link>
@@ -181,18 +181,18 @@ export function SiteHeader({ className = '' }: SiteHeaderProps) {
 
           {/* Action Controls & CTAs */}
           <div className="flex items-center gap-2.5">
-            <div className="rounded-xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/10 backdrop-blur-md shadow-xs p-0.5">
+            <div className="rounded-xl border border-black/10 dark:border-[#303641] bg-white/50 dark:bg-[#1d2129] backdrop-blur-md shadow-xs p-0.5">
               <div className="sm:hidden"><LanguageSwitcher compact /></div>
               <div className="hidden sm:block"><LanguageSwitcher /></div>
             </div>
 
-            <div className="rounded-xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/10 backdrop-blur-md shadow-xs">
+            <div className="rounded-xl border border-black/10 dark:border-[#303641] bg-white/50 dark:bg-[#1d2129] backdrop-blur-md shadow-xs">
               <ThemeToggle />
             </div>
 
             <Link
               href="/auth-phone"
-              className="hidden rounded-xl border border-black/10 bg-white/50 px-3.5 py-2 text-sm font-semibold text-onSurface backdrop-blur-md transition-colors duration-200 hover:bg-white/80 hover:text-primary dark:border-white/10 dark:bg-white/10 sm:inline-flex"
+              className="hidden rounded-xl border border-black/10 bg-white/50 px-3.5 py-2 text-sm font-semibold text-onSurface backdrop-blur-md transition-colors duration-200 hover:bg-white/80 hover:text-primary dark:border-[#303641] dark:bg-[#1d2129] dark:hover:bg-[#252a34] sm:inline-flex"
             >
               {nav.signIn}
             </Link>
@@ -212,7 +212,7 @@ export function SiteHeader({ className = '' }: SiteHeaderProps) {
               className={`rounded-xl border backdrop-blur-md transition-all duration-200 lg:hidden ${
                 menuOpen
                   ? 'rotate-90 border-primary/40 bg-primary/15 text-primary'
-                  : 'border-black/10 bg-white/50 text-onSurface dark:border-white/10 dark:bg-white/10'
+                  : 'border-black/10 bg-white/50 text-onSurface dark:border-[#303641] dark:bg-[#1d2129]'
               }`}
             >
               <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
@@ -242,10 +242,10 @@ export function SiteHeader({ className = '' }: SiteHeaderProps) {
               />
 
               {/* Drawer Container positioned directly below the header */}
-              <div className="fixed top-[calc(68px+env(safe-area-inset-top))] inset-x-0 bottom-0 overflow-y-auto bg-white/98 dark:bg-[#161311] dark:text-[#e5e2e1] backdrop-blur-3xl border-t border-black/10 dark:border-white/10 shadow-2xl animate-menu-drawer-in motion-reduce:animate-none flex flex-col justify-between p-5 pb-[calc(28px+env(safe-area-inset-bottom))]">
+              <div className="fixed top-[calc(68px+env(safe-area-inset-top))] inset-x-0 bottom-0 overflow-y-auto bg-white/98 dark:bg-[#101216] dark:text-[#f3f4f6] backdrop-blur-3xl border-t border-black/10 dark:border-[#303641] shadow-2xl animate-menu-drawer-in motion-reduce:animate-none flex flex-col justify-between p-5 pb-[calc(28px+env(safe-area-inset-bottom))]">
                 <div className="space-y-6">
                   {/* Eyebrow / Tag */}
-                  <div className="border-b border-black/5 pb-3 dark:border-white/10">
+                  <div className="border-b border-black/5 pb-3 dark:border-[#303641]">
                     <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
                       {content.hero.eyebrow}
                     </span>
@@ -258,10 +258,10 @@ export function SiteHeader({ className = '' }: SiteHeaderProps) {
                         key={link.href}
                         href={link.href}
                         onClick={(e) => handleNavClick(e, link.href)}
-                        className="group flex items-center justify-between rounded-2xl border border-black/5 dark:border-white/10 bg-slate-50/90 dark:bg-[#221d1a] p-4 text-base font-black text-onSurface dark:text-white shadow-xs backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white dark:hover:bg-[#2c2622] active:scale-[0.98]"
+                        className="group flex items-center justify-between rounded-2xl border border-black/5 dark:border-[#303641] bg-slate-50/90 dark:bg-[#1d2129] p-4 text-base font-black text-onSurface dark:text-[#f3f4f6] shadow-xs backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white dark:hover:bg-[#252a34] active:scale-[0.98]"
                       >
                         <div className="flex items-center gap-3.5">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 transition-transform group-hover:scale-110">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-700 dark:bg-[#8fb5a1]/10 dark:text-[#8fb5a1] transition-transform group-hover:scale-110">
                             <span className="material-symbols-outlined text-xl">
                               {getNavLinkIcon(link.href)}
                             </span>
@@ -276,8 +276,8 @@ export function SiteHeader({ className = '' }: SiteHeaderProps) {
                   </nav>
 
                   {/* Quick Preferences Bar in Drawer */}
-                  <div className="flex items-center justify-between rounded-2xl border border-black/5 dark:border-white/10 bg-slate-50/80 dark:bg-[#221d1a] p-3 px-4">
-                    <span className="text-xs font-bold text-onSurface-variant dark:text-zinc-300 flex items-center gap-2">
+                  <div className="flex items-center justify-between rounded-2xl border border-black/5 dark:border-[#303641] bg-slate-50/80 dark:bg-[#1d2129] p-3 px-4">
+                    <span className="text-xs font-bold text-onSurface-variant dark:text-[#bbc1cc] flex items-center gap-2">
                       <span className="material-symbols-outlined text-base text-primary">tune</span>
                       {PREFERENCES_LABELS[language] ?? PREFERENCES_LABELS.fr}
                     </span>
@@ -289,7 +289,7 @@ export function SiteHeader({ className = '' }: SiteHeaderProps) {
                 </div>
 
                 {/* Bottom Actions & Trust */}
-                <div className="mt-8 space-y-4 pt-4 border-t border-black/5 dark:border-white/10">
+                <div className="mt-8 space-y-4 pt-4 border-t border-black/5 dark:border-[#303641]">
                   <PrimaryCta
                     href="/auth-phone"
                     size="lg"
@@ -304,7 +304,7 @@ export function SiteHeader({ className = '' }: SiteHeaderProps) {
                   <Link
                     href="/auth-phone"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 rounded-2xl border border-black/10 dark:border-white/10 bg-slate-50/90 dark:bg-[#221d1a] py-3.5 text-center text-sm font-bold text-onSurface dark:text-white shadow-xs backdrop-blur-md active:scale-[0.98] transition-all hover:border-primary/40 hover:text-primary"
+                    className="flex items-center justify-center gap-2 rounded-2xl border border-black/10 dark:border-[#303641] bg-slate-50/90 dark:bg-[#1d2129] py-3.5 text-center text-sm font-bold text-onSurface dark:text-[#f3f4f6] shadow-xs backdrop-blur-md active:scale-[0.98] transition-all hover:border-primary/40 hover:text-primary"
                   >
                     <span className="material-symbols-outlined text-lg text-primary">login</span>
                     <span>{nav.signIn}</span>

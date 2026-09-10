@@ -10,6 +10,7 @@ use App\Models\Document;
 use App\Models\Interview;
 use App\Models\JobApplication;
 use App\Models\JobOffer;
+use App\Models\Message;
 use App\Models\User;
 use Illuminate\Support\Collection;
 
@@ -26,7 +27,7 @@ class Notifications
             $application->offer->employer,
             'application.created',
             ['offer_title' => $application->offer->title],
-            "/recruiter/offers/{$application->offer->id}/applications",
+            '/recruiter/candidatures',
             'New application',
             $application->offer->title,
         );
@@ -72,7 +73,7 @@ class Notifications
             $offer->employer,
             'offer.moderated',
             ['offer_title' => $offer->title, 'status' => $offer->status],
-            "/recruiter/offers/{$offer->id}",
+            '/recruiter/offres',
             'Offer status updated',
             $offer->status,
         );
@@ -126,6 +127,32 @@ class Notifications
             '/reclamation',
             'Complaint answered',
             (string) $complaint->admin_response,
+        );
+    }
+
+    public function messageReceived(Message $message): ?AppNotification
+    {
+        $message->loadMissing('conversation.candidate', 'conversation.recruiter', 'conversation.application.offer');
+        $conversation = $message->conversation;
+        $recipient = $message->sender_id === $conversation->candidate_user_id
+            ? $conversation->recruiter
+            : $conversation->candidate;
+
+        if (! $recipient) {
+            return null;
+        }
+
+        $link = $recipient->hasRole('Company')
+            ? "/recruiter/messages?conversation={$conversation->id}"
+            : "/messages?conversation={$conversation->id}";
+
+        return $this->create(
+            $recipient,
+            'message.received',
+            ['offer_title' => $conversation->application?->offer?->title, 'conversation_id' => $conversation->id],
+            $link,
+            'New message',
+            mb_strimwidth($message->body, 0, 140, '…'),
         );
     }
 

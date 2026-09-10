@@ -49,7 +49,7 @@ class AdminMarketplaceTest extends TestCase
         JobApplication::create(['candidate_profile_id' => $profile->id, 'job_offer_id' => $offer->id, 'status' => 'interview', 'applied_at' => now(), 'status_changed_at' => now()]);
         $admin = $this->user('Administrator');
         $this->actingAs($admin, 'sanctum')->getJson('/api/admin/applications?status=interview')->assertOk()->assertJsonPath('total', 1);
-        $this->getJson('/api/admin/metrics')->assertOk()->assertJsonPath('marketplace.offers_published', 1)->assertJsonPath('marketplace.interviews',1);
+        $this->getJson('/api/admin/metrics')->assertOk()->assertJsonPath('marketplace.offers_published', 1)->assertJsonPath('marketplace.interviews', 1);
     }
 
     public function test_admin_can_move_an_application_along_the_pipeline(): void

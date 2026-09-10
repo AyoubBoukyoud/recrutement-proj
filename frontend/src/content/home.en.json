@@ -15,7 +15,7 @@
     "eyebrow": "Morocco → Germany",
     "headline": ["Work in Germany.", "We build your file with you."],
     "subheadline": "Your CV, your diplomas and your German level gathered into one file that German employers know how to read — and consult directly.",
-    "cta": "Create my file",
+    "cta": "Create my file for free",
     "secondaryCta": "See what my trade requires",
     "microcopy": "Free · No password · You control whether your file is visible",
     "scrollCue": "Discover the journey",
@@ -64,20 +64,19 @@
   },
   "trust": {
     "items": [
-      { "icon": "toll", "label": "Free to join" },
-      { "icon": "shield_lock", "label": "Visibility controlled by your consent" },
-      { "icon": "visibility", "label": "You can pause visibility" }
+      { "icon": "toll", "label": "100% free for candidates" },
+      { "icon": "visibility", "label": "You control your visibility" },
+      { "icon": "shield_lock", "label": "Your data is protected" },
+      { "icon": "folder_supervised", "label": "A file structured for recruiters" }
     ]
   },
   "journey": {
-    "title": "Your journey, step by step",
-    "subtitle": "From creating your file to your first day of work in Germany.",
+    "title": "After you're matched: your path to Germany",
+    "subtitle": "From the interview to your first day of work in Germany.",
     "imageAlt": "Illustration connecting Moroccan skills to professional opportunities in Berlin.",
     "startLabel": "Morocco",
     "endLabel": "Germany",
     "items": [
-      { "icon": "smartphone", "title": "Create your file", "body": "A phone number is all it takes to get started." },
-      { "icon": "quiz", "title": "Assess your skills", "body": "Your CV is read automatically, your spoken German level is estimated." },
       { "icon": "handshake", "title": "Get matched", "body": "Your file becomes visible to German companies looking for your trade." },
       { "icon": "forum", "title": "Go through your interview", "body": "Speak directly with the recruiter interested in your profile." },
       { "icon": "folder_shared", "title": "Prepare your travel file", "body": "Diplomas, certificates and documents gathered in one place." },
@@ -98,13 +97,25 @@
     "eyebrow": "Trades in demand",
     "title": "The trades hiring in Germany",
     "subtitle": "Healthcare, industry, construction, hospitality, IT — here is what each trade actually requires.",
-    "cardCta": "See the path",
+    "cardCta": "See the requirements",
     "levelPrefix": "German",
+    "qualificationPrefix": "Qualification",
+    "badge": "High demand",
     "recognition": {
       "required": "Diploma must be recognised",
       "recommended": "Recognition advisable",
       "none": "No recognition required"
     }
+  },
+  "benefits": {
+    "title": "Why create your AMUD Skills file?",
+    "subtitle": "More than a CV: a professional file designed to make your skills easier to understand.",
+    "items": [
+      { "icon": "schedule", "title": "Save time", "body": "Your CV helps structure your file without re-typing everything." },
+      { "icon": "visibility", "title": "Be better understood", "body": "Present your skills and experience in a format recruiters can read at a glance." },
+      { "icon": "video_library", "title": "Show more than a CV", "body": "Experience, video, languages and documents, brought together in one file." },
+      { "icon": "toggle_on", "title": "Stay in control", "body": "You decide when your file becomes visible to recruiters." }
+    ]
   },
   "steps": {
     "title": "Four steps, at your own pace",
@@ -207,8 +218,39 @@
         "body": "Saved, contacted, interviewing, placed, rejected — with your private notes and a CSV export."
       }
     ],
-    "cta": "Go to the recruiter space",
+    "cta": "Find Talent Now",
     "secondaryCta": "Understand recruiter access"
+  },
+  "trainingCenter": {
+    "eyebrow": "Training centres",
+    "title": "Your training centre, connected to opportunity.",
+    "subtitle": "Manage your courses, students, instructors and attendance from one place, while preparing your talent for professional opportunities.",
+    "capabilities": [
+      { "icon": "school", "label": "Students" },
+      { "icon": "menu_book", "label": "Courses" },
+      { "icon": "calendar_month", "label": "Schedule" },
+      { "icon": "qr_code_2", "label": "QR attendance" }
+    ],
+    "cta": "Become a partner centre",
+    "imageAlt": "Preview of a partner training centre's dashboard on Amud Skills."
+  },
+  "socialProof": {
+    "title": "Building the bridge with us",
+    "subtitle": "Partner centres, companies and institutions that work with us."
+  },
+  "stats": {
+    "title": "Amud Skills in numbers",
+    "subtitle": "Real figures, updated as we grow."
+  },
+  "testimonials": {
+    "eyebrow": "Testimonials",
+    "title": "They went through Amud Skills",
+    "subtitle": "Real journeys, told by the candidates themselves.",
+    "milestones": {
+      "profileCompleted": "Profile completed",
+      "matched": "Matched",
+      "hired": "Hired"
+    }
   },
   "faq": {
     "title": "The questions everyone asks",
@@ -237,13 +279,34 @@
       {
         "question": "How long does the file take?",
         "answer": "You can start with your CV: it is read automatically and the extracted data remains yours to confirm or correct. Documents and the spoken assessment can come later."
+      },
+      {
+        "question": "Is AMUD Skills a recruitment agency?",
+        "answer": "No. We are not a recruitment agency: we prepare your file and make it visible to German companies, who hire and decide directly."
+      },
+      {
+        "question": "Does AMUD Skills guarantee a job?",
+        "answer": "No. No platform can seriously guarantee a job. We facilitate the connection; the hiring decision always belongs to the employer."
+      },
+      {
+        "question": "Does AMUD Skills handle my visa?",
+        "answer": "No, not directly. Your file gathers the documents you need for your application, but the visa process itself is handled with the relevant authorities."
+      },
+      {
+        "question": "Who can view my documents?",
+        "answer": "Only companies registered on the platform, once your file is visible and you have given your consent. You can pause that visibility at any time."
+      },
+      {
+        "question": "Can I delete my file and my data?",
+        "answer": "Yes. You can withdraw your file from search or request deletion of your data at any time."
       }
     ]
   },
   "finalCta": {
     "title": "Your trade is wanted elsewhere.",
     "subtitle": "Build your file at your own pace. It is free, and you control whether recruiters can see it.",
-    "cta": "Create my file",
+    "cta": "Create my file for free",
+    "secondaryCta": "I'm a company",
     "microcopy": "No password · You can withdraw everything at any time",
     "imageAlt": "Young Moroccan professional smiling on a street in Berlin."
   },
@@ -265,6 +328,12 @@
           { "label": "Recruiter space", "href": "/auth-phone?intent=recruiter" },
           { "label": "Search profiles", "href": "/employeurs" },
           { "label": "Understand the workflow", "href": "/employeurs#workflow" }
+        ]
+      },
+      {
+        "title": "Training centres",
+        "links": [
+          { "label": "Discover the Centre space", "href": "/accueil-public#centres" }
         ]
       }
     ],
@@ -312,7 +381,7 @@
         },
         "ocr": {
           "title": "Intelligent OCR",
-          "body": "Instant document verification and data extraction. From ID cards to certifications, processed in milliseconds with German precision."
+          "body": "Automatic document reading and structuring. From ID cards to certifications, the useful data is extracted in seconds."
         },
         "tracking": {
           "title": "Real-Time Tracking",

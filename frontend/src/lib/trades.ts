@@ -29,6 +29,9 @@ export interface Trade {
   dossier: string[];
   /** Renseigné seulement quand une fourchette a été sourcée et validée. */
   salaryBand: string | null;
+  /** Chemin vers une photographie professionnelle du métier. `null` tant qu'aucune image réelle n'a été fournie — le composant affiche alors un repli icône + dégradé plutôt qu'une image cassée. */
+  image: string | null;
+  imageAlt: string | null;
 }
 
 type TradeData = typeof fr;

@@ -31,10 +31,15 @@ export default function CandidateLayout({
     { href: "/documents", label: t("nav_documents"), icon: "description" },
     { href: "/profil", label: t("nav_profile"), icon: "person" },
     { href: "/reclamation", label: t("nav_support"), icon: "help_outline" },
+    { href: "/messages", label: "Messages", icon: "mail" },
   ];
 
   useEffect(() => {
     if (isLoading || profileLoading || !profile) return;
+    // Support and FAQ must remain reachable when a candidate is stuck during
+    // onboarding. The profile gate protects marketplace actions, but it must
+    // never prevent a candidate from asking for help.
+    if (pathname === "/reclamation" || pathname === "/faq") return;
     const missing = profile.completeness.missing_required[0];
     const incompleteStep = missing
       ? REQUIRED_SECTION_TO_STEP[missing]
@@ -43,7 +48,7 @@ export default function CandidateLayout({
       router.replace(`/profile-creation?step=${incompleteStep}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, profileLoading, profile]);
+  }, [isLoading, profileLoading, profile, pathname]);
 
   return (
     <div className="min-h-screen bg-surface lg:flex">

@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\EducationController;
 use App\Http\Controllers\Api\JobOfferController;
 use App\Http\Controllers\Api\LanguageAssessmentController;
+use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\PhoneChangeController;
 use App\Http\Controllers\Api\PushSubscriptionController;
 use App\Http\Controllers\Api\RecruiterCandidateController;
@@ -60,6 +61,14 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
     // Web Push subscriptions — any role, see PushSubscriptionController.
     Route::post('/push/subscriptions', [PushSubscriptionController::class, 'store']);
     Route::delete('/push/subscriptions', [PushSubscriptionController::class, 'destroy']);
+
+    // Private threads are anchored to a real job application. Only the
+    // candidate and the company behind that application can participate.
+    Route::get('/messages', [MessageController::class, 'index']);
+    Route::post('/messages', [MessageController::class, 'store']);
+    Route::get('/messages/{conversation}', [MessageController::class, 'show']);
+    Route::post('/messages/{conversation}/messages', [MessageController::class, 'send']);
+    Route::patch('/messages/{conversation}/read', [MessageController::class, 'markRead']);
 
     Route::get('/candidate/profile', [CandidateProfileController::class, 'show']);
     Route::put('/candidate/profile', [CandidateProfileController::class, 'update']);

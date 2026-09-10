@@ -186,6 +186,39 @@ class AdminMetricsController extends Controller
             'users' => User::count(),
             'referred_registrations' => ReferralRegistration::count(),
             'referred_this_week' => ReferralRegistration::where('registered_at', '>=', now()->subWeek())->count(),
+            'daily' => $this->dailyGrowth(),
         ];
+    }
+
+    /** @return array<int, array{label: string, candidats: int, comptes: int, candidatures: int}> */
+    private function dailyGrowth(): array
+    {
+        $start = now()->subDays(29)->startOfDay();
+        $end = now()->endOfDay();
+        $buckets = function ($query, string $column) use ($start, $end): array {
+            return $query
+                ->whereBetween($column, [$start, $end])
+                ->selectRaw("DATE($column) as bucket, COUNT(*) as total")
+                ->groupByRaw("DATE($column)")
+                ->pluck('total', 'bucket')
+                ->map(fn ($total) => (int) $total)
+                ->all();
+        };
+
+        $candidates = $buckets(CandidateProfile::query(), 'created_at');
+        $accounts = $buckets(User::query(), 'created_at');
+        $applications = $buckets(JobApplication::query(), 'applied_at');
+
+        return collect(range(0, 29))->map(function (int $offset) use ($start, $candidates, $accounts, $applications): array {
+            $day = $start->copy()->addDays($offset);
+            $key = $day->toDateString();
+
+            return [
+                'label' => $day->format('d/m'),
+                'candidats' => $candidates[$key] ?? 0,
+                'comptes' => $accounts[$key] ?? 0,
+                'candidatures' => $applications[$key] ?? 0,
+            ];
+        })->all();
     }
 }

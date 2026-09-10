@@ -3,10 +3,8 @@
 namespace Tests\Feature;
 
 use App\Jobs\SendWebPushNotification;
-use App\Models\CandidateProfile;
 use App\Models\JobApplication;
 use App\Models\JobOffer;
-use App\Models\PushSubscription;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;

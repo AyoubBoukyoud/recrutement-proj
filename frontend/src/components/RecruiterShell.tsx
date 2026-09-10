@@ -14,17 +14,11 @@ import { useAuth } from '@/context/AuthContext';
  * `/amud/entreprise` (sidebar + header), branchée sur la vraie session
  * (`useAuth`) plutôt que sur une identité et une recherche en `localStorage`.
  *
- * Cinq entrées de la maquette (Entretiens, Messages, Mon entreprise, Équipe,
- * Statistiques) n'ont aucun backend réel derrière elles — pas de modèle
- * Interview, pas de messagerie, pas de multi-utilisateur par entreprise, pas
- * d'édition de profil en libre-service, pas d'endpoint de statistiques par
- * recruteur (voir l'audit fonctionnel). Depuis, quatre des cinq ont reçu leur
- * backend (profil, équipe, entretiens, statistiques — voir
+ * Les entrées de la maquette sont désormais branchées sur le backend réel
+ * (profil, équipe, entretiens, statistiques et messagerie — voir
  * `RecruiterProfileController`, `RecruiterTeamController`,
- * `RecruiterInterviewController`, `RecruiterStatsController`) et rejoignent
- * la navigation active. Seule la messagerie reste désactivée : aucune
- * messagerie n'existe nulle part dans le produit réel, côté candidat non
- * plus — la construire est son propre chantier, transverse aux deux espaces.
+ * `RecruiterInterviewController`, `RecruiterStatsController` et
+ * `MessageController`).
  */
 type NavItem = { href: string; icon: string; label: string };
 const NAV: NavItem[] = [
@@ -35,10 +29,9 @@ const NAV: NavItem[] = [
   { href: '/recruiter/statistiques', icon: 'monitoring', label: 'Statistiques' },
   { href: '/recruiter/equipe', icon: 'groups', label: 'Équipe' },
   { href: '/recruiter/profil', icon: 'apartment', label: 'Mon entreprise' },
+  { href: '/recruiter/messages', icon: 'mail', label: 'Messages' },
   { href: '/recruiter/notifications', icon: 'notifications', label: 'Notifications' },
 ];
-
-const INERT_NAV: { icon: string; label: string }[] = [{ icon: 'mail', label: 'Messages' }];
 
 function isActive(pathname: string, href: string) {
   if (href === '/recruiter') return pathname === '/recruiter';
@@ -53,18 +46,6 @@ function initialsOf(name: string) {
     .slice(0, 2)
     .join('')
     .toUpperCase();
-}
-
-function InertItem({ icon, label }: { icon: string; label: string }) {
-  return (
-    <span
-      title="Pas encore branché sur un vrai backend"
-      className="flex cursor-not-allowed items-center gap-sm rounded-lg px-md py-sm text-label-md text-amud-on-surface-variant opacity-50"
-    >
-      <span className="material-symbols-outlined shrink-0 text-[20px]">{icon}</span>
-      {label}
-    </span>
-  );
 }
 
 export function RecruiterShell({ children }: { children: ReactNode }) {
@@ -118,14 +99,6 @@ export function RecruiterShell({ children }: { children: ReactNode }) {
                   </Link>
                 );
               })}
-            </div>
-            <div className={`mt-4 px-md py-1 text-label-sm font-semibold uppercase tracking-wider text-amud-outline ${hiddenWhenCollapsed}`}>
-              Bientôt
-            </div>
-            <div className="flex flex-col gap-0.5">
-              {INERT_NAV.map((item) => (
-                <InertItem key={item.label} icon={item.icon} label={item.label} />
-              ))}
             </div>
           </nav>
 

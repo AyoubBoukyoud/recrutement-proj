@@ -69,108 +69,210 @@ html.text-size-large { font-size: 18px; }
   color-scheme: dark;
 
   /* --- Palette partagée (candidat, admin réel, auth...) --- */
-  --primary: #82db7e;
-  --primary-dark: #106d20;
-  --primary-light: #4da24e;
-  --on-primary: #00390a;
-  --on-primary-container: #003207;
+  --primary: #8fb5a1;
+  --primary-dark: #a6c8b5;
+  --primary-light: #25362e;
+  --on-primary: #101216;
+  --on-primary-container: #f3f4f6;
 
-  --secondary: #cec5c0;
-  --secondary-dark: #4c4542;
-  --secondary-light: #2e2928;
-  --gold: #cec5c0;
-  --on-secondary: #352f2c;
-  --on-secondary-container: #bdb3af;
+  --secondary: #a1aabb;
+  --secondary-dark: #8893a6;
+  --secondary-light: #252b36;
+  --gold: #a1aabb;
+  --on-secondary: #101216;
+  --on-secondary-container: #bbc1cc;
 
-  --tertiary: #88d982;
-  --tertiary-dark: #53a152;
-  --tertiary-light: #326131;
-  --on-tertiary: #003909;
-  --on-tertiary-container: #003207;
+  --tertiary: #aaa6c0;
+  --tertiary-dark: #89859e;
+  --tertiary-light: #292735;
+  --on-tertiary: #101216;
+  --on-tertiary-container: #bbc1cc;
 
   --error: #ffb4ab;
   --error-light: #93000a;
   --on-error: #690005;
   --on-error-container: #ffdad6;
 
-  --success: #82db7e;
-  --success-light: #4da24e;
+  --success: #52e27a;
+  --success-light: #123d2a;
 
-  --attention: #4c4542;
-  --attention-light: #2e2928;
-  --on-attention-container: #bdb3af;
+  --attention: #c6a86a;
+  --attention-light: #3d321d;
+  --on-attention-container: #f1d79a;
 
-  --background: #161311;
-  --surface: #161311;
-  --surface-bright: #3d3632;
-  --surface-dim: #161311;
-  --surface-lowest: #110d0c;
-  --surface-low: #1f1b19;
-  --surface-container: #26211e;
-  --surface-high: #2e2927;
-  --surface-highest: #393431;
+  --background: #101216;
+  --surface: #101216;
+  --surface-bright: #272d37;
+  --surface-dim: #101216;
+  --surface-lowest: #1d2129;
+  --surface-low: #16191f;
+  --surface-container: #1d2129;
+  --surface-high: #252a34;
+  --surface-highest: #2d3340;
 
-  --on-surface: #e5e2e1;
-  --on-surface-variant: #bfcab9;
+  --on-surface: #f3f4f6;
+  --on-surface-variant: #bbc1cc;
 
-  --outline: #899485;
-  --outline-variant: #40493d;
+  --outline: #9099aa;
+  --outline-variant: #303641;
 
   /* --- Palette amud-* (espaces Admin/Commercial/Employeur/Candidat mock) --- */
-  --amud-primary: #6fb3b6;
-  --amud-primary-dark: #004245;
-  --amud-primary-light: #002021;
-  --amud-primary-container: #004245;
-  --amud-on-primary: #002021;
-  --amud-on-primary-container: #c8e5e6;
-  --amud-primary-fixed: #c8e5e6;
-  --amud-primary-fixed-dim: #6fb3b6;
-  --amud-on-primary-fixed: #002021;
-  --amud-on-primary-fixed-variant: #004245;
-  --amud-inverse-primary: #006266;
-  --amud-surface-tint: #6fb3b6;
+  --amud-primary: #8fb5a1;
+  --amud-primary-dark: #a6c8b5;
+  --amud-primary-light: #16191f;
+  --amud-primary-container: #1d2129;
+  --amud-on-primary: #101216;
+  --amud-on-primary-container: #f3f4f6;
+  --amud-primary-fixed: #bbc1cc;
+  --amud-primary-fixed-dim: #8fb5a1;
+  --amud-on-primary-fixed: #101216;
+  --amud-on-primary-fixed-variant: #4c6e5d;
+  --amud-inverse-primary: #4c6e5d;
+  --amud-surface-tint: #8fb5a1;
 
-  --amud-secondary: #ffb3ad;
-  --amud-secondary-container: #8e1217;
-  --amud-on-secondary: #8e1217;
-  --amud-on-secondary-container: #ffdad6;
-  --amud-secondary-fixed: #ffdad6;
-  --amud-secondary-fixed-dim: #ffb3ad;
-  --amud-on-secondary-fixed: #410003;
-  --amud-on-secondary-fixed-variant: #8e1217;
+  --amud-secondary: #a1aabb;
+  --amud-secondary-container: #303641;
+  --amud-on-secondary: #101216;
+  --amud-on-secondary-container: #bbc1cc;
+  --amud-secondary-fixed: #bbc1cc;
+  --amud-secondary-fixed-dim: #a1aabb;
+  --amud-on-secondary-fixed: #101216;
+  --amud-on-secondary-fixed-variant: #303641;
 
-  --amud-tertiary: #f7be1d;
-  --amud-tertiary-container: #4c3800;
-  --amud-on-tertiary: #5a4300;
-  --amud-on-tertiary-container: #ffdf9a;
-  --amud-tertiary-fixed: #ffdf9a;
-  --amud-tertiary-fixed-dim: #f7be1d;
-  --amud-on-tertiary-fixed: #251a00;
-  --amud-on-tertiary-fixed-variant: #5a4300;
+  --amud-tertiary: #c6a86a;
+  --amud-tertiary-container: #3d321d;
+  --amud-on-tertiary: #101216;
+  --amud-on-tertiary-container: #f1d79a;
+  --amud-tertiary-fixed: #f1d79a;
+  --amud-tertiary-fixed-dim: #c6a86a;
+  --amud-on-tertiary-fixed: #271c05;
+  --amud-on-tertiary-fixed-variant: #594612;
 
   --amud-error: #ffb4ab;
   --amud-error-container: #93000a;
   --amud-on-error: #690005;
   --amud-on-error-container: #ffdad6;
 
-  --amud-background: #111c2d;
-  --amud-on-background: #f9f9ff;
-  --amud-surface: #111c2d;
-  --amud-surface-bright: #38414f;
-  --amud-surface-dim: #0c0f18;
-  --amud-surface-variant: #404941;
-  --amud-surface-container-lowest: #0a0d16;
-  --amud-surface-container-low: #171f30;
-  --amud-surface-container: #1b2333;
-  --amud-surface-container-high: #262e3d;
-  --amud-surface-container-highest: #313948;
-  --amud-on-surface: #f9f9ff;
-  --amud-on-surface-variant: #c0c9bf;
-  --amud-inverse-surface: #f9f9ff;
-  --amud-inverse-on-surface: #111c2d;
+  --amud-background: #101216;
+  --amud-on-background: #f3f4f6;
+  --amud-surface: #101216;
+  --amud-surface-bright: #272d37;
+  --amud-surface-dim: #101216;
+  --amud-surface-variant: #16191f;
+  --amud-surface-container-lowest: #1d2129;
+  --amud-surface-container-low: #16191f;
+  --amud-surface-container: #1d2129;
+  --amud-surface-container-high: #252a34;
+  --amud-surface-container-highest: #2d3340;
+  --amud-on-surface: #f3f4f6;
+  --amud-on-surface-variant: #bbc1cc;
+  --amud-inverse-surface: #f3f4f6;
+  --amud-inverse-on-surface: #101216;
 
-  --amud-outline: #8a938c;
-  --amud-outline-variant: #2f3730;
+  --amud-outline: #9099aa;
+  --amud-outline-variant: #303641;
+}
+
+/* Text and surface roles are independent of the brand's hover color.
+ * Low specificity keeps component hover/focus states working. */
+:where(:root.dark) .text-primary-dark {
+  color: var(--on-surface);
+}
+
+:where(:root.dark) .text-primary-dark\/70 {
+  color: var(--on-surface-variant);
+}
+
+/* Keep large headlines neutral; reserve the sage accent for smaller cues
+ * and actions instead of washing the page in the brand color. */
+:root.dark main.bg-surface h1 .text-primary {
+  color: #c7ced8;
+}
+
+:root.dark main.bg-surface > section:first-of-type > .pointer-events-none {
+  background-image: radial-gradient(ellipse at 50% 0%, rgb(143 181 161 / 4%), transparent 65%);
+}
+
+/* The play control keeps its existing white surface over the video. */
+:where(:root.dark) .bg-white\/95.text-primary-dark {
+  color: var(--on-primary);
+}
+
+/* The current Tailwind preset uses hex-valued CSS variables: opacity
+ * modifiers on these tokens are not generated. Supply dark-only versions
+ * so cards don't inherit the browser's bright default border. */
+:where(:root.dark) :is(.border-outline-variant\/50, .border-outline-variant\/60, .border-outline-variant\/70) {
+  border-color: var(--outline-variant);
+}
+
+:where(:root.dark) :is(.border-primary\/20, .border-primary\/25, .border-primary\/30) {
+  border-color: color-mix(in srgb, var(--primary) 30%, var(--outline-variant));
+}
+
+:where(:root.dark) .bg-primary\/5 {
+  background-color: color-mix(in srgb, var(--primary) 5%, transparent);
+}
+
+:where(:root.dark) .bg-primary\/10 {
+  background-color: color-mix(in srgb, var(--primary) 10%, transparent);
+}
+
+:where(:root.dark) .bg-primary\/20 {
+  background-color: color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+:where(:root.dark) .text-primary\/20 {
+  color: color-mix(in srgb, var(--primary) 35%, var(--outline-variant));
+}
+
+:where(:root.dark) :is(.bg-surface-container\/40, .bg-surface-container\/50, .bg-surface-container\/60) {
+  background-color: var(--surface-low);
+}
+
+/* Inverted marketing sections previously reused the button-hover token
+ * as a full-width background and surface tokens as text. */
+:root.dark section.bg-primary-dark {
+  background-color: var(--surface-low);
+  color: var(--on-surface);
+}
+
+:root.dark section.bg-primary-dark > .bg-gradient-to-r {
+  --tw-gradient-from: #16191f;
+  --tw-gradient-to: rgb(22 25 31 / 75%);
+  --tw-gradient-stops: var(--tw-gradient-from), rgb(22 25 31 / 95%), var(--tw-gradient-to);
+}
+
+:root.dark section.bg-primary-dark :is(.text-surface-lowest, .text-white) {
+  color: var(--on-surface);
+}
+
+:root.dark section.bg-primary-dark .text-surface-container-high {
+  color: var(--on-surface-variant);
+}
+
+:root.dark section.bg-primary-dark .text-primary-light {
+  color: var(--primary);
+}
+
+:root.dark section.bg-primary-dark :is(.border-surface-lowest\/15, .border-surface-lowest\/20, .border-surface-lowest\/30) {
+  border-color: var(--outline-variant);
+}
+
+:root.dark section.bg-primary-dark .bg-surface-lowest\/5 {
+  background-color: var(--surface-container);
+}
+
+:root.dark section.bg-primary-dark .bg-surface-lowest\/10 {
+  background-color: var(--surface-low);
+}
+
+:root.dark section.bg-primary-dark a:is(.bg-surface-lowest, .bg-primary-light) {
+  background-color: var(--primary);
+  color: var(--on-primary);
+}
+
+:root.dark section.bg-primary-dark a:is(.bg-surface-lowest, .bg-primary-light):hover {
+  background-color: var(--primary-dark);
 }
 
 /*

@@ -19,7 +19,9 @@
         "Clinical experience valued, especially in a specialist unit"
       ],
       "dossier": ["State diploma and transcripts", "Language certificate if you have one", "CV detailing the units and procedures"],
-      "salaryBand": null
+      "salaryBand": null,
+      "image": null,
+      "imageAlt": "Nurse caring for a patient in a hospital setting."
     },
     {
       "slug": "aide-soignant",
@@ -38,7 +40,9 @@
         "Availability for shift work"
       ],
       "dossier": ["Diploma or training certificate", "Employer references", "CV listing the types of facility"],
-      "salaryBand": null
+      "salaryBand": null,
+      "image": null,
+      "imageAlt": "Care assistant supporting a patient in a care facility."
     },
     {
       "slug": "electricien",
@@ -57,7 +61,9 @@
         "Able to read plans and wiring diagrams"
       ],
       "dossier": ["Diploma or training certificate", "Authorisations and references", "CV listing the types of site"],
-      "salaryBand": null
+      "salaryBand": null,
+      "image": null,
+      "imageAlt": "Electrician working on an electrical installation."
     },
     {
       "slug": "soudeur",
@@ -76,7 +82,9 @@
         "Able to read technical drawings"
       ],
       "dossier": ["Welding certifications", "Employer references", "CV listing processes and materials"],
-      "salaryBand": null
+      "salaryBand": null,
+      "image": null,
+      "imageAlt": "Welder at work in an industrial workshop."
     },
     {
       "slug": "mecanicien-industriel",
@@ -95,7 +103,9 @@
         "Able to read plans and technical documentation"
       ],
       "dossier": ["Training diploma", "Employer references", "CV listing machines and processes"],
-      "salaryBand": null
+      "salaryBand": null,
+      "image": null,
+      "imageAlt": "Industrial mechanic servicing a machine."
     },
     {
       "slug": "cuisinier",
@@ -114,7 +124,9 @@
         "Availability for split shifts and weekends"
       ],
       "dossier": ["Diploma or training certificate", "Employer references", "CV listing venue types and covers"],
-      "salaryBand": null
+      "salaryBand": null,
+      "image": null,
+      "imageAlt": "Cook at work in a professional kitchen."
     },
     {
       "slug": "chauffeur-poids-lourd",
@@ -133,7 +145,9 @@
         "Long-distance experience appreciated"
       ],
       "dossier": ["Driving licence", "Qualification card and references", "CV listing vehicle types and routes"],
-      "salaryBand": null
+      "salaryBand": null,
+      "image": null,
+      "imageAlt": "Driver at the wheel of a heavy goods vehicle."
     },
     {
       "slug": "developpeur",
@@ -152,7 +166,9 @@
         "Team and agile experience valued"
       ],
       "dossier": ["Detailed technical CV", "Degree if you have one", "Links to your projects or code"],
-      "salaryBand": null
+      "salaryBand": null,
+      "image": null,
+      "imageAlt": "Software developer working on code."
     }
   ]
 }

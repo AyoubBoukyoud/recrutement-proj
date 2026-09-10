@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 /**
  * Page de navigation interne, jamais un point d'entrée produit. Suit la
- * même logique que le durcissement de `middleware.ts` (`SHOW_PROTOTYPES`) :
+ * même logique que le durcissement de `proxy.ts` (`SHOW_PROTOTYPES`) :
  * un `next dev` local reste toujours ouvert, mais un build de production ne
  * doit exposer ce sitemap que si l'opt-in explicite est activé.
  */
@@ -54,6 +54,7 @@ const GROUPES: Groupe[] = [
       { href: '/taches', label: 'Tâches' },
       { href: '/reclamation', label: 'Réclamation' },
       { href: '/notifications', label: 'Notifications' },
+      { href: '/messages', label: 'Messages' },
       { href: '/compte', label: 'Compte' },
       { href: '/faq', label: 'FAQ / Centre d’aide' },
     ],
@@ -65,6 +66,11 @@ const GROUPES: Groupe[] = [
       { href: '/recruiter', label: 'Recherche de candidats' },
       { href: '/recruiter/candidatures', label: 'Candidatures reçues' },
       { href: '/recruiter/offres', label: 'Mes offres' },
+      { href: '/recruiter/profil', label: 'Profil entreprise' },
+      { href: '/recruiter/equipe', label: 'Équipe' },
+      { href: '/recruiter/entretiens', label: 'Entretiens' },
+      { href: '/recruiter/statistiques', label: 'Statistiques' },
+      { href: '/recruiter/messages', label: 'Messages' },
       { href: '/recruiter/notifications', label: 'Notifications' },
     ],
   },
@@ -76,6 +82,7 @@ const GROUPES: Groupe[] = [
       { href: '/admin/offres', label: 'Offres' },
       { href: '/admin/notifications', label: 'Notifications' },
       { href: '/admin/journal', label: 'Journal système' },
+      { href: '/admin/stage', label: 'Stage quotidien' },
     ],
   },
   {

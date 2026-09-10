@@ -3,8 +3,8 @@
 // Page : Préférences de matching - Candidat
 //
 // Persisté dans `candidate_profiles.matching_preferences` (JSON), lu et écrit
-// via PUT /candidate/profile — pas de table dédiée, rien d'autre ne consomme
-// ces préférences aujourd'hui.
+// via PUT /candidate/profile — consommé par JobOfferMatching pour le calcul du
+// score de matching et l'envoi des notifications d'offres ciblées.
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';

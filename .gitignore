@@ -28,6 +28,7 @@ lerna-debug.log*
 .phpunit.cache
 .phpunit.result.cache
 .cache/
+deploy/backups/
 
 # Environment & Secrets
 .env
@@ -50,6 +51,8 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
+/frontend/AGENTS.md
+/frontend/CLAUDE.md
 .idea/
 .claude/
 .impeccable/

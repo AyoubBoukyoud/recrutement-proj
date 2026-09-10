@@ -3,19 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npx next dev",
-    "build": "NODE_OPTIONS=--max-old-space-size=4096 npx next build",
+    "dev": "npx next dev --webpack",
+    "build": "NODE_OPTIONS=--max-old-space-size=4096 npx next build --webpack",
     "start": "npx next start",
     "lint": "eslint src --ext .ts,.tsx",
     "test:client-demo": "node scripts/verify-client-demo.mjs",
-    "verify:no-mocks": "rm -rf .next && NEXT_PUBLIC_USE_MOCKS=0 next build && ! grep -rlE 'mock-token-|cv-youssef-amrani|\\[maquette\\]' .next/static/chunks/"
+    "verify:no-mocks": "rm -rf .next && NEXT_PUBLIC_USE_MOCKS=0 NEXT_PUBLIC_SHOW_DEV_TOOLS=0 NEXT_PUBLIC_ENABLE_PROTOTYPES=0 next build --webpack && ! grep -rlE 'mock-token-|cv-youssef-amrani|\\[maquette\\]' .next/static/chunks/"
+  },
+  "overrides": {
+    "fast-uri": "^3.1.6",
+    "nanoid": "^3.3.18",
+    "serialize-javascript": "^7.1.1"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.4",
     "axios": "^1.19.0",
     "jsqr": "^1.4.0",
     "lucide-react": "^0.344.0",
-    "next": "14.2.3",
+    "next": "16.3.4",
     "next-pwa": "^5.6.0",
     "qrcode": "^1.5.3",
     "react": "^18.3.1",

@@ -11,9 +11,14 @@ tunnel.
 cp deploy/.env.prod.example deploy/.env.prod
 chmod 600 deploy/.env.prod
 # Fill every required secret before running any Compose command.
+./deploy/check-env.sh --bootstrap-http
 sudo docker compose --env-file deploy/.env.prod -f deploy/docker-compose.prod.yml up -d --build
 sudo docker compose --env-file deploy/.env.prod -f deploy/docker-compose.prod.yml ps
 ```
+
+The bootstrap flag is only for the temporary IP/HTTP setup. Once DNS points at
+the server, update the URL values to HTTPS, set `SESSION_SECURE_COOKIE=true`,
+and run `./deploy/check-env.sh` without the flag before rebuilding.
 
 The `backend` container runs database migrations before PHP-FPM starts. Queue
 and scheduler containers wait for the API health check.
@@ -81,6 +86,12 @@ git pull --ff-only
 sudo docker compose --env-file deploy/.env.prod -f deploy/docker-compose.prod.yml up -d --build
 
 # Database backup
-sudo docker compose --env-file deploy/.env.prod -f deploy/docker-compose.prod.yml exec -T mysql \
-  sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE"' > recruitment.sql
+./deploy/backup-mysql.sh
+# Copy the verified archive to encrypted off-server storage and apply a
+# retention policy. The local deploy/backups directory is git-ignored.
 ```
+
+To restore, stop application writes first, then stream a chosen archive into
+the database container only after confirming the target database and backup
+timestamp. Test a restore on a separate database before treating a backup as
+recoverable.

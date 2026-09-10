@@ -15,7 +15,7 @@
     "eyebrow": "Marokko → Deutschland",
     "headline": ["Arbeiten in Deutschland.", "Wir erstellen Ihr Profil gemeinsam mit Ihnen."],
     "subheadline": "Ihr Lebenslauf, Ihre Abschlüsse und Ihr Deutschniveau in einem Profil, das deutsche Unternehmen lesen können — und direkt einsehen.",
-    "cta": "Profil erstellen",
+    "cta": "Profil kostenlos erstellen",
     "secondaryCta": "Anforderungen meines Berufs ansehen",
     "microcopy": "Kostenlos · Ohne Passwort · Sie steuern, ob Ihr Profil sichtbar ist",
     "scrollCue": "Entdecken Sie den Weg",
@@ -64,20 +64,19 @@
   },
   "trust": {
     "items": [
-      { "icon": "toll", "label": "Kostenlose Anmeldung" },
-      { "icon": "shield_lock", "label": "Sichtbarkeit durch Ihre Einwilligung gesteuert" },
-      { "icon": "visibility", "label": "Sie können die Sichtbarkeit pausieren" }
+      { "icon": "toll", "label": "100 % kostenlos für Bewerber" },
+      { "icon": "visibility", "label": "Sie steuern Ihre Sichtbarkeit" },
+      { "icon": "shield_lock", "label": "Ihre Daten sind geschützt" },
+      { "icon": "folder_supervised", "label": "Ein für Recruiter strukturiertes Profil" }
     ]
   },
   "journey": {
-    "title": "Ihr Weg, Schritt für Schritt",
-    "subtitle": "Von der Erstellung Ihres Profils bis zu Ihrem ersten Arbeitstag in Deutschland.",
+    "title": "Nach der Vermittlung: Ihr Weg nach Deutschland",
+    "subtitle": "Vom Vorstellungsgespräch bis zu Ihrem ersten Arbeitstag in Deutschland.",
     "imageAlt": "Illustration, die marokkanische Kompetenzen mit beruflichen Chancen in Berlin verbindet.",
     "startLabel": "Marokko",
     "endLabel": "Deutschland",
     "items": [
-      { "icon": "smartphone", "title": "Profil erstellen", "body": "Eine Telefonnummer genügt zum Start." },
-      { "icon": "quiz", "title": "Kompetenzen einschätzen", "body": "Ihr Lebenslauf wird automatisch gelesen, Ihr mündliches Deutschniveau wird geschätzt." },
       { "icon": "handshake", "title": "Vermittelt werden", "body": "Ihr Profil wird für deutsche Unternehmen sichtbar, die Ihren Beruf suchen." },
       { "icon": "forum", "title": "Vorstellungsgespräch führen", "body": "Sprechen Sie direkt mit dem Recruiter, der sich für Ihr Profil interessiert." },
       { "icon": "folder_shared", "title": "Reiseunterlagen vorbereiten", "body": "Diplome, Zertifikate und Dokumente an einem Ort gesammelt." },
@@ -98,13 +97,25 @@
     "eyebrow": "Gefragte Berufe",
     "title": "Berufe, die in Deutschland gesucht werden",
     "subtitle": "Pflege, Industrie, Bau, Gastronomie, IT — hier steht, was jeder Beruf wirklich verlangt.",
-    "cardCta": "Weg ansehen",
+    "cardCta": "Anforderungen ansehen",
     "levelPrefix": "Deutsch",
+    "qualificationPrefix": "Qualifikation",
+    "badge": "Hohe Nachfrage",
     "recognition": {
       "required": "Abschluss muss anerkannt werden",
       "recommended": "Anerkennung empfohlen",
       "none": "Keine Anerkennung nötig"
     }
+  },
+  "benefits": {
+    "title": "Warum ein AMUD-Skills-Profil erstellen?",
+    "subtitle": "Mehr als ein Lebenslauf: ein professionelles Profil, das Ihre Kompetenzen verständlicher macht.",
+    "items": [
+      { "icon": "schedule", "title": "Zeit sparen", "body": "Ihr Lebenslauf hilft, Ihr Profil zu strukturieren, ohne alles neu einzugeben." },
+      { "icon": "visibility", "title": "Besser verstanden werden", "body": "Präsentieren Sie Ihre Kompetenzen und Erfahrung in einem Format, das Recruiter auf einen Blick erfassen." },
+      { "icon": "video_library", "title": "Mehr als ein Lebenslauf zeigen", "body": "Erfahrung, Video, Sprachen und Dokumente an einem Ort vereint." },
+      { "icon": "toggle_on", "title": "Die Kontrolle behalten", "body": "Sie entscheiden, wann Ihr Profil für Recruiter sichtbar wird." }
+    ]
   },
   "steps": {
     "title": "Vier Schritte, in Ihrem Tempo",
@@ -207,8 +218,39 @@
         "body": "Gemerkt, kontaktiert, im Gespräch, vermittelt, abgelehnt — mit Ihren privaten Notizen und CSV-Export."
       }
     ],
-    "cta": "Zum Arbeitgeberbereich",
+    "cta": "Jetzt Talente finden",
     "secondaryCta": "Recruiter-Zugang verstehen"
+  },
+  "trainingCenter": {
+    "eyebrow": "Ausbildungszentren",
+    "title": "Ihr Ausbildungszentrum, verbunden mit echten Chancen.",
+    "subtitle": "Verwalten Sie Kurse, Auszubildende, Lehrkräfte und Anwesenheiten an einem Ort — und bereiten Sie Ihre Talente zugleich auf berufliche Chancen vor.",
+    "capabilities": [
+      { "icon": "school", "label": "Auszubildende" },
+      { "icon": "menu_book", "label": "Kurse" },
+      { "icon": "calendar_month", "label": "Stundenplan" },
+      { "icon": "qr_code_2", "label": "Anwesenheit per QR-Code" }
+    ],
+    "cta": "Partnerzentrum werden",
+    "imageAlt": "Vorschau des Dashboards eines Partner-Ausbildungszentrums auf Amud Skills."
+  },
+  "socialProof": {
+    "title": "Sie bauen die Brücke mit uns",
+    "subtitle": "Partnerzentren, Unternehmen und Institutionen, die mit uns zusammenarbeiten."
+  },
+  "stats": {
+    "title": "Amud Skills in Zahlen",
+    "subtitle": "Echte Zahlen, laufend aktualisiert."
+  },
+  "testimonials": {
+    "eyebrow": "Erfahrungsberichte",
+    "title": "Sie haben Amud Skills genutzt",
+    "subtitle": "Echte Wege, erzählt von den Bewerbenden selbst.",
+    "milestones": {
+      "profileCompleted": "Profil vervollständigt",
+      "matched": "Vermittelt",
+      "hired": "Eingestellt"
+    }
   },
   "faq": {
     "title": "Die Fragen, die sich alle stellen",
@@ -237,13 +279,34 @@
       {
         "question": "Wie lange dauert das Profil?",
         "answer": "Sie können mit Ihrem Lebenslauf beginnen: Er wird automatisch gelesen, und die extrahierten Daten bleiben von Ihnen zu bestätigen oder zu korrigieren. Dokumente und Sprachbewertung können später folgen."
+      },
+      {
+        "question": "Ist AMUD Skills eine Personalvermittlung?",
+        "answer": "Nein. Wir sind keine Personalvermittlung: Wir bereiten Ihr Profil auf und machen es für deutsche Unternehmen sichtbar, die selbst einstellen und entscheiden."
+      },
+      {
+        "question": "Garantiert AMUD Skills eine Stelle?",
+        "answer": "Nein. Keine Plattform kann seriös eine Stelle garantieren. Wir erleichtern die Vermittlung; die Einstellungsentscheidung liegt immer beim Arbeitgeber."
+      },
+      {
+        "question": "Kümmert sich AMUD Skills um mein Visum?",
+        "answer": "Nein, nicht direkt. Ihr Profil sammelt die Unterlagen für Ihren Antrag, das Visumsverfahren selbst läuft bei den zuständigen Behörden."
+      },
+      {
+        "question": "Wer kann meine Dokumente einsehen?",
+        "answer": "Nur auf der Plattform registrierte Unternehmen, sobald Ihr Profil sichtbar ist und Sie zugestimmt haben. Sie können diese Sichtbarkeit jederzeit pausieren."
+      },
+      {
+        "question": "Kann ich mein Profil und meine Daten löschen?",
+        "answer": "Ja. Sie können Ihr Profil jederzeit aus der Suche nehmen oder die Löschung Ihrer Daten beantragen."
       }
     ]
   },
   "finalCta": {
     "title": "Ihr Beruf wird anderswo gebraucht.",
     "subtitle": "Erstellen Sie Ihr Profil in Ihrem Tempo. Kostenlos, und Sie steuern, ob Recruiter es sehen können.",
-    "cta": "Profil erstellen",
+    "cta": "Profil kostenlos erstellen",
+    "secondaryCta": "Ich bin ein Unternehmen",
     "microcopy": "Ohne Passwort · Jederzeit vollständig zurückziehbar",
     "imageAlt": "Junger marokkanischer Berufstätiger lächelt auf einer Straße in Berlin."
   },
@@ -265,6 +328,12 @@
           { "label": "Arbeitgeberbereich", "href": "/auth-phone?intent=recruiter" },
           { "label": "Profile suchen", "href": "/employeurs" },
           { "label": "Ablauf verstehen", "href": "/employeurs#workflow" }
+        ]
+      },
+      {
+        "title": "Ausbildungszentren",
+        "links": [
+          { "label": "Zentrum-Bereich entdecken", "href": "/accueil-public#centres" }
         ]
       }
     ],
@@ -312,7 +381,7 @@
         },
         "ocr": {
           "title": "Intelligente Texterkennung",
-          "body": "Sofortige Dokumentenprüfung und Datenextraktion. Vom Personalausweis bis zum Zertifikat, in Millisekunden verarbeitet mit deutscher Präzision."
+          "body": "Automatisches Auslesen und Strukturieren von Dokumenten. Vom Personalausweis bis zum Zertifikat werden die relevanten Daten in Sekunden extrahiert."
         },
         "tracking": {
           "title": "Echtzeit-Verfolgung",

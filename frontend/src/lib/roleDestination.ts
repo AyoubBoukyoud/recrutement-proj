@@ -3,7 +3,7 @@
 // pour que les deux ne divergent jamais.
 //
 // Recruteur, agent et administrateur vivent dans cette même application, sous
-// /recruiter, /agent et /admin — middleware.ts est ce qui les protège par
+// /recruiter, /agent et /admin — proxy.ts est ce qui les protège par
 // rôle.
 
 import type { UserRole } from './types';

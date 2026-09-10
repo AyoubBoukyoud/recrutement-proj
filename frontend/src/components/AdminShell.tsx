@@ -27,6 +27,7 @@ const NAV: NavItem[] = [
   { href: '/admin/utilisateurs', icon: 'group', label: 'Utilisateurs' },
   { href: '/admin/offres', icon: 'work', label: 'Offres' },
   { href: '/admin/candidatures', icon: 'assignment', label: 'Candidatures' },
+  { href: '/admin/stage', icon: 'task_alt', label: 'Stage quotidien' },
   { href: '/admin/parrainages', icon: 'redeem', label: 'Parrainages' },
   { href: '/admin/reclamations', icon: 'support_agent', label: 'Réclamations' },
   { href: '/admin/journal', icon: 'history', label: 'Journal' },

@@ -57,6 +57,8 @@ type CandidateDetail = {
 };
 
 type ActivityEvent = { at: string; type: string; label: string };
+type StageTask = { id: number; title: string; description: string | null; category: string; estimated_minutes: number; is_active: boolean };
+type TaskAssignment = { id: number; assigned_for: string; status: 'assigned' | 'completed' | 'skipped'; task: StageTask; candidate_note: string | null; admin_feedback: string | null };
 
 const DOCUMENT_TYPE_LABEL: Record<CandidateDocument['type'], string> = {
   cv: 'CV',
@@ -86,6 +88,7 @@ const ACCOUNT_STATUS_LABEL: Record<CandidateDetail['user']['status'], string> = 
 const TABS = [
   { id: 'apercu', label: "Vue d'ensemble" },
   { id: 'documents', label: 'Documents' },
+  { id: 'stage', label: 'Stage quotidien' },
   { id: 'activite', label: 'Activité' },
 ];
 
@@ -117,6 +120,8 @@ export default function AdminCandidatDetailPage() {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [rejecting, setRejecting] = useState<CandidateDocument | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([]);
+  const [assignedFor, setAssignedFor] = useState(new Date().toISOString().slice(0, 10));
 
   const detail = useQuery({
     queryKey: ['admin-candidate', id],
@@ -127,6 +132,18 @@ export default function AdminCandidatDetailPage() {
     queryKey: ['admin-candidate-activity', id],
     queryFn: () => api.get(`/admin/candidates/${id}/activity`).then((r) => r.data as ActivityEvent[]),
     enabled: tab === 'activite',
+  });
+
+  const stageTasks = useQuery({
+    queryKey: ['admin-tasks-active'],
+    queryFn: () => api.get('/admin/tasks').then((r) => r.data as { data: StageTask[] }),
+    enabled: tab === 'stage',
+  });
+
+  const assignments = useQuery({
+    queryKey: ['admin-candidate-assignments', id],
+    queryFn: () => api.get(`/admin/candidates/${id}/assignments`).then((r) => r.data as { data: TaskAssignment[] }),
+    enabled: tab === 'stage',
   });
 
   const refresh = () => qc.invalidateQueries({ queryKey: ['admin-candidate', id] });
@@ -168,6 +185,27 @@ export default function AdminCandidatDetailPage() {
       router.push('/admin/candidats');
     },
     onError: (error) => notify(errorMessage(error, 'Suppression impossible.'), 'error'),
+  });
+
+  const assignTasks = useMutation({
+    mutationFn: () => api.post(`/admin/candidates/${id}/assignments`, { task_ids: selectedTaskIds, assigned_for: assignedFor }),
+    onSuccess: () => {
+      setSelectedTaskIds([]);
+      qc.invalidateQueries({ queryKey: ['admin-candidate-assignments', id] });
+      qc.invalidateQueries({ queryKey: ['admin-candidate', id] });
+      notify('Activités assignées au candidat.');
+    },
+    onError: (error) => notify(errorMessage(error, 'Assignation impossible.'), 'error'),
+  });
+
+  const removeAssignment = useMutation({
+    mutationFn: (assignmentId: number) => api.delete(`/admin/assignments/${assignmentId}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-candidate-assignments', id] });
+      qc.invalidateQueries({ queryKey: ['admin-candidate', id] });
+      notify('Assignation retirée.', 'info');
+    },
+    onError: (error) => notify(errorMessage(error, 'Action impossible.'), 'error'),
   });
 
   if (detail.isLoading) {
@@ -446,6 +484,23 @@ export default function AdminCandidatDetailPage() {
               ))}
             </ol>
           )}
+        </div>
+      ) : null}
+
+      {tab === 'stage' ? (
+        <div className="grid gap-lg lg:grid-cols-[1fr_1fr]">
+          <div className="rounded-xl border border-amud-outline-variant/30 bg-amud-surface-container-lowest p-lg">
+            <div className="mb-md flex flex-wrap items-end justify-between gap-3">
+              <div><h3 className="text-title-lg text-amud-on-surface">Assigner des activités</h3><p className="mt-1 text-label-sm text-amud-on-surface-variant">Les tâches apparaîtront immédiatement dans « Tâches » chez le candidat.</p></div>
+              <label className="grid gap-1"><span className="text-label-sm text-amud-on-surface-variant">Pour le</span><input type="date" value={assignedFor} onChange={(event) => setAssignedFor(event.target.value)} className="rounded-lg border border-amud-outline-variant bg-amud-surface px-2 py-1.5 text-label-sm text-amud-on-surface" /></label>
+            </div>
+            {stageTasks.isLoading ? <p className="text-body-md text-amud-on-surface-variant">Chargement…</p> : <div className="grid gap-2">{(stageTasks.data?.data ?? []).map((task) => <label key={task.id} className="flex cursor-pointer items-start gap-3 rounded-lg border border-amud-outline-variant p-3 hover:bg-amud-surface-container-low"><input type="checkbox" checked={selectedTaskIds.includes(task.id)} onChange={(event) => setSelectedTaskIds((current) => event.target.checked ? [...current, task.id] : current.filter((idValue) => idValue !== task.id))} className="mt-1 h-4 w-4 accent-[var(--amud-primary)]" /><span className="min-w-0"><span className="block text-label-md font-semibold text-amud-on-surface">{task.title}</span><span className="mt-0.5 block text-label-sm text-amud-on-surface-variant">{task.estimated_minutes} min · {task.category}</span></span></label>)}</div>}
+            <button type="button" onClick={() => assignTasks.mutate()} disabled={assignTasks.isPending || selectedTaskIds.length === 0} className="mt-md rounded-lg bg-amud-primary px-md py-sm text-label-md font-semibold text-white disabled:opacity-50">{assignTasks.isPending ? 'Assignation…' : `Assigner ${selectedTaskIds.length || ''} activité${selectedTaskIds.length > 1 ? 's' : ''}`}</button>
+          </div>
+          <div className="rounded-xl border border-amud-outline-variant/30 bg-amud-surface-container-lowest p-lg">
+            <h3 className="mb-md text-title-lg text-amud-on-surface">Historique des assignations</h3>
+            {assignments.isLoading ? <p className="text-body-md text-amud-on-surface-variant">Chargement…</p> : (assignments.data?.data ?? []).length === 0 ? <p className="text-body-md text-amud-on-surface-variant">Aucune activité assignée.</p> : <div className="grid gap-2">{(assignments.data?.data ?? []).map((assignment) => <div key={assignment.id} className="flex items-start justify-between gap-3 rounded-lg border border-amud-outline-variant p-3"><div><p className="text-label-md font-semibold text-amud-on-surface">{assignment.task.title}</p><p className="text-label-sm text-amud-on-surface-variant">{new Date(assignment.assigned_for).toLocaleDateString('fr-FR')} · {assignment.status === 'completed' ? 'Terminée' : assignment.status === 'skipped' ? 'Ignorée' : 'À faire'}</p>{assignment.admin_feedback && <p className="mt-1 text-label-sm text-amud-on-surface-variant">Note : {assignment.admin_feedback}</p>}</div>{assignment.status !== 'completed' && <button type="button" onClick={() => removeAssignment.mutate(assignment.id)} className="text-label-sm font-semibold text-amud-error hover:underline">Retirer</button>}</div>)}</div>}
+          </div>
         </div>
       ) : null}
 

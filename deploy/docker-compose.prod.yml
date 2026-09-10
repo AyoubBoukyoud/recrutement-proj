@@ -18,18 +18,18 @@ x-backend-environment: &backend-environment
   DB_USERNAME: ${MYSQL_USER:-recruitment}
   DB_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD must be set in deploy/.env.prod}
   SESSION_DRIVER: database
-  SESSION_SECURE_COOKIE: ${SESSION_SECURE_COOKIE:-false}
-  SANCTUM_STATEFUL_DOMAINS: ${DOMAIN_HOSTS:-51.170.131.162}
+  SESSION_SECURE_COOKIE: ${SESSION_SECURE_COOKIE:?SESSION_SECURE_COOKIE must be set in deploy/.env.prod}
+  SANCTUM_STATEFUL_DOMAINS: ${DOMAIN_HOSTS:?DOMAIN_HOSTS must be set in deploy/.env.prod}
   QUEUE_CONNECTION: database
   CACHE_STORE: database
   FILESYSTEM_DISK: local
   GEMINI_API_KEY: ${GEMINI_API_KEY:-}
   GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.6-flash}
-  OTP_CHANNELS: ${OTP_CHANNELS:-evolution,sms}
+  OTP_CHANNELS: ${OTP_CHANNELS:?OTP_CHANNELS must be set in deploy/.env.prod}
   # The way into the admin console on a database that has no administrator
   # yet: these numbers are granted the role on their first OTP request, and
   # the entrypoint provisions them as accounts. See deploy/README.md.
-  ADMIN_PHONES: ${ADMIN_PHONES:-}
+  ADMIN_PHONES: ${ADMIN_PHONES:?ADMIN_PHONES must be set in deploy/.env.prod}
   ADMIN_PHONE_COUNTRY: ${ADMIN_PHONE_COUNTRY:-+212}
   EVOLUTION_BASE_URL: http://evolution-go:4000
   EVOLUTION_INSTANCE_TOKEN: ${EVOLUTION_INSTANCE_TOKEN:?EVOLUTION_INSTANCE_TOKEN must be set in deploy/.env.prod}
@@ -39,6 +39,9 @@ x-backend-environment: &backend-environment
   TWILIO_FROM: ${TWILIO_FROM:-}
   COMPLAINT_ALERT_EMAIL: ${COMPLAINT_ALERT_EMAIL:-}
   COMPLAINT_SLACK_WEBHOOK: ${COMPLAINT_SLACK_WEBHOOK:-}
+  VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+  VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+  VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:support@example.com}
 
 x-backend-service: &backend-service
   build:
@@ -55,7 +58,7 @@ services:
     image: caddy:2.10-alpine
     restart: unless-stopped
     environment:
-      SITE_ADDRESS: ${SITE_ADDRESS:-http://51.170.131.162}
+      SITE_ADDRESS: ${SITE_ADDRESS:?SITE_ADDRESS must be set in deploy/.env.prod}
     ports:
       - "80:80"
       - "443:443"
@@ -78,6 +81,8 @@ services:
         NEXT_PUBLIC_API_URL: /api
         NEXT_PUBLIC_USE_MOCKS: "0"
         NEXT_PUBLIC_ENABLE_PROTOTYPES: "0"
+        NEXT_PUBLIC_SHOW_DEV_TOOLS: "0"
+        NEXT_PUBLIC_VAPID_PUBLIC_KEY: ${NEXT_PUBLIC_VAPID_PUBLIC_KEY:-}
     restart: unless-stopped
     environment:
       NODE_ENV: production

@@ -40,6 +40,10 @@ const withPWA = withPWAInit({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // The repository also contains a mobile lockfile and a legacy empty root
+  // lockfile. Keep Next's trace boundary at this app instead of guessing the
+  // monorepo root during production builds.
+  outputFileTracingRoot: process.cwd(),
   env: {
     /*
      * Next ne substitue à la compilation que les variables `NEXT_PUBLIC_*`

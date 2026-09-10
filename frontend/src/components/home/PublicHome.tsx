@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useHomeContent, useTrades } from '@/lib/useLocalizedContent';
 import { GhostCta, PrimaryCta } from './Cta';
 import { Reveal, RevealNoScriptFallback } from './Reveal';
@@ -9,6 +8,12 @@ import { JourneyTimeline } from './JourneyTimeline';
 import { RecruiterPreview } from './RecruiterPreview';
 import { TechPreview } from './TechPreview';
 import { MobileActionBar } from './MobileActionBar';
+import { BenefitsSection } from './BenefitsSection';
+import { JobCard } from './JobCard';
+import { TrainingCenterSection } from './TrainingCenterSection';
+import { SocialProofSection } from './SocialProofSection';
+import { StatsSection } from './StatsSection';
+import { TestimonialsSection } from './TestimonialsSection';
 
 function Icon({ name, className = '' }: { name: string; className?: string }) {
   return <span className={`material-symbols-outlined ${className}`}>{name}</span>;
@@ -169,7 +174,7 @@ export function PublicHome() {
         aria-label={content.trust.items.map((item) => item.label).join(', ')}
         className="border-b border-outline-variant/50 bg-surface-container/40"
       >
-        <ul className="mx-auto grid max-w-[1280px] gap-4 px-6 py-6 sm:grid-cols-3 lg:px-12">
+        <ul className="mx-auto grid max-w-[1280px] grid-cols-2 gap-4 px-6 py-6 lg:grid-cols-4 lg:px-12">
           {content.trust.items.map((item) => (
             <li key={item.label} className="flex items-center gap-3 text-sm font-medium text-onSurface-variant">
               <Icon name={item.icon} className="shrink-0 text-xl text-primary" />
@@ -227,6 +232,11 @@ export function PublicHome() {
           </Reveal>
         </div>
       </section>
+
+      {/* ----------------------------------------------------------------- */}
+      {/* 3bis. POURQUOI CRÉER SON DOSSIER — quatre bénéfices candidat        */}
+      {/* ----------------------------------------------------------------- */}
+      <BenefitsSection />
 
       {/* ----------------------------------------------------------------- */}
       {/* 4. CE QUE FAIT LA PLATEFORME (3 fonctions, renvoi vers /produit)    */}
@@ -288,55 +298,10 @@ export function PublicHome() {
             />
           </Reveal>
 
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          {/* Mobile : carousel horizontal snap-scroll. À partir de `sm`, grille classique. */}
+          <div className="-mx-6 mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 xl:grid-cols-4">
             {trades.map((trade, index) => (
-              <Reveal key={trade.slug} delay={index * 50}>
-                <Link
-                  href={`/metiers/${trade.slug}`}
-                  className="group flex h-full flex-col rounded-2xl border border-outline-variant/60 bg-surface-lowest p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-soft"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                      <Icon name={trade.icon} className="text-2xl" />
-                    </span>
-                    <span className="text-xs font-semibold uppercase tracking-wide text-outline">
-                      {trade.sector}
-                    </span>
-                  </div>
-
-                  <h3 className="mt-5 text-lg font-bold leading-snug text-primary-dark transition-colors group-hover:text-primary">
-                    {trade.label}
-                  </h3>
-
-                  <dl className="mb-6 mt-4 space-y-1.5 text-sm text-onSurface-variant">
-                    <div className="flex items-center gap-2">
-                      <dt className="sr-only">{content.trades.levelPrefix}</dt>
-                      <Icon name="translate" className="text-base text-outline" />
-                      <dd className="font-semibold text-onSurface">
-                        {content.trades.levelPrefix} {trade.germanLevel}
-                      </dd>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Icon name="verified_user" className="mt-0.5 text-base text-outline" />
-                      <dd>
-                        {trade.recognition === 'required'
-                          ? content.trades.recognition.required
-                          : trade.recognition === 'recommended'
-                            ? content.trades.recognition.recommended
-                            : content.trades.recognition.none}
-                      </dd>
-                    </div>
-                  </dl>
-
-                  <span className="mt-auto inline-flex items-center gap-1.5 border-t border-outline-variant/50 pt-4 text-sm font-semibold text-primary">
-                    {content.trades.cardCta}
-                    <Icon
-                      name="arrow_forward"
-                      className="text-base transition-transform duration-200 group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1"
-                    />
-                  </span>
-                </Link>
-              </Reveal>
+              <JobCard key={trade.slug} trade={trade} delay={index * 50} />
             ))}
           </div>
         </div>
@@ -407,6 +372,12 @@ export function PublicHome() {
       </section>
 
       {/* ----------------------------------------------------------------- */}
+      {/* 8bis. CENTRES DE FORMATION — présente l'écosystème, sans exposer   */}
+      {/* tout le module interne (plan §18)                                  */}
+      {/* ----------------------------------------------------------------- */}
+      <TrainingCenterSection />
+
+      {/* ----------------------------------------------------------------- */}
       {/* 9. ENGAGEMENTS VÉRIFIABLES (à la place de chiffres — plan §7.3)     */}
       {/* ----------------------------------------------------------------- */}
       <section className="py-20 lg:py-28">
@@ -435,6 +406,14 @@ export function PublicHome() {
           </div>
         </div>
       </section>
+
+      {/* ----------------------------------------------------------------- */}
+      {/* 9bis. PREUVE SOCIALE — masquées tant qu'aucune donnée réelle       */}
+      {/* n'existe (plan §13-15, home.fr.json `_note`)                      */}
+      {/* ----------------------------------------------------------------- */}
+      <SocialProofSection />
+      <StatsSection />
+      <TestimonialsSection />
 
       {/* ----------------------------------------------------------------- */}
       {/* 10. FAQ — un seul panneau ouvert à la fois (plan §2.9)             */}
@@ -497,13 +476,16 @@ export function PublicHome() {
                 {content.finalCta.subtitle}
               </p>
 
-              <div className="mt-8">
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <PrimaryCta href="/auth-phone" size="lg" className="shadow-floating">
                   <span className="flex items-center gap-2">
                     <span>{content.finalCta.cta}</span>
                     <Icon name="arrow_forward" className="text-xl rtl:rotate-180" />
                   </span>
                 </PrimaryCta>
+                <GhostCta href="/employeurs" size="lg">
+                  {content.finalCta.secondaryCta}
+                </GhostCta>
               </div>
 
               <p className="mt-5 text-sm text-outline">{content.finalCta.microcopy}</p>

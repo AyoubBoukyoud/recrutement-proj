@@ -19,7 +19,9 @@
         "Klinische Erfahrung, besonders auf Fachstationen, wird geschätzt"
       ],
       "dossier": ["Staatlicher Abschluss und Nachweise", "Sprachzertifikat, falls vorhanden", "Lebenslauf mit Stationen und Tätigkeiten"],
-      "salaryBand": null
+      "salaryBand": null,
+      "image": null,
+      "imageAlt": "Pflegefachkraft bei der Betreuung eines Patienten im Krankenhaus."
     },
     {
       "slug": "aide-soignant",
@@ -38,7 +40,9 @@
         "Bereitschaft zu Schichtdienst"
       ],
       "dossier": ["Abschluss oder Ausbildungsnachweis", "Arbeitszeugnisse", "Lebenslauf mit Art der Einrichtungen"],
-      "salaryBand": null
+      "salaryBand": null,
+      "image": null,
+      "imageAlt": "Pflegehelferin bei der Unterstützung eines Patienten in einer Pflegeeinrichtung."
     },
     {
       "slug": "electricien",
@@ -57,7 +61,9 @@
         "Lesen von Plänen und Schaltbildern"
       ],
       "dossier": ["Abschluss oder Ausbildungsnachweis", "Befähigungen und Zeugnisse", "Lebenslauf mit Art der Baustellen"],
-      "salaryBand": null
+      "salaryBand": null,
+      "image": null,
+      "imageAlt": "Elektriker bei der Arbeit an einer Elektroinstallation."
     },
     {
       "slug": "soudeur",
@@ -76,7 +82,9 @@
         "Lesen technischer Zeichnungen"
       ],
       "dossier": ["Schweißerprüfungen", "Arbeitszeugnisse", "Lebenslauf mit Verfahren und Werkstoffen"],
-      "salaryBand": null
+      "salaryBand": null,
+      "image": null,
+      "imageAlt": "Schweißer bei der Arbeit in einer Industriewerkstatt."
     },
     {
       "slug": "mecanicien-industriel",
@@ -95,7 +103,9 @@
         "Lesen von Plänen und technischer Dokumentation"
       ],
       "dossier": ["Ausbildungsabschluss", "Arbeitszeugnisse", "Lebenslauf mit Maschinen und Verfahren"],
-      "salaryBand": null
+      "salaryBand": null,
+      "image": null,
+      "imageAlt": "Industriemechaniker bei der Wartung einer Maschine."
     },
     {
       "slug": "cuisinier",
@@ -114,7 +124,9 @@
         "Bereitschaft zu geteilten Diensten und Wochenendarbeit"
       ],
       "dossier": ["Abschluss oder Ausbildungsnachweis", "Arbeitszeugnisse", "Lebenslauf mit Betriebsarten und Gästezahlen"],
-      "salaryBand": null
+      "salaryBand": null,
+      "image": null,
+      "imageAlt": "Koch bei der Arbeit in einer professionellen Küche."
     },
     {
       "slug": "chauffeur-poids-lourd",
@@ -133,7 +145,9 @@
         "Erfahrung im Fernverkehr wird geschätzt"
       ],
       "dossier": ["Führerschein", "Qualifikationsnachweis und Zeugnisse", "Lebenslauf mit Fahrzeugtypen und Strecken"],
-      "salaryBand": null
+      "salaryBand": null,
+      "image": null,
+      "imageAlt": "Fahrer am Steuer eines Lkw."
     },
     {
       "slug": "developpeur",
@@ -152,7 +166,9 @@
         "Team- und Agile-Erfahrung wird geschätzt"
       ],
       "dossier": ["Ausführlicher technischer Lebenslauf", "Abschluss, falls vorhanden", "Links zu Projekten oder Code"],
-      "salaryBand": null
+      "salaryBand": null,
+      "image": null,
+      "imageAlt": "Softwareentwickler bei der Arbeit am Code."
     }
   ]
 }

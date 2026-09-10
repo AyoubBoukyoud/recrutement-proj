@@ -1,4 +1,4 @@
-// Cookies légers utilisés en miroir de l'auth localStorage, lus par middleware.ts
+// Cookies légers utilisés en miroir de l'auth localStorage, lus par proxy.ts
 // (le middleware Next.js tourne côté edge et n'a pas accès au localStorage)
 
 export function setCookie(name: string, value: string, days = 30): void {
