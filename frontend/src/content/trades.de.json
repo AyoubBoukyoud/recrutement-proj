@@ -20,7 +20,7 @@
       ],
       "dossier": ["Staatlicher Abschluss und Nachweise", "Sprachzertifikat, falls vorhanden", "Lebenslauf mit Stationen und Tätigkeiten"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/infirmier.webp",
       "imageAlt": "Pflegefachkraft bei der Betreuung eines Patienten im Krankenhaus."
     },
     {
@@ -41,7 +41,7 @@
       ],
       "dossier": ["Abschluss oder Ausbildungsnachweis", "Arbeitszeugnisse", "Lebenslauf mit Art der Einrichtungen"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/aide-soignant.webp",
       "imageAlt": "Pflegehelferin bei der Unterstützung eines Patienten in einer Pflegeeinrichtung."
     },
     {
@@ -62,7 +62,7 @@
       ],
       "dossier": ["Abschluss oder Ausbildungsnachweis", "Befähigungen und Zeugnisse", "Lebenslauf mit Art der Baustellen"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/electricien.webp",
       "imageAlt": "Elektriker bei der Arbeit an einer Elektroinstallation."
     },
     {
@@ -83,7 +83,7 @@
       ],
       "dossier": ["Schweißerprüfungen", "Arbeitszeugnisse", "Lebenslauf mit Verfahren und Werkstoffen"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/soudeur.webp",
       "imageAlt": "Schweißer bei der Arbeit in einer Industriewerkstatt."
     },
     {
@@ -104,7 +104,7 @@
       ],
       "dossier": ["Ausbildungsabschluss", "Arbeitszeugnisse", "Lebenslauf mit Maschinen und Verfahren"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/mecanicien-industriel.webp",
       "imageAlt": "Industriemechaniker bei der Wartung einer Maschine."
     },
     {
@@ -125,7 +125,7 @@
       ],
       "dossier": ["Abschluss oder Ausbildungsnachweis", "Arbeitszeugnisse", "Lebenslauf mit Betriebsarten und Gästezahlen"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/cuisinier.webp",
       "imageAlt": "Koch bei der Arbeit in einer professionellen Küche."
     },
     {
@@ -146,7 +146,7 @@
       ],
       "dossier": ["Führerschein", "Qualifikationsnachweis und Zeugnisse", "Lebenslauf mit Fahrzeugtypen und Strecken"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/chauffeur-poids-lourd.webp",
       "imageAlt": "Fahrer am Steuer eines Lkw."
     },
     {
@@ -167,7 +167,7 @@
       ],
       "dossier": ["Ausführlicher technischer Lebenslauf", "Abschluss, falls vorhanden", "Links zu Projekten oder Code"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/developpeur.webp",
       "imageAlt": "Softwareentwickler bei der Arbeit am Code."
     }
   ]

@@ -20,7 +20,7 @@
       ],
       "dossier": ["Diplôme d'État et relevés", "Certificat de langue si vous en avez un", "CV détaillant les services et les actes pratiqués"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/infirmier.webp",
       "imageAlt": "Infirmière prenant soin d'un patient dans un environnement hospitalier."
     },
     {
@@ -41,7 +41,7 @@
       ],
       "dossier": ["Diplôme ou attestation de formation", "Attestations d'employeurs", "CV avec les types de structures"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/aide-soignant.webp",
       "imageAlt": "Aide-soignante accompagnant un patient dans un établissement de soins."
     },
     {
@@ -62,7 +62,7 @@
       ],
       "dossier": ["Diplôme ou certificat de formation", "Habilitations et attestations", "CV avec les types de chantiers"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/electricien.webp",
       "imageAlt": "Électricien travaillant sur une installation électrique."
     },
     {
@@ -83,7 +83,7 @@
       ],
       "dossier": ["Certifications de soudage", "Attestations d'employeurs", "CV avec procédés et matériaux maîtrisés"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/soudeur.webp",
       "imageAlt": "Soudeur au travail dans un atelier industriel."
     },
     {
@@ -104,7 +104,7 @@
       ],
       "dossier": ["Diplôme de formation", "Attestations d'employeurs", "CV avec machines et procédés"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/mecanicien-industriel.webp",
       "imageAlt": "Mécanicien industriel effectuant la maintenance d'une machine."
     },
     {
@@ -125,7 +125,7 @@
       ],
       "dossier": ["Diplôme ou attestation de formation", "Attestations d'employeurs", "CV avec types d'établissements et volumes"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/cuisinier.webp",
       "imageAlt": "Cuisinier au travail dans une cuisine professionnelle."
     },
     {
@@ -146,7 +146,7 @@
       ],
       "dossier": ["Permis de conduire", "Carte de qualification et attestations", "CV avec types de véhicules et trajets"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/chauffeur-poids-lourd.webp",
       "imageAlt": "Chauffeur au volant d'un poids lourd."
     },
     {
@@ -167,7 +167,7 @@
       ],
       "dossier": ["CV technique détaillé", "Diplôme si vous en avez un", "Liens vers vos projets ou votre code"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/developpeur.webp",
       "imageAlt": "Développeur informatique travaillant sur du code."
     }
   ]

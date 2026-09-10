@@ -98,16 +98,10 @@ case ",$otp_channels_compact," in
     *,log,*) echo "OTP_CHANNELS cannot include log in production." >&2; exit 1 ;;
 esac
 
-case ",$otp_channels_compact," in
-    *,sms,*)
-        require_value TWILIO_ACCOUNT_SID
-        require_value TWILIO_AUTH_TOKEN
-        if [ -z "$(env_value TWILIO_MESSAGING_SERVICE_SID)" ] && [ -z "$(env_value TWILIO_FROM)" ]; then
-            echo "TWILIO_MESSAGING_SERVICE_SID or TWILIO_FROM is required when sms is enabled." >&2
-            exit 1
-        fi
-        ;;
-esac
+if [ "$otp_channels_compact" != "evolution" ]; then
+    echo "Production OTP_CHANNELS must be exactly evolution; Twilio/SMS is not enabled." >&2
+    exit 1
+fi
 
 vapid_public="$(env_value VAPID_PUBLIC_KEY)"
 vapid_private="$(env_value VAPID_PRIVATE_KEY)"

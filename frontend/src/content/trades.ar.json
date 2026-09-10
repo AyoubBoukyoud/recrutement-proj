@@ -20,7 +20,7 @@
       ],
       "dossier": ["شهادة الدولة والكشوف", "شهادة اللغة إن توفرت", "سيرة ذاتية تفصّل الأقسام والأعمال المنجزة"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/infirmier.webp",
       "imageAlt": "ممرضة ترعى مريضاً في بيئة استشفائية."
     },
     {
@@ -41,7 +41,7 @@
       ],
       "dossier": ["الشهادة أو إشهاد التكوين", "شهادات العمل", "سيرة ذاتية تذكر أنواع المؤسسات"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/aide-soignant.webp",
       "imageAlt": "مساعدة تمريض ترافق مريضاً في مؤسسة للرعاية."
     },
     {
@@ -62,7 +62,7 @@
       ],
       "dossier": ["الشهادة أو إشهاد التكوين", "التأهيلات وشهادات العمل", "سيرة ذاتية تذكر أنواع الأوراش"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/electricien.webp",
       "imageAlt": "كهربائي يعمل على تمديد كهربائي."
     },
     {
@@ -83,7 +83,7 @@
       ],
       "dossier": ["شهادات اللحام", "شهادات العمل", "سيرة ذاتية تذكر التقنيات والمواد"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/soudeur.webp",
       "imageAlt": "لحّام أثناء العمل في ورشة صناعية."
     },
     {
@@ -104,7 +104,7 @@
       ],
       "dossier": ["شهادة التكوين", "شهادات العمل", "سيرة ذاتية تذكر الآلات والتقنيات"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/mecanicien-industriel.webp",
       "imageAlt": "ميكانيكي صناعي يقوم بصيانة آلة."
     },
     {
@@ -125,7 +125,7 @@
       ],
       "dossier": ["الشهادة أو إشهاد التكوين", "شهادات العمل", "سيرة ذاتية تذكر أنواع المؤسسات وحجم العمل"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/cuisinier.webp",
       "imageAlt": "طباخ أثناء العمل في مطبخ احترافي."
     },
     {
@@ -146,7 +146,7 @@
       ],
       "dossier": ["رخصة السياقة", "بطاقة التأهيل وشهادات العمل", "سيرة ذاتية تذكر أنواع الشاحنات والمسالك"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/chauffeur-poids-lourd.webp",
       "imageAlt": "سائق خلف مقود شاحنة نقل ثقيل."
     },
     {
@@ -167,7 +167,7 @@
       ],
       "dossier": ["سيرة ذاتية تقنية مفصّلة", "الشهادة إن توفرت", "روابط مشاريعك أو شيفرتك"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/developpeur.webp",
       "imageAlt": "مطوّر برمجيات أثناء العمل على الشيفرة."
     }
   ]

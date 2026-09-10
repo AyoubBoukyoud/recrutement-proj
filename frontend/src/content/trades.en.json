@@ -20,7 +20,7 @@
       ],
       "dossier": ["State diploma and transcripts", "Language certificate if you have one", "CV detailing the units and procedures"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/infirmier.webp",
       "imageAlt": "Nurse caring for a patient in a hospital setting."
     },
     {
@@ -41,7 +41,7 @@
       ],
       "dossier": ["Diploma or training certificate", "Employer references", "CV listing the types of facility"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/aide-soignant.webp",
       "imageAlt": "Care assistant supporting a patient in a care facility."
     },
     {
@@ -62,7 +62,7 @@
       ],
       "dossier": ["Diploma or training certificate", "Authorisations and references", "CV listing the types of site"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/electricien.webp",
       "imageAlt": "Electrician working on an electrical installation."
     },
     {
@@ -83,7 +83,7 @@
       ],
       "dossier": ["Welding certifications", "Employer references", "CV listing processes and materials"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/soudeur.webp",
       "imageAlt": "Welder at work in an industrial workshop."
     },
     {
@@ -104,7 +104,7 @@
       ],
       "dossier": ["Training diploma", "Employer references", "CV listing machines and processes"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/mecanicien-industriel.webp",
       "imageAlt": "Industrial mechanic servicing a machine."
     },
     {
@@ -125,7 +125,7 @@
       ],
       "dossier": ["Diploma or training certificate", "Employer references", "CV listing venue types and covers"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/cuisinier.webp",
       "imageAlt": "Cook at work in a professional kitchen."
     },
     {
@@ -146,7 +146,7 @@
       ],
       "dossier": ["Driving licence", "Qualification card and references", "CV listing vehicle types and routes"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/chauffeur-poids-lourd.webp",
       "imageAlt": "Driver at the wheel of a heavy goods vehicle."
     },
     {
@@ -167,7 +167,7 @@
       ],
       "dossier": ["Detailed technical CV", "Degree if you have one", "Links to your projects or code"],
       "salaryBand": null,
-      "image": null,
+      "image": "/assets/images/trades/developpeur.webp",
       "imageAlt": "Software developer working on code."
     }
   ]
