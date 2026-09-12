@@ -192,10 +192,10 @@ export function SiteHeader({ className = '', glassTransparent = false }: SiteHea
               <a
                 key={link.href}
                 href={link.href}
-                className={`text-sm font-bold transition-all duration-200 hover:-translate-y-0.5 ${
+                className={`text-sm font-extrabold transition-all duration-200 hover:-translate-y-0.5 ${
                   glassTransparent && !pastHero
-                    ? 'text-white/90 hover:text-white'
-                    : 'text-onSurface-variant hover:text-primary'
+                    ? 'text-white/90 hover:text-white drop-shadow-sm'
+                    : 'text-onSurface-variant hover:text-emerald-700 dark:text-zinc-300 dark:hover:text-emerald-400'
                 }`}
               >
                 {link.label}
@@ -205,21 +205,21 @@ export function SiteHeader({ className = '', glassTransparent = false }: SiteHea
 
           {/* Action Controls & CTAs */}
           <div className="flex items-center gap-2.5">
-            <div className="rounded-xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/10 backdrop-blur-md shadow-xs p-0.5">
+            <div className="rounded-2xl border border-slate-200/60 dark:border-white/10 bg-white/70 dark:bg-white/10 backdrop-blur-md shadow-xs p-0.5">
               <div className="sm:hidden"><LanguageSwitcher compact /></div>
               <div className="hidden sm:block"><LanguageSwitcher /></div>
             </div>
 
-            <div className="rounded-xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/10 backdrop-blur-md shadow-xs">
+            <div className="rounded-2xl border border-slate-200/60 dark:border-white/10 bg-white/70 dark:bg-white/10 backdrop-blur-md shadow-xs">
               <ThemeToggle />
             </div>
 
             <Link
               href="/auth-phone"
-              className={`hidden rounded-xl border px-3.5 py-2 text-sm font-bold transition-all duration-200 hover:scale-105 backdrop-blur-md shadow-xs sm:inline-flex ${
+              className={`hidden rounded-2xl border px-4 py-2 text-sm font-bold transition-all duration-200 hover:scale-105 backdrop-blur-md shadow-xs sm:inline-flex ${
                 glassTransparent && !pastHero
-                  ? 'border-white/30 bg-white/10 text-white hover:bg-white/25'
-                  : 'border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/10 text-onSurface hover:bg-white/80 hover:text-primary'
+                  ? 'border-white/30 bg-white/15 text-white hover:bg-white/25 hover:border-white/50'
+                  : 'border-slate-200 dark:border-white/10 bg-slate-100/70 dark:bg-white/5 text-onSurface dark:text-white hover:bg-slate-200/70 dark:hover:bg-white/15 hover:text-emerald-700 dark:hover:text-emerald-400'
               }`}
             >
               {nav.signIn}
