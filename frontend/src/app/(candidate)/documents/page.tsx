@@ -14,8 +14,6 @@ import { useProfile } from '@/context/ProfileContext';
 import { useNetwork } from '@/context/NetworkContext';
 import { DocumentViewer } from '@/components/shared/DocumentViewer';
 import { Button } from '@/components/shared/Button';
-import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
-import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { ApiError } from '@/lib/api';
 import { documentsRepository } from '@/data/documents';
 import {
@@ -342,10 +340,6 @@ export default function DocumentsPage() {
           <span className="material-symbols-outlined" style={{ fontSize: 22 }}>arrow_back</span>
         </Link>
         <h1 className="flex-1 text-lg font-bold text-primary-dark">{content.header.title}</h1>
-        <div className="flex items-center gap-1">
-          <LanguageSwitcher compact />
-          <ThemeToggle />
-        </div>
       </header>
 
       <main className="mx-auto max-w-xl space-y-6 px-6 pt-6 lg:max-w-3xl lg:px-10 lg:pt-8">

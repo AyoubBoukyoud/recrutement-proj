@@ -44,7 +44,7 @@ export function ProductHome() {
   const copy = content.product;
 
   return (
-    <main id="main-content" tabIndex={-1} className="force-light overflow-x-hidden bg-amud-background text-amud-on-background outline-none selection:bg-amud-primary-container/30 selection:text-amud-inverse-surface">
+    <main id="main-content" tabIndex={-1} className="overflow-x-hidden bg-amud-background text-amud-on-background outline-none transition-colors duration-300 selection:bg-amud-primary/30 selection:text-amud-inverse-surface">
       <RevealNoScriptFallback />
       {/* Hero */}
       <section className="relative overflow-hidden pb-32 pt-20 sm:pt-28 lg:pt-36">
@@ -58,25 +58,25 @@ export function ProductHome() {
         <div className="relative z-10 mx-auto max-w-container-max px-margin-mobile md:px-gutter">
           <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
             <div className="space-y-8">
-              <div className="inline-flex items-center gap-2 rounded-full border border-amud-primary-container/20 bg-amud-primary-container/10 px-4 py-2">
-                <span className="material-symbols-outlined fill text-sm text-amud-primary-container">bolt</span>
+              <div className="inline-flex items-center gap-2 rounded-full border border-amud-primary/20 bg-amud-primary/10 px-4 py-2">
+                <span className="material-symbols-outlined fill text-sm text-amud-primary">bolt</span>
                 <span className="text-label-md font-semibold text-amud-inverse-surface">{copy.hero.badge}</span>
               </div>
               <h1 className="text-headline-lg-mobile leading-tight text-amud-inverse-surface md:text-display-lg">
                 {copy.hero.headline[0]}{' '}
-                <span className="text-amud-primary-container">{copy.hero.headline[1]}</span>
+                <span className="text-amud-primary">{copy.hero.headline[1]}</span>
               </h1>
               <p className="max-w-xl text-body-lg text-amud-on-surface-variant">{copy.hero.subheadline}</p>
               <div className="flex flex-col gap-4 pt-4 sm:flex-row">
                 <Link
                   href="/employeurs"
-                  className="rounded bg-amud-primary-container px-8 py-4 text-label-md font-bold text-white shadow-[0_4px_14px_0_rgba(27,94,55,0.39)] transition-all hover:bg-amud-primary"
+                  className="rounded bg-amud-primary px-8 py-4 text-label-md font-bold text-amud-on-primary shadow-[0_4px_14px_0_rgba(27,94,55,0.39)] transition-all hover:bg-amud-primary-dark"
                 >
                   {copy.hero.ctaPrimary}
                 </Link>
                 <Link
                   href="/auth-phone"
-                  className="rounded bg-amud-inverse-surface px-8 py-4 text-label-md font-bold text-white shadow-[0_4px_14px_0_rgba(38,49,67,0.39)] transition-all hover:bg-amud-inverse-surface/90"
+                  className="rounded bg-amud-inverse-surface px-8 py-4 text-label-md font-bold text-amud-inverse-on-surface shadow-[0_4px_14px_0_rgba(38,49,67,0.39)] transition-all hover:bg-amud-inverse-surface/90"
                 >
                   {copy.hero.ctaSecondary}
                 </Link>
@@ -85,16 +85,16 @@ export function ProductHome() {
 
             <div className="relative flex h-[600px] items-center justify-center">
               <div className="relative h-full w-full max-w-md">
-                <div className="absolute right-0 top-10 h-[500px] w-64 scale-95 rotate-6 overflow-hidden rounded-3xl border-4 border-amud-surface-container-high bg-white opacity-80 shadow-2xl blur-[1px] transition-transform duration-500 hover:z-30 hover:rotate-0 hover:scale-100 hover:opacity-100 hover:blur-none">
+                <div className="absolute right-0 top-10 h-[500px] w-64 scale-95 rotate-6 overflow-hidden rounded-3xl border-4 border-amud-surface-container-high bg-amud-surface-container-lowest opacity-80 shadow-2xl blur-[1px] transition-transform duration-500 hover:z-30 hover:rotate-0 hover:scale-100 hover:opacity-100 hover:blur-none">
                   <img className="h-full w-full object-cover" alt={copy.hero.imageAlt1} src={HERO_IMAGE_1} />
                 </div>
-                <div className="absolute left-10 top-0 z-20 h-[550px] w-72 -rotate-2 overflow-hidden rounded-3xl border-4 border-amud-inverse-surface bg-white shadow-2xl transition-transform duration-500 hover:rotate-0 hover:scale-105">
+                <div className="absolute left-10 top-0 z-20 h-[550px] w-72 -rotate-2 overflow-hidden rounded-3xl border-4 border-amud-inverse-surface bg-amud-surface-container-lowest shadow-2xl transition-transform duration-500 hover:rotate-0 hover:scale-105">
                   <div className="absolute top-0 z-10 h-12 w-full bg-gradient-to-b from-black/50 to-transparent" />
                   <img className="h-full w-full object-cover" alt={copy.hero.imageAlt2} src={HERO_IMAGE_2} />
-                  <div className="absolute bottom-10 left-1/2 w-11/12 -translate-x-1/2 rounded-xl border border-amud-surface-container-high bg-white/90 p-4 shadow-lg backdrop-blur-md">
+                  <div className="absolute bottom-10 left-1/2 w-11/12 -translate-x-1/2 rounded-xl border border-amud-surface-container-high bg-amud-surface-container-lowest/90 p-4 shadow-lg backdrop-blur-md">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amud-primary-container/20">
-                        <span className="material-symbols-outlined fill text-amud-primary-container">check_circle</span>
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amud-primary/20">
+                        <span className="material-symbols-outlined fill text-amud-primary">check_circle</span>
                       </div>
                       <div>
                         <div className="text-label-sm font-bold text-amud-inverse-surface">{copy.hero.card.matchTitle}</div>
@@ -118,7 +118,7 @@ export function ProductHome() {
           </Reveal>
           <div className="grid auto-rows-[minmax(300px,auto)] grid-cols-1 gap-6 md:grid-cols-3">
             <Reveal className="h-full md:col-span-2">
-              <div className="group flex h-full flex-col overflow-hidden rounded-xl border border-amud-inverse-surface/10 bg-white p-8 shadow-[0_8px_30px_rgb(38,49,67,0.05)] transition-transform duration-300 hover:-translate-y-1 md:flex-row md:items-center md:gap-8">
+              <div className="group flex h-full flex-col overflow-hidden rounded-xl border border-amud-inverse-surface/10 bg-amud-surface-container-lowest p-8 shadow-[0_8px_30px_rgb(38,49,67,0.05)] transition-transform duration-300 hover:-translate-y-1 md:flex-row md:items-center md:gap-8">
                 <div className="flex flex-col justify-center md:w-1/2">
                   <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-amud-secondary/10">
                     <span className="material-symbols-outlined fill text-2xl text-amud-secondary">videocam</span>
@@ -140,17 +140,17 @@ export function ProductHome() {
               <div className="group relative flex h-full flex-col justify-center overflow-hidden rounded-xl bg-amud-inverse-surface p-8 shadow-[0_8px_30px_rgb(38,49,67,0.15)] transition-transform duration-300 hover:-translate-y-1">
                 <div className="absolute inset-0 bg-amud-inverse-surface/5 opacity-20" />
                 <div className="relative z-10">
-                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-amud-primary-container/20">
-                    <span className="material-symbols-outlined fill text-2xl text-amud-primary-container">money_off</span>
+                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-amud-primary/20">
+                    <span className="material-symbols-outlined fill text-2xl text-amud-primary">money_off</span>
                   </div>
-                  <h3 className="mb-3 text-headline-md text-white">{copy.features.items.zeroCost.title}</h3>
+                  <h3 className="mb-3 text-headline-md text-amud-inverse-on-surface">{copy.features.items.zeroCost.title}</h3>
                   <p className="text-body-md text-amud-surface-variant/80">{copy.features.items.zeroCost.body}</p>
                 </div>
               </div>
             </Reveal>
 
             <Reveal className="h-full" delay={160}>
-              <div className="group flex h-full flex-col justify-between rounded-xl border border-amud-inverse-surface/10 bg-white p-8 shadow-[0_8px_30px_rgb(38,49,67,0.05)] transition-transform duration-300 hover:-translate-y-1">
+              <div className="group flex h-full flex-col justify-between rounded-xl border border-amud-inverse-surface/10 bg-amud-surface-container-lowest p-8 shadow-[0_8px_30px_rgb(38,49,67,0.05)] transition-transform duration-300 hover:-translate-y-1">
                 <div>
                   <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-amud-inverse-surface/10">
                     <span className="material-symbols-outlined fill text-2xl text-amud-inverse-surface">document_scanner</span>
@@ -162,10 +162,10 @@ export function ProductHome() {
             </Reveal>
 
             <Reveal className="h-full md:col-span-2" delay={240}>
-              <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-amud-inverse-surface/10 bg-white p-8 shadow-[0_8px_30px_rgb(38,49,67,0.05)] transition-transform duration-300 hover:-translate-y-1 md:flex-row md:items-center">
+              <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-amud-inverse-surface/10 bg-amud-surface-container-lowest p-8 shadow-[0_8px_30px_rgb(38,49,67,0.05)] transition-transform duration-300 hover:-translate-y-1 md:flex-row md:items-center">
                 <div className="z-10 md:w-1/2 md:pr-8">
-                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-amud-primary-container/20">
-                    <span className="material-symbols-outlined fill text-2xl text-amud-primary-container">track_changes</span>
+                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-amud-primary/20">
+                    <span className="material-symbols-outlined fill text-2xl text-amud-primary">track_changes</span>
                   </div>
                   <h3 className="mb-3 text-headline-md text-amud-inverse-surface">{copy.features.items.tracking.title}</h3>
                   <p className="text-body-md text-amud-on-surface-variant">{copy.features.items.tracking.body}</p>
@@ -178,10 +178,10 @@ export function ProductHome() {
                     <div className="h-1 flex-1 bg-amud-surface-container-high" />
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amud-primary-container text-xs font-bold text-white shadow-[0_0_10px_rgba(27,94,55,0.5)]">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amud-primary text-xs font-bold text-amud-on-primary shadow-[0_0_10px_rgba(27,94,55,0.5)]">
                       2
                     </div>
-                    <div className="h-1 flex-1 bg-amud-primary-container" />
+                    <div className="h-1 flex-1 bg-amud-primary" />
                   </div>
                   <div className="flex items-center gap-4 opacity-50">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-amud-surface-container-high text-xs text-amud-inverse-surface">

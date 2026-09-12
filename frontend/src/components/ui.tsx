@@ -225,7 +225,7 @@ export function Wordmark({ subtitle }: { subtitle?: string }) {
     <div className="flex items-center gap-2">
       {/* eslint-disable-next-line @next/next/no-img-element -- même logo que
           l'espace candidat (app/(candidate)/layout.tsx), servi depuis public/. */}
-      <img src="/assets/images/logo.png" alt="" className="h-6 w-6 object-contain" />
+      <img src="/assets/images/logo-mark.png" alt="" className="h-6 w-6 object-contain" />
       <div className="grid">
         <span className="text-[17px] font-bold tracking-[-0.3px] text-on-surface">Amud Skills</span>
         {subtitle && <span className="eyebrow">{subtitle}</span>}

@@ -19,8 +19,6 @@ import { languageAssessmentRepository } from "@/data/languageAssessment";
 import { documentsRepository } from "@/data/documents";
 import { ChecklistItem } from "@/components/shared/ChecklistItem";
 import { Button } from "@/components/shared/Button";
-import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
-import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { candidateDashboardContentFor } from "@/lib/candidateDashboardContent";
 import type { CefrLevel } from "@/lib/candidateProfile";
 
@@ -185,8 +183,6 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-1">
-          <LanguageSwitcher compact />
-          <ThemeToggle />
           <Link
             href="/notifications"
             aria-label={content.header.notificationsAriaLabel}

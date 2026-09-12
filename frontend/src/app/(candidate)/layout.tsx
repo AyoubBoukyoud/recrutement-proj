@@ -11,6 +11,7 @@ import { REQUIRED_SECTION_TO_STEP } from "@/lib/candidateProfile";
 import { useLanguage } from "@/context/LanguageContext";
 import { useUnreadNotifications } from "@/lib/useUnreadNotifications";
 import { candidateNotificationsContentFor } from "@/lib/candidateNotificationsContent";
+import { HeaderPreferences } from "@/components/shared/HeaderPreferences";
 
 export default function CandidateLayout({
   children,
@@ -52,11 +53,12 @@ export default function CandidateLayout({
 
   return (
     <div className="min-h-screen bg-surface lg:flex">
+      <HeaderPreferences className="fixed right-2 top-[max(0.5rem,env(safe-area-inset-top))] z-[60] rounded-full bg-surface/90 p-0.5 shadow-soft backdrop-blur-md lg:right-4" />
       {/* Sidebar desktop — remplace la tab bar du bas à partir de lg. */}
       <aside className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-64 lg:shrink-0 lg:flex-col lg:border-r lg:border-outline-variant lg:bg-surface-container-lowest">
         <Link href="/dashboard" className="flex items-center gap-2.5 px-6 py-6">
           <img
-            src="/assets/images/logo.png"
+            src="/assets/images/logo-mark.png"
             alt=""
             className="h-8 w-8 object-contain"
           />
@@ -106,7 +108,7 @@ export default function CandidateLayout({
       </aside>
 
       <div className="mx-auto flex min-h-screen w-full max-w-md flex-1 flex-col pb-24 shadow-subtle lg:mx-0 lg:max-w-none lg:pb-0 lg:shadow-none">
-        <div id="main-content" tabIndex={-1} className="flex-1 outline-none">{children}</div>
+        <div id="main-content" tabIndex={-1} className="flex-1 outline-none [&>div>header]:pr-24">{children}</div>
 
         {/* Tab bar mobile — masquée dès lg, remplacée par la sidebar. */}
         <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto flex max-w-md items-center justify-around border-t border-surface-container-high bg-surface-container-lowest/95 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-subtle backdrop-blur-md lg:hidden">

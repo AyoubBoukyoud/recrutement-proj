@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { NavItem, isNavActive, useDropdown } from '@/components/amud/ui';
-import { InlineLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
+import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 import { ToastProvider } from '@/components/amud/Toast';
 import { NotificationCenter } from '@/components/amud/NotificationCenter';
 import { RoleBottomNav } from '@/components/amud/RoleBottomNav';
@@ -135,6 +135,7 @@ export function StudentShell({ children }: { children: ReactNode }) {
               </button>
             </div>
             <div className="ml-auto flex items-center gap-sm">
+              <HeaderPreferences />
               <NotificationCenter
                 key={pathname}
                 scope="student"
@@ -151,9 +152,6 @@ export function StudentShell({ children }: { children: ReactNode }) {
                     <div className="border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm">
                       <div className="text-label-md font-semibold text-amud-on-surface">{studentName}</div>
                       <div className="text-label-sm text-amud-on-surface-variant">Simulation — aucune vraie authentification</div>
-                    </div>
-                    <div className="border-b border-amud-outline-variant">
-                      <InlineLanguageThemeControls />
                     </div>
                     <div className="flex flex-col gap-sm p-md">
                       <label className="text-label-sm text-amud-on-surface-variant">

@@ -23,6 +23,39 @@ const amudLight = colorTokens.amud.light;
 const amud = Object.fromEntries(Object.keys(amudLight).map((key) => [key, `var(--amud-${key})`]));
 const amudCssVars = Object.fromEntries(Object.entries(amudLight).map(([key, value]) => [`--amud-${key}`, value]));
 
+/*
+ * Palette de la page d'accueil publique (`/accueil-public`) et du chrome
+ * qu'elle partage avec `/employeurs`, `/produit`, `/metiers/[slug]`
+ * (`SiteHeader`/`SiteFooter`) — refonte reprenant la maquette navy/corail.
+ *
+ * La page suit le thème global. Les canaux RGB permettent aux modificateurs
+ * d'opacité Tailwind (`bg-home-ink/5`, par exemple) de continuer à fonctionner
+ * pendant que `globals.css` remplace les variables sous `.dark`.
+ */
+const homeLight = {
+  ink: '16 35 58',
+  'ink-soft': '23 55 83',
+  strong: '16 35 58',
+  surface: '255 255 255',
+  coral: '241 105 63',
+  'coral-dark': '216 83 43',
+  'coral-hover': '200 73 37',
+  'coral-soft': '252 234 225',
+  teal: '14 92 80',
+  mint: '228 241 234',
+  lavender: '238 240 252',
+  violet: '91 87 166',
+  sand: '251 248 243',
+  slate: '87 96 111',
+  line: '228 231 238',
+};
+const home = Object.fromEntries(
+  Object.keys(homeLight).map((key) => [key, `rgb(var(--home-${key}) / <alpha-value>)`]),
+);
+const homeCssVars = Object.fromEntries(
+  Object.entries(homeLight).map(([key, value]) => [`--home-${key}`, value]),
+);
+
 module.exports = {
   darkMode: 'class',
   presets: [preset],
@@ -33,7 +66,7 @@ module.exports = {
   ],
   theme: {
     extend: {
-      colors: { amud },
+      colors: { amud, home },
       // Échelle réutilisée telle quelle par les pages du module `/amud`
       // (identique dans les 19 maquettes sources).
       spacing: {
@@ -94,6 +127,6 @@ module.exports = {
   },
   plugins: [
     // Les mêmes tokens en variables CSS, pour le CSS hors Tailwind de globals.css.
-    plugin(({ addBase }) => addBase({ ':root': { ...cssVars, ...amudCssVars } })),
+    plugin(({ addBase }) => addBase({ ':root': { ...cssVars, ...amudCssVars, ...homeCssVars } })),
   ],
 };

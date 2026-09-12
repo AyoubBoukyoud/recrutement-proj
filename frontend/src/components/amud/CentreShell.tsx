@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { NavItem, isNavActive, useDropdown } from '@/components/amud/ui';
-import { InlineLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
+import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 import { ToastProvider } from '@/components/amud/Toast';
 import { GlobalSearch, useGlobalSearchShortcut, type GlobalSearchResult } from '@/components/amud/GlobalSearch';
 import { NotificationCenter } from '@/components/amud/NotificationCenter';
@@ -152,7 +152,7 @@ export function CentreShell({ children }: { children: ReactNode }) {
           }`}
         >
           <div className={`flex items-center gap-sm border-b border-amud-outline-variant px-lg py-2.5 ${collapsed ? 'md:px-md' : ''}`}>
-            <img src="/assets/images/logo.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
+            <img src="/assets/images/logo-mark.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
             <div className={hiddenWhenCollapsed}>
               <h1 className="text-title-lg font-bold text-amud-primary">Amud Skills</h1>
               <p className="truncate text-label-sm text-amud-on-surface-variant">{currentCentre?.nom ?? 'Espace Centre'}</p>
@@ -219,6 +219,7 @@ export function CentreShell({ children }: { children: ReactNode }) {
               className="relative hidden w-64 md:block"
             />
             <div className="ml-auto flex items-center gap-sm">
+              <HeaderPreferences />
               <NotificationCenter key={pathname} scope="centre" />
               <div ref={profileMenu.ref} className="relative">
                 <button onClick={() => profileMenu.setOpen((v) => !v)} className="flex h-9 w-9 items-center justify-center rounded-full bg-amud-primary-container font-bold text-white transition-opacity hover:opacity-90" aria-label="Menu du compte" aria-haspopup="menu" aria-expanded={profileMenu.open}>
@@ -229,9 +230,6 @@ export function CentreShell({ children }: { children: ReactNode }) {
                     <div className="border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm">
                       <div className="text-label-md font-semibold text-amud-on-surface">{currentCentre?.nom ?? 'Espace Centre'}</div>
                       <div className="text-label-sm text-amud-on-surface-variant">Simulation — aucune vraie authentification</div>
-                    </div>
-                    <div className="border-b border-amud-outline-variant">
-                      <InlineLanguageThemeControls />
                     </div>
                     <div className="flex flex-col gap-sm p-md">
                       <label className="text-label-sm text-amud-on-surface-variant">

@@ -37,7 +37,6 @@ const REAL_APP_LINKS: LinkGroup[] = [
     items: [
       { path: '/', label: 'Accueil' },
       { path: '/employeurs', label: 'Employeurs' },
-      { path: '/language', label: 'Choix de la langue' },
       { path: '/otp', label: 'Vérification OTP' },
       { path: '/profile-creation', label: 'Création de profil' },
       { path: '/metiers/infirmier', label: 'Fiche métier' },

@@ -1,6 +1,6 @@
 'use client';
 
-// Interface 1 — Splash Screen : logo + slogan, redirection automatique après 2,5s vers /language.
+// Interface 1 — Splash Screen : logo + slogan, puis accès direct à la connexion.
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -11,7 +11,7 @@ export default function SplashPage() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      router.replace('/language');
+      router.replace('/auth-phone');
     }, 2500);
     return () => clearTimeout(timer);
   }, [router]);
@@ -25,10 +25,9 @@ export default function SplashPage() {
 
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center w-full max-w-sm">
         <div className="fade-in-entry opacity-0 mb-8">
-          <div className="animate-logo-bounce flex h-32 w-32 items-center justify-center rounded-2xl border border-surface-container-low bg-surface-container-lowest p-4 shadow-subtle md:h-40 md:w-40">
-            <div className="flex h-full w-full items-center justify-center rounded-xl bg-primary text-4xl font-black tracking-wider text-onPrimary shadow-inner">
-              AS
-            </div>
+          <div className="animate-logo-bounce flex h-32 w-32 items-center justify-center rounded-2xl border border-surface-container-low bg-surface-container-lowest p-5 shadow-subtle md:h-40 md:w-40">
+            {/* eslint-disable-next-line @next/next/no-img-element -- splash screen, pas de route Next/Image dédiée */}
+            <img src="/assets/images/logo-mark.png" alt="Amud Skills" className="h-full w-full object-contain" />
           </div>
         </div>
 
@@ -59,4 +58,3 @@ export default function SplashPage() {
     </AuthShell>
   );
 }
-

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { DropdownMenu, NavItem, Toggle, isNavActive } from '@/components/amud/ui';
-import { InlineLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
+import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 import { ToastProvider } from '@/components/amud/Toast';
 import { DemoBanner } from '@/components/amud/DemoBanner';
 import { GlobalSearch, useGlobalSearchShortcut, type GlobalSearchResult } from '@/components/amud/GlobalSearch';
@@ -126,7 +126,7 @@ export function CommercialShell({ children }: { children: ReactNode }) {
         }`}
       >
         <div className="mb-xl flex h-16 items-center gap-md px-sm">
-          <img src="/assets/images/logo.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
+          <img src="/assets/images/logo-mark.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
           <div className={hiddenWhenCollapsed}>
             <h1 className="text-title-lg font-black text-amud-primary">Amud Skills</h1>
             <p className="text-label-sm text-amud-on-surface-variant">Espace Commercial</p>
@@ -174,7 +174,7 @@ export function CommercialShell({ children }: { children: ReactNode }) {
               <span className="material-symbols-outlined">menu</span>
             </button>
             <div className="flex min-w-0 items-center gap-sm md:hidden">
-              <img src="/assets/images/logo.png" alt="" className="h-8 w-8 shrink-0 object-contain" />
+              <img src="/assets/images/logo-mark.png" alt="" className="h-8 w-8 shrink-0 object-contain" />
               <span className="truncate text-title-lg font-black text-amud-primary">Amud Skills</span>
             </div>
           </div>
@@ -190,6 +190,7 @@ export function CommercialShell({ children }: { children: ReactNode }) {
             className="relative hidden w-64 md:block"
           />
           <div className="ml-auto flex items-center gap-2 md:gap-4">
+            <HeaderPreferences />
             <NotificationCenter
               key={`notif-${pathname}`}
               scope="commercial"
@@ -206,8 +207,7 @@ export function CommercialShell({ children }: { children: ReactNode }) {
               }
               body={
                 <div className="flex flex-col">
-                  <InlineLanguageThemeControls />
-                  <div className="flex flex-col gap-sm border-t border-amud-outline-variant p-md">
+                  <div className="flex flex-col gap-sm p-md">
                     <div className="text-label-sm text-amud-on-surface-variant">Notifications</div>
                     <div className="flex items-center justify-between">
                       <span className="text-label-md text-amud-on-surface">Par email</span>

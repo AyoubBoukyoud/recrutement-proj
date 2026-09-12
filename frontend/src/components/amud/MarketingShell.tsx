@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { DemoBanner } from '@/components/amud/DemoBanner';
+import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 
 /**
  * Coquille commune aux 3 pages marketing publiques `/amud/marketing/*`
@@ -49,7 +50,8 @@ export function MarketingNav({ active, onDeadAction }: { active: MarketingNavKey
     </div>
     <nav className="sticky top-0 z-50 w-full border-b border-amud-primary/10 bg-amud-surface/90 backdrop-blur-md">
       <div className="mx-auto flex h-20 max-w-container-max items-center justify-between px-margin-mobile md:px-gutter">
-        <Link href="/amud/marketing/home" className="text-headline-md text-amud-primary">
+        <Link href="/amud/marketing/home" className="flex items-center gap-2 text-headline-md text-amud-primary">
+          <img src="/assets/images/logo-mark.png" alt="" className="h-8 w-8 object-contain" />
           Amud Skills
         </Link>
         <ul className="hidden items-center gap-8 md:flex">
@@ -67,12 +69,7 @@ export function MarketingNav({ active, onDeadAction }: { active: MarketingNavKey
           ))}
         </ul>
         <div className="flex items-center gap-4">
-          <button
-            onClick={() => onDeadAction('Sélecteur de langue — maquette.')}
-            className="-mx-2 px-2 py-3 text-label-md font-medium text-amud-primary transition-colors hover:text-amud-primary-container"
-          >
-            DE/AR/FR
-          </button>
+          <HeaderPreferences />
           <button
             onClick={() => onDeadAction('La connexion réelle se fait via le flux OTP — voir /amud pour le portail des espaces.')}
             className="rounded-lg border border-amud-primary bg-amud-primary px-6 py-2 text-label-md font-medium text-white transition-colors hover:bg-amud-primary-container"
@@ -90,7 +87,10 @@ export function MarketingFooter() {
   return (
     <footer className="flex w-full flex-col items-center justify-between gap-base border-t-4 border-amud-primary bg-amud-surface-container-highest px-margin-mobile py-section-gap md:flex-row md:px-gutter">
       <div className="flex flex-col items-center gap-md md:items-start">
-        <span className="text-headline-md text-amud-primary">Amud Skills</span>
+        <span className="flex items-center gap-2 text-headline-md text-amud-primary">
+          <img src="/assets/images/logo-mark.png" alt="" className="h-8 w-8 object-contain" />
+          Amud Skills
+        </span>
         <p className="text-center text-sm text-amud-on-surface-variant opacity-80 md:text-left">
           © 2026 Amud Skills. Talent marocain. Standards allemands.
         </p>

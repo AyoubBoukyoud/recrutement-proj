@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Avatar, Badge, Modal, PageHeader, ReadOnlyNotice, StatCard, Tabs, Toggle } from '@/components/amud/ui';
-import { HeaderLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
+import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 import { useToast } from '@/components/amud/Toast';
 import { useCollection } from '@/lib/amud/storage/useCollection';
 import { CURRENT_COMMERCIAL } from '@/data/amud/currentCommercial';
@@ -217,7 +217,7 @@ export default function AmudCommercialProfilePage() {
           <div className="rounded-xl border border-amud-outline-variant/30 bg-amud-surface-container-lowest p-lg">
             <h3 className="mb-md text-title-lg text-amud-on-surface">Langue et thème</h3>
             <div className="flex items-center gap-sm">
-              <HeaderLanguageThemeControls />
+              <HeaderPreferences />
               <span className="text-label-sm text-amud-on-surface-variant">Langue actuelle : {profile.langue}</span>
             </div>
           </div>

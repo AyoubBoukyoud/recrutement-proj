@@ -111,6 +111,13 @@ class AppServiceProvider extends ServiceProvider
             Limit::perMinute(5)->by($this->userKey($request)),
             Limit::perDay(20)->by($this->userKey($request)),
         ]);
+
+        // The public contact form has no account behind it — keyed by IP,
+        // like the OTP endpoints, rather than by user.
+        RateLimiter::for('contact-create', fn (Request $request) => [
+            Limit::perMinute(3)->by('contact-ip:'.$request->ip()),
+            Limit::perDay(20)->by('contact-ip:'.$request->ip()),
+        ]);
     }
 
     private function userKey(Request $request): string

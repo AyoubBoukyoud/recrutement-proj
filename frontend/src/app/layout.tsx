@@ -43,11 +43,12 @@ export default function RootLayout({
       <head>
         {/* Pose la classe `dark` avant le premier paint pour éviter un flash du
             mauvais thème : lit la préférence stockée (identique à ThemeContext),
-            retombe sur la préférence OS en mode "system" ou par défaut. */}
+            retombe sur clair par défaut — jamais sur la préférence OS tant que
+            l'utilisateur n'a pas choisi "system" explicitement. */}
         <script
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var raw=localStorage.getItem('as_theme');var mode=raw?JSON.parse(raw):'system';var dark=mode==='dark'||(mode==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);var root=document.documentElement;if(dark){root.classList.add('dark');root.style.colorScheme='dark';}else{root.style.colorScheme='light';}}catch(e){}})();`,
+            __html: `(function(){try{var raw=localStorage.getItem('as_theme');var mode=raw?JSON.parse(raw):'light';var dark=mode==='dark'||(mode==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);var root=document.documentElement;if(dark){root.classList.add('dark');root.style.colorScheme='dark';}else{root.style.colorScheme='light';}}catch(e){}})();`,
           }}
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

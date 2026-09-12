@@ -1,97 +1,292 @@
 {
-  "_note": "Deutsche Startseiten-Texte. Gleiche Struktur wie home.fr.json — TypeScript bricht den Build ab, wenn ein Schlüssel fehlt. Deutsche Labels sind rund 30 % länger als die französischen: Button-Umbrüche prüfen.",
+  "_note": "Deutsche Startseiten-Texte. Gleiche Struktur wie home.fr.json — TypeScript bricht den Build ab, wenn ein Schlüssel fehlt. Deutsche Labels sind rund 30 % länger als die französischen: Button-Umbrüche prüfen. `trades`, `tradePage` und `product` bleiben mit /metiers/[slug] und /produit geteilt.",
   "nav": {
     "links": [
-      { "label": "Berufe", "href": "/accueil-public#sectors" },
-      { "label": "So funktioniert es", "href": "/accueil-public#methodology" },
-      { "label": "Arbeitgeber", "href": "/employeurs" }
+      { "label": "Für Bewerber", "href": "/accueil-public#candidats" },
+      { "label": "Für Arbeitgeber", "href": "/employeurs" },
+      { "label": "Für Ausbildungszentren", "href": "/accueil-public#centres" },
+      { "label": "Kontakt", "href": "/accueil-public#contact" },
+      { "label": "FAQ", "href": "/accueil-public#faq" }
     ],
-    "signIn": "Ich habe bereits ein Profil",
+    "signIn": "Anmelden",
     "cta": "Profil erstellen",
     "menuOpen": "Menü öffnen",
     "menuClose": "Menü schließen"
   },
   "hero": {
-    "eyebrow": "Marokko → Deutschland",
-    "headline": ["Arbeiten in Deutschland.", "Wir erstellen Ihr Profil gemeinsam mit Ihnen."],
-    "subheadline": "Ihr Lebenslauf, Ihre Abschlüsse und Ihr Deutschniveau in einem Profil, das deutsche Unternehmen lesen können — und direkt einsehen.",
-    "cta": "Profil kostenlos erstellen",
-    "secondaryCta": "Anforderungen meines Berufs ansehen",
-    "microcopy": "Kostenlos · Ohne Passwort · Sie steuern, ob Ihr Profil sichtbar ist",
-    "scrollCue": "Entdecken Sie den Weg",
-    "mediaCaption": "Ihr Weg, von Marokko nach Deutschland",
-    "videoProgress": "Videofortschritt",
-    "videoError": "Das Video konnte nicht geladen werden. Das Vorschaubild bleibt verfügbar.",
+    "eyebrow": "Chancen ohne Grenzen",
+    "headline": ["Ihr Profil auf dem Handy.", "Ihr Talent schafft die Verbindung."],
+    "subheadline": "AMUD Skills verbindet marokkanische Talente mit Arbeitgebern und Ausbildungszentren in Deutschland — in einem klaren, mobilen Profil.",
+    "cta": "Profil erstellen",
+    "secondaryCta": "So funktioniert es",
+    "microcopy": "Kostenlos · Ohne Passwort · Sie steuern Ihre Sichtbarkeit",
+    "imageAlt": "Ein Bewerber sieht sein AMUD-Skills-Profil auf dem Smartphone durch.",
     "card": {
-      "title": "Bewerberprofil",
-      "name": "Ihr Beruf",
-      "levelLabel": "Deutsch",
-      "level": "B2",
-      "availabilityLabel": "Verfügbar",
-      "availability": "in 1 Monat",
-      "documents": ["Lebenslauf", "Abschluss", "Zertifikat"],
-      "footnote": "So sieht es ein Arbeitgeber"
+      "eyebrow": "Ihr Profil",
+      "title": "Fügen Sie hinzu, was Ihr Können zeigt",
+      "items": [
+        { "icon": "play_circle", "label": "Vorstellungsvideo" },
+        { "icon": "description", "label": "Lebenslauf, Abschlüsse & Zertifikate" }
+      ]
     }
   },
-  "video": {
-    "eyebrow": "Im Video",
-    "playLabel": "Video abspielen",
-    "posterAlt": "Vorschaubild des Videos zum Bewerberweg.",
-    "unsupported": "Ihr Browser kann dieses Video nicht abspielen."
+  "featureStrip": {
+    "items": [
+      { "icon": "person", "title": "Für Bewerber", "body": "Erstellen Sie ein klares Profil und zeigen Sie, was Sie können." },
+      { "icon": "corporate_fare", "title": "Für Arbeitgeber", "body": "Finden Sie qualifizierte Profile, bereit für Ihr Team." },
+      { "icon": "school", "title": "Für Ausbildungszentren", "body": "Präsentieren Sie Ihre Auszubildenden und verbinden Sie sie mit Chancen." }
+    ]
   },
-  "search": {
-    "label": "Was ist Ihr Beruf?",
-    "placeholder": "Pflegefachkraft, Elektriker, Schweißer…",
-    "submit": "Suchen",
-    "advanced": "Erweiterte Suche",
-    "sectorLabel": "Branche",
-    "sectorAny": "Alle Branchen",
-    "levelLabel": "Ihr heutiges Deutschniveau",
-    "levelOptions": [
-      { "value": "", "label": "Egal" },
-      { "value": "none", "label": "Keines" },
-      { "value": "a", "label": "A1 – A2" },
-      { "value": "b1", "label": "B1" },
-      { "value": "b2", "label": "B2 oder höher" }
+  "borderless": {
+    "eyebrow": "Ohne Grenzen",
+    "title": "Kompetenzen kennen keine Grenzen.",
+    "subtitle": "Ein gut aufgebautes Profil versteht man auf den ersten Blick, ganz gleich wo man ist.",
+    "candidate": {
+      "title": "Ihr Weg hat Wert",
+      "items": [
+        "Ein Profil, das wirklich zeigt, was Sie können",
+        "Ihre Erfahrung und Kompetenzen im Vordergrund",
+        "Direkter Zugang zu Arbeitgebern und Ausbildungszentren"
+      ],
+      "cta": "Profil erstellen"
+    },
+    "recruiter": {
+      "title": "Ihr nächstes Talent ist vielleicht schon hier.",
+      "items": [
+        "Profile, bereit kontaktiert zu werden — ohne Umweg",
+        "Suche nach Beruf, Sprache und Verfügbarkeit",
+        "Ein vollständiges Profil, kein bloßer Lebenslauf"
+      ],
+      "cta": "Profile entdecken"
+    }
+  },
+  "germanLevels": {
+    "eyebrow": "Mit oder ohne Deutsch",
+    "title": "Mit oder ohne Deutsch — starten Sie jetzt.",
+    "subtitle": "Ihr heutiges Niveau ist nur ein Ausgangspunkt. Bei AMUD Skills hat jeder Weg seinen Platz.",
+    "items": [
+      {
+        "icon": "translate",
+        "title": "Ich entdecke Deutsch",
+        "body": "Erstellen Sie jetzt Ihr Profil und lernen Sie in Ihrem Tempo, mit unseren Partner-Ausbildungszentren.",
+        "linkLabel": "Mehr erfahren"
+      },
+      {
+        "icon": "menu_book",
+        "title": "Ich lerne bereits",
+        "body": "Zeigen Sie Ihren Fortschritt direkt in Ihrem Profil, während Ihre Ausbildung voranschreitet.",
+        "linkLabel": "Mehr erfahren"
+      },
+      {
+        "icon": "workspace_premium",
+        "title": "Ich spreche Deutsch",
+        "body": "Heben Sie Ihr Niveau hervor und werden Sie noch heute für Arbeitgeber sichtbar.",
+        "linkLabel": "Mehr erfahren"
+      }
+    ]
+  },
+  "steps": {
+    "eyebrow": "So funktioniert es",
+    "title": "Ihr Profil, in vier Schritten.",
+    "subtitle": "Nichts zu drucken, nichts bei einer Behörde abzugeben: alles läuft über Ihr Smartphone.",
+    "cta": "Profil erstellen",
+    "items": [
+      { "icon": "smartphone", "title": "Stellen Sie sich vor", "body": "Eine Telefonnummer genügt, um Ihr Konto zu erstellen — kein Passwort zum Merken." },
+      { "icon": "document_scanner", "title": "Zeigen Sie Ihre Kompetenzen", "body": "Fügen Sie Lebenslauf, Abschlüsse und ein kurzes Vorstellungsvideo hinzu." },
+      { "icon": "travel_explore", "title": "Werden Sie sichtbar", "body": "Entscheiden Sie, wann Ihr Profil für Arbeitgeber und Partnerzentren sichtbar wird." },
+      { "icon": "forum", "title": "Starten Sie das Gespräch", "body": "Sprechen Sie direkt mit denen, die sich für Ihr Profil interessieren." }
+    ]
+  },
+  "features": {
+    "eyebrow": "Worauf es ankommt",
+    "title": "Alles, worauf es für die Verbindung ankommt.",
+    "subtitle": "Das Folgende schafft Vertrauen zwischen einem Profil und einer Chance.",
+    "items": [
+      { "icon": "badge", "title": "Ein Profil, das zu Ihnen passt", "body": "Erfahrung, Kompetenzen und Dokumente in einem klaren, vollständigen Format vereint." },
+      { "icon": "smart_display", "title": "Ein Video, das Sie vorstellt", "body": "Zeigen Sie Ihre Motivation und mündliche Sicherheit — mehr als ein Lebenslauf." },
+      { "icon": "tune", "title": "Kriterien, die zählen", "body": "Beruf, Sprache, Erfahrung, Verfügbarkeit: was für eine Einstellung wirklich zählt." },
+      { "icon": "visibility", "title": "Sichtbarkeit, die Sie wählen", "body": "Sie entscheiden, wann Ihr Profil sichtbar wird — und für wen." },
+      { "icon": "handshake", "title": "Eine professionelle Begegnung", "body": "Der Kontakt entsteht in einem klaren Rahmen, zwischen echten Profilen und geprüften Arbeitgebern." },
+      { "icon": "school", "title": "Ausbildung schafft die Verbindung", "body": "Partnerzentren bereiten Ihre Kompetenzen und Ihr Sprachniveau vor." }
+    ]
+  },
+  "spaces": {
+    "eyebrow": "Ein Bereich für jeden",
+    "title": "Für jeden sein Bereich. Eine gemeinsame Verbindung.",
+    "subtitle": "Bewerber, Arbeitgeber und Ausbildungszentren bewegen sich jeweils in einem eigenen Bereich — verbunden mit denselben Profilen.",
+    "tabs": [
+      {
+        "label": "Bewerber",
+        "screenTitle": "Mein Profil",
+        "items": ["Mein vollständiges Profil", "Meine Bewerbungen", "Meine Dokumente", "Mein Fortschritt in Deutsch"]
+      },
+      {
+        "label": "Arbeitgeber",
+        "screenTitle": "Meine Stellen",
+        "items": ["Meine veröffentlichten Stellen", "Passende Profile", "Meine verfolgten Bewerbungen", "Meine Gespräche"]
+      },
+      {
+        "label": "Zentrum",
+        "screenTitle": "Meine Auszubildenden",
+        "items": ["Meine Auszubildenden", "Meine Kurse", "Anwesenheitsverfolgung", "Verbundene Chancen"]
+      }
+    ]
+  },
+  "tradeSpotlight": {
+    "eyebrow": "Ihr Beruf",
+    "title": "Ihr Beruf. Ihr nächster Schritt.",
+    "subtitle": "Pflege, Industrie, Transport, Gastronomie, Bau: entdecken Sie, was jeder Beruf wirklich verlangt.",
+    "cta": "Alle Berufe ansehen"
+  },
+  "criteria": {
+    "eyebrow": "Die richtige Verbindung",
+    "title": "Die richtige Verbindung beginnt mit den richtigen Kriterien.",
+    "subtitle": "Beruf, Stadt, Kompetenzen: Arbeitgeber finden Profile, die wirklich zu ihrem Bedarf passen.",
+    "form": {
+      "tradeLabel": "Beruf",
+      "tradePlaceholder": "Schweißer, Pflegekraft, Fahrer…",
+      "cityLabel": "Stadt",
+      "cityPlaceholder": "Casablanca, Rabat, Tanger…",
+      "submit": "Suchen",
+      "skillsLabel": "Gesuchte Kompetenzen",
+      "skills": ["Schweißen", "AutoCAD", "Führerschein Klasse CE", "Berufliches Englisch", "Deutsch B1"]
+    }
+  },
+  "recruiters": {
+    "eyebrow": "Arbeitgeber",
+    "title": "Öffnen Sie Ihre Rekrutierung für neue Talente.",
+    "subtitle": "Erhalten Sie Zugang zu qualifizierten marokkanischen Profilen, bereit sich in Ihrem Unternehmen einzubringen.",
+    "cta": "Arbeitgeberkonto erstellen",
+    "secondaryCta": "Arbeitgeberbereich entdecken",
+    "items": [
+      { "icon": "difference", "title": "Ein klarer Unterschied", "body": "Jedes Profil unterscheidet, was angegeben, beigefügt und geprüft ist." },
+      { "icon": "travel_explore", "title": "Profile entdecken", "body": "Filtern Sie nach Beruf, Sprache, Erfahrung und Verfügbarkeit." },
+      { "icon": "conversion_path", "title": "Den Verlauf steuern", "body": "Verfolgen Sie jede Bewerbung — von der Entdeckung bis zur Einstellung." },
+      { "icon": "forum", "title": "Das Gespräch beginnen", "body": "Kontaktieren Sie die Profile, die Sie interessieren, direkt." }
+    ]
+  },
+  "nextSteps": {
+    "title": "Die Begegnung ist erst der Anfang. Das Weitere entsteht gemeinsam.",
+    "subtitle": "Sobald die Verbindung besteht, geht jeder mit dem weiter, was als Nächstes zählt.",
+    "items": [
+      { "icon": "forum", "title": "Austauschen & verstehen", "body": "Bewerber und Arbeitgeber klären die gegenseitigen Erwartungen." },
+      { "icon": "map", "title": "Den Weg vorbereiten", "body": "Dokumente, Sprache, Formalitäten: jeder weiß, was noch zu tun ist." },
+      { "icon": "flag", "title": "Die nächsten Schritte vorbereiten", "body": "Vom ersten Austausch bis zur Ankunft bleibt der Weg klar." }
+    ]
+  },
+  "trainingCenter": {
+    "eyebrow": "Ausbildungszentren",
+    "title": "Digitalisieren Sie Ihr Zentrum. Fördern Sie Ihre Auszubildenden.",
+    "subtitle": "Verwalten Sie Kurse, Auszubildende und Lehrkräfte an einem Ort — und verbinden Sie sie zugleich mit beruflichen Chancen.",
+    "cta": "Zentrum-Bereich entdecken",
+    "dashboardTitle": "Ihr Zentrum, auf einen Blick",
+    "capabilities": [
+      { "icon": "groups", "label": "Auszubildende & Lehrkräfte", "body": "Ihre gesamte Gemeinschaft an einem Ort." },
+      { "icon": "menu_book", "label": "Ausbildungsprogramme", "body": "Organisieren Sie Ihre Kurse und Gruppen." },
+      { "icon": "calendar_month", "label": "Stundenplan live", "body": "Kurse, Anwesenheit und Verfügbarkeit, stets aktuell." },
+      { "icon": "insights", "label": "Pädagogische Begleitung", "body": "Der Fortschritt jedes Auszubildenden, auf einen Blick." }
+    ]
+  },
+  "bridge": {
+    "title": "Lassen Sie uns gemeinsam Brücken bauen.",
+    "cta": "Mehr erfahren"
+  },
+  "clarity": {
+    "title": "Ihr Weg verdient Klarheit.",
+    "subtitle": "Drei Grundsätze, die jedes Profil, jeden Austausch, jeden Schritt leiten.",
+    "items": [
+      { "icon": "tune", "title": "Wählen, was ich teile", "body": "Sie entscheiden, welche Informationen in Ihrem Profil erscheinen." },
+      { "icon": "verified_user", "title": "Mit Bedacht teilen", "body": "Ihr Profil ist nur für die sichtbar, die Sie ausgewählt haben." },
+      { "icon": "route", "title": "Jeden Schritt verstehen", "body": "Jeder Schritt Ihres Weges wird erklärt, nie einfach vorausgesetzt." }
+    ]
+  },
+  "faq": {
+    "eyebrow": "Häufige Fragen",
+    "title": "Mit klarem Kopf vorankommen.",
+    "subtitle": "Kurze Antworten auf die häufigsten Fragen.",
+    "items": [
+      {
+        "question": "Kostet die Anmeldung etwas?",
+        "answer": "Nein. Ihr Profil zu erstellen ist kostenlos. Für die Sichtbarkeit bei Arbeitgebern zahlen Sie nichts."
+      },
+      {
+        "question": "Muss ich schon Deutsch sprechen?",
+        "answer": "Nicht zum Start. Das nötige Niveau hängt vom Beruf ab, und Sie können sich weiter verbessern, während Sie Ihr Profil vervollständigen."
+      },
+      {
+        "question": "Wer kann mein Profil einsehen?",
+        "answer": "Nur auf der Plattform registrierte Arbeitgeber und Zentren, sobald Sie Ihr Profil sichtbar gemacht haben. Sie können diese Sichtbarkeit jederzeit zurückziehen."
+      },
+      {
+        "question": "Wie werden Kompetenzen geprüft?",
+        "answer": "Ihre Abschlüsse und Zertifikate hängen an Ihrem Profil, und Ihr Sprachniveau wird anhand einer mündlichen Aufnahme geschätzt. Was angegeben, beigefügt und geprüft ist, bleibt dabei immer klar unterschieden."
+      },
+      {
+        "question": "Welche Rolle spielen Ausbildungszentren?",
+        "answer": "Sie bereiten Ihre Kompetenzen und Ihr Deutschniveau vor und können Ihren Fortschritt direkt in Ihrem Profil zeigen."
+      },
+      {
+        "question": "Wie werde ich kontaktiert?",
+        "answer": "Ein interessierter Arbeitgeber muss Ihre Kontaktdaten ausdrücklich anfordern; sie erscheinen nie in den Suchergebnissen, und diese Anfrage wird festgehalten."
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "Was, wenn hier der nächste Schritt beginnt?",
+    "subtitle": "Ob Sie eine Chance, ein Talent oder eine Brücke für Ihre Auszubildenden suchen — Ihr nächster Schritt beginnt mit einem Profil.",
+    "candidateCta": "Ich erstelle mein Profil",
+    "recruiterCta": "Ich stelle ein Talent ein",
+    "centerCta": "Ich digitalisiere mein Zentrum",
+    "microcopy": "Kostenlos für Bewerber · Unverbindlich"
+  },
+  "contact": {
+    "eyebrow": "Kontakt",
+    "title": "Eine Frage? Schreiben Sie uns.",
+    "subtitle": "Bewerber, Arbeitgeber oder Ausbildungszentrum: Unser Team antwortet direkt.",
+    "form": {
+      "nameLabel": "Vollständiger Name",
+      "namePlaceholder": "Ihr Name",
+      "emailLabel": "E-Mail-Adresse",
+      "emailPlaceholder": "sie@beispiel.de",
+      "messageLabel": "Ihre Nachricht",
+      "messagePlaceholder": "Wie können wir helfen?",
+      "submit": "Nachricht senden",
+      "submitting": "Wird gesendet…",
+      "successTitle": "Nachricht gesendet.",
+      "successBody": "Danke — wir melden uns unter der angegebenen Adresse bei Ihnen.",
+      "errorGeneric": "Senden fehlgeschlagen. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+      "errorValidation": "Prüfen Sie die markierten Felder und versuchen Sie es erneut."
+    }
+  },
+  "footer": {
+    "tagline": "Die Plattform, die marokkanische Talente mit Arbeitgebern und Ausbildungszentren in Deutschland verbindet.",
+    "columns": [
+      {
+        "title": "Plattform",
+        "links": [
+          { "label": "Für Bewerber", "href": "/auth-phone" },
+          { "label": "Für Arbeitgeber", "href": "/employeurs" },
+          { "label": "Für Ausbildungszentren", "href": "/accueil-public#centres" }
+        ]
+      },
+      {
+        "title": "Ressourcen",
+        "links": [
+          { "label": "So funktioniert es", "href": "/accueil-public#methodology" },
+          { "label": "FAQ", "href": "/accueil-public#faq" },
+          { "label": "Kontakt", "href": "/accueil-public#contact" }
+        ]
+      },
+      {
+        "title": "Arbeitgeber",
+        "links": [
+          { "label": "Arbeitgeberbereich", "href": "/auth-phone?intent=recruiter" },
+          { "label": "Arbeitgeberbereich entdecken", "href": "/employeurs" }
+        ]
+      }
     ],
-    "popularLabel": "Meistgesuchte Berufe",
-    "suggestionsLabel": "Berufsvorschläge",
-    "emptyTitle": "Für „{term}“ gibt es noch keinen Leitfaden.",
-    "emptyBody": "Ihr Beruf kann für einen deutschen Arbeitgeber trotzdem interessant sein.",
-    "emptyCta": "Trotzdem Profil erstellen",
-    "errorMessage": "Die Suche ist derzeit nicht verfügbar. Sehen Sie sich die Berufe unten an.",
-    "errorLink": "Berufe ansehen"
-  },
-  "trust": {
-    "items": [
-      { "icon": "toll", "label": "100 % kostenlos für Bewerber" },
-      { "icon": "visibility", "label": "Sie steuern Ihre Sichtbarkeit" },
-      { "icon": "shield_lock", "label": "Ihre Daten sind geschützt" },
-      { "icon": "folder_supervised", "label": "Ein für Recruiter strukturiertes Profil" }
-    ]
-  },
-  "journey": {
-    "title": "Nach der Vermittlung: Ihr Weg nach Deutschland",
-    "subtitle": "Vom Vorstellungsgespräch bis zu Ihrem ersten Arbeitstag in Deutschland.",
-    "imageAlt": "Illustration, die marokkanische Kompetenzen mit beruflichen Chancen in Berlin verbindet.",
-    "startLabel": "Marokko",
-    "endLabel": "Deutschland",
-    "items": [
-      { "icon": "handshake", "title": "Vermittelt werden", "body": "Ihr Profil wird für deutsche Unternehmen sichtbar, die Ihren Beruf suchen." },
-      { "icon": "forum", "title": "Vorstellungsgespräch führen", "body": "Sprechen Sie direkt mit dem Recruiter, der sich für Ihr Profil interessiert." },
-      { "icon": "folder_shared", "title": "Reiseunterlagen vorbereiten", "body": "Diplome, Zertifikate und Dokumente an einem Ort gesammelt." },
-      { "icon": "fact_check", "title": "Visum beantragen", "body": "Die in Ihrem Profil gesammelten Unterlagen unterstützen Ihren Antrag bei den zuständigen Behörden." },
-      { "icon": "flight_takeoff", "title": "Reise vorbereiten", "body": "Ticket, Unterkunft, erste Orientierung in Deutschland." },
-      { "icon": "flight_land", "title": "In Deutschland ankommen", "body": "Sie treten Ihre neue Stelle an." },
-      { "icon": "work", "title": "Neues Berufsleben beginnen", "body": "Der Beginn eines neuen Kapitels, beruflich und persönlich." }
-    ]
-  },
-  "techPreview": {
-    "eyebrow": "Mehr erfahren",
-    "title": "Entdecken Sie, wie Ihr Profil funktioniert",
-    "subtitle": "Vorstellungsvideo, automatische Dokumentenerkennung, Matching in Echtzeit: die Technologie hinter Ihrem Profil.",
-    "imageAlt": "Schema der automatisierten Vermittlung zwischen einem Bewerberprofil und einem Unternehmen.",
-    "cta": "Plattform im Detail entdecken"
+    "legalNote": "Die Profilsichtbarkeit wird von den Bewerbenden gesteuert.",
+    "rights": "Alle Rechte vorbehalten."
   },
   "trades": {
     "eyebrow": "Gefragte Berufe",
@@ -106,239 +301,6 @@
       "recommended": "Anerkennung empfohlen",
       "none": "Keine Anerkennung nötig"
     }
-  },
-  "benefits": {
-    "title": "Warum ein AMUD-Skills-Profil erstellen?",
-    "subtitle": "Mehr als ein Lebenslauf: ein professionelles Profil, das Ihre Kompetenzen verständlicher macht.",
-    "items": [
-      { "icon": "schedule", "title": "Zeit sparen", "body": "Ihr Lebenslauf hilft, Ihr Profil zu strukturieren, ohne alles neu einzugeben." },
-      { "icon": "visibility", "title": "Besser verstanden werden", "body": "Präsentieren Sie Ihre Kompetenzen und Erfahrung in einem Format, das Recruiter auf einen Blick erfassen." },
-      { "icon": "video_library", "title": "Mehr als ein Lebenslauf zeigen", "body": "Erfahrung, Video, Sprachen und Dokumente an einem Ort vereint." },
-      { "icon": "toggle_on", "title": "Die Kontrolle behalten", "body": "Sie entscheiden, wann Ihr Profil für Recruiter sichtbar wird." }
-    ]
-  },
-  "steps": {
-    "title": "Vier Schritte, in Ihrem Tempo",
-    "subtitle": "Nichts zu bezahlen, nichts zu drucken, nichts bei einer Behörde abzugeben.",
-    "imageAlt": "Bewerber sieht sein Amud-Skills-Profil am Computer durch, mit Kompetenzen und Deutschniveau.",
-    "cta": "Profil erstellen",
-    "items": [
-      {
-        "icon": "smartphone",
-        "title": "Konto erstellen",
-        "body": "Eine Telefonnummer und ein sechsstelliger Anmeldecode. Kein Passwort zum Merken."
-      },
-      {
-        "icon": "document_scanner",
-        "title": "Lebenslauf hinzufügen",
-        "body": "Er wird automatisch gelesen und füllt Ihr Profil aus. Sie korrigieren, Sie bestätigen."
-      },
-      {
-        "icon": "graphic_eq",
-        "title": "Mündliches Niveau einschätzen",
-        "body": "Eine Aufnahme von einer Minute. Ihr GER-Niveau wird geschätzt — und begründet."
-      },
-      {
-        "icon": "travel_explore",
-        "title": "Profil sichtbar machen",
-        "body": "Deutsche Unternehmen finden Sie über Beruf, Sprache und Verfügbarkeit."
-      }
-    ]
-  },
-  "credible": {
-    "eyebrow": "Das Profil",
-    "title": "Ein strukturiertes Profil zur Prüfung durch Arbeitgeber",
-    "subtitle": "Angegebene Informationen, Anhänge und automatische Indikatoren bleiben im Profil klar voneinander unterschieden.",
-    "imageAlt": "Gruppenschulung, die Bewerber auf die Anforderungen des deutschen Arbeitsmarkts vorbereitet.",
-    "items": [
-      {
-        "icon": "folder_supervised",
-        "title": "Ihre Abschlüsse beigefügt",
-        "body": "Jedes Dokument hängt am Profil und lässt sich direkt öffnen — ohne E-Mail-Verkehr hin und her."
-      },
-      {
-        "icon": "graphic_eq",
-        "title": "Ihr Sprachniveau begründet",
-        "body": "Das Niveau wird mit seiner Begründung gezeigt — Sprechtempo, Deutlichkeit, Dauer — statt einfach behauptet."
-      },
-      {
-        "icon": "workspace_premium",
-        "title": "Ein beigefügtes Zertifikat bleibt von der Schätzung getrennt",
-        "body": "Wenn Sie ein Sprachzertifikat beifügen, wird dessen Vorhandensein separat angezeigt. Der Anhang wird nicht als vom Aussteller authentifiziert dargestellt."
-      },
-      {
-        "icon": "event_available",
-        "title": "Ihre Verfügbarkeit sichtbar",
-        "body": "Sofort, in 1 Monat oder in 2 Monaten: Arbeitgeber filtern danach und melden sich nicht zum falschen Zeitpunkt."
-      }
-    ]
-  },
-  "proof": {
-    "eyebrow": "Unsere Zusagen",
-    "title": "Was wir belegen können",
-    "subtitle": "Keine unüberprüfbaren Versprechen. Drei Zusagen, an denen Sie uns messen können.",
-    "items": [
-      {
-        "icon": "gavel",
-        "title": "Ausdrückliche Einwilligung",
-        "body": "Ihre Einwilligung wird vor der Sichtbarkeit des Profils eingeholt und kann pausiert oder widerrufen werden."
-      },
-      {
-        "icon": "history_toggle_off",
-        "title": "Kontaktdaten nur auf Anfrage",
-        "body": "Ihre Kontaktdaten erscheinen nie in den Suchergebnissen. Ein Arbeitgeber muss sie anfordern, und dieser Moment wird protokolliert."
-      },
-      {
-        "icon": "cancel_schedule_send",
-        "title": "Jederzeit zurückziehbar",
-        "body": "Sie können Ihr Profil jederzeit aus der Suche nehmen, ohne Begründung."
-      }
-    ]
-  },
-  "recruiter": {
-    "eyebrow": "Arbeitgeberbereich",
-    "title": "Sie stellen in Deutschland ein?",
-    "subtitle": "Suchen Sie nach Beruf, Deutschniveau, Erfahrung und Verfügbarkeit. Öffnen Sie das vollständige Profil. Kontaktieren Sie nur die Kandidaten, die Sie ausgewählt haben.",
-    "previewLabel": "Suchvorschau",
-    "filters": ["Beruf", "Deutschniveau", "Erfahrung", "Verfügbarkeit"],
-    "points": [
-      {
-        "icon": "filter_alt",
-        "title": "Eine Suche, die nach dem Wesentlichen filtert",
-        "body": "Beruf, Fachrichtung, Mindest-GER-Niveau je Sprache, Berufsjahre, Verfügbarkeit, Ausbildungsniveau."
-      },
-      {
-        "icon": "id_card",
-        "title": "Das vollständige Profil auf einer Seite",
-        "body": "Ausbildung, Sprachen samt Herkunft des Niveaus, Sprachbewertung mit Transkript, Vorstellungsvideo, Dokumente zum Öffnen."
-      },
-      {
-        "icon": "conversion_path",
-        "title": "Ihre Bewerbungsverfolgung",
-        "body": "Gemerkt, kontaktiert, im Gespräch, vermittelt, abgelehnt — mit Ihren privaten Notizen und CSV-Export."
-      }
-    ],
-    "cta": "Jetzt Talente finden",
-    "secondaryCta": "Recruiter-Zugang verstehen"
-  },
-  "trainingCenter": {
-    "eyebrow": "Ausbildungszentren",
-    "title": "Ihr Ausbildungszentrum, verbunden mit echten Chancen.",
-    "subtitle": "Verwalten Sie Kurse, Auszubildende, Lehrkräfte und Anwesenheiten an einem Ort — und bereiten Sie Ihre Talente zugleich auf berufliche Chancen vor.",
-    "capabilities": [
-      { "icon": "school", "label": "Auszubildende" },
-      { "icon": "menu_book", "label": "Kurse" },
-      { "icon": "calendar_month", "label": "Stundenplan" },
-      { "icon": "qr_code_2", "label": "Anwesenheit per QR-Code" }
-    ],
-    "cta": "Partnerzentrum werden",
-    "imageAlt": "Vorschau des Dashboards eines Partner-Ausbildungszentrums auf Amud Skills."
-  },
-  "socialProof": {
-    "title": "Sie bauen die Brücke mit uns",
-    "subtitle": "Partnerzentren, Unternehmen und Institutionen, die mit uns zusammenarbeiten."
-  },
-  "stats": {
-    "title": "Amud Skills in Zahlen",
-    "subtitle": "Echte Zahlen, laufend aktualisiert."
-  },
-  "testimonials": {
-    "eyebrow": "Erfahrungsberichte",
-    "title": "Sie haben Amud Skills genutzt",
-    "subtitle": "Echte Wege, erzählt von den Bewerbenden selbst.",
-    "milestones": {
-      "profileCompleted": "Profil vervollständigt",
-      "matched": "Vermittelt",
-      "hired": "Eingestellt"
-    }
-  },
-  "faq": {
-    "title": "Die Fragen, die sich alle stellen",
-    "subtitle": "Kurze Antworten zu den in der Plattform verfügbaren Funktionen.",
-    "items": [
-      {
-        "question": "Kostet die Anmeldung etwas?",
-        "answer": "Nein. Ihr Profil zu erstellen ist kostenlos. Für die Sichtbarkeit bei Unternehmen zahlen Sie nichts."
-      },
-      {
-        "question": "Garantieren Sie eine Stelle in Deutschland?",
-        "answer": "Nein, und das kann seriös niemand garantieren. Wir bereiten Ihr Profil auf und machen es für deutsche Arbeitgeber sichtbar; die Einstellungsentscheidung liegt bei ihnen."
-      },
-      {
-        "question": "Wer sieht mein Profil?",
-        "answer": "Die auf der Plattform registrierten Unternehmen, sobald Sie den Bedingungen und der Datenverarbeitung zugestimmt haben. Sie können Ihr Profil jederzeit zurückziehen."
-      },
-      {
-        "question": "Was passiert mit meiner Telefonnummer?",
-        "answer": "Sie dient der Anmeldung und erscheint nie in den Suchergebnissen. Ein Arbeitgeber muss Ihre Kontaktdaten ausdrücklich anfordern, und diese Anfrage wird festgehalten."
-      },
-      {
-        "question": "Muss ich schon Deutsch sprechen?",
-        "answer": "Nicht um zu beginnen. Das nötige Niveau hängt vom Beruf ab — es steht auf jeder Berufsseite — und Sie können sich während der Erstellung weiter verbessern."
-      },
-      {
-        "question": "Wie lange dauert das Profil?",
-        "answer": "Sie können mit Ihrem Lebenslauf beginnen: Er wird automatisch gelesen, und die extrahierten Daten bleiben von Ihnen zu bestätigen oder zu korrigieren. Dokumente und Sprachbewertung können später folgen."
-      },
-      {
-        "question": "Ist AMUD Skills eine Personalvermittlung?",
-        "answer": "Nein. Wir sind keine Personalvermittlung: Wir bereiten Ihr Profil auf und machen es für deutsche Unternehmen sichtbar, die selbst einstellen und entscheiden."
-      },
-      {
-        "question": "Garantiert AMUD Skills eine Stelle?",
-        "answer": "Nein. Keine Plattform kann seriös eine Stelle garantieren. Wir erleichtern die Vermittlung; die Einstellungsentscheidung liegt immer beim Arbeitgeber."
-      },
-      {
-        "question": "Kümmert sich AMUD Skills um mein Visum?",
-        "answer": "Nein, nicht direkt. Ihr Profil sammelt die Unterlagen für Ihren Antrag, das Visumsverfahren selbst läuft bei den zuständigen Behörden."
-      },
-      {
-        "question": "Wer kann meine Dokumente einsehen?",
-        "answer": "Nur auf der Plattform registrierte Unternehmen, sobald Ihr Profil sichtbar ist und Sie zugestimmt haben. Sie können diese Sichtbarkeit jederzeit pausieren."
-      },
-      {
-        "question": "Kann ich mein Profil und meine Daten löschen?",
-        "answer": "Ja. Sie können Ihr Profil jederzeit aus der Suche nehmen oder die Löschung Ihrer Daten beantragen."
-      }
-    ]
-  },
-  "finalCta": {
-    "title": "Ihr Beruf wird anderswo gebraucht.",
-    "subtitle": "Erstellen Sie Ihr Profil in Ihrem Tempo. Kostenlos, und Sie steuern, ob Recruiter es sehen können.",
-    "cta": "Profil kostenlos erstellen",
-    "secondaryCta": "Ich bin ein Unternehmen",
-    "microcopy": "Ohne Passwort · Jederzeit vollständig zurückziehbar",
-    "imageAlt": "Junger marokkanischer Berufstätiger lächelt auf einer Straße in Berlin."
-  },
-  "footer": {
-    "tagline": "Die Plattform, die marokkanische Fachkräfte auf den deutschen Arbeitsmarkt vorbereitet — und deutschen Unternehmen hilft, sie zu finden.",
-    "columns": [
-      {
-        "title": "Bewerber",
-        "links": [
-          { "label": "Profil erstellen", "href": "/auth-phone" },
-          { "label": "Technologie entdecken", "href": "/produit" },
-          { "label": "Gesuchte Berufe", "href": "/accueil-public#sectors" },
-          { "label": "So funktioniert es", "href": "/accueil-public#methodology" }
-        ]
-      },
-      {
-        "title": "Arbeitgeber",
-        "links": [
-          { "label": "Arbeitgeberbereich", "href": "/auth-phone?intent=recruiter" },
-          { "label": "Profile suchen", "href": "/employeurs" },
-          { "label": "Ablauf verstehen", "href": "/employeurs#workflow" }
-        ]
-      },
-      {
-        "title": "Ausbildungszentren",
-        "links": [
-          { "label": "Zentrum-Bereich entdecken", "href": "/accueil-public#centres" }
-        ]
-      }
-    ],
-    "legalNote": "Die Profilsichtbarkeit wird von den Bewerbenden gesteuert.",
-    "rights": "Alle Rechte vorbehalten."
   },
   "tradePage": {
     "titlePattern": "{trade} in Deutschland",

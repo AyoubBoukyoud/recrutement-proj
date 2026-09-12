@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { DropdownMenu, NavItem, Toggle, isNavActive, useDropdown } from '@/components/amud/ui';
-import { HeaderLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
+import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 import { ToastProvider } from '@/components/amud/Toast';
 import { DemoBanner } from '@/components/amud/DemoBanner';
 import { GlobalSearch, useGlobalSearchShortcut, type GlobalSearchResult } from '@/components/amud/GlobalSearch';
@@ -78,9 +78,7 @@ export function EmployerShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen overflow-x-hidden bg-amud-background text-amud-on-surface">
       <aside className="fixed left-0 top-0 z-40 hidden h-full w-72 flex-col space-y-sm overflow-y-auto border-r border-amud-outline-variant bg-amud-surface-container-lowest p-md md:flex">
         <div className="flex items-center gap-md px-sm py-md">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amud-primary">
-            <span className="material-symbols-outlined text-white">language</span>
-          </div>
+          <img src="/assets/images/logo-mark.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
           <div>
             <h1 className="text-headline-md font-black tracking-tight text-amud-on-surface">Amud Skills</h1>
             <p className="text-label-sm text-amud-on-surface-variant">B2B Recruitment Portal</p>
@@ -112,9 +110,7 @@ export function EmployerShell({ children }: { children: ReactNode }) {
       <main className="min-h-screen md:ml-72">
         <header className="sticky top-0 z-20 flex h-16 items-center gap-sm bg-amud-surface-container-lowest px-margin-mobile shadow-sm md:px-margin-desktop">
           <div className="flex min-w-0 items-center gap-sm md:hidden">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amud-primary">
-              <span className="material-symbols-outlined text-[20px] text-white">language</span>
-            </div>
+            <img src="/assets/images/logo-mark.png" alt="" className="h-9 w-9 shrink-0 object-contain" />
             <span className="truncate text-title-lg font-bold text-amud-on-surface">Amud Skills</span>
           </div>
           <div className="hidden max-w-xl flex-1 items-center md:flex">
@@ -170,7 +166,7 @@ export function EmployerShell({ children }: { children: ReactNode }) {
                 </div>
               ) : null}
             </div>
-            <HeaderLanguageThemeControls iconButtonClassName="rounded-full p-sm text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-high" />
+            <HeaderPreferences />
             <div className="hidden h-8 w-[1px] bg-amud-outline-variant sm:block" />
             <DropdownMenu
               key={`profile-${pathname}`}

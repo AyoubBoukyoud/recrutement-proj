@@ -2,13 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
-import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
-import { ThemeToggle } from '@/components/shared/ThemeToggle';
+import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 import { useHomeContent } from '@/lib/useLocalizedContent';
-import { PrimaryCta } from './Cta';
+import { CoralButton } from './ui';
 import { IconButton } from '@/components/shared/Button';
 
 interface SiteHeaderProps {
@@ -20,10 +20,11 @@ const MOBILE_MENU_ID = 'site-mobile-menu';
 
 // Icon mapping for navigation links based on href
 function getNavLinkIcon(href: string): string {
-  if (href.includes('#sectors') || href.includes('metiers')) return 'category';
-  if (href.includes('#methodology') || href.includes('marche')) return 'alt_route';
-  if (href.includes('employeur') || href.includes('recruteur')) return 'corporate_fare';
-  if (href.includes('produit')) return 'devices';
+  if (href.includes('#candidats')) return 'person';
+  if (href.includes('employeur')) return 'corporate_fare';
+  if (href.includes('#centres')) return 'school';
+  if (href.startsWith('mailto:')) return 'mail';
+  if (href.includes('#faq')) return 'help';
   return 'explore';
 }
 
@@ -157,12 +158,16 @@ export function SiteHeader({ className = '' }: SiteHeaderProps) {
       >
         <div className="mx-auto flex h-[68px] w-full max-w-[1360px] items-center justify-between gap-4 px-6 lg:px-12">
           {/* Logo and Brand */}
-          <Link href="/accueil-public" className="group flex items-center gap-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 dark:from-[#8fb5a1] dark:to-[#4c6e5d] p-1 shadow-sm ring-1 ring-white/40 transition-transform duration-200 group-hover:scale-105">
-              <img src="/assets/images/logo-mark.png" alt="Amud Skills" className="h-full w-full object-contain" />
-            </div>
-            <span className="text-base font-bold tracking-tight text-primary-dark transition-colors duration-200 dark:text-[#f3f4f6] sm:text-lg">
-              Amud Skills
+          <Link href="/accueil-public" className="group flex shrink-0 items-center" aria-label="Amud Skills — accueil">
+            <span className="flex h-14 w-16 items-center justify-center bg-transparent px-1 transition-transform duration-200 group-hover:scale-[1.03]">
+              <Image
+                src="/assets/images/logo.png"
+                alt="Amud Skills"
+                width={128}
+                height={128}
+                unoptimized
+                className="home-brand-logo h-14 w-14 scale-[1.45] object-contain transition-[filter] duration-200"
+              />
             </span>
           </Link>
 
@@ -172,7 +177,7 @@ export function SiteHeader({ className = '' }: SiteHeaderProps) {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-sm font-semibold text-onSurface-variant transition-colors duration-200 hover:text-primary"
+                className="text-sm font-semibold text-onSurface-variant transition-colors duration-200 hover:text-home-coral"
               >
                 {link.label}
               </a>
@@ -181,25 +186,18 @@ export function SiteHeader({ className = '' }: SiteHeaderProps) {
 
           {/* Action Controls & CTAs */}
           <div className="flex items-center gap-2.5">
-            <div className="rounded-xl border border-black/10 dark:border-[#303641] bg-white/50 dark:bg-[#1d2129] backdrop-blur-md shadow-xs p-0.5">
-              <div className="sm:hidden"><LanguageSwitcher compact /></div>
-              <div className="hidden sm:block"><LanguageSwitcher /></div>
-            </div>
-
-            <div className="rounded-xl border border-black/10 dark:border-[#303641] bg-white/50 dark:bg-[#1d2129] backdrop-blur-md shadow-xs">
-              <ThemeToggle />
-            </div>
+            <HeaderPreferences />
 
             <Link
               href="/auth-phone"
-              className="hidden rounded-xl border border-black/10 bg-white/50 px-3.5 py-2 text-sm font-semibold text-onSurface backdrop-blur-md transition-colors duration-200 hover:bg-white/80 hover:text-primary dark:border-[#303641] dark:bg-[#1d2129] dark:hover:bg-[#252a34] sm:inline-flex"
+              className="hidden rounded-xl border border-black/10 bg-white/50 px-3.5 py-2 text-sm font-semibold text-onSurface backdrop-blur-md transition-colors duration-200 hover:bg-white/80 hover:text-home-coral dark:border-[#303641] dark:bg-[#1d2129] dark:hover:bg-[#252a34] sm:inline-flex"
             >
               {nav.signIn}
             </Link>
 
-            <PrimaryCta href="/auth-phone" size="sm" className="hidden lg:inline-flex shadow-soft">
+            <CoralButton href="/auth-phone" size="sm" className="hidden lg:inline-flex">
               {nav.cta}
-            </PrimaryCta>
+            </CoralButton>
 
             {/* Mobile Menu Hamburger Button */}
             <IconButton
@@ -211,7 +209,7 @@ export function SiteHeader({ className = '' }: SiteHeaderProps) {
               aria-label={menuOpen ? nav.menuClose : nav.menuOpen}
               className={`rounded-xl border backdrop-blur-md transition-all duration-200 lg:hidden ${
                 menuOpen
-                  ? 'rotate-90 border-primary/40 bg-primary/15 text-primary'
+                  ? 'rotate-90 border-home-coral/40 bg-home-coral-soft text-home-coral-dark'
                   : 'border-black/10 bg-white/50 text-onSurface dark:border-[#303641] dark:bg-[#1d2129]'
               }`}
             >
@@ -246,7 +244,7 @@ export function SiteHeader({ className = '' }: SiteHeaderProps) {
                 <div className="space-y-6">
                   {/* Eyebrow / Tag */}
                   <div className="border-b border-black/5 pb-3 dark:border-[#303641]">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-home-coral">
                       {content.hero.eyebrow}
                     </span>
                   </div>
@@ -258,17 +256,17 @@ export function SiteHeader({ className = '' }: SiteHeaderProps) {
                         key={link.href}
                         href={link.href}
                         onClick={(e) => handleNavClick(e, link.href)}
-                        className="group flex items-center justify-between rounded-2xl border border-black/5 dark:border-[#303641] bg-slate-50/90 dark:bg-[#1d2129] p-4 text-base font-black text-onSurface dark:text-[#f3f4f6] shadow-xs backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white dark:hover:bg-[#252a34] active:scale-[0.98]"
+                        className="group flex items-center justify-between rounded-2xl border border-black/5 dark:border-[#303641] bg-slate-50/90 dark:bg-[#1d2129] p-4 text-base font-black text-onSurface dark:text-[#f3f4f6] shadow-xs backdrop-blur-md transition-all hover:border-home-coral/50 hover:bg-white dark:hover:bg-[#252a34] active:scale-[0.98]"
                       >
                         <div className="flex items-center gap-3.5">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-700 dark:bg-[#8fb5a1]/10 dark:text-[#8fb5a1] transition-transform group-hover:scale-110">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-home-coral-soft text-home-coral-dark dark:bg-[#8fb5a1]/10 dark:text-[#8fb5a1] transition-transform group-hover:scale-110">
                             <span className="material-symbols-outlined text-xl">
                               {getNavLinkIcon(link.href)}
                             </span>
                           </div>
                           <span className="text-base font-black tracking-tight">{link.label}</span>
                         </div>
-                        <span className="material-symbols-outlined text-primary text-xl rtl:rotate-180 transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1">
+                        <span className="material-symbols-outlined text-home-coral text-xl rtl:rotate-180 transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1">
                           arrow_forward
                         </span>
                       </a>
@@ -278,35 +276,28 @@ export function SiteHeader({ className = '' }: SiteHeaderProps) {
                   {/* Quick Preferences Bar in Drawer */}
                   <div className="flex items-center justify-between rounded-2xl border border-black/5 dark:border-[#303641] bg-slate-50/80 dark:bg-[#1d2129] p-3 px-4">
                     <span className="text-xs font-bold text-onSurface-variant dark:text-[#bbc1cc] flex items-center gap-2">
-                      <span className="material-symbols-outlined text-base text-primary">tune</span>
+                      <span className="material-symbols-outlined text-base text-home-coral">tune</span>
                       {PREFERENCES_LABELS[language] ?? PREFERENCES_LABELS.fr}
                     </span>
-                    <div className="flex items-center gap-2">
-                      <LanguageSwitcher />
-                      <ThemeToggle />
-                    </div>
+                    <HeaderPreferences />
                   </div>
                 </div>
 
                 {/* Bottom Actions & Trust */}
                 <div className="mt-8 space-y-4 pt-4 border-t border-black/5 dark:border-[#303641]">
-                  <PrimaryCta
-                    href="/auth-phone"
-                    size="lg"
-                    className="w-full justify-center shadow-floating py-4 text-base"
-                  >
+                  <CoralButton href="/auth-phone" size="lg" className="w-full justify-center py-4 text-base">
                     <span className="flex items-center gap-2">
                       <span>{nav.cta}</span>
                       <span className="material-symbols-outlined text-lg rtl:rotate-180">arrow_forward</span>
                     </span>
-                  </PrimaryCta>
+                  </CoralButton>
 
                   <Link
                     href="/auth-phone"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 rounded-2xl border border-black/10 dark:border-[#303641] bg-slate-50/90 dark:bg-[#1d2129] py-3.5 text-center text-sm font-bold text-onSurface dark:text-[#f3f4f6] shadow-xs backdrop-blur-md active:scale-[0.98] transition-all hover:border-primary/40 hover:text-primary"
+                    className="flex items-center justify-center gap-2 rounded-2xl border border-black/10 dark:border-[#303641] bg-slate-50/90 dark:bg-[#1d2129] py-3.5 text-center text-sm font-bold text-onSurface dark:text-[#f3f4f6] shadow-xs backdrop-blur-md active:scale-[0.98] transition-all hover:border-home-coral/40 hover:text-home-coral"
                   >
-                    <span className="material-symbols-outlined text-lg text-primary">login</span>
+                    <span className="material-symbols-outlined text-lg text-home-coral">login</span>
                     <span>{nav.signIn}</span>
                   </Link>
 

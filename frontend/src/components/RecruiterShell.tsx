@@ -3,9 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ReactNode, useState } from 'react';
-import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
+import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 import { ToastProvider } from '@/components/amud/Toast';
-import { ThemeSwitch } from '@/components/amud/ThemeSwitch';
 import { Drawer } from '@/components/amud/ui';
 import { useAuth } from '@/context/AuthContext';
 
@@ -153,8 +152,7 @@ export function RecruiterShell({ children }: { children: ReactNode }) {
               </h2>
             </div>
             <div className="ml-auto flex items-center gap-sm">
-              <LanguageSwitcher compact />
-              <ThemeSwitch />
+              <HeaderPreferences />
               <button
                 onClick={logout}
                 aria-label="Déconnexion"

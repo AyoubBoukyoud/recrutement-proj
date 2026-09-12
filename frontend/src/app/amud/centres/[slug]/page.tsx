@@ -11,6 +11,7 @@ import { centerFormationsSeed } from '@/data/amud/centerFormations';
 import { centerTarifsCollection } from '@/lib/amud/localCenterTarifs';
 import { centerTarifsSeed } from '@/data/amud/centerTarifs';
 import { PublicSiteRenderer } from '@/components/amud/centre/PublicSiteRenderer';
+import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 
 /**
  * Site public d'un centre (cahier des charges §32-42) — jusqu'ici cette
@@ -29,6 +30,7 @@ export default function CentrePublicSitePage() {
   if (!centre || !centre.site.enabled) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-md bg-amud-background px-6 text-center text-amud-on-surface">
+        <HeaderPreferences className="fixed right-3 top-3 z-50 rounded-full bg-amud-surface/90 p-0.5 shadow-sm backdrop-blur-md" />
         <span className="material-symbols-outlined text-[48px] text-amud-on-surface-variant">search_off</span>
         <h1 className="text-title-lg">Site indisponible</h1>
         <p className="max-w-sm text-body-md text-amud-on-surface-variant">
@@ -43,7 +45,8 @@ export default function CentrePublicSitePage() {
   const centerTarifs = tarifs.filter((t) => t.centerId === centre.id);
 
   return (
-    <div>
+    <div className="relative">
+      <HeaderPreferences className="fixed right-3 top-3 z-[60] rounded-full bg-amud-surface/90 p-0.5 shadow-sm backdrop-blur-md" />
       <div className="px-4 pt-4">
         <DemoBanner />
       </div>

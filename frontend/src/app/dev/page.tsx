@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 
 /**
  * Page de navigation interne, jamais un point d'entrée produit. Suit la
@@ -19,7 +20,6 @@ const GROUPES: Groupe[] = [
       { href: '/accueil-public', label: 'Accueil public' },
       { href: '/employeurs', label: 'Employeurs' },
       { href: '/metiers/infirmier', label: 'Fiche métier (exemple : infirmier)' },
-      { href: '/language', label: 'Choix de la langue' },
       { href: '/splash', label: 'Splash screen' },
       { href: '/offline', label: 'Page hors-ligne' },
     ],
@@ -243,6 +243,7 @@ export default function DevPage() {
 
   return (
     <div className="min-h-screen bg-surface px-6 py-16 text-on-surface">
+      <HeaderPreferences className="fixed right-3 top-3 z-50 rounded-full bg-surface/90 p-0.5 shadow-soft backdrop-blur-md" />
       <div className="mx-auto max-w-4xl">
         <h1 className="text-2xl font-bold text-on-surface">Espaces — navigation dev</h1>
         <p className="mt-2 text-sm text-on-surface-variant">

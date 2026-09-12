@@ -3,8 +3,7 @@
 import type { ReactNode } from 'react'
 import { Button, Wordmark } from '@/components/ui'
 import { useAuth } from '@/context/AuthContext'
-import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher'
-import { ThemeToggle } from '@/components/shared/ThemeToggle'
+import { HeaderPreferences } from '@/components/shared/HeaderPreferences'
 import { IconButton } from '@/components/shared/Button'
 import type { Language } from '@/lib/types'
 import { translate } from '@/lib/i18n'
@@ -33,10 +32,7 @@ export function TopBar({
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-1">
-          <LanguageSwitcher compact />
-          <ThemeToggle />
-        </div>
+        <HeaderPreferences />
         {/* En dessous de `md`, TopBar est une barre fixe en bas de l'écran :
             le numéro/rôle n'y ajoute rien d'actionnable et pousse la barre à
             deux lignes sur les petits écrans. Il reste disponible dès `md`,

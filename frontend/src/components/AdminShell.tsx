@@ -3,9 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ReactNode, useState } from 'react';
-import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
+import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 import { ToastProvider } from '@/components/amud/Toast';
-import { ThemeSwitch } from '@/components/amud/ThemeSwitch';
 import { Drawer } from '@/components/amud/ui';
 import { useAuth } from '@/context/AuthContext';
 
@@ -29,7 +28,9 @@ const NAV: NavItem[] = [
   { href: '/admin/candidatures', icon: 'assignment', label: 'Candidatures' },
   { href: '/admin/stage', icon: 'task_alt', label: 'Stage quotidien' },
   { href: '/admin/parrainages', icon: 'redeem', label: 'Parrainages' },
+  { href: '/admin/centres', icon: 'apartment', label: 'Centres de recrutement' },
   { href: '/admin/reclamations', icon: 'support_agent', label: 'Réclamations' },
+  { href: '/admin/contact', icon: 'mail', label: 'Contact' },
   { href: '/admin/journal', icon: 'history', label: 'Journal' },
   { href: '/admin/notifications', icon: 'notifications', label: 'Notifications' },
 ];
@@ -67,7 +68,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
           }`}
         >
           <div className={`flex items-center gap-sm border-b border-amud-outline-variant px-lg py-2.5 ${collapsed ? 'md:px-md' : ''}`}>
-            <img src="/assets/images/logo.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
+            <img src="/assets/images/logo-mark.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
             <div className={hiddenWhenCollapsed}>
               <h1 className="text-title-lg font-bold text-amud-primary">Amud Skills</h1>
               <p className="text-label-sm text-amud-on-surface-variant">Console admin</p>
@@ -150,7 +151,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 <span className="material-symbols-outlined">menu</span>
               </button>
               <div className="flex min-w-0 items-center gap-sm md:hidden">
-                <img src="/assets/images/logo.png" alt="" className="h-8 w-8 shrink-0 object-contain" />
+                <img src="/assets/images/logo-mark.png" alt="" className="h-8 w-8 shrink-0 object-contain" />
                 <span className="truncate text-title-lg font-bold text-amud-primary">Amud Skills</span>
               </div>
               <h2 className="ml-2 hidden truncate text-title-md font-semibold text-amud-on-surface sm:block">
@@ -158,8 +159,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
               </h2>
             </div>
             <div className="ml-auto flex items-center gap-sm">
-              <LanguageSwitcher compact />
-              <ThemeSwitch />
+              <HeaderPreferences />
               <button
                 onClick={logout}
                 aria-label="Déconnexion"

@@ -19,11 +19,14 @@ function getSystemTheme(): 'light' | 'dark' {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [mode, setModeState] = useState<ThemeMode>('system');
+  // Défaut clair (pas "system") : le thème initial ne doit pas dépendre de la
+  // préférence OS du visiteur. `system` reste un mode valide, choisissable
+  // explicitement, pour qui le préfère.
+  const [mode, setModeState] = useState<ThemeMode>('light');
   const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
-    setModeState(readStorage<ThemeMode>(STORAGE_KEYS.theme, 'system'));
+    setModeState(readStorage<ThemeMode>(STORAGE_KEYS.theme, 'light'));
     setSystemTheme(getSystemTheme());
   }, []);
 

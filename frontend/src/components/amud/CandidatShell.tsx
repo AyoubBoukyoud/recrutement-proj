@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { DropdownMenu, NavItem, isNavActive } from '@/components/amud/ui';
-import { InlineLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
+import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 import { ToastProvider } from '@/components/amud/Toast';
 import { GlobalSearch, useGlobalSearchShortcut, type GlobalSearchResult } from '@/components/amud/GlobalSearch';
 import { NotificationCenter } from '@/components/amud/NotificationCenter';
@@ -129,9 +129,7 @@ export function CandidatShell({ children }: { children: ReactNode }) {
           }`}
         >
           <div className={`flex items-center gap-sm border-b border-amud-outline-variant px-lg py-2.5 ${collapsed ? 'md:px-md' : ''}`}>
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-amud-primary-container">
-              <span className="material-symbols-outlined text-white">person</span>
-            </div>
+            <img src="/assets/images/logo-mark.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
             <div className={hiddenWhenCollapsed}>
               <h1 className="truncate text-title-lg font-bold text-amud-primary">Amud Skills</h1>
               <p className="text-label-sm text-amud-on-surface-variant">Espace candidat</p>
@@ -195,9 +193,7 @@ export function CandidatShell({ children }: { children: ReactNode }) {
             </button>
 
             <div className="flex min-w-0 items-center gap-sm md:hidden">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-amud-primary-container">
-                <span className="material-symbols-outlined text-white text-[20px]">person</span>
-              </div>
+              <img src="/assets/images/logo-mark.png" alt="" className="h-9 w-9 shrink-0 object-contain" />
               <span className="truncate text-title-lg font-bold text-amud-on-surface">Amud Skills</span>
             </div>
 
@@ -231,6 +227,7 @@ export function CandidatShell({ children }: { children: ReactNode }) {
                 Découvrir les opportunités
               </Link>
 
+              <HeaderPreferences />
               <NotificationCenter key={`notif-${pathname}`} scope="candidate" targetId={candidate.id} viewAllHref="/amud/candidat/notifications" />
 
               <DropdownMenu
@@ -241,7 +238,6 @@ export function CandidatShell({ children }: { children: ReactNode }) {
                     <div className="text-label-sm text-amud-on-surface-variant">{candidate.email}</div>
                   </div>
                 }
-                body={<InlineLanguageThemeControls />}
                 trigger={({ open, toggle }) => (
                   <button
                     onClick={toggle}

@@ -24,6 +24,15 @@ const CEFR_RANK: Record<CefrLevel, number> = {
   C2: 5,
 };
 
+function OfferTextSection({ title, body }: { title: string; body: string }) {
+  return (
+    <section className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-subtle">
+      <h2 className="text-lg font-extrabold text-primary">{title}</h2>
+      <p className="mt-4 whitespace-pre-line leading-relaxed text-onSurface-variant">{body}</p>
+    </section>
+  );
+}
+
 export default function OfferDetailPage() {
   const params = useParams<{ id: string }>();
   const offerId = Number(params.id);
@@ -109,6 +118,10 @@ export default function OfferDetailPage() {
     data.salary_min == null && data.salary_max == null
       ? "—"
       : `${data.salary_min?.toLocaleString(language) ?? ""}${data.salary_min != null && data.salary_max != null ? " – " : ""}${data.salary_max?.toLocaleString(language) ?? ""} ${data.currency}`;
+  const formatDate = (value: string) =>
+    new Intl.DateTimeFormat(language, { dateStyle: "medium" }).format(
+      new Date(value),
+    );
 
   return (
     <div className="min-h-screen bg-surface pb-24">
@@ -166,16 +179,66 @@ export default function OfferDetailPage() {
               </dt>
               <dd>{data.required_cefr_level ?? "—"}</dd>
             </div>
+            {data.workplace_type && (
+              <div>
+                <dt className="text-xs font-bold uppercase text-outline">
+                  {content.detail.workplace}
+                </dt>
+                <dd>{content.workplaces[data.workplace_type]}</dd>
+              </div>
+            )}
+            {data.weekly_hours != null && (
+              <div>
+                <dt className="text-xs font-bold uppercase text-outline">
+                  {content.detail.weeklyHours}
+                </dt>
+                <dd>{content.detail.hoursPerWeek.replace("{value}", String(data.weekly_hours))}</dd>
+              </div>
+            )}
+            {data.experience_level && (
+              <div>
+                <dt className="text-xs font-bold uppercase text-outline">
+                  {content.detail.experience}
+                </dt>
+                <dd>{content.experienceLevels[data.experience_level]}</dd>
+              </div>
+            )}
+            {data.education_level && (
+              <div>
+                <dt className="text-xs font-bold uppercase text-outline">
+                  {content.detail.education}
+                </dt>
+                <dd>{content.educationLevels[data.education_level]}</dd>
+              </div>
+            )}
+            <div>
+              <dt className="text-xs font-bold uppercase text-outline">
+                {content.detail.positions}
+              </dt>
+              <dd>{data.positions_count}</dd>
+            </div>
+            {data.start_date && (
+              <div>
+                <dt className="text-xs font-bold uppercase text-outline">
+                  {content.detail.startDate}
+                </dt>
+                <dd>{formatDate(data.start_date)}</dd>
+              </div>
+            )}
+            {data.application_deadline && (
+              <div>
+                <dt className="text-xs font-bold uppercase text-outline">
+                  {content.detail.deadline}
+                </dt>
+                <dd>{formatDate(data.application_deadline)}</dd>
+              </div>
+            )}
           </dl>
         </section>
-        <section className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-subtle">
-          <h2 className="text-lg font-extrabold text-primary">
-            {content.detail.description}
-          </h2>
-          <p className="mt-4 whitespace-pre-wrap leading-relaxed text-onSurface-variant">
-            {data.description}
-          </p>
-        </section>
+        <OfferTextSection title={content.detail.description} body={data.description} />
+        {data.responsibilities ? <OfferTextSection title={content.detail.responsibilities} body={data.responsibilities} /> : null}
+        {data.requirements ? <OfferTextSection title={content.detail.requirements} body={data.requirements} /> : null}
+        {data.benefits ? <OfferTextSection title={content.detail.benefits} body={data.benefits} /> : null}
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button
             variant="outline"

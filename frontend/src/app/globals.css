@@ -116,6 +116,23 @@ html.text-size-large { font-size: 18px; }
   --outline: #9099aa;
   --outline-variant: #303641;
 
+  /* --- Site public `/accueil-public` (navy/corail) --- */
+  --home-ink: 244 247 250;
+  --home-ink-soft: 217 225 233;
+  --home-strong: 7 19 31;
+  --home-surface: 19 27 36;
+  --home-coral: 241 105 63;
+  --home-coral-dark: 255 158 126;
+  --home-coral-hover: 200 73 37;
+  --home-coral-soft: 48 27 21;
+  --home-teal: 8 57 52;
+  --home-mint: 14 37 32;
+  --home-lavender: 25 25 40;
+  --home-violet: 184 180 255;
+  --home-sand: 12 18 25;
+  --home-slate: 174 187 200;
+  --home-line: 43 55 68;
+
   /* --- Palette amud-* (espaces Admin/Commercial/Employeur/Candidat mock) --- */
   --amud-primary: #8fb5a1;
   --amud-primary-dark: #a6c8b5;
@@ -171,6 +188,12 @@ html.text-size-large { font-size: 18px; }
 
   --amud-outline: #9099aa;
   --amud-outline-variant: #303641;
+}
+
+/* Keep the original teal artwork in light mode and recolor its transparent
+ * pixels to the dark palette's light sage accent when the theme changes. */
+:where(:root.dark) .home-brand-logo {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(23%) saturate(195%) hue-rotate(94deg) brightness(197%) contrast(114%);
 }
 
 /* Text and surface roles are independent of the brand's hover color.
@@ -276,14 +299,8 @@ html.text-size-large { font-size: 18px; }
 }
 
 /*
- * `ProductHome`/`EmployeursBody` (pages marketing `/produit`, `/employeurs`)
- * mêlent des photos, ombres et cartes `bg-white` fixes à des tokens `amud-*`
- * réutilisés comme couleurs de texte (ex. `text-amud-inverse-surface` pour
- * les titres) — un traitement conçu pour un fond clair uniquement. Plutôt que
- * de les faire suivre `.dark` et casser leur lisibilité (texte clair sur
- * carte blanche fixe), on fige ce sous-arbre sur la palette claire, comme le
- * générateur de site public des centres de formation (cf. commentaire
- * `.dark` ci-dessus).
+ * Opt-in conservé pour les aperçus de thèmes qui doivent simuler un site
+ * tiers en mode clair, indépendamment du thème de l'interface.
  */
 .force-light {
   --amud-primary: #006266;

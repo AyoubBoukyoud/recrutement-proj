@@ -1,97 +1,292 @@
 {
-  "_note": "Contenu de la page d'accueil publique. Aucune chaîne ne doit être codée en dur dans les composants (plan §6). Règle §7.3 : aucun chiffre, logo ou témoignage non vérifié.",
+  "_note": "Contenu de la page d'accueil publique (refonte maquette navy/corail). Aucune chaîne ne doit être codée en dur dans les composants. Règle héritée : aucun chiffre, logo ou témoignage non vérifié. `trades`, `tradePage` et `product` restent partagés avec /metiers/[slug] et /produit — ne pas modifier leur forme sans vérifier ces pages.",
   "nav": {
     "links": [
-      { "label": "Métiers", "href": "/accueil-public#sectors" },
-      { "label": "Comment ça marche", "href": "/accueil-public#methodology" },
-      { "label": "Recruteurs", "href": "/employeurs" }
+      { "label": "Pour les candidats", "href": "/accueil-public#candidats" },
+      { "label": "Pour les employeurs", "href": "/employeurs" },
+      { "label": "Pour les centres de formation", "href": "/accueil-public#centres" },
+      { "label": "Contact", "href": "/accueil-public#contact" },
+      { "label": "FAQ", "href": "/accueil-public#faq" }
     ],
-    "signIn": "J'ai déjà un dossier",
-    "cta": "Créer mon dossier",
+    "signIn": "Connexion",
+    "cta": "Créer mon profil",
     "menuOpen": "Ouvrir le menu",
     "menuClose": "Fermer le menu"
   },
   "hero": {
-    "eyebrow": "Maroc → Allemagne",
-    "headline": ["Travaillez en Allemagne.", "Nous préparons votre dossier avec vous."],
-    "subheadline": "Votre CV, vos diplômes et votre niveau d'allemand réunis dans un dossier que les entreprises allemandes savent lire — et qu'elles consultent directement.",
-    "cta": "Créer mon dossier gratuitement",
-    "secondaryCta": "Voir ce que mon métier demande",
-    "microcopy": "Gratuit · Aucun mot de passe · Vous contrôlez si votre dossier est visible",
-    "scrollCue": "Découvrez le parcours",
-    "mediaCaption": "Votre parcours, du Maroc à l'Allemagne",
-    "videoProgress": "Progression de la vidéo",
-    "videoError": "La vidéo ne peut pas être chargée. L'image de présentation reste disponible.",
+    "eyebrow": "Opportunités sans frontières",
+    "headline": ["Votre profil sur mobile.", "Votre talent fait le lien."],
+    "subheadline": "AMUD Skills relie les talents marocains aux employeurs et aux centres de formation en Allemagne, dans un profil unique, clair et mobile.",
+    "cta": "Créer mon profil",
+    "secondaryCta": "Voir comment ça marche",
+    "microcopy": "Gratuit · Sans mot de passe · Visibilité contrôlée par vous",
+    "imageAlt": "Un candidat consulte son profil AMUD Skills sur son téléphone.",
     "card": {
-      "title": "Dossier candidat",
-      "name": "Votre métier",
-      "levelLabel": "Allemand",
-      "level": "B2",
-      "availabilityLabel": "Disponible",
-      "availability": "sous 1 mois",
-      "documents": ["CV", "Diplôme", "Certificat"],
-      "footnote": "Aperçu de ce que voit un recruteur"
+      "eyebrow": "Votre profil",
+      "title": "Ajoutez ce qui prouve votre savoir-faire",
+      "items": [
+        { "icon": "play_circle", "label": "Vidéo de présentation" },
+        { "icon": "description", "label": "CV, diplômes & certificats" }
+      ]
     }
   },
-  "video": {
-    "eyebrow": "En vidéo",
-    "playLabel": "Lire la vidéo",
-    "posterAlt": "Image de présentation de la vidéo du parcours candidat.",
-    "unsupported": "Votre navigateur ne peut pas lire cette vidéo."
+  "featureStrip": {
+    "items": [
+      { "icon": "person", "title": "Pour les candidats", "body": "Créez un profil clair et montrez ce que vous savez faire." },
+      { "icon": "corporate_fare", "title": "Pour les employeurs", "body": "Trouvez des profils qualifiés, prêts à rejoindre vos équipes." },
+      { "icon": "school", "title": "Pour les centres de formation", "body": "Valorisez vos apprenants et reliez-les aux opportunités." }
+    ]
   },
-  "search": {
-    "label": "Quel est votre métier ?",
-    "placeholder": "Infirmier, électricien, soudeur…",
-    "submit": "Rechercher",
-    "advanced": "Recherche avancée",
-    "sectorLabel": "Secteur",
-    "sectorAny": "Tous les secteurs",
-    "levelLabel": "Votre niveau d'allemand aujourd'hui",
-    "levelOptions": [
-      { "value": "", "label": "Peu importe" },
-      { "value": "none", "label": "Aucun" },
-      { "value": "a", "label": "A1 – A2" },
-      { "value": "b1", "label": "B1" },
-      { "value": "b2", "label": "B2 ou plus" }
+  "borderless": {
+    "eyebrow": "Sans frontières",
+    "title": "Les compétences n'ont pas de frontières.",
+    "subtitle": "Un profil bien construit se comprend au premier coup d'œil, où que vous soyez.",
+    "candidate": {
+      "title": "Votre parcours a de la valeur",
+      "items": [
+        "Un profil qui reflète vraiment ce que vous savez faire",
+        "Vos expériences et compétences mises en avant",
+        "Un accès direct aux employeurs et aux centres de formation"
+      ],
+      "cta": "Créer mon profil"
+    },
+    "recruiter": {
+      "title": "Votre prochain talent est peut-être ici.",
+      "items": [
+        "Des profils prêts à être contactés, sans intermédiaire",
+        "Une recherche par métier, langue et disponibilité",
+        "Un dossier complet, pas un simple CV"
+      ],
+      "cta": "Explorer les profils"
+    }
+  },
+  "germanLevels": {
+    "eyebrow": "Allemand ou pas",
+    "title": "Avec ou sans allemand, commencez maintenant.",
+    "subtitle": "Votre niveau d'aujourd'hui n'est qu'un point de départ. Chaque parcours a sa place chez AMUD Skills.",
+    "items": [
+      {
+        "icon": "translate",
+        "title": "Je découvre l'allemand",
+        "body": "Créez votre profil dès maintenant et progressez à votre rythme, avec les centres de formation partenaires.",
+        "linkLabel": "En savoir plus"
+      },
+      {
+        "icon": "menu_book",
+        "title": "J'apprends déjà",
+        "body": "Faites apparaître votre progression directement dans votre profil, au fil de votre formation.",
+        "linkLabel": "En savoir plus"
+      },
+      {
+        "icon": "workspace_premium",
+        "title": "Je parle allemand",
+        "body": "Mettez votre niveau en avant et devenez visible auprès des employeurs dès aujourd'hui.",
+        "linkLabel": "En savoir plus"
+      }
+    ]
+  },
+  "steps": {
+    "eyebrow": "Comment ça marche",
+    "title": "Votre profil, en quatre étapes.",
+    "subtitle": "Rien à imprimer, rien à déposer dans un bureau : tout se fait depuis votre téléphone.",
+    "cta": "Créer mon profil",
+    "items": [
+      { "icon": "smartphone", "title": "Présentez-vous", "body": "Un numéro de téléphone suffit pour créer votre compte, sans mot de passe à retenir." },
+      { "icon": "document_scanner", "title": "Valorisez vos compétences", "body": "Ajoutez votre CV, vos diplômes et une courte vidéo de présentation." },
+      { "icon": "travel_explore", "title": "Devenez visible", "body": "Choisissez quand votre profil devient consultable par les employeurs et les centres partenaires." },
+      { "icon": "forum", "title": "Ouvrez la conversation", "body": "Échangez directement avec ceux qui s'intéressent à votre profil." }
+    ]
+  },
+  "features": {
+    "eyebrow": "Ce qui compte",
+    "title": "Tout ce qui compte pour faire le lien.",
+    "subtitle": "Ce qui suit est ce qui construit la confiance entre un profil et une opportunité.",
+    "items": [
+      { "icon": "badge", "title": "Un profil qui vous ressemble", "body": "Expériences, compétences et documents réunis dans un format clair et complet." },
+      { "icon": "smart_display", "title": "Une vidéo pour vous présenter", "body": "Montrez votre motivation et votre aisance à l'oral, au-delà du CV." },
+      { "icon": "tune", "title": "Des critères qui comptent", "body": "Métier, langue, expérience, disponibilité : ce qui compte vraiment pour un recrutement." },
+      { "icon": "visibility", "title": "Une visibilité choisie", "body": "Vous décidez quand votre profil devient consultable, et par qui." },
+      { "icon": "handshake", "title": "Une rencontre professionnelle", "body": "Le contact se fait dans un cadre clair, entre profils réels et employeurs vérifiés." },
+      { "icon": "school", "title": "La formation fait le lien", "body": "Les centres partenaires préparent vos compétences et votre niveau de langue." }
+    ]
+  },
+  "spaces": {
+    "eyebrow": "Un espace pour chacun",
+    "title": "À chacun son espace. Une même connexion.",
+    "subtitle": "Candidats, employeurs et centres de formation évoluent chacun dans un espace pensé pour eux, relié aux mêmes profils.",
+    "tabs": [
+      {
+        "label": "Candidat",
+        "screenTitle": "Mon profil",
+        "items": ["Mon profil complet", "Mes candidatures", "Mes documents", "Ma progression en allemand"]
+      },
+      {
+        "label": "Employeur",
+        "screenTitle": "Mes offres",
+        "items": ["Mes offres publiées", "Les profils qui correspondent", "Mes candidatures suivies", "Mes échanges"]
+      },
+      {
+        "label": "Centre",
+        "screenTitle": "Mes apprenants",
+        "items": ["Mes apprenants", "Mes formations", "Le suivi de présence", "Les opportunités liées"]
+      }
+    ]
+  },
+  "tradeSpotlight": {
+    "eyebrow": "Votre métier",
+    "title": "Votre métier. Votre prochaine étape.",
+    "subtitle": "Santé, industrie, transport, restauration, bâtiment : explorez ce que chaque métier demande vraiment.",
+    "cta": "Voir tous les métiers"
+  },
+  "criteria": {
+    "eyebrow": "Le bon lien",
+    "title": "Le bon lien commence par les bons critères.",
+    "subtitle": "Métier, ville, compétences : les employeurs trouvent des profils qui correspondent vraiment à leurs besoins.",
+    "form": {
+      "tradeLabel": "Métier",
+      "tradePlaceholder": "Soudeur, infirmier, chauffeur…",
+      "cityLabel": "Ville",
+      "cityPlaceholder": "Casablanca, Rabat, Tanger…",
+      "submit": "Rechercher",
+      "skillsLabel": "Compétences recherchées",
+      "skills": ["Soudure", "AutoCAD", "Permis poids lourd", "Anglais professionnel", "Allemand B1"]
+    }
+  },
+  "recruiters": {
+    "eyebrow": "Recruteurs",
+    "title": "Ouvrez votre recrutement à de nouveaux talents.",
+    "subtitle": "Accédez à un vivier de profils marocains qualifiés, prêts à s'investir dans votre entreprise.",
+    "cta": "Créer mon compte recruteur",
+    "secondaryCta": "Découvrir l'espace recruteur",
+    "items": [
+      { "icon": "difference", "title": "Une différence claire", "body": "Chaque profil distingue ce qui est déclaré, joint et vérifié." },
+      { "icon": "travel_explore", "title": "Explorez les profils", "body": "Filtrez par métier, langue, expérience et disponibilité." },
+      { "icon": "conversion_path", "title": "Contrôlez le parcours", "body": "Suivez chaque candidature, de la découverte à l'embauche." },
+      { "icon": "forum", "title": "Engagez l'échange", "body": "Contactez directement les profils qui vous intéressent." }
+    ]
+  },
+  "nextSteps": {
+    "title": "La rencontre est un début. La suite se construit ensemble.",
+    "subtitle": "Une fois le lien établi, chacun avance avec ce qu'il faut pour la suite.",
+    "items": [
+      { "icon": "forum", "title": "Échanger & comprendre", "body": "Candidat et employeur clarifient les attentes de part et d'autre." },
+      { "icon": "map", "title": "Préparer le parcours", "body": "Documents, langue, démarches : chacun sait ce qui reste à faire." },
+      { "icon": "flag", "title": "Préparer les prochaines étapes", "body": "Du premier échange à l'installation, le chemin reste lisible." }
+    ]
+  },
+  "trainingCenter": {
+    "eyebrow": "Centres de formation",
+    "title": "Digitalisez votre centre. Valorisez vos apprenants.",
+    "subtitle": "Gérez vos formations, vos apprenants et vos enseignants depuis un seul espace, tout en les connectant aux opportunités professionnelles.",
+    "cta": "Découvrir l'espace centre",
+    "dashboardTitle": "Votre centre, une vue d'ensemble",
+    "capabilities": [
+      { "icon": "groups", "label": "Apprenants & formateurs", "body": "Toute votre communauté au même endroit." },
+      { "icon": "menu_book", "label": "Programmes de formation", "body": "Organisez vos formations et vos groupes." },
+      { "icon": "calendar_month", "label": "Planning en direct", "body": "Cours, présences et disponibilités à jour." },
+      { "icon": "insights", "label": "Suivi pédagogique", "body": "La progression de chaque apprenant, au clair." }
+    ]
+  },
+  "bridge": {
+    "title": "Construisons des passerelles, ensemble.",
+    "cta": "En savoir plus"
+  },
+  "clarity": {
+    "title": "Votre parcours mérite de la clarté.",
+    "subtitle": "Trois principes qui guident chaque profil, chaque échange, chaque étape.",
+    "items": [
+      { "icon": "tune", "title": "Choisir ce que je partage", "body": "Vous décidez des informations qui figurent dans votre profil." },
+      { "icon": "verified_user", "title": "Partager avec discernement", "body": "Votre profil n'est visible que par ceux que vous avez choisis." },
+      { "icon": "route", "title": "Comprendre chaque étape", "body": "Chaque étape de votre parcours est expliquée, jamais supposée." }
+    ]
+  },
+  "faq": {
+    "eyebrow": "Questions fréquentes",
+    "title": "Avancer, l'esprit clair.",
+    "subtitle": "Des réponses courtes aux questions les plus fréquentes.",
+    "items": [
+      {
+        "question": "Est-ce que l'inscription est payante ?",
+        "answer": "Non. La création de votre profil est gratuite. Vous n'avez rien à payer pour être visible auprès des employeurs."
+      },
+      {
+        "question": "Faut-il déjà parler allemand ?",
+        "answer": "Pas pour commencer. Le niveau requis dépend du métier, et vous pouvez progresser pendant que vous complétez votre profil."
+      },
+      {
+        "question": "Qui peut consulter mon profil ?",
+        "answer": "Seuls les employeurs et centres inscrits sur la plateforme, une fois que vous avez rendu votre profil visible. Vous pouvez retirer cette visibilité à tout moment."
+      },
+      {
+        "question": "Comment sont vérifiées les compétences ?",
+        "answer": "Vos diplômes et certificats sont joints à votre profil, et votre niveau de langue est estimé à partir d'un enregistrement oral. Ce qui est déclaré, joint et vérifié reste toujours distingué."
+      },
+      {
+        "question": "Quel est le rôle des centres de formation ?",
+        "answer": "Ils préparent vos compétences et votre niveau d'allemand, et peuvent faire apparaître votre progression directement dans votre profil."
+      },
+      {
+        "question": "Comment suis-je contacté ?",
+        "answer": "Un employeur intéressé doit demander vos coordonnées explicitement ; elles ne sont jamais affichées dans les résultats de recherche, et cette demande est enregistrée."
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "Et si la suite commençait ici ?",
+    "subtitle": "Que vous cherchiez une opportunité, un talent ou une passerelle pour vos apprenants, votre prochaine étape commence par un profil.",
+    "candidateCta": "Je crée mon profil",
+    "recruiterCta": "Je recrute un talent",
+    "centerCta": "Je digitalise mon centre",
+    "microcopy": "Gratuit pour les candidats · Sans engagement"
+  },
+  "contact": {
+    "eyebrow": "Contact",
+    "title": "Une question ? Écrivez-nous.",
+    "subtitle": "Candidat, employeur ou centre de formation : notre équipe vous répond directement.",
+    "form": {
+      "nameLabel": "Nom complet",
+      "namePlaceholder": "Votre nom",
+      "emailLabel": "Adresse e-mail",
+      "emailPlaceholder": "vous@exemple.com",
+      "messageLabel": "Votre message",
+      "messagePlaceholder": "Comment pouvons-nous vous aider ?",
+      "submit": "Envoyer le message",
+      "submitting": "Envoi en cours…",
+      "successTitle": "Message envoyé.",
+      "successBody": "Merci, nous vous répondrons rapidement à l'adresse indiquée.",
+      "errorGeneric": "L'envoi a échoué. Vérifiez votre connexion et réessayez.",
+      "errorValidation": "Vérifiez les champs indiqués et réessayez."
+    }
+  },
+  "footer": {
+    "tagline": "La plateforme qui relie les talents marocains aux employeurs et aux centres de formation en Allemagne.",
+    "columns": [
+      {
+        "title": "Plateforme",
+        "links": [
+          { "label": "Pour les candidats", "href": "/auth-phone" },
+          { "label": "Pour les employeurs", "href": "/employeurs" },
+          { "label": "Pour les centres de formation", "href": "/accueil-public#centres" }
+        ]
+      },
+      {
+        "title": "Ressources",
+        "links": [
+          { "label": "Comment ça marche", "href": "/accueil-public#methodology" },
+          { "label": "FAQ", "href": "/accueil-public#faq" },
+          { "label": "Contact", "href": "/accueil-public#contact" }
+        ]
+      },
+      {
+        "title": "Recruteurs",
+        "links": [
+          { "label": "Espace recruteur", "href": "/auth-phone?intent=recruiter" },
+          { "label": "Découvrir l'espace recruteur", "href": "/employeurs" }
+        ]
+      }
     ],
-    "popularLabel": "Métiers les plus consultés",
-    "suggestionsLabel": "Suggestions de métiers",
-    "emptyTitle": "Nous n'avons pas encore de parcours pour « {term} ».",
-    "emptyBody": "Votre métier peut tout de même intéresser un employeur allemand.",
-    "emptyCta": "Créer mon dossier quand même",
-    "errorMessage": "Recherche indisponible pour le moment. Parcourez les métiers ci-dessous.",
-    "errorLink": "Voir les métiers"
-  },
-  "trust": {
-    "items": [
-      { "icon": "toll", "label": "100 % gratuit pour les candidats" },
-      { "icon": "visibility", "label": "Vous contrôlez votre visibilité" },
-      { "icon": "shield_lock", "label": "Données protégées" },
-      { "icon": "folder_supervised", "label": "Dossier structuré pour les recruteurs" }
-    ]
-  },
-  "journey": {
-    "title": "Après une mise en relation : votre parcours vers l'Allemagne",
-    "subtitle": "De l'entretien à votre premier jour de travail en Allemagne.",
-    "imageAlt": "Illustration reliant les compétences marocaines aux opportunités professionnelles à Berlin.",
-    "startLabel": "Maroc",
-    "endLabel": "Allemagne",
-    "items": [
-      { "icon": "handshake", "title": "Être mis en relation", "body": "Votre dossier devient visible par les entreprises allemandes qui recherchent votre métier." },
-      { "icon": "forum", "title": "Passer votre entretien", "body": "Échangez directement avec le recruteur intéressé par votre profil." },
-      { "icon": "folder_shared", "title": "Préparer votre dossier de voyage", "body": "Diplômes, certificats et pièces rassemblés au même endroit." },
-      { "icon": "fact_check", "title": "Faire votre demande de visa", "body": "Les pièces réunies dans votre dossier vous servent pour votre demande auprès des autorités compétentes." },
-      { "icon": "flight_takeoff", "title": "Préparer votre voyage", "body": "Billet, logement, premiers repères en Allemagne." },
-      { "icon": "flight_land", "title": "Arriver en Allemagne", "body": "Vous rejoignez votre nouvel employeur." },
-      { "icon": "work", "title": "Commencer votre nouvelle vie professionnelle", "body": "Le début d'un nouveau chapitre, professionnel et personnel." }
-    ]
-  },
-  "techPreview": {
-    "eyebrow": "Aller plus loin",
-    "title": "Découvrez comment fonctionne votre dossier",
-    "subtitle": "Vidéo de présentation, lecture automatique de vos documents, mise en relation en temps réel : la technologie derrière votre dossier.",
-    "imageAlt": "Schéma représentant la mise en relation automatisée entre un dossier candidat et une entreprise.",
-    "cta": "Découvrir la plateforme en détail"
+    "legalNote": "Visibilité du profil contrôlée par le candidat.",
+    "rights": "Tous droits réservés."
   },
   "trades": {
     "eyebrow": "Métiers en tension",
@@ -107,239 +302,6 @@
       "none": "Pas de reconnaissance exigée"
     }
   },
-  "benefits": {
-    "title": "Pourquoi créer votre dossier AMUD Skills ?",
-    "subtitle": "Plus qu'un CV : un dossier professionnel conçu pour rendre vos compétences plus faciles à comprendre.",
-    "items": [
-      { "icon": "schedule", "title": "Gagnez du temps", "body": "Votre CV aide à structurer votre dossier sans avoir à tout ressaisir." },
-      { "icon": "visibility", "title": "Soyez mieux compris", "body": "Présentez vos compétences et votre expérience dans un format clair pour les recruteurs." },
-      { "icon": "video_library", "title": "Montrez plus qu'un CV", "body": "Expérience, vidéo, langues et documents sont réunis dans un seul dossier." },
-      { "icon": "toggle_on", "title": "Gardez le contrôle", "body": "Vous décidez quand votre dossier devient visible auprès des recruteurs." }
-    ]
-  },
-  "steps": {
-    "title": "Quatre étapes, à votre rythme",
-    "subtitle": "Rien à payer, rien à imprimer, rien à déposer dans un bureau.",
-    "imageAlt": "Candidat consultant son dossier Amud Skills sur ordinateur, avec ses compétences et son niveau d'allemand.",
-    "cta": "Créer mon dossier",
-    "items": [
-      {
-        "icon": "smartphone",
-        "title": "Créez votre compte",
-        "body": "Un numéro de téléphone et un code de connexion à six chiffres. Pas de mot de passe à retenir."
-      },
-      {
-        "icon": "document_scanner",
-        "title": "Ajoutez votre CV",
-        "body": "Il est lu automatiquement et remplit votre dossier. Vous corrigez, vous validez."
-      },
-      {
-        "icon": "graphic_eq",
-        "title": "Estimez votre niveau oral",
-        "body": "Un enregistrement d'une minute. Votre niveau CEFR est estimé, et expliqué."
-      },
-      {
-        "icon": "travel_explore",
-        "title": "Rendez votre dossier visible",
-        "body": "Les entreprises allemandes vous trouvent par métier, langue et disponibilité."
-      }
-    ]
-  },
-  "credible": {
-    "eyebrow": "Le dossier",
-    "title": "Un dossier structuré qu’un employeur peut examiner",
-    "subtitle": "Les informations déclarées, les pièces jointes et les indicateurs automatiques restent distingués dans le dossier.",
-    "imageAlt": "Séance de formation collective préparant des candidats aux exigences professionnelles allemandes.",
-    "items": [
-      {
-        "icon": "folder_supervised",
-        "title": "Vos diplômes attachés",
-        "body": "Chaque document est joint à votre dossier et consultable directement par le recruteur, sans échange de mails."
-      },
-      {
-        "icon": "graphic_eq",
-        "title": "Votre niveau de langue argumenté",
-        "body": "Le niveau est affiché avec ce qui le justifie — débit, clarté, durée — au lieu d'être simplement affirmé."
-      },
-      {
-        "icon": "workspace_premium",
-        "title": "Un certificat joint reste distinct de l’estimation",
-        "body": "Si vous joignez un certificat de langue, sa présence est indiquée séparément. La pièce jointe n’est pas présentée comme authentifiée par son émetteur."
-      },
-      {
-        "icon": "event_available",
-        "title": "Votre disponibilité affichée",
-        "body": "Immédiate, sous 1 mois ou sous 2 mois : les recruteurs filtrent dessus et ne vous contactent pas au mauvais moment."
-      }
-    ]
-  },
-  "proof": {
-    "eyebrow": "Nos engagements",
-    "title": "Ce que nous pouvons prouver",
-    "subtitle": "Pas de promesse invérifiable. Trois engagements que vous pouvez nous opposer.",
-    "items": [
-      {
-        "icon": "gavel",
-        "title": "Consentement explicite",
-        "body": "Votre consentement est demandé avant de rendre votre profil visible, et vous pouvez le suspendre ou le retirer."
-      },
-      {
-        "icon": "history_toggle_off",
-        "title": "Contact transmis uniquement sur action",
-        "body": "Vos coordonnées ne sont jamais affichées dans les résultats de recherche. Un recruteur doit les demander, et ce moment est horodaté."
-      },
-      {
-        "icon": "cancel_schedule_send",
-        "title": "Retrait possible à tout moment",
-        "body": "Vous pouvez retirer votre dossier de la recherche quand vous le voulez, sans avoir à vous justifier."
-      }
-    ]
-  },
-  "recruiter": {
-    "eyebrow": "Espace recruteur",
-    "title": "Vous recrutez en Allemagne ?",
-    "subtitle": "Cherchez par métier, niveau d'allemand, expérience et disponibilité. Ouvrez le dossier complet. Contactez uniquement les profils que vous avez retenus.",
-    "previewLabel": "Aperçu de la recherche",
-    "filters": ["Métier", "Niveau d'allemand", "Expérience", "Disponibilité"],
-    "points": [
-      {
-        "icon": "filter_alt",
-        "title": "Une recherche qui filtre sur ce qui compte",
-        "body": "Profession, spécialisation, niveau CEFR minimum par langue, années d'expérience, disponibilité, niveau de formation."
-      },
-      {
-        "icon": "id_card",
-        "title": "Le dossier complet, en une page",
-        "body": "Formation, langues et leur source, évaluation orale avec sa transcription, vidéo de présentation, documents ouvrables."
-      },
-      {
-        "icon": "conversion_path",
-        "title": "Votre suivi de candidature",
-        "body": "Sauvegardé, contacté, entretien, placé, refusé — avec vos notes privées et un export CSV."
-      }
-    ],
-    "cta": "Trouver des talents",
-    "secondaryCta": "Comprendre l’accès recruteur"
-  },
-  "trainingCenter": {
-    "eyebrow": "Centres de formation",
-    "title": "Votre centre de formation, connecté aux opportunités.",
-    "subtitle": "Gérez vos formations, étudiants, enseignants et présences depuis un seul espace, tout en préparant vos talents aux opportunités professionnelles.",
-    "capabilities": [
-      { "icon": "school", "label": "Étudiants" },
-      { "icon": "menu_book", "label": "Formations" },
-      { "icon": "calendar_month", "label": "Planning" },
-      { "icon": "qr_code_2", "label": "Présences QR" }
-    ],
-    "cta": "Devenir centre partenaire",
-    "imageAlt": "Aperçu du tableau de bord d'un centre de formation partenaire Amud Skills."
-  },
-  "socialProof": {
-    "title": "Ils construisent le pont avec nous",
-    "subtitle": "Centres partenaires, entreprises et institutions qui nous font confiance."
-  },
-  "stats": {
-    "title": "Amud Skills en chiffres",
-    "subtitle": "Des chiffres réels, mis à jour au fil de notre croissance."
-  },
-  "testimonials": {
-    "eyebrow": "Témoignages",
-    "title": "Ils sont passés par Amud Skills",
-    "subtitle": "Des parcours réels, racontés par les candidats eux-mêmes.",
-    "milestones": {
-      "profileCompleted": "Profil complété",
-      "matched": "Mis en relation",
-      "hired": "Recruté"
-    }
-  },
-  "faq": {
-    "title": "Les questions que tout le monde se pose",
-    "subtitle": "Réponses courtes sur les fonctions disponibles dans la plateforme.",
-    "items": [
-      {
-        "question": "Est-ce que l'inscription est payante ?",
-        "answer": "Non. La création de votre dossier est gratuite. Vous n'avez rien à payer pour être visible auprès des entreprises."
-      },
-      {
-        "question": "Est-ce que vous garantissez un emploi en Allemagne ?",
-        "answer": "Non, et personne ne peut le garantir sérieusement. Nous préparons votre dossier et le rendons visible auprès d'employeurs allemands ; la décision d'embauche leur appartient."
-      },
-      {
-        "question": "Qui voit mon dossier ?",
-        "answer": "Les entreprises inscrites sur la plateforme, une fois que vous avez accepté les conditions et le traitement de vos données. Vous pouvez retirer votre dossier à tout moment."
-      },
-      {
-        "question": "Que devient mon numéro de téléphone ?",
-        "answer": "Il sert à vous connecter, et il n'apparaît jamais dans les résultats de recherche. Un recruteur doit demander vos coordonnées explicitement, et cette demande est enregistrée."
-      },
-      {
-        "question": "Faut-il déjà parler allemand ?",
-        "answer": "Pas pour commencer votre dossier. Le niveau requis dépend du métier — il est indiqué sur chaque fiche métier — et vous pouvez progresser pendant la constitution du dossier."
-      },
-      {
-        "question": "Combien de temps prend la constitution du dossier ?",
-        "answer": "Vous pouvez commencer avec votre CV : il est lu automatiquement et les données extraites restent à confirmer ou corriger. Les documents et l’évaluation orale peuvent être ajoutés plus tard."
-      },
-      {
-        "question": "AMUD Skills est-il une agence de recrutement ?",
-        "answer": "Non. Nous ne sommes pas une agence de recrutement : nous préparons votre dossier et le rendons consultable par des entreprises allemandes, qui recrutent et décident directement."
-      },
-      {
-        "question": "AMUD Skills garantit-il un emploi ?",
-        "answer": "Non. Aucune plateforme ne peut garantir sérieusement un emploi. Nous facilitons la mise en relation ; la décision d'embauche appartient toujours à l'employeur."
-      },
-      {
-        "question": "AMUD Skills s'occupe-t-il de mon visa ?",
-        "answer": "Non, pas directement. Votre dossier réunit les pièces qui vous servent pour votre demande, mais la démarche de visa se fait auprès des autorités compétentes."
-      },
-      {
-        "question": "Qui peut consulter mes documents ?",
-        "answer": "Seules les entreprises inscrites sur la plateforme, une fois que votre dossier est visible et que vous avez donné votre consentement. Vous pouvez suspendre cette visibilité à tout moment."
-      },
-      {
-        "question": "Puis-je supprimer mon dossier et mes données ?",
-        "answer": "Oui. Vous pouvez retirer votre dossier de la recherche ou demander la suppression de vos données à tout moment."
-      }
-    ]
-  },
-  "finalCta": {
-    "title": "Votre métier vous attend ailleurs.",
-    "subtitle": "Créez votre dossier à votre rythme. C’est gratuit, et vous contrôlez s’il est visible par les recruteurs.",
-    "cta": "Créer mon dossier gratuitement",
-    "secondaryCta": "Je suis une entreprise",
-    "microcopy": "Aucun mot de passe · Vous pouvez tout retirer à tout moment",
-    "imageAlt": "Jeune professionnel marocain souriant dans une rue de Berlin."
-  },
-  "footer": {
-    "tagline": "La plateforme qui prépare les candidats marocains au marché du travail allemand — et permet aux entreprises allemandes de les trouver.",
-    "columns": [
-      {
-        "title": "Candidats",
-        "links": [
-          { "label": "Créer mon dossier", "href": "/auth-phone" },
-          { "label": "Découvrir la technologie", "href": "/produit" },
-          { "label": "Les métiers qui recrutent", "href": "/accueil-public#sectors" },
-          { "label": "Comment ça marche", "href": "/accueil-public#methodology" }
-        ]
-      },
-      {
-        "title": "Recruteurs",
-        "links": [
-          { "label": "Espace recruteur", "href": "/auth-phone?intent=recruiter" },
-          { "label": "Rechercher des profils", "href": "/employeurs" },
-          { "label": "Comprendre le parcours", "href": "/employeurs#workflow" }
-        ]
-      },
-      {
-        "title": "Centres de formation",
-        "links": [
-          { "label": "Découvrir l'espace Centre", "href": "/accueil-public#centres" }
-        ]
-      }
-    ],
-    "legalNote": "Visibilité du profil contrôlée par le candidat.",
-    "rights": "Tous droits réservés."
-  },
   "tradePage": {
     "titlePattern": "{trade} en Allemagne",
     "levelLabel": "Niveau d'allemand attendu",
@@ -348,7 +310,7 @@
     "requirementsTitle": "Ce que demandent les employeurs",
     "dossierTitle": "À réunir dans votre dossier",
     "disclaimer": "Ces repères sont indicatifs : ils varient selon le Land, l’employeur et les procédures applicables. Confirmez les exigences auprès des organismes compétents.",
-    "ctaTitle": "Commencez votre dossier pour ce métier",
+    "ctaTitle": "Commencez votre profil pour ce métier",
     "ctaBody": "Ajoutez votre CV : les données détectées sont proposées pour que vous les confirmiez ou les corrigiez.",
     "othersTitle": "Autres métiers"
   },
@@ -410,6 +372,6 @@
     }
   },
   "mobileBar": {
-    "cta": "Créer mon dossier"
+    "cta": "Créer mon profil"
   }
 }
