@@ -201,6 +201,7 @@ export default function AccountPage() {
           </p>
           {stage === "phone" ? (
             <input
+              aria-label={content.phone.phoneFieldLabel}
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
               placeholder={content.phone.phonePlaceholder}
@@ -208,6 +209,7 @@ export default function AccountPage() {
             />
           ) : (
             <input
+              aria-label={content.phone.codeFieldLabel}
               value={code}
               onChange={(event) => setCode(event.target.value)}
               placeholder={content.phone.codePlaceholder}

@@ -3,8 +3,8 @@
 // Page : Préférences de matching - Candidat
 //
 // Persisté dans `candidate_profiles.matching_preferences` (JSON), lu et écrit
-// via PUT /candidate/profile — pas de table dédiée, rien d'autre ne consomme
-// ces préférences aujourd'hui.
+// via PUT /candidate/profile — consommé par JobOfferMatching pour le calcul du
+// score de matching et l'envoi des notifications d'offres ciblées.
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -211,6 +211,7 @@ export default function MatchingPreferencesPage() {
             <input
               type="number"
               step="1000"
+              aria-label={content.salarySection.title}
               value={minSalary}
               onChange={(e) => setMinSalary(Number(e.target.value))}
               placeholder="45,000"
@@ -223,6 +224,7 @@ export default function MatchingPreferencesPage() {
               min="30000"
               max="120000"
               step="5000"
+              aria-label={content.salarySection.title}
               value={minSalary}
               onChange={(e) => setMinSalary(Number(e.target.value))}
               className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-surface-container accent-primary"

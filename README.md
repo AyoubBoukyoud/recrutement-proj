@@ -147,11 +147,16 @@ network and port 8000 must be open in the firewall.
 ## Tests and checks
 
 ```bash
-cd backend  && php artisan test          # 241 tests / 1,204 assertions
+cd backend  && php artisan test          # requires the pdo_sqlite PHP extension
 cd backend  && ./vendor/bin/pint         # formatter
 cd mobile-expo && npx tsc --noEmit
 cd frontend && npm run test:client-demo && npx tsc --noEmit && npm run lint && npm run build
 ```
+
+The mobile app is currently a separate nested Git repository in this workspace;
+the root CI validates the web and backend until that repository is flattened or
+given a real submodule remote. Run the mobile type-check locally from its own
+directory as shown above.
 
 Optional local tooling, all degrading gracefully when absent: `GEMINI_API_KEY` for reading CV PDFs,
 Tesseract for scanned images, `pip install faster-whisper` for the spoken language assessment.

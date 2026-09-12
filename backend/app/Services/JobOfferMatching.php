@@ -44,6 +44,16 @@ class JobOfferMatching
             $checks[] = $highestSalary !== null && $highestSalary >= $monthlyMinimum;
         }
 
+        if ($offer->required_cefr_level) {
+            $requiredLevel = $this->cefrRank($offer->required_cefr_level);
+            $candidateLevel = $profile->languages()
+                ->where('language', 'de')
+                ->value('cefr_level');
+
+            $checks[] = $candidateLevel !== null
+                && $this->cefrRank($candidateLevel) >= $requiredLevel;
+        }
+
         if ($checks === []) {
             return null;
         }
@@ -97,5 +107,10 @@ class JobOfferMatching
     private function normalize(string $value): string
     {
         return mb_strtolower(Str::ascii(trim($value)));
+    }
+
+    private function cefrRank(string $level): int
+    {
+        return array_search(strtoupper($level), ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'], true) + 1;
     }
 }

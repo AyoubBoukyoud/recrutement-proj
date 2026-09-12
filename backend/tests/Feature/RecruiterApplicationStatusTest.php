@@ -117,9 +117,10 @@ class RecruiterApplicationStatusTest extends TestCase
             ->patchJson("/api/recruiter/applications/{$application->id}", ['status' => 'accepted'])
             ->assertOk();
 
+        // `accepted` gets its own notification type/copy — see Notifications::applicationStatusChanged().
         $this->assertDatabaseHas('app_notifications', [
             'user_id' => $candidate->id,
-            'type' => 'application.status',
+            'type' => 'application.accepted',
         ]);
 
         $notification = AppNotification::where('user_id', $candidate->id)->latest('id')->first();

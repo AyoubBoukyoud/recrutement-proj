@@ -25,7 +25,8 @@ MySQL + phpMyAdmin run in Docker.
 | Node.js      | 20+ (22 recommended) | `node -v`                |
 | Docker + Compose plugin | any recent | `docker compose version` |
 
-PHP needs these extensions: `pdo_mysql`, `mbstring`, `xml`, `curl`, `zip`, `gd`, `bcmath`.
+PHP needs these extensions: `pdo_mysql`, `pdo_sqlite`, `mbstring`, `xml`, `curl`, `zip`, `gd`, `bcmath`.
+`pdo_sqlite` is used by the isolated PHPUnit suite; production containers use MySQL.
 
 Optional, only for the OCR / language-assessment features:
 - `tesseract` (image OCR — PDFs go through Gemini instead)

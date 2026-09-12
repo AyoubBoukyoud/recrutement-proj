@@ -11,6 +11,8 @@
   "types": {
     "application.created": { "title": "Nouvelle candidature", "body": "Une candidature a été reçue pour {offer_title}." },
     "application.status": { "title": "Candidature mise à jour", "body": "Votre candidature pour {offer_title} est maintenant : {status}." },
+    "application.accepted": { "title": "Félicitations !", "body": "Votre candidature pour {offer_title} a été acceptée !" },
+    "application.rejected": { "title": "Réponse à votre candidature", "body": "Nous sommes désolés, votre candidature pour {offer_title} n’a pas été retenue cette fois-ci." },
     "offer.moderated": { "title": "Offre mise à jour", "body": "Le statut de {offer_title} est maintenant : {status}." },
     "document.reviewed": { "title": "Document examiné", "body": "Votre document {document_type} est maintenant : {status}. {reason}" },
     "complaint.answered": { "title": "Réponse à votre réclamation", "body": "{response}" },

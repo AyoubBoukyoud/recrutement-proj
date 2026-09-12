@@ -46,11 +46,13 @@ export default function AuthPhonePage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
+  const [referralToken, setReferralToken] = useState<string | null>(null);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     if (query.get('intent') === 'recruiter') setIntent('recruiter');
     setSessionExpired(query.get('reason') === 'session_expired');
+    setReferralToken(query.get('ref'));
   }, []);
 
   const submit = async () => {
@@ -61,7 +63,7 @@ export default function AuthPhonePage() {
     }
     setError(null);
     setIsSubmitting(true);
-    const result = await requestOtp(fullPhone);
+    const result = await requestOtp(fullPhone, referralToken ?? undefined);
     setIsSubmitting(false);
 
     // On ne navigue que si le code est réellement parti : envoyer le candidat
@@ -78,7 +80,7 @@ export default function AuthPhonePage() {
 
   return (
     <AuthShell>
-    <main className="mx-auto flex min-h-screen max-w-md flex-col bg-surface shadow-subtle">
+    <main id="main-content" tabIndex={-1} className="mx-auto flex min-h-screen max-w-md flex-col bg-surface shadow-subtle outline-none">
       <header className="relative flex flex-col items-center px-6 py-4 border-b border-surface-container-high">
         <Link href="/language" aria-label="Retour" className="absolute left-6 top-5 text-primary hover:opacity-80 transition-opacity">
           <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
@@ -106,6 +108,12 @@ export default function AuthPhonePage() {
           <div role="status" className="mb-4 flex items-start gap-2 rounded-pillar border border-gold/30 bg-gold/10 p-3 text-xs font-medium text-onSurface">
             <span className="material-symbols-outlined text-gold-dark" style={{ fontSize: 18 }}>schedule</span>
             {t('auth_session_expired')}
+          </div>
+        )}
+        {referralToken && (
+          <div role="status" className="mb-4 flex items-start gap-2 rounded-pillar border border-primary/20 bg-primary/10 p-3 text-xs font-medium text-onSurface">
+            <span className="material-symbols-outlined text-primary" style={{ fontSize: 18 }}>how_to_reg</span>
+            {t('referral_notice')}
           </div>
         )}
         <div className="fade-in-entry opacity-0 mb-6 flex rounded-pillar border border-outline-variant bg-surface-container-lowest p-1">
@@ -138,14 +146,16 @@ export default function AuthPhonePage() {
         </div>
 
         <div className="fade-in-entry stagger-1 opacity-0 mb-2 space-y-2">
-          <label className="block text-[10px] font-bold uppercase tracking-widest text-onSurface-variant">
+          <label htmlFor="auth-phone-number" className="block text-[10px] font-bold uppercase tracking-widest text-onSurface-variant">
             {t('phone_field_label')}
           </label>
           <div className="flex items-center gap-2 rounded-pillar border border-outline-variant bg-surface-container-lowest p-3.5 transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 shadow-sm">
-            <span className="material-symbols-outlined text-primary" style={{ fontSize: 20 }}>
+            <span className="material-symbols-outlined text-primary" style={{ fontSize: 20 }} aria-hidden="true">
               phone
             </span>
             <select
+              id="auth-phone-country"
+              aria-label={t('phone_country_label')}
               value={countryCode}
               onChange={(e) => setCountryCode(e.target.value)}
               className="border-none bg-transparent p-0 text-sm font-bold text-primary outline-none focus:ring-0 cursor-pointer"
@@ -156,8 +166,9 @@ export default function AuthPhonePage() {
                 </option>
               ))}
             </select>
-            <div className="h-6 w-px bg-outline-variant" />
+            <div className="h-6 w-px bg-outline-variant" aria-hidden="true" />
             <input
+              id="auth-phone-number"
               type="tel"
               inputMode="numeric"
               value={phone}
@@ -172,8 +183,8 @@ export default function AuthPhonePage() {
         </p>
 
         {error && (
-          <div className="fade-in-entry opacity-0 mb-4 flex items-center gap-2 rounded-pillar bg-error-container/40 p-3 text-xs font-medium text-error">
-            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
+          <div role="alert" className="fade-in-entry opacity-0 mb-4 flex items-center gap-2 rounded-pillar bg-error-container/40 p-3 text-xs font-medium text-error">
+            <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 16 }}>
               error
             </span>
             {error}

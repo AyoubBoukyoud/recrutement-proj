@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/opsApi'
-import { TopBar } from '@/components/TopBar'
 import { CandidateDossier } from '@/components/CandidateDossier'
 import { Pagination } from '@/components/Pagination'
 import { Card, Field, SelectField, Button, Badge, SectionHeader } from '@/components/ui'
@@ -225,6 +224,23 @@ export default function RecruiterSearch() {
   const [page, setPage] = useState(1)
   const [openId, setOpenId] = useState<number | null>(null)
   const [tab, setTab] = useState<'search' | 'shortlist'>('search')
+  const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false)
+
+  const ADVANCED_FILTER_KEYS = [
+    'profession',
+    'specialization',
+    'language',
+    'cefr_level',
+    'min_experience',
+    'availability_status',
+    'education_level',
+    'has_video',
+    'verified_assessment',
+    'submitted_only',
+  ] as const satisfies readonly (keyof Filters)[]
+  const activeAdvancedFilterCount = ADVANCED_FILTER_KEYS.filter(
+    (key) => filters[key] !== EMPTY_FILTERS[key],
+  ).length
 
   const { data, isLoading } = useQuery({
     queryKey: ['recruiter-candidates', appliedFilters, page],
@@ -242,10 +258,8 @@ export default function RecruiterSearch() {
   }
 
   return (
-    <div className="min-h-screen bg-surface">
-      <TopBar title="Recherche recruteur" />
-
-      <main className="mx-auto grid max-w-5xl gap-6 px-6 py-8">
+    <div className="mx-auto grid max-w-5xl gap-6">
+      <h1 className="sr-only">Recherche recruteur</h1>
         {openId ? (
           <CandidateDossier id={openId} onBack={() => setOpenId(null)} />
         ) : (
@@ -281,7 +295,43 @@ export default function RecruiterSearch() {
                       }}
                     />
 
-                    <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
+                    <SelectField
+                      label="Trier par"
+                      value={filters.sort}
+                      onChange={(e) => {
+                        // Le tri ne se compose pas comme un filtre : il
+                        // s'applique aux résultats déjà à l'écran.
+                        const next = { ...filters, sort: e.target.value }
+                        setFilters(next)
+                        applyFilters(next)
+                      }}
+                    >
+                      <option value="recent">Mise à jour récente</option>
+                      <option value="experience">Plus expérimenté</option>
+                      <option value="name">Nom (A–Z)</option>
+                    </SelectField>
+
+                    {/* Sur mobile, les filtres avancés restent repliés derrière ce
+                        bouton — la recherche et le tri, gardés au-dessus, suffisent
+                        au premier écran. `sm:hidden` : desktop n'a jamais ce bouton
+                        et affiche tout, via `sm:grid`/`sm:flex` plus bas. */}
+                    <Button
+                      variant="ghost"
+                      onClick={() => setAdvancedFiltersOpen((open) => !open)}
+                      aria-expanded={advancedFiltersOpen}
+                      aria-controls="recruiter-advanced-filters"
+                      className="justify-between sm:hidden"
+                    >
+                      <span>Filtres avancés{activeAdvancedFilterCount > 0 ? ` (${activeAdvancedFilterCount})` : ''}</span>
+                      <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 18 }}>
+                        {advancedFiltersOpen ? 'expand_less' : 'expand_more'}
+                      </span>
+                    </Button>
+
+                    <div
+                      id="recruiter-advanced-filters"
+                      className={`grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))] sm:grid ${advancedFiltersOpen ? 'grid' : 'hidden'}`}
+                    >
                       <Field
                         label="Métier"
                         value={filters.profession}
@@ -344,24 +394,9 @@ export default function RecruiterSearch() {
                           </option>
                         ))}
                       </SelectField>
-                      <SelectField
-                        label="Trier par"
-                        value={filters.sort}
-                        onChange={(e) => {
-                          // Le tri ne se compose pas comme un filtre : il
-                          // s'applique aux résultats déjà à l'écran.
-                          const next = { ...filters, sort: e.target.value }
-                          setFilters(next)
-                          applyFilters(next)
-                        }}
-                      >
-                        <option value="recent">Mise à jour récente</option>
-                        <option value="experience">Plus expérimenté</option>
-                        <option value="name">Nom (A–Z)</option>
-                      </SelectField>
                     </div>
 
-                    <div className="flex flex-wrap gap-6">
+                    <div className={`flex flex-wrap gap-6 sm:flex ${advancedFiltersOpen ? 'flex' : 'hidden'}`}>
                       <Toggle
                         label="Vidéo de présentation"
                         checked={filters.has_video}
@@ -412,7 +447,6 @@ export default function RecruiterSearch() {
             )}
           </>
         )}
-      </main>
     </div>
   )
 }

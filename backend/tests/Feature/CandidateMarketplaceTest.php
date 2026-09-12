@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\JobOffer;
 use App\Models\User;
 use App\Services\CandidateProfileResolver;
+use App\Services\JobOfferMatching;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -56,6 +58,23 @@ class CandidateMarketplaceTest extends TestCase
         $this->actingAs($candidate, 'sanctum')->postJson('/api/candidate/visibility/resume')->assertJsonPath('visible', true);
     }
 
+    public function test_offer_match_score_includes_required_german_level(): void
+    {
+        $candidate = $this->user('User');
+        $profile = CandidateProfileResolver::resolve($candidate);
+        $profile->languages()->create(['language' => 'de', 'cefr_level' => 'B2']);
+
+        $jobOffer = new JobOffer([
+            'required_cefr_level' => 'B1',
+        ]);
+
+        $this->assertSame(100, app(JobOfferMatching::class)->score($profile, $jobOffer));
+
+        $profile->languages()->update(['cefr_level' => 'A2']);
+
+        $this->assertSame(0, app(JobOfferMatching::class)->score($profile, $jobOffer));
+    }
+
     public function test_candidate_referral_code_is_personal_and_export_is_private(): void
     {
         $a = $this->user('User');
@@ -65,6 +84,6 @@ class CandidateMarketplaceTest extends TestCase
         $this->getJson('/api/candidate/account/export')->assertOk()->assertJsonPath('user.id', $a->id);
         $this->actingAs($b, 'sanctum');
         $codeB = $this->getJson('/api/referrals/me')->assertOk()->json('code');
-        $this->assertNotSame($codeA,$codeB);
+        $this->assertNotSame($codeA, $codeB);
     }
 }

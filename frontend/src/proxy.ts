@@ -29,6 +29,7 @@ const CANDIDATE_PATHS = [
   '/favoris',
   '/notifications',
   '/compte',
+  '/messages',
 ];
 
 /**
@@ -89,7 +90,7 @@ function redirectTo(request: NextRequest, targetPathname: string) {
   return NextResponse.redirect(url);
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const role = request.cookies.get('as_role')?.value;
 
@@ -187,6 +188,7 @@ export const config = {
     '/favoris/:path*',
     '/notifications/:path*',
     '/compte/:path*',
+    '/messages/:path*',
     '/recruiter/:path*',
     '/agent/:path*',
     '/admin/:path*',

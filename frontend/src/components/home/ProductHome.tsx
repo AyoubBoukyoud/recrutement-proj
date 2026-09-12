@@ -44,7 +44,7 @@ export function ProductHome() {
   const copy = content.product;
 
   return (
-    <main className="force-light overflow-x-hidden bg-amud-background text-amud-on-background selection:bg-amud-primary-container/30 selection:text-amud-inverse-surface">
+    <main id="main-content" tabIndex={-1} className="force-light overflow-x-hidden bg-amud-background text-amud-on-background outline-none selection:bg-amud-primary-container/30 selection:text-amud-inverse-surface">
       <RevealNoScriptFallback />
       {/* Hero */}
       <section className="relative overflow-hidden pb-32 pt-20 sm:pt-28 lg:pt-36">

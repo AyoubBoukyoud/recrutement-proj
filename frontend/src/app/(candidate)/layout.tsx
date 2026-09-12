@@ -31,10 +31,15 @@ export default function CandidateLayout({
     { href: "/documents", label: t("nav_documents"), icon: "description" },
     { href: "/profil", label: t("nav_profile"), icon: "person" },
     { href: "/reclamation", label: t("nav_support"), icon: "help_outline" },
+    { href: "/messages", label: "Messages", icon: "mail" },
   ];
 
   useEffect(() => {
     if (isLoading || profileLoading || !profile) return;
+    // Support and FAQ must remain reachable when a candidate is stuck during
+    // onboarding. The profile gate protects marketplace actions, but it must
+    // never prevent a candidate from asking for help.
+    if (pathname === "/reclamation" || pathname === "/faq") return;
     const missing = profile.completeness.missing_required[0];
     const incompleteStep = missing
       ? REQUIRED_SECTION_TO_STEP[missing]
@@ -43,7 +48,7 @@ export default function CandidateLayout({
       router.replace(`/profile-creation?step=${incompleteStep}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, profileLoading, profile]);
+  }, [isLoading, profileLoading, profile, pathname]);
 
   return (
     <div className="min-h-screen bg-surface lg:flex">
@@ -101,7 +106,7 @@ export default function CandidateLayout({
       </aside>
 
       <div className="mx-auto flex min-h-screen w-full max-w-md flex-1 flex-col pb-24 shadow-subtle lg:mx-0 lg:max-w-none lg:pb-0 lg:shadow-none">
-        <div className="flex-1">{children}</div>
+        <div id="main-content" tabIndex={-1} className="flex-1 outline-none">{children}</div>
 
         {/* Tab bar mobile — masquée dès lg, remplacée par la sidebar. */}
         <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto flex max-w-md items-center justify-around border-t border-surface-container-high bg-surface-container-lowest/95 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-subtle backdrop-blur-md lg:hidden">
@@ -116,7 +121,7 @@ export default function CandidateLayout({
                 className={`flex min-w-0 flex-1 flex-col items-center justify-center px-1 py-1 transition-all duration-200 active:scale-95 ${
                   isActive
                     ? "font-extrabold text-primary"
-                    : "text-onSurface-variant opacity-70 hover:opacity-100"
+                    : "text-onSurface-variant hover:text-onSurface"
                 }`}
               >
                 <div

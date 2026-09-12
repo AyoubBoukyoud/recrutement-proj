@@ -14,7 +14,7 @@ export function EmployeursBody() {
   const content = useEmployeursContent();
 
   return (
-    <main className="overflow-x-hidden bg-surface text-onSurface dark:bg-[#12100e] dark:text-[#e5e2e1] transition-colors">
+    <main id="main-content" tabIndex={-1} className="overflow-x-hidden bg-surface text-onSurface dark:bg-[#12100e] dark:text-[#e5e2e1] transition-colors">
       <RevealNoScriptFallback />
 
       <section className="relative overflow-hidden pb-20 pt-32 lg:pb-28 lg:pt-44">

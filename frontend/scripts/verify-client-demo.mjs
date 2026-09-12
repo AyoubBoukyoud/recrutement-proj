@@ -17,10 +17,10 @@ check('root uses the canonical public home', () => {
 });
 
 check('prototype marketing routes are opt-in and redirected by default', () => {
-  const middleware = read('src/middleware.ts');
-  assert.match(middleware, /NEXT_PUBLIC_ENABLE_PROTOTYPES === '1'/);
-  assert.match(middleware, /marketing\/employers.*'\/employeurs'/);
-  assert.match(middleware, /startsWith\('\/amud\/marketing'\).*'\/accueil-public'/);
+  const proxy = read('src/proxy.ts');
+  assert.match(proxy, /NEXT_PUBLIC_ENABLE_PROTOTYPES === '1'/);
+  assert.match(proxy, /marketing\/employers.*'\/employeurs'/);
+  assert.match(proxy, /startsWith\('\/amud\/marketing'\).*'\/accueil-public'/);
 });
 
 check('developer shortcuts are explicitly opt-in', () => {
@@ -43,10 +43,11 @@ check('local OTP dispatch reaches the verification screen', () => {
 
 check('public CTAs use implemented candidate, recruiter, and trade routes', () => {
   const home = read('src/components/home/PublicHome.tsx');
+  const jobCard = read('src/components/home/JobCard.tsx');
   const tradeDetail = read('src/components/home/TradeDetail.tsx');
   assert.match(home, /href="\/auth-phone"/);
   assert.match(home, /href="\/auth-phone\?intent=recruiter"/);
-  assert.match(home, /href=\{`\/metiers\/\$\{trade\.slug\}`\}/);
+  assert.match(jobCard, /href=\{`\/metiers\/\$\{trade\.slug\}`\}/);
   assert.match(tradeDetail, /href="\/accueil-public#sectors"/);
 });
 
@@ -82,9 +83,9 @@ check('recruiter intent and expired-session recovery are visible at login', () =
 });
 
 check('recruiter intent never replaces server-side role authorization', () => {
-  const middleware = read('src/middleware.ts');
-  assert.match(middleware, /if \(role !== 'employer'\)/);
-  assert.doesNotMatch(middleware, /intent.*employer/);
+  const proxy = read('src/proxy.ts');
+  assert.match(proxy, /if \(role !== 'employer'\)/);
+  assert.doesNotMatch(proxy, /intent.*employer/);
 });
 
 check('authenticated 401 recovers the session while 403 is untouched', () => {

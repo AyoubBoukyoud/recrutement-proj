@@ -21,10 +21,13 @@ export function generateStaticParams() {
   return allSlugs().map((slug) => ({ slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+type TradePageParams = Promise<{ slug: string }>;
+
+export async function generateMetadata({ params }: { params: TradePageParams }): Promise<Metadata> {
   // Les métadonnées sont produites au build, donc en français : c'est la langue
   // de référence du contenu, et la seule connue hors du navigateur.
-  const trade = findTrade(params.slug);
+  const { slug } = await params;
+  const trade = findTrade(slug);
   if (!trade) return { title: 'Métier introuvable' };
 
   return {
@@ -33,8 +36,9 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   };
 }
 
-export default function TradePage({ params }: { params: { slug: string } }) {
-  if (!findTrade(params.slug)) notFound();
+export default async function TradePage({ params }: { params: TradePageParams }) {
+  const { slug } = await params;
+  if (!findTrade(slug)) notFound();
 
   return (
     <>
@@ -42,8 +46,8 @@ export default function TradePage({ params }: { params: { slug: string } }) {
 
 
 
-      <main className="pt-28 lg:pt-36">
-        <TradeDetail slug={params.slug} />
+      <main id="main-content" tabIndex={-1} className="pt-28 outline-none lg:pt-36">
+        <TradeDetail slug={slug} />
       </main>
 
       <SiteFooter />

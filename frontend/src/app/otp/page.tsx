@@ -128,7 +128,7 @@ function OtpContent() {
   if (pendingDestination) {
     return (
       <AuthShell>
-        <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center bg-surface px-6 py-10 text-center shadow-subtle">
+        <main id="main-content" tabIndex={-1} className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center bg-surface px-6 py-10 text-center shadow-subtle outline-none">
           <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-surface-container-low text-primary shadow-subtle">
             <span
               className="material-symbols-outlined"
@@ -157,7 +157,7 @@ function OtpContent() {
 
   return (
     <AuthShell>
-      <main className="mx-auto flex min-h-screen max-w-md flex-col bg-surface shadow-subtle">
+      <main id="main-content" tabIndex={-1} className="mx-auto flex min-h-screen max-w-md flex-col bg-surface shadow-subtle outline-none">
         <header className="sticky top-0 z-10 border-b border-surface-container-high bg-surface px-6 py-4">
           <div className="flex items-center gap-4">
             <Link
@@ -207,9 +207,10 @@ function OtpContent() {
                 Code local : {debugCode}
               </p>
             )}
-            <div
-              className={`flex items-center justify-center gap-2 ${shake ? "animate-[shake_0.4s]" : ""}`}
+            <fieldset
+              className={`flex items-center justify-center gap-2 border-0 p-0 m-0 ${shake ? "animate-[shake_0.4s]" : ""}`}
             >
+              <legend className="sr-only">{t("otp_title")}</legend>
               {digits.map((digit, index) => (
                 <input
                   key={index}
@@ -219,6 +220,7 @@ function OtpContent() {
                   type="text"
                   inputMode="numeric"
                   maxLength={1}
+                  aria-label={`${t("otp_digit_label")} ${index + 1}`}
                   value={digit}
                   disabled={isVerifying}
                   onChange={(e) => handleChange(index, e.target.value)}
@@ -228,7 +230,7 @@ function OtpContent() {
                   }`}
                 />
               ))}
-            </div>
+            </fieldset>
 
             <div className="flex flex-col items-center gap-1.5 text-center">
               {secondsLeft > 0 ? (
@@ -253,7 +255,7 @@ function OtpContent() {
               </p>
             )}
             {error && (
-              <p className="text-center text-xs font-semibold text-error">
+              <p role="alert" className="text-center text-xs font-semibold text-error">
                 {error}
               </p>
             )}

@@ -3,7 +3,7 @@
   "backAria": "Zurück zum Profil",
   "loading": "Wird geladen…",
   "sessions": { "title": "Verbundene Geräte", "current": "Aktuelles Gerät", "lastUsed": "Zuletzt verwendet {date}", "never": "Nie verwendet", "disconnect": "Abmelden", "disconnectOthers": "Andere Geräte abmelden" },
-  "phone": { "title": "Meine Nummer ändern", "hint": "Ein Code wird an die neue Nummer gesendet.", "phonePlaceholder": "+212600000000", "codePlaceholder": "6-stelliger Code", "send": "Code senden", "confirm": "Änderung bestätigen", "error": "Die Änderung ist fehlgeschlagen." },
+  "phone": { "title": "Meine Nummer ändern", "hint": "Ein Code wird an die neue Nummer gesendet.", "phonePlaceholder": "+212600000000", "phoneFieldLabel": "Neue Telefonnummer", "codePlaceholder": "6-stelliger Code", "codeFieldLabel": "Bestätigungscode", "send": "Code senden", "confirm": "Änderung bestätigen", "error": "Die Änderung ist fehlgeschlagen." },
   "data": { "title": "Meine Daten", "export": "Meine Daten exportieren", "print": "Mein Profil als PDF drucken", "delete": "Mein Konto löschen", "confirm": "Ihr Konto wird sofort gesperrt und nach 30 Tagen gelöscht. In diesem Zeitraum können Sie die Löschung nach erneuter Anmeldung abbrechen. Fortfahren?" },
   "deletion": { "title": "Löschung geplant", "body": "Ihr Konto und Ihre Dateien werden am {date} gelöscht.", "cancel": "Löschung abbrechen", "cancelled": "Die Kontolöschung wurde abgebrochen." },
   "accessibility": { "title": "Barrierefreiheit", "textSize": "Textgröße", "small": "Klein", "medium": "Mittel", "large": "Groß" }

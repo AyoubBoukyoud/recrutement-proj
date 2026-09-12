@@ -161,7 +161,7 @@ export default function ParrainagePage() {
         </div>
 
         {/* Progress & Stats Section */}
-        <div className="mb-6 space-y-3 lg:col-start-1 lg:row-start-2 lg:mb-0">
+        <div id="referral-earnings" className="mb-6 space-y-3 lg:col-start-1 lg:row-start-2 lg:mb-0">
           <div className="flex items-center gap-4 rounded-xl bg-surface-container-low p-4 text-primary shadow-subtle border border-primary/20">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-onPrimary">
               <span className="material-symbols-outlined text-[24px]">group</span>
@@ -254,7 +254,7 @@ export default function ParrainagePage() {
               {query.data.earnings.paid.toLocaleString('fr-FR')} {query.data.earnings.currency} versés
             </p>
           )}
-          <Button pill className="px-8 shadow-md">
+          <Button pill className="px-8 shadow-md" onClick={() => document.getElementById('referral-earnings')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>
             {content.footer.viewRewards}
           </Button>
         </div>

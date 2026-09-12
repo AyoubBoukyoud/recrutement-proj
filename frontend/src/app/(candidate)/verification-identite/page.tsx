@@ -211,6 +211,7 @@ export default function VerificationIdentitePage() {
                   <button
                     type="button"
                     onClick={handleCapture}
+                    aria-label={content.capture.captureAriaLabel}
                     className="group flex h-20 w-20 items-center justify-center rounded-full bg-white transition-all duration-300 active:scale-90 hover:scale-105"
                   >
                     <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-secondary/30 group-active:bg-surface-container">

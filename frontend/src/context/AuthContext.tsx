@@ -173,7 +173,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
      * Prototype maquette : la première visite sans session ouvre le même
      * compte candidat de démo que /auth-phone produirait (+212600000001,
      * id 101 — voir data/fixtures/auth.ts) plutôt que de rester déconnecté.
-     * `middleware.ts` pose déjà le cookie côté serveur pour ce même compte ;
+     * `proxy.ts` pose déjà le cookie côté serveur pour ce même compte ;
      * ceci sème le localStorage que lit le reste de l'app (token, useAuth().user).
      */
     if (!storedUser && process.env.NEXT_PUBLIC_USE_MOCKS === "1") {

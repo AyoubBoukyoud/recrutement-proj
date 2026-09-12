@@ -11,6 +11,8 @@
   "types": {
     "application.created": { "title": "Neue Bewerbung", "body": "Für {offer_title} ist eine Bewerbung eingegangen." },
     "application.status": { "title": "Bewerbung aktualisiert", "body": "Ihre Bewerbung für {offer_title} hat jetzt den Status: {status}." },
+    "application.accepted": { "title": "Herzlichen Glückwunsch!", "body": "Ihre Bewerbung für {offer_title} wurde angenommen!" },
+    "application.rejected": { "title": "Rückmeldung zu Ihrer Bewerbung", "body": "Es tut uns leid, Ihre Bewerbung für {offer_title} wurde diesmal nicht berücksichtigt." },
     "offer.moderated": { "title": "Stelle aktualisiert", "body": "Der Status von {offer_title} ist jetzt: {status}." },
     "document.reviewed": { "title": "Dokument geprüft", "body": "Ihr Dokument {document_type} hat jetzt den Status: {status}. {reason}" },
     "complaint.answered": { "title": "Antwort auf Ihre Beschwerde", "body": "{response}" },

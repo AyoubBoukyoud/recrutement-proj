@@ -8,13 +8,11 @@ return [
     |--------------------------------------------------------------------------
     |
     | Connections are tried in this order and the first one that is configured
-    | and succeeds wins — that is the WhatsApp-with-SMS-fallback the spec asks
-    | for. The default is `log` alone so a fresh checkout keeps working with no
+    | and succeeds wins. The default is `log` alone so a fresh checkout keeps working with no
     | provider account: the code goes to storage/logs/laravel.log and, in local,
     | back in the API response.
     |
-    | Production: OTP_CHANNELS=evolution,sms  (self-hosted WhatsApp gateway)
-    |          or OTP_CHANNELS=whatsapp,sms   (Meta Cloud API)
+    | Production: OTP_CHANNELS=evolution  (self-hosted WhatsApp gateway)
     |
     */
 

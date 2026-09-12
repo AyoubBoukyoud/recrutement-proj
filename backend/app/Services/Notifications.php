@@ -2,12 +2,15 @@
 
 namespace App\Services;
 
+use App\Jobs\SendWebPushNotification;
 use App\Models\AppNotification;
 use App\Models\CandidateProfile;
 use App\Models\Complaint;
 use App\Models\Document;
+use App\Models\Interview;
 use App\Models\JobApplication;
 use App\Models\JobOffer;
+use App\Models\Message;
 use App\Models\User;
 use Illuminate\Support\Collection;
 
@@ -24,25 +27,44 @@ class Notifications
             $application->offer->employer,
             'application.created',
             ['offer_title' => $application->offer->title],
-            "/recruiter/offers/{$application->offer->id}/applications",
+            '/recruiter/candidatures',
             'New application',
             $application->offer->title,
         );
     }
 
+    /**
+     * `accepted`/`rejected` get their own notification type (and copy) —
+     * decisions the candidate should feel as a "yes" or "no", not a status
+     * word next to a badge. Every other transition keeps `application.status`.
+     */
     public function applicationStatusChanged(JobApplication $application): ?AppNotification
     {
         $application->loadMissing(['offer', 'candidateProfile.user']);
         $candidate = $application->candidateProfile?->user;
+        if (! $candidate) {
+            return null;
+        }
 
-        return $candidate ? $this->create(
+        $type = match ($application->status) {
+            'accepted' => 'application.accepted',
+            'rejected' => 'application.rejected',
+            default => 'application.status',
+        };
+        $fallback = match ($application->status) {
+            'accepted' => ['Congratulations!', "Your application for {$application->offer->title} has been accepted!"],
+            'rejected' => ['Update on your application', "We're sorry, your application for {$application->offer->title} was not selected this time."],
+            default => ['Application updated', $application->status],
+        };
+
+        return $this->create(
             $candidate,
-            'application.status',
+            $type,
             ['offer_title' => $application->offer->title, 'status' => $application->status],
             '/candidatures',
-            'Application updated',
-            $application->status,
-        ) : null;
+            $fallback[0],
+            $fallback[1],
+        );
     }
 
     public function offerModerated(JobOffer $offer): AppNotification
@@ -51,7 +73,7 @@ class Notifications
             $offer->employer,
             'offer.moderated',
             ['offer_title' => $offer->title, 'status' => $offer->status],
-            "/recruiter/offers/{$offer->id}",
+            '/recruiter/offres',
             'Offer status updated',
             $offer->status,
         );
@@ -75,6 +97,27 @@ class Notifications
         );
     }
 
+    /**
+     * The candidate app has no interview-viewing screen yet — this points at
+     * `/candidatures`, the closest real surface, same reasoning as pointing a
+     * moderation notice at the recruiter's offers list rather than a page
+     * that doesn't exist.
+     */
+    public function interviewScheduled(Interview $interview): ?AppNotification
+    {
+        $interview->loadMissing('application.offer', 'application.candidateProfile.user');
+        $candidate = $interview->application->candidateProfile?->user;
+
+        return $candidate ? $this->create(
+            $candidate,
+            'interview.scheduled',
+            ['offer_title' => $interview->application->offer->title, 'date' => $interview->date->toDateString(), 'time' => $interview->start_time],
+            '/candidatures',
+            'Interview scheduled',
+            $interview->application->offer->title,
+        ) : null;
+    }
+
     public function complaintAnswered(Complaint $complaint): AppNotification
     {
         return $this->create(
@@ -84,6 +127,32 @@ class Notifications
             '/reclamation',
             'Complaint answered',
             (string) $complaint->admin_response,
+        );
+    }
+
+    public function messageReceived(Message $message): ?AppNotification
+    {
+        $message->loadMissing('conversation.candidate', 'conversation.recruiter', 'conversation.application.offer');
+        $conversation = $message->conversation;
+        $recipient = $message->sender_id === $conversation->candidate_user_id
+            ? $conversation->recruiter
+            : $conversation->candidate;
+
+        if (! $recipient) {
+            return null;
+        }
+
+        $link = $recipient->hasRole('Company')
+            ? "/recruiter/messages?conversation={$conversation->id}"
+            : "/messages?conversation={$conversation->id}";
+
+        return $this->create(
+            $recipient,
+            'message.received',
+            ['offer_title' => $conversation->application?->offer?->title, 'conversation_id' => $conversation->id],
+            $link,
+            'New message',
+            mb_strimwidth($message->body, 0, 140, '…'),
         );
     }
 
@@ -161,7 +230,7 @@ class Notifications
         string $fallbackTitle,
         string $fallbackBody,
     ): AppNotification {
-        return AppNotification::create([
+        $notification = AppNotification::create([
             'user_id' => $user->id,
             'type' => $type,
             'title' => $fallbackTitle,
@@ -169,5 +238,13 @@ class Notifications
             'payload' => $payload,
             'link' => $link,
         ]);
+
+        // Every notification this class defines reaches the browser through
+        // the same path — no per-type wiring needed for a new one later.
+        // Queued: sending is one HTTP call per subscribed device, and this
+        // method runs inline in a dozen request paths.
+        SendWebPushNotification::dispatch($user->id, $fallbackTitle, $fallbackBody, $link);
+
+        return $notification;
     }
 }

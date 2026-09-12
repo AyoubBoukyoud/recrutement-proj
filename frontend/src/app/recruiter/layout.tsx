@@ -1,38 +1,15 @@
-'use client';
+import { RecruiterShell } from '@/components/RecruiterShell';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-
-const nav = [
-  ['/recruiter', 'Candidats'],
-  ['/recruiter/offres', 'Offres'],
-  ['/recruiter/candidatures', 'Candidatures'],
-  ['/recruiter/notifications', 'Notifications'],
-] as const;
-
+/**
+ * Coquille de l'espace recruteur — portée depuis le style visuel de la
+ * maquette `/amud/entreprise` (RecruiterShell : sidebar + header, thème et
+ * langue), branchée sur les vraies données. Remplace l'ancienne barre
+ * d'onglets, où chaque page posait elle-même sa propre `TopBar`.
+ */
 export default function RecruiterLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-
   return (
-    <div>
-      <nav aria-label="Navigation de l’espace recruteur" className="overflow-x-auto border-b bg-surface-lowest px-4 py-3 sm:px-6">
-        <div className="flex min-w-max gap-2">
-          {nav.map(([href, label]) => {
-            const active = pathname === href;
-            return (
-              <Link
-                key={href}
-                href={href}
-                aria-current={active ? 'page' : undefined}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-bold ${active ? 'bg-primary text-onPrimary' : 'text-primary hover:bg-primary/5'}`}
-              >
-                {label}
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
-      {children}
+    <div id="main-content" tabIndex={-1} className="min-h-screen bg-amud-background outline-none">
+      <RecruiterShell>{children}</RecruiterShell>
     </div>
   );
 }

@@ -11,6 +11,8 @@
   "types": {
     "application.created": { "title": "New application", "body": "An application was received for {offer_title}." },
     "application.status": { "title": "Application updated", "body": "Your application for {offer_title} is now: {status}." },
+    "application.accepted": { "title": "Congratulations!", "body": "Your application for {offer_title} has been accepted!" },
+    "application.rejected": { "title": "Update on your application", "body": "We're sorry, your application for {offer_title} was not selected this time." },
     "offer.moderated": { "title": "Offer updated", "body": "The status of {offer_title} is now: {status}." },
     "document.reviewed": { "title": "Document reviewed", "body": "Your {document_type} document is now: {status}. {reason}" },
     "complaint.answered": { "title": "Complaint answered", "body": "{response}" },

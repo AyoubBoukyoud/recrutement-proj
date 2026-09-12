@@ -6,5 +6,6 @@
   "empty": "لم ترسل أي ترشيح بعد.",
   "withdraw": "سحب ترشيحي",
   "statuses": { "submitted": "مُرسلة", "viewed": "تمت مشاهدتها", "interview": "مقابلة", "accepted": "مقبولة", "rejected": "مرفوضة", "withdrawn": "مسحوبة" },
+  "decisionMessages": { "accepted": "تهانينا، تم قبول ترشيحك!", "rejected": "نأسف، لم يتم قبول ترشيحك هذه المرة." },
   "pagination": { "noun": "ترشيح", "plural": "ترشيحات" }
 }

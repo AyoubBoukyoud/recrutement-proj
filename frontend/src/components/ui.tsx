@@ -25,6 +25,7 @@ import {
   type InputHTMLAttributes,
   type ReactNode,
   type SelectHTMLAttributes,
+  type TextareaHTMLAttributes,
 } from 'react'
 import type { Language } from '@/lib/types'
 import { translate } from '@/lib/i18n'
@@ -85,16 +86,43 @@ export function Field({
   )
 }
 
-/** Même enveloppe que Field, pour qu'un menu et un champ s'alignent dans une grille de filtres. */
-export function SelectField({
+/** Même enveloppe que Field, pour un texte qui ne tient pas sur une ligne. */
+export function TextareaField({
   label,
-  children,
+  hint,
+  error,
+  rows = 4,
   ...props
-}: SelectHTMLAttributes<HTMLSelectElement> & { label: string; children: ReactNode }) {
+}: TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string; hint?: string; error?: string }) {
   return (
     <label className="grid gap-1.5">
       <span className="flex items-baseline justify-between gap-2">
         <span className="text-[13px] font-medium text-on-surface-variant">{label}</span>
+        {hint && <span className="eyebrow">{hint}</span>}
+      </span>
+      <textarea
+        rows={rows}
+        className={cx(FIELD_INPUT, 'h-auto resize-y py-2.5 leading-6')}
+        aria-invalid={error ? true : undefined}
+        {...props}
+      />
+      {error && <span className="text-[13px] text-error">{error}</span>}
+    </label>
+  )
+}
+
+/** Même enveloppe que Field, pour qu'un menu et un champ s'alignent dans une grille de filtres. */
+export function SelectField({
+  label,
+  hint,
+  children,
+  ...props
+}: SelectHTMLAttributes<HTMLSelectElement> & { label: string; hint?: string; children: ReactNode }) {
+  return (
+    <label className="grid gap-1.5">
+      <span className="flex items-baseline justify-between gap-2">
+        <span className="text-[13px] font-medium text-on-surface-variant">{label}</span>
+        {hint && <span className="eyebrow">{hint}</span>}
       </span>
       <select className={FIELD_INPUT} {...props}>
         {children}
