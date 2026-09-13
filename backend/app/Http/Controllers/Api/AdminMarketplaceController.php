@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\AdminActivityLog;
 use App\Models\JobApplication;
 use App\Models\JobOffer;
+use App\Models\User;
 use App\Services\Notifications;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 /** Administrative moderation and reporting for the job marketplace. */
 class AdminMarketplaceController extends Controller
@@ -39,6 +41,57 @@ class AdminMarketplaceController extends Controller
         }
 
         return response()->json($query->latest()->paginate($data['per_page'] ?? 20));
+    }
+
+    /**
+     * Post an offer on a recruiter's behalf — the same shape a recruiter
+     * posts through `/recruiter/offers`, minus the implicit "for myself":
+     * an administrator has to say which company it belongs to. Exists for
+     * recruiters who reach the platform by phone or in person rather than
+     * signing in themselves, and for staff filling one in from a brief.
+     */
+    public function storeOffer(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string'],
+            'responsibilities' => ['nullable', 'string', 'max:10000'],
+            'requirements' => ['nullable', 'string', 'max:10000'],
+            'benefits' => ['nullable', 'string', 'max:10000'],
+            'sector' => ['required', 'string', 'max:100'],
+            'city' => ['required', 'string', 'max:100'],
+            'country' => ['sometimes', 'string', 'max:100'],
+            'workplace_type' => ['nullable', 'in:onsite,hybrid,remote'],
+            'weekly_hours' => ['nullable', 'integer', 'min:1', 'max:80'],
+            'experience_level' => ['nullable', 'in:none,less_than_one,one_to_three,three_to_five,five_plus'],
+            'education_level' => ['nullable', 'in:none,vocational,high_school,bachelor,master,doctorate'],
+            'required_cefr_level' => ['nullable', 'in:A1,A2,B1,B2,C1,C2'],
+            'salary_min' => ['nullable', 'integer', 'min:0'],
+            'salary_max' => ['nullable', 'integer', 'gte:salary_min'],
+            'currency' => ['sometimes', 'string', 'size:3'],
+            'contract_type' => ['required', 'in:permanent,fixed_term,apprenticeship,temporary,internship'],
+            'start_date' => ['nullable', 'date'],
+            'application_deadline' => ['nullable', 'date'],
+            'positions_count' => ['sometimes', 'integer', 'min:1', 'max:999'],
+            'status' => ['sometimes', 'in:draft,published,closed'],
+        ]);
+
+        if (! User::find($data['user_id'])->hasRole('Company')) {
+            throw ValidationException::withMessages(['user_id' => 'The selected user is not a recruiter.']);
+        }
+
+        if (($data['status'] ?? 'draft') === 'published') {
+            $data['published_at'] = now();
+        }
+
+        $offer = JobOffer::create($data);
+        AdminActivityLog::record($request->user(), $offer, 'offer_created');
+        if ($offer->status === 'published') {
+            $this->notifications->matchingOfferPublished($offer);
+        }
+
+        return response()->json($offer->fresh('employer.companyProfile'), 201);
     }
 
     public function updateOffer(Request $request, JobOffer $offer): JsonResponse

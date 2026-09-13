@@ -419,6 +419,53 @@ class AdminOperationsTest extends TestCase
         ])->assertForbidden();
     }
 
+    public function test_an_administrator_creates_a_candidate(): void
+    {
+        $this->admin();
+
+        $this->postJson('/api/admin/candidates', [
+            'name' => 'Amine Walked-In',
+            'phone' => '00212 655-998877',
+            'first_name' => 'Amine',
+            'last_name' => 'Alami',
+            'profession' => 'Soudeur',
+            'city' => 'Casablanca',
+        ])
+            ->assertCreated()
+            ->assertJsonPath('user.phone', '+212655998877')
+            ->assertJsonPath('first_name', 'Amine')
+            ->assertJsonPath('profession', 'Soudeur');
+
+        $created = User::where('phone', '+212655998877')->firstOrFail();
+        $this->assertTrue($created->hasRole('User'));
+        $this->assertNull($created->password);
+        $this->assertDatabaseHas('admin_activity_logs', ['action' => 'created']);
+    }
+
+    public function test_a_candidate_account_cannot_reuse_an_existing_number(): void
+    {
+        $this->admin();
+        User::factory()->create(['phone' => '+212655998877']);
+
+        $this->postJson('/api/admin/candidates', [
+            'name' => 'Duplicate',
+            'phone' => '+212655998877',
+        ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('phone');
+    }
+
+    public function test_creating_a_candidate_is_administrator_only(): void
+    {
+        $candidate = $this->candidate();
+        $this->asCandidate($candidate);
+
+        $this->postJson('/api/admin/candidates', [
+            'name' => 'Self service',
+            'phone' => '+212655998878',
+        ])->assertForbidden();
+    }
+
     public function test_an_administrator_renames_an_account(): void
     {
         $this->admin();

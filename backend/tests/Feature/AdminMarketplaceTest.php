@@ -40,6 +40,59 @@ class AdminMarketplaceTest extends TestCase
         $this->assertDatabaseHas('app_notifications', ['user_id' => $company->id, 'type' => 'offer.moderated']);
     }
 
+    public function test_an_administrator_posts_an_offer_on_a_recruiters_behalf(): void
+    {
+        $company = $this->user('Company');
+        $admin = $this->user('Administrator');
+
+        $this->actingAs($admin, 'sanctum')->postJson('/api/admin/offers', [
+            'user_id' => $company->id,
+            'title' => 'Welder',
+            'description' => 'Steel structures assembly',
+            'sector' => 'Industry',
+            'city' => 'Munich',
+            'contract_type' => 'permanent',
+            'status' => 'published',
+        ])
+            ->assertCreated()
+            ->assertJsonPath('title', 'Welder')
+            ->assertJsonPath('status', 'published')
+            ->assertJsonPath('employer.id', $company->id);
+
+        $offer = JobOffer::where('title', 'Welder')->firstOrFail();
+        $this->assertNotNull($offer->published_at);
+        $this->assertDatabaseHas('admin_activity_logs', ['subject_id' => $offer->id, 'action' => 'offer_created']);
+    }
+
+    public function test_an_offer_cannot_be_posted_for_a_non_recruiter(): void
+    {
+        $admin = $this->user('Administrator');
+        $candidate = $this->user('User');
+
+        $this->actingAs($admin, 'sanctum')->postJson('/api/admin/offers', [
+            'user_id' => $candidate->id,
+            'title' => 'Welder',
+            'description' => 'Steel structures assembly',
+            'sector' => 'Industry',
+            'city' => 'Munich',
+            'contract_type' => 'permanent',
+        ])->assertStatus(422)->assertJsonValidationErrors('user_id');
+    }
+
+    public function test_posting_an_offer_is_administrator_only(): void
+    {
+        $company = $this->user('Company');
+
+        $this->actingAs($company, 'sanctum')->postJson('/api/admin/offers', [
+            'user_id' => $company->id,
+            'title' => 'Welder',
+            'description' => 'Steel structures assembly',
+            'sector' => 'Industry',
+            'city' => 'Munich',
+            'contract_type' => 'permanent',
+        ])->assertForbidden();
+    }
+
     public function test_admin_application_queue_and_metrics_are_real(): void
     {
         $company = $this->user('Company');

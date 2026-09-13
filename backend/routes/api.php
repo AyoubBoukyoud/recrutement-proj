@@ -166,12 +166,14 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
         Route::get('/admin/ping', fn () => response()->json(['message' => 'pong', 'role' => 'Administrator']));
         Route::get('/admin/metrics', [AdminMetricsController::class, 'index']);
         Route::get('/admin/offers', [AdminMarketplaceController::class, 'offers']);
+        Route::post('/admin/offers', [AdminMarketplaceController::class, 'storeOffer']);
         Route::patch('/admin/offers/{offer}', [AdminMarketplaceController::class, 'updateOffer']);
         Route::get('/admin/applications', [AdminMarketplaceController::class, 'applications']);
         Route::patch('/admin/applications/{application}', [AdminMarketplaceController::class, 'updateApplicationStatus']);
         Route::get('/admin/activity', [AdminMarketplaceController::class, 'activity']);
 
         Route::get('/admin/candidates', [AdminCandidateController::class, 'index']);
+        Route::post('/admin/candidates', [AdminCandidateController::class, 'store']);
         Route::post('/admin/candidates/bulk', [AdminCandidateController::class, 'bulk']);
         Route::get('/admin/candidates/{candidateProfile}', [AdminCandidateController::class, 'show']);
         Route::get('/admin/candidates/{candidateProfile}/activity', [AdminCandidateController::class, 'activity']);
@@ -187,6 +189,7 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
         // Recruiters: a User with the "Company" role plus its CompanyProfile —
         // there is no separate Recruiter model (see AdminRecruiterController).
         Route::get('/admin/recruiters', [AdminRecruiterController::class, 'index']);
+        Route::post('/admin/recruiters', [AdminRecruiterController::class, 'store']);
         Route::post('/admin/recruiters/bulk', [AdminRecruiterController::class, 'bulk']);
         Route::get('/admin/recruiters/{recruiter}', [AdminRecruiterController::class, 'show']);
         Route::get('/admin/recruiters/{recruiter}/activity', [AdminRecruiterController::class, 'activity']);

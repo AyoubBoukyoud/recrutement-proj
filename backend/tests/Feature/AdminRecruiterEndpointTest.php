@@ -44,6 +44,49 @@ class AdminRecruiterEndpointTest extends TestCase
         return $recruiter;
     }
 
+    public function test_an_administrator_creates_a_recruiter(): void
+    {
+        $this->admin();
+
+        $this->postJson('/api/admin/recruiters', [
+            'name' => 'Yassin Company Contact',
+            'phone' => '00212 655-334455',
+            'company_name' => 'Atlas Recruiting',
+            'sector' => 'Health',
+            'city' => 'Rabat',
+        ])
+            ->assertCreated()
+            ->assertJsonPath('phone', '+212655334455')
+            ->assertJsonPath('company_name', 'Atlas Recruiting');
+
+        $created = User::where('phone', '+212655334455')->firstOrFail();
+        $this->assertTrue($created->hasRole('Company'));
+        $this->assertNull($created->password);
+        $this->assertSame('Atlas Recruiting', $created->companyProfile->company_name);
+    }
+
+    public function test_creating_a_recruiter_requires_a_company_name(): void
+    {
+        $this->admin();
+
+        $this->postJson('/api/admin/recruiters', [
+            'name' => 'No Company',
+            'phone' => '+212655334456',
+        ])->assertStatus(422)->assertJsonValidationErrors('company_name');
+    }
+
+    public function test_creating_a_recruiter_is_administrator_only(): void
+    {
+        $recruiter = $this->recruiter();
+        $this->actingAs($recruiter, 'sanctum');
+
+        $this->postJson('/api/admin/recruiters', [
+            'name' => 'Self service',
+            'phone' => '+212655334457',
+            'company_name' => 'Self Co',
+        ])->assertForbidden();
+    }
+
     public function test_admin_can_filter_and_open_recruiters_but_not_regular_users(): void
     {
         $this->admin();

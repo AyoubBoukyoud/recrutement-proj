@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\AdminActivityLog;
 use App\Models\User;
 use App\Services\ActivityFeed;
+use App\Support\PhoneNumber;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -98,6 +100,77 @@ class AdminRecruiterController extends Controller
         ]);
 
         return response()->json($recruiters);
+    }
+
+    /**
+     * Onboard a company that did not sign up itself — the account still signs
+     * in by OTP afterwards, same as every recruiter created through the app.
+     * Unlike a candidate's dossier, a company profile is not much use empty,
+     * so `company_name` is required here rather than left for a later edit.
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $request->merge(['phone' => PhoneNumber::normalize((string) $request->input('phone', ''))]);
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'phone' => ['required', 'string', 'max:20', PhoneNumber::E164_RULE, 'unique:users,phone'],
+            'email' => ['sometimes', 'nullable', 'email', 'max:255', 'unique:users,email'],
+            'company_name' => ['required', 'string', 'max:255'],
+            'sector' => ['sometimes', 'nullable', 'string', 'max:100'],
+            'city' => ['sometimes', 'nullable', 'string', 'max:100'],
+            'website' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'employees_count' => ['sometimes', 'nullable', 'integer', 'min:0'],
+        ], [
+            'phone.regex' => 'Enter the number in international format, for example +212600000000.',
+            'phone.unique' => 'An account already exists for this number.',
+        ]);
+
+        // Atomic — see the same note in AdminCandidateController::store: a
+        // failure between the account and the company shell must not leave
+        // the phone number permanently reserved by a half-created row.
+        [$recruiter, $profile] = DB::transaction(function () use ($request, $data) {
+            $recruiter = User::create([
+                'name' => $data['name'],
+                'phone' => $data['phone'],
+                'email' => $data['email'] ?? null,
+                'status' => 'active',
+            ]);
+            $recruiter->assignRole('Company');
+
+            // Through the relation: user_id isn't in CompanyProfile's
+            // fillable list (see the same note in
+            // AdminCandidateController::store), so a plain mass-assigned
+            // create() would silently drop it.
+            $profile = $recruiter->companyProfile()->create([
+                'company_name' => $data['company_name'],
+                'sector' => $data['sector'] ?? null,
+                'city' => $data['city'] ?? null,
+                'website' => $data['website'] ?? null,
+                'employees_count' => $data['employees_count'] ?? null,
+            ]);
+
+            AdminActivityLog::record($request->user(), $recruiter, 'created');
+
+            return [$recruiter, $profile];
+        });
+
+        return response()->json([
+            'id' => $recruiter->id,
+            'name' => $recruiter->name,
+            'phone' => $recruiter->phone,
+            'email' => $recruiter->email,
+            'account_status' => $recruiter->status,
+            'company_name' => $profile->company_name,
+            'sector' => $profile->sector,
+            'city' => $profile->city,
+            'verified_at' => null,
+            'shortlists_count' => 0,
+            'interviewing_count' => 0,
+            'placed_count' => 0,
+            'last_activity_at' => null,
+            'created_at' => $recruiter->created_at?->toJSON(),
+        ], 201);
     }
 
     public function show(User $recruiter): JsonResponse
