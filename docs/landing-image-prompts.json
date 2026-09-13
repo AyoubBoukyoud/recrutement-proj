@@ -1,0 +1,74 @@
+{
+  "tool": "Built-in ChatGPT image_gen",
+  "images": [
+    {
+      "name": "conversation",
+      "prompt": "Use case: stylized-concept. Asset type: expressive editorial illustration for AMUD Skills employment platform, replacing a small generic icon with a polished image. Square composition, premium tactile 3D paper and ceramic aesthetic, soft daylight, warm optimistic professional mood, pale ivory background, teal #05514B, muted coral #E07A5F and gold #E7B23B accents. Simple large recognizable objects centered with generous padding, no text, no letters, no numbers, no watermarks, no logos. Two friendly Moroccan adult professionals in a calm face-to-face conversation at a small round table, subtle empty speech bubbles, respectful listening. Half-body expressive people, natural proportions.",
+      "file": "C:\\Users\\Yacine\\.codex\\generated_images\\01a087bb-69fa-72d0-9461-ddb0c95a6d0d\\exec-de3e9af1-59f7-4e01-a87e-3e340d3c260d.png"
+    },
+    {
+      "name": "pathway",
+      "prompt": "Use case: stylized-concept. Asset type: expressive editorial illustration for AMUD Skills employment platform, replacing a small generic icon with a polished image. Square composition, premium tactile 3D paper and ceramic aesthetic, soft daylight, warm optimistic professional mood, pale ivory background, teal #05514B, muted coral #E07A5F and gold #E7B23B accents. Simple large recognizable objects centered with generous padding, no text, no letters, no numbers, no watermarks, no logos. An open career planning notebook with a winding path connecting a book, a graduation cap and a small flag at the destination. No text in notebook. A clear welcoming journey, not a chart.",
+      "file": "C:\\Users\\Yacine\\.codex\\generated_images\\01a087bb-69fa-72d0-9461-ddb0c95a6d0d\\exec-4c45f5ba-a295-4e9e-9dc5-a0cce01b00bc.png"
+    },
+    {
+      "name": "next-steps",
+      "prompt": "Use case: stylized-concept. Asset type: expressive editorial illustration for AMUD Skills employment platform, replacing a small generic icon with a polished image. Square composition, premium tactile 3D paper and ceramic aesthetic, soft daylight, warm optimistic professional mood, pale ivory background, teal #05514B, muted coral #E07A5F and gold #E7B23B accents. Simple large recognizable objects centered with generous padding, no text, no letters, no numbers, no watermarks, no logos. A neatly organized document folder, a small calendar with blank squares, and three gently rising stepping stones ending in a sunlit open doorway. Preparing a professional next step.",
+      "file": "C:\\Users\\Yacine\\.codex\\generated_images\\01a087bb-69fa-72d0-9461-ddb0c95a6d0d\\exec-401cf25e-2758-48da-a406-4474d26ece07.png"
+    },
+    {
+      "name": "sharing",
+      "prompt": "Use case: stylized-concept. Asset type: expressive editorial illustration for AMUD Skills employment platform, replacing a small generic icon with a polished image. Square composition, premium tactile 3D paper and ceramic aesthetic, soft daylight, warm optimistic professional mood, pale ivory background, teal #05514B, muted coral #E07A5F and gold #E7B23B accents. Simple large recognizable objects centered with generous padding, no text, no letters, no numbers, no watermarks, no logos. A hand choosing one of three professional profile cards, with a small eye symbol on the selected card. Personal choice and control over visibility, simple physical paper objects.",
+      "file": "C:\\Users\\Yacine\\.codex\\generated_images\\01a087bb-69fa-72d0-9461-ddb0c95a6d0d\\exec-d018d808-1205-4e58-9559-9002d23359f3.png"
+    },
+    {
+      "name": "documents",
+      "prompt": "Use case: stylized-concept. Asset type: expressive editorial illustration for AMUD Skills employment platform, replacing a small generic icon with a polished image. Square composition, premium tactile 3D paper and ceramic aesthetic, soft daylight, warm optimistic professional mood, pale ivory background, teal #05514B, muted coral #E07A5F and gold #E7B23B accents. Simple large recognizable objects centered with generous padding, no text, no letters, no numbers, no watermarks, no logos. Two careful hands passing a closed document folder, with a small protective clasp and a tasteful shield-shaped seal. Thoughtful document sharing and trust. No claim of certification.",
+      "file": "C:\\Users\\Yacine\\.codex\\generated_images\\01a087bb-69fa-72d0-9461-ddb0c95a6d0d\\exec-a2563e8f-95d4-443f-944d-f079dd797fb3.png"
+    },
+    {
+      "name": "clarity",
+      "prompt": "Use case: stylized-concept. Asset type: expressive editorial illustration for AMUD Skills employment platform, replacing a small generic icon with a polished image. Square composition, premium tactile 3D paper and ceramic aesthetic, soft daylight, warm optimistic professional mood, pale ivory background, teal #05514B, muted coral #E07A5F and gold #E7B23B accents. Simple large recognizable objects centered with generous padding, no text, no letters, no numbers, no watermarks, no logos. A person studying an open guide with three clear stepping stones leading forward into soft daylight. Calm understanding of the next steps, simple distinct composition.",
+      "file": "C:\\Users\\Yacine\\.codex\\generated_images\\01a087bb-69fa-72d0-9461-ddb0c95a6d0d\\exec-9eb2a67b-c8f0-4bbe-956e-ba9372039ea2.png"
+    },
+    {
+      "name": "faq",
+      "prompt": "Use case: stylized-concept. Asset type: expressive editorial illustration for AMUD Skills employment platform, replacing a small generic icon with a polished image. Square composition, premium tactile 3D paper and ceramic aesthetic, soft daylight, warm optimistic professional mood, pale ivory background, teal #05514B, muted coral #E07A5F and gold #E7B23B accents. Simple large recognizable objects centered with generous padding, no text, no letters, no numbers, no watermarks, no logos. A friendly Moroccan female advisor beside an open handbook and two empty overlapping speech bubbles, attentive helpful expression, approachable and professional. Editorial support illustration.",
+      "file": "C:\\Users\\Yacine\\.codex\\generated_images\\01a087bb-69fa-72d0-9461-ddb0c95a6d0d\\exec-a4ef4e9b-45dc-4d30-b960-461d0a5f0830.png"
+    }
+  ],
+  "recolor": {
+    "tool": "Built-in ChatGPT image_gen",
+    "prompt": "Use case: precise-object-edit. Preserve exactly the same scene, composition, characters, facial identity, poses, objects, lighting, tactile 3D paper-and-ceramic rendering style, square framing, and ivory background. Change the principal teal/green color to brick red #B84A4A, secondary accents to mustard gold #D6AE4B, and dark neutral elements to charcoal #252525. Keep natural skin colors. Remove remaining green/teal hues. No text, logos or watermark. Do not add or remove objects.",
+    "images": [
+      {
+        "name": "conversation",
+        "path": "C:\\Users\\Yacine\\.codex\\generated_images\\01a087bb-69fa-72d0-9461-ddb0c95a6d0d\\exec-19dcf7de-4fd4-45bc-9425-49b83e93fa5f.png"
+      },
+      {
+        "name": "pathway",
+        "path": "C:\\Users\\Yacine\\.codex\\generated_images\\01a087bb-69fa-72d0-9461-ddb0c95a6d0d\\exec-9ffcaf20-df08-4aeb-abbb-87dff0dc6ecf.png"
+      },
+      {
+        "name": "next-steps",
+        "path": "C:\\Users\\Yacine\\.codex\\generated_images\\01a087bb-69fa-72d0-9461-ddb0c95a6d0d\\exec-9b2f922d-082c-4803-9611-e5ac8d3f20e3.png"
+      },
+      {
+        "name": "sharing",
+        "path": "C:\\Users\\Yacine\\.codex\\generated_images\\01a087bb-69fa-72d0-9461-ddb0c95a6d0d\\exec-c18459fc-c65b-4cd9-a932-fd1e14865443.png"
+      },
+      {
+        "name": "documents",
+        "path": "C:\\Users\\Yacine\\.codex\\generated_images\\01a087bb-69fa-72d0-9461-ddb0c95a6d0d\\exec-35c28845-7b9d-407a-bb8e-ca9ae4f5099a.png"
+      },
+      {
+        "name": "clarity",
+        "path": "C:\\Users\\Yacine\\.codex\\generated_images\\01a087bb-69fa-72d0-9461-ddb0c95a6d0d\\exec-be9f11f5-65c2-4d80-95d2-f038b0c831d9.png"
+      },
+      {
+        "name": "faq",
+        "path": "C:\\Users\\Yacine\\.codex\\generated_images\\01a087bb-69fa-72d0-9461-ddb0c95a6d0d\\exec-e579eeaf-beb8-447a-acd6-54e43473359e.png"
+      }
+    ]
+  }
+}
