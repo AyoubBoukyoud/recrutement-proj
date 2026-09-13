@@ -99,7 +99,7 @@ export default function AuthPhonePage() {
           e.preventDefault();
           submit();
         }}
-        className="flex-1 px-6 pt-6"
+        className="flex flex-1 flex-col justify-center px-6 py-6"
       >
         {sessionExpired && (
           <div role="status" className="mb-4 flex items-start gap-2 rounded-pillar border border-gold/30 bg-gold/10 p-3 text-xs font-medium text-onSurface">
