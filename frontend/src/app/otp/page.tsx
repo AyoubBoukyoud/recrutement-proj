@@ -75,6 +75,23 @@ function OtpContent() {
     }
   };
 
+  // Chaque case a `maxLength={1}` : coller un code entier s'y tronque à un
+  // seul caractère avant même que `onChange` ne le voie. Il faut donc lire
+  // le presse-papiers ici et répartir les chiffres nous-mêmes.
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (!pasted) return;
+    e.preventDefault();
+
+    const next = Array(6).fill("");
+    for (let i = 0; i < pasted.length; i++) next[i] = pasted[i];
+    setDigits(next);
+    inputsRef.current[Math.min(pasted.length, 5)]?.focus();
+    if (next.every((d) => d !== "")) {
+      submitCode(next.join(""));
+    }
+  };
+
   const submitCode = async (code: string) => {
     setError(null);
     setIsVerifying(true);
@@ -225,6 +242,7 @@ function OtpContent() {
                   disabled={isVerifying}
                   onChange={(e) => handleChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
+                  onPaste={handlePaste}
                   className={`h-12 w-11 rounded-pillar border border-outline bg-surface-container-lowest text-center text-xl font-extrabold text-primary outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:opacity-60 shadow-sm ${
                     error ? "border-error ring-2 ring-error/20" : ""
                   }`}

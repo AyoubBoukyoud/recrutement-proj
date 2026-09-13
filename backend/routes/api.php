@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\CandidateSkillController;
 use App\Http\Controllers\Api\CandidateTaskController;
 use App\Http\Controllers\Api\CandidateVisibilityController;
 use App\Http\Controllers\Api\ComplaintController;
+use App\Http\Controllers\Api\ContactMessageController;
 use App\Http\Controllers\Api\DeviceSessionController;
 use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\EducationController;
@@ -28,6 +29,7 @@ use App\Http\Controllers\Api\LanguageAssessmentController;
 use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\PhoneChangeController;
 use App\Http\Controllers\Api\PushSubscriptionController;
+use App\Http\Controllers\Api\RecruitmentCenterController;
 use App\Http\Controllers\Api\RecruiterCandidateController;
 use App\Http\Controllers\Api\RecruiterInterviewController;
 use App\Http\Controllers\Api\RecruiterProfileController;
@@ -41,6 +43,10 @@ use Illuminate\Support\Facades\Route;
 // and one of them costs money to serve, so neither may be left unbounded.
 Route::post('/auth/otp/request', [AuthController::class, 'requestOtp'])->middleware('throttle:otp-request');
 Route::post('/auth/otp/verify', [AuthController::class, 'verifyOtp'])->middleware('throttle:otp-verify');
+
+// The public "contact us" form at the bottom of the homepage — a visitor
+// with no account yet, so this stays outside the auth:sanctum group below.
+Route::post('/contact', [ContactMessageController::class, 'store'])->middleware('throttle:contact-create');
 
 // `throttle:api` is a generous per-user catch-all (AppServiceProvider) so
 // every authenticated route has *some* bound, even the ones with no
@@ -145,16 +151,29 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
         Route::post('/referrals/agent/rotate', [ReferralAgentController::class, 'rotate']);
     });
 
+    // A shared call log for training/recruitment centers: both roles see the
+    // same list and the same notes, so two agents don't cold-call the same
+    // center unaware of each other.
+    Route::middleware('role:Administrator|Commercial Agent')->group(function () {
+        Route::get('/recruitment-centers', [RecruitmentCenterController::class, 'index']);
+        Route::post('/recruitment-centers', [RecruitmentCenterController::class, 'store']);
+        Route::get('/recruitment-centers/{recruitmentCenter}', [RecruitmentCenterController::class, 'show']);
+        Route::patch('/recruitment-centers/{recruitmentCenter}', [RecruitmentCenterController::class, 'update']);
+        Route::post('/recruitment-centers/{recruitmentCenter}/notes', [RecruitmentCenterController::class, 'addNote']);
+    });
+
     Route::middleware('role:Administrator')->group(function () {
         Route::get('/admin/ping', fn () => response()->json(['message' => 'pong', 'role' => 'Administrator']));
         Route::get('/admin/metrics', [AdminMetricsController::class, 'index']);
         Route::get('/admin/offers', [AdminMarketplaceController::class, 'offers']);
+        Route::post('/admin/offers', [AdminMarketplaceController::class, 'storeOffer']);
         Route::patch('/admin/offers/{offer}', [AdminMarketplaceController::class, 'updateOffer']);
         Route::get('/admin/applications', [AdminMarketplaceController::class, 'applications']);
         Route::patch('/admin/applications/{application}', [AdminMarketplaceController::class, 'updateApplicationStatus']);
         Route::get('/admin/activity', [AdminMarketplaceController::class, 'activity']);
 
         Route::get('/admin/candidates', [AdminCandidateController::class, 'index']);
+        Route::post('/admin/candidates', [AdminCandidateController::class, 'store']);
         Route::post('/admin/candidates/bulk', [AdminCandidateController::class, 'bulk']);
         Route::get('/admin/candidates/{candidateProfile}', [AdminCandidateController::class, 'show']);
         Route::get('/admin/candidates/{candidateProfile}/activity', [AdminCandidateController::class, 'activity']);
@@ -170,6 +189,7 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
         // Recruiters: a User with the "Company" role plus its CompanyProfile —
         // there is no separate Recruiter model (see AdminRecruiterController).
         Route::get('/admin/recruiters', [AdminRecruiterController::class, 'index']);
+        Route::post('/admin/recruiters', [AdminRecruiterController::class, 'store']);
         Route::post('/admin/recruiters/bulk', [AdminRecruiterController::class, 'bulk']);
         Route::get('/admin/recruiters/{recruiter}', [AdminRecruiterController::class, 'show']);
         Route::get('/admin/recruiters/{recruiter}/activity', [AdminRecruiterController::class, 'activity']);
@@ -191,6 +211,9 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
 
         Route::get('/admin/complaints', [ComplaintController::class, 'index']);
         Route::patch('/admin/complaints/{complaint}', [ComplaintController::class, 'update']);
+
+        Route::get('/admin/contact-messages', [ContactMessageController::class, 'index']);
+        Route::patch('/admin/contact-messages/{contactMessage}', [ContactMessageController::class, 'update']);
 
         Route::get('/admin/users', [AdminUserController::class, 'index']);
         Route::post('/admin/users', [AdminUserController::class, 'store']);

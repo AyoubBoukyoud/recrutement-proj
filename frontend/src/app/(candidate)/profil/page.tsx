@@ -5,8 +5,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button, IconButton } from "@/components/shared/Button";
-import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
-import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -197,8 +195,6 @@ export default function ProfilPage() {
           >
             <span className="material-symbols-outlined">manage_accounts</span>
           </Link>
-          <LanguageSwitcher compact />
-          <ThemeToggle />
           <IconButton
             variant="ghost"
             onClick={() => setShowQr((v) => !v)}

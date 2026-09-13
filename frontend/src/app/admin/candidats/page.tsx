@@ -7,7 +7,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import { api } from '@/lib/opsApi';
 import type { Page } from '@/lib/candidateMarketplace';
-import { ConfirmDialog } from '@/components/amud/ui';
+import { ConfirmDialog, Modal, ModalActions } from '@/components/amud/ui';
+import { FormGrid, TextField } from '@/components/amud/form';
 import { useToast } from '@/components/amud/Toast';
 import { Pagination } from '@/components/Pagination';
 
@@ -69,6 +70,16 @@ function errorMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
+const EMPTY_CANDIDATE_FORM = {
+  name: '',
+  phone: '',
+  email: '',
+  first_name: '',
+  last_name: '',
+  profession: '',
+  city: '',
+};
+
 export default function AdminCandidatsPage() {
   return (
     <Suspense fallback={<p className="text-body-md text-amud-on-surface-variant">Chargement…</p>}>
@@ -89,6 +100,8 @@ function AdminCandidatsPageInner() {
   const [page, setPage] = useState(1);
   const [openMenu, setOpenMenu] = useState<number | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [form, setForm] = useState(EMPTY_CANDIDATE_FORM);
 
   const metrics = useQuery({
     queryKey: ['admin-metrics'],
@@ -133,6 +146,26 @@ function AdminCandidatsPageInner() {
     onError: (error) => notify(errorMessage(error, 'Suppression impossible.'), 'error'),
   });
 
+  const create = useMutation({
+    mutationFn: () =>
+      api.post('/admin/candidates', {
+        name: form.name.trim(),
+        phone: form.phone.trim(),
+        email: form.email.trim() || undefined,
+        first_name: form.first_name.trim() || undefined,
+        last_name: form.last_name.trim() || undefined,
+        profession: form.profession.trim() || undefined,
+        city: form.city.trim() || undefined,
+      }),
+    onSuccess: () => {
+      notify('Candidat créé.');
+      setCreating(false);
+      setForm(EMPTY_CANDIDATE_FORM);
+      refresh();
+    },
+    onError: (error) => notify(errorMessage(error, "La création a échoué."), 'error'),
+  });
+
   function submitSearch(e: React.FormEvent) {
     e.preventDefault();
     setSearch(searchInput);
@@ -149,6 +182,13 @@ function AdminCandidatsPageInner() {
           <h2 className="text-headline-lg text-amud-on-surface">Candidats</h2>
           <p className="mt-1 text-body-md text-amud-on-surface-variant">Dossiers, vérification et accès des candidats inscrits.</p>
         </div>
+        <button
+          onClick={() => setCreating(true)}
+          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-amud-primary px-lg py-2 text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark"
+        >
+          <span className="material-symbols-outlined text-[18px]">add</span>
+          Ajouter un candidat
+        </button>
       </div>
 
       <div className="mb-lg grid grid-cols-2 gap-md md:grid-cols-4">
@@ -325,6 +365,73 @@ function AdminCandidatsPageInner() {
         description="Le dossier candidat (documents, formations, langues) sera retiré. Le compte de connexion reste actif."
         confirmLabel="Supprimer"
       />
+
+      <Modal
+        open={creating}
+        onClose={() => setCreating(false)}
+        title="Ajouter un candidat"
+        subtitle="Réserve le numéro et crée le dossier — la connexion se fait ensuite par code, comme pour tout le monde."
+        footer={
+          <ModalActions
+            onCancel={() => setCreating(false)}
+            submitLabel={create.isPending ? 'Création…' : 'Créer le candidat'}
+            form="create-candidate-form"
+            disabled={create.isPending || !form.name.trim() || !form.phone.trim()}
+          />
+        }
+      >
+        <FormGrid
+          id="create-candidate-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            create.mutate();
+          }}
+        >
+          <TextField
+            label="Nom complet"
+            required
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            placeholder="Amine Alami"
+          />
+          <TextField
+            label="Téléphone"
+            required
+            value={form.phone}
+            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            placeholder="+212600000000"
+            hint="Format international — c'est le numéro qui sert à se connecter."
+          />
+          <TextField
+            label="E-mail"
+            type="email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+          />
+          <TextField
+            label="Ville"
+            value={form.city}
+            onChange={(e) => setForm({ ...form, city: e.target.value })}
+          />
+          <TextField
+            label="Prénom (dossier)"
+            value={form.first_name}
+            onChange={(e) => setForm({ ...form, first_name: e.target.value })}
+          />
+          <TextField
+            label="Nom (dossier)"
+            value={form.last_name}
+            onChange={(e) => setForm({ ...form, last_name: e.target.value })}
+          />
+          <TextField
+            label="Métier"
+            className="sm:col-span-2"
+            value={form.profession}
+            onChange={(e) => setForm({ ...form, profession: e.target.value })}
+            placeholder="Soudeur, infirmier, chauffeur…"
+          />
+        </FormGrid>
+      </Modal>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { DropdownMenu, NavItem, isNavActive } from '@/components/amud/ui';
-import { InlineLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
+import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 import { ToastProvider } from '@/components/amud/Toast';
 import { DemoBanner } from '@/components/amud/DemoBanner';
 import { GlobalSearch, useGlobalSearchShortcut, type GlobalSearchResult } from '@/components/amud/GlobalSearch';
@@ -139,7 +139,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
           }`}
         >
           <div className={`flex items-center gap-sm border-b border-amud-outline-variant px-lg py-2.5 ${collapsed ? 'md:px-md' : ''}`}>
-            <img src="/assets/images/logo.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
+            <img src="/assets/images/logo-mark.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
             <div className={hiddenWhenCollapsed}>
               <h1 className="text-title-lg font-bold text-amud-primary">Amud Skills</h1>
               <p className="text-label-sm text-amud-on-surface-variant">Enterprise Admin</p>
@@ -208,7 +208,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 <span className="material-symbols-outlined">menu</span>
               </button>
               <div className="flex min-w-0 items-center gap-sm md:hidden">
-                <img src="/assets/images/logo.png" alt="" className="h-8 w-8 shrink-0 object-contain" />
+                <img src="/assets/images/logo-mark.png" alt="" className="h-8 w-8 shrink-0 object-contain" />
                 <span className="truncate text-title-lg font-bold text-amud-primary">Amud Skills</span>
               </div>
             </div>
@@ -223,6 +223,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
               placeholder="Rechercher un candidat, une offre, une entreprise…"
             />
             <div className="ml-auto flex items-center gap-sm">
+              <HeaderPreferences />
               <NotificationCenter key={`notif-${pathname}`} scope="admin" />
               <DropdownMenu
                 key={`profile-${pathname}`}
@@ -232,7 +233,6 @@ export function AdminShell({ children }: { children: ReactNode }) {
                     <div className="text-label-sm text-amud-on-surface-variant">Gestionnaire Principal</div>
                   </div>
                 }
-                body={<InlineLanguageThemeControls />}
                 trigger={({ open, toggle }) => (
                   <button
                     onClick={toggle}

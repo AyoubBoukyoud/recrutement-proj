@@ -8,8 +8,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useNetwork } from "@/context/NetworkContext";
 import { AudioRecorder } from "@/components/shared/AudioRecorder";
 import { Button } from "@/components/shared/Button";
-import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
-import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { ApiError } from "@/lib/api";
 import { parseSubject, type Complaint } from "@/lib/complaints";
 import { complaintsRepository } from "@/data/complaints";
@@ -126,10 +124,6 @@ export default function ReclamationPage() {
         <h1 className="flex-1 text-lg font-bold text-primary-dark">
           {content.header.title}
         </h1>
-        <div className="flex items-center gap-1">
-          <LanguageSwitcher compact />
-          <ThemeToggle />
-        </div>
       </header>
 
       <main className="mx-auto max-w-md space-y-8 px-6 pt-8 lg:max-w-5xl lg:px-10 lg:pt-10">

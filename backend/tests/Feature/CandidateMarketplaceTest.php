@@ -46,6 +46,49 @@ class CandidateMarketplaceTest extends TestCase
         $this->actingAs($candidate, 'sanctum')->getJson('/api/candidate/notifications')->assertOk()->assertJsonPath('data.0.type', 'application.status');
     }
 
+    public function test_offer_keeps_the_details_candidates_need(): void
+    {
+        $company = $this->user('Company');
+        $candidate = $this->user('User');
+
+        $offerId = $this->actingAs($company, 'sanctum')->postJson('/api/recruiter/offers', [
+            'title' => 'Registered nurse',
+            'description' => 'Permanent role in a multidisciplinary care team.',
+            'responsibilities' => "Provide daily care\nCoordinate patient follow-up",
+            'requirements' => "Recognised nursing diploma\nStrong teamwork skills",
+            'benefits' => "Relocation support\n30 days of paid leave",
+            'sector' => 'Health',
+            'city' => 'Berlin',
+            'country' => 'Germany',
+            'workplace_type' => 'onsite',
+            'weekly_hours' => 38,
+            'experience_level' => 'one_to_three',
+            'education_level' => 'vocational',
+            'required_cefr_level' => 'B1',
+            'salary_min' => 2800,
+            'salary_max' => 3400,
+            'currency' => 'EUR',
+            'contract_type' => 'permanent',
+            'start_date' => '2026-11-01',
+            'application_deadline' => '2026-10-15',
+            'positions_count' => 3,
+            'status' => 'published',
+        ])->assertCreated()
+            ->assertJsonPath('workplace_type', 'onsite')
+            ->assertJsonPath('weekly_hours', 38)
+            ->assertJsonPath('positions_count', 3)
+            ->json('id');
+
+        $this->actingAs($candidate, 'sanctum')
+            ->getJson("/api/offers/{$offerId}")
+            ->assertOk()
+            ->assertJsonPath('responsibilities', "Provide daily care\nCoordinate patient follow-up")
+            ->assertJsonPath('requirements', "Recognised nursing diploma\nStrong teamwork skills")
+            ->assertJsonPath('experience_level', 'one_to_three')
+            ->assertJsonPath('education_level', 'vocational')
+            ->assertJsonPath('positions_count', 3);
+    }
+
     public function test_paused_candidate_disappears_and_can_resume(): void
     {
         $candidate = $this->user('User');

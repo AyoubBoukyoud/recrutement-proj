@@ -7,8 +7,6 @@ import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button, IconButton } from "@/components/shared/Button";
 import { Pagination } from "@/components/Pagination";
-import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
-import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useCandidateProfile } from "@/lib/useCandidateProfile";
@@ -147,10 +145,6 @@ export default function OffresPage() {
           <h1 className="text-lg font-extrabold text-primary">
             {content.header.title}
           </h1>
-        </div>
-        <div className="flex items-center gap-1">
-          <LanguageSwitcher compact />
-          <ThemeToggle />
         </div>
       </header>
 
@@ -338,6 +332,16 @@ export default function OffresPage() {
                   <span className="rounded-md bg-surface-container-high px-2 py-1 text-xs">
                     {content.contracts[offer.contract_type]}
                   </span>
+                  {offer.workplace_type && (
+                    <span className="rounded-md bg-surface-container-high px-2 py-1 text-xs">
+                      {content.workplaces[offer.workplace_type]}
+                    </span>
+                  )}
+                  {offer.experience_level && (
+                    <span className="rounded-md bg-surface-container-high px-2 py-1 text-xs">
+                      {content.experienceLevels[offer.experience_level]}
+                    </span>
+                  )}
                   {offer.required_cefr_level && (
                     <span className="rounded-md bg-secondary/20 px-2 py-1 text-xs">
                       {content.job.cefr.replace(

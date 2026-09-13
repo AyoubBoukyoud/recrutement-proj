@@ -82,16 +82,13 @@ export default function AuthPhonePage() {
     <AuthShell>
     <main id="main-content" tabIndex={-1} className="mx-auto flex min-h-screen max-w-md flex-col bg-surface shadow-subtle outline-none">
       <header className="relative flex flex-col items-center px-6 py-4 border-b border-surface-container-high">
-        <Link href="/language" aria-label="Retour" className="absolute left-6 top-5 text-primary hover:opacity-80 transition-opacity">
+        <Link href="/accueil-public" aria-label="Retour" className="absolute left-6 top-5 text-primary hover:opacity-80 transition-opacity">
           <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
             arrow_back
           </span>
         </Link>
-        <div className="mb-1 flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-onPrimary shadow-sm">
-          <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
-            smartphone
-          </span>
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element -- pas de route Next/Image dédiée ici */}
+        <img src="/assets/images/logo-mark.png" alt="" className="mb-1 h-10 w-10 object-contain" />
         <h1 className="text-sm font-extrabold text-primary">Amud Skills</h1>
         <p className="text-[10px] font-bold uppercase tracking-wider text-tertiary">{t('auth_screen_label')}</p>
       </header>
@@ -102,7 +99,7 @@ export default function AuthPhonePage() {
           e.preventDefault();
           submit();
         }}
-        className="flex-1 px-6 pt-6"
+        className="flex flex-1 flex-col justify-center px-6 py-6"
       >
         {sessionExpired && (
           <div role="status" className="mb-4 flex items-start gap-2 rounded-pillar border border-gold/30 bg-gold/10 p-3 text-xs font-medium text-onSurface">

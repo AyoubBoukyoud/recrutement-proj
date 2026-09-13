@@ -1,97 +1,292 @@
 {
-  "_note": "English homepage copy. Same shape as home.fr.json — TypeScript fails the build if a key is missing.",
+  "_note": "English homepage copy. Same shape as home.fr.json — TypeScript fails the build if a key is missing. `trades`, `tradePage` and `product` stay shared with /metiers/[slug] and /produit.",
   "nav": {
     "links": [
-      { "label": "Trades", "href": "/accueil-public#sectors" },
-      { "label": "How it works", "href": "/accueil-public#methodology" },
-      { "label": "Recruiters", "href": "/employeurs" }
+      { "label": "For candidates", "href": "/accueil-public#candidats" },
+      { "label": "For employers", "href": "/employeurs" },
+      { "label": "For training centres", "href": "/accueil-public#centres" },
+      { "label": "Contact", "href": "/accueil-public#contact" },
+      { "label": "FAQ", "href": "/accueil-public#faq" }
     ],
-    "signIn": "I already have a file",
-    "cta": "Create my file",
+    "signIn": "Sign in",
+    "cta": "Create my profile",
     "menuOpen": "Open menu",
     "menuClose": "Close menu"
   },
   "hero": {
-    "eyebrow": "Morocco → Germany",
-    "headline": ["Work in Germany.", "We build your file with you."],
-    "subheadline": "Your CV, your diplomas and your German level gathered into one file that German employers know how to read — and consult directly.",
-    "cta": "Create my file for free",
-    "secondaryCta": "See what my trade requires",
-    "microcopy": "Free · No password · You control whether your file is visible",
-    "scrollCue": "Discover the journey",
-    "mediaCaption": "Your journey, from Morocco to Germany",
-    "videoProgress": "Video progress",
-    "videoError": "The video could not load. The preview image is still available.",
+    "eyebrow": "Opportunities without borders",
+    "headline": ["Your profile on mobile.", "Your talent makes the connection."],
+    "subheadline": "AMUD Skills connects Moroccan talent with employers and training centres in Germany, in one clear, mobile profile.",
+    "cta": "Create my profile",
+    "secondaryCta": "See how it works",
+    "microcopy": "Free · No password · You control your visibility",
+    "imageAlt": "A candidate reviewing their AMUD Skills profile on their phone.",
     "card": {
-      "title": "Candidate file",
-      "name": "Your trade",
-      "levelLabel": "German",
-      "level": "B2",
-      "availabilityLabel": "Available",
-      "availability": "within 1 month",
-      "documents": ["CV", "Diploma", "Certificate"],
-      "footnote": "What a recruiter sees"
+      "eyebrow": "Your profile",
+      "title": "Add what proves your know-how",
+      "items": [
+        { "icon": "play_circle", "label": "Presentation video" },
+        { "icon": "description", "label": "CV, diplomas & certificates" }
+      ]
     }
   },
-  "video": {
-    "eyebrow": "In video",
-    "playLabel": "Play the video",
-    "posterAlt": "Preview image of the candidate journey video.",
-    "unsupported": "Your browser cannot play this video."
+  "featureStrip": {
+    "items": [
+      { "icon": "person", "title": "For candidates", "body": "Build a clear profile and show what you can do." },
+      { "icon": "corporate_fare", "title": "For employers", "body": "Find qualified profiles, ready to join your team." },
+      { "icon": "school", "title": "For training centres", "body": "Showcase your learners and connect them to opportunity." }
+    ]
   },
-  "search": {
-    "label": "What is your trade?",
-    "placeholder": "Nurse, electrician, welder…",
-    "submit": "Search",
-    "advanced": "Advanced search",
-    "sectorLabel": "Sector",
-    "sectorAny": "All sectors",
-    "levelLabel": "Your German level today",
-    "levelOptions": [
-      { "value": "", "label": "Doesn't matter" },
-      { "value": "none", "label": "None" },
-      { "value": "a", "label": "A1 – A2" },
-      { "value": "b1", "label": "B1" },
-      { "value": "b2", "label": "B2 or above" }
+  "borderless": {
+    "eyebrow": "Without borders",
+    "title": "Skills have no borders.",
+    "subtitle": "A well-built profile is understood at a glance, wherever you are.",
+    "candidate": {
+      "title": "Your journey has value",
+      "items": [
+        "A profile that truly reflects what you can do",
+        "Your experience and skills brought to the front",
+        "Direct access to employers and training centres"
+      ],
+      "cta": "Create my profile"
+    },
+    "recruiter": {
+      "title": "Your next hire might be right here.",
+      "items": [
+        "Profiles ready to be contacted, with no middleman",
+        "Search by trade, language and availability",
+        "A complete file, not just a CV"
+      ],
+      "cta": "Browse profiles"
+    }
+  },
+  "germanLevels": {
+    "eyebrow": "German or not",
+    "title": "With or without German, start today.",
+    "subtitle": "Your level today is just a starting point. Every path has a place at AMUD Skills.",
+    "items": [
+      {
+        "icon": "translate",
+        "title": "I'm discovering German",
+        "body": "Create your profile now and progress at your own pace, with our partner training centres.",
+        "linkLabel": "Learn more"
+      },
+      {
+        "icon": "menu_book",
+        "title": "I'm already learning",
+        "body": "Show your progress directly on your profile, as your training moves forward.",
+        "linkLabel": "Learn more"
+      },
+      {
+        "icon": "workspace_premium",
+        "title": "I speak German",
+        "body": "Highlight your level and become visible to employers today.",
+        "linkLabel": "Learn more"
+      }
+    ]
+  },
+  "steps": {
+    "eyebrow": "How it works",
+    "title": "Your profile, in four steps.",
+    "subtitle": "Nothing to print, nothing to drop off at an office: it all happens from your phone.",
+    "cta": "Create my profile",
+    "items": [
+      { "icon": "smartphone", "title": "Introduce yourself", "body": "A phone number is all it takes to create your account, no password to remember." },
+      { "icon": "document_scanner", "title": "Showcase your skills", "body": "Add your CV, diplomas and a short presentation video." },
+      { "icon": "travel_explore", "title": "Become visible", "body": "Choose when your profile becomes visible to employers and partner centres." },
+      { "icon": "forum", "title": "Start the conversation", "body": "Talk directly with those interested in your profile." }
+    ]
+  },
+  "features": {
+    "eyebrow": "What matters",
+    "title": "Everything that matters to make the connection.",
+    "subtitle": "What follows is what builds trust between a profile and an opportunity.",
+    "items": [
+      { "icon": "badge", "title": "A profile that looks like you", "body": "Experience, skills and documents brought together in one clear, complete format." },
+      { "icon": "smart_display", "title": "A video to introduce yourself", "body": "Show your motivation and spoken confidence, beyond the CV." },
+      { "icon": "tune", "title": "Criteria that matter", "body": "Trade, language, experience, availability: what really matters for a hire." },
+      { "icon": "visibility", "title": "Visibility you choose", "body": "You decide when your profile becomes visible, and to whom." },
+      { "icon": "handshake", "title": "A professional meeting", "body": "Contact happens in a clear setting, between real profiles and verified employers." },
+      { "icon": "school", "title": "Training makes the connection", "body": "Partner centres prepare your skills and your language level." }
+    ]
+  },
+  "spaces": {
+    "eyebrow": "A space for everyone",
+    "title": "A space for everyone. One shared connection.",
+    "subtitle": "Candidates, employers and training centres each get a space built for them, connected to the same profiles.",
+    "tabs": [
+      {
+        "label": "Candidate",
+        "screenTitle": "My profile",
+        "items": ["My complete profile", "My applications", "My documents", "My German progress"]
+      },
+      {
+        "label": "Employer",
+        "screenTitle": "My listings",
+        "items": ["My published listings", "Matching profiles", "My tracked applications", "My conversations"]
+      },
+      {
+        "label": "Centre",
+        "screenTitle": "My learners",
+        "items": ["My learners", "My courses", "Attendance tracking", "Related opportunities"]
+      }
+    ]
+  },
+  "tradeSpotlight": {
+    "eyebrow": "Your trade",
+    "title": "Your trade. Your next step.",
+    "subtitle": "Healthcare, industry, transport, hospitality, construction: see what each trade really requires.",
+    "cta": "See all trades"
+  },
+  "criteria": {
+    "eyebrow": "The right match",
+    "title": "The right match starts with the right criteria.",
+    "subtitle": "Trade, city, skills: employers find profiles that truly match what they need.",
+    "form": {
+      "tradeLabel": "Trade",
+      "tradePlaceholder": "Welder, nurse, driver…",
+      "cityLabel": "City",
+      "cityPlaceholder": "Casablanca, Rabat, Tangier…",
+      "submit": "Search",
+      "skillsLabel": "Skills in demand",
+      "skills": ["Welding", "AutoCAD", "Heavy goods licence", "Professional English", "German B1"]
+    }
+  },
+  "recruiters": {
+    "eyebrow": "Recruiters",
+    "title": "Open your hiring to new talent.",
+    "subtitle": "Access a pool of qualified Moroccan profiles, ready to invest in your company.",
+    "cta": "Create my recruiter account",
+    "secondaryCta": "Discover the recruiter space",
+    "items": [
+      { "icon": "difference", "title": "A clear distinction", "body": "Every profile distinguishes what is declared, attached and verified." },
+      { "icon": "travel_explore", "title": "Browse profiles", "body": "Filter by trade, language, experience and availability." },
+      { "icon": "conversion_path", "title": "Control the journey", "body": "Track every application, from discovery to hire." },
+      { "icon": "forum", "title": "Start the conversation", "body": "Contact the profiles that interest you directly." }
+    ]
+  },
+  "nextSteps": {
+    "title": "Meeting is just the start. What follows, you build together.",
+    "subtitle": "Once the connection is made, everyone moves forward with what they need next.",
+    "items": [
+      { "icon": "forum", "title": "Talk & understand", "body": "Candidate and employer clarify expectations on both sides." },
+      { "icon": "map", "title": "Prepare the journey", "body": "Documents, language, procedures: everyone knows what's left to do." },
+      { "icon": "flag", "title": "Prepare the next steps", "body": "From the first exchange to settling in, the path stays clear." }
+    ]
+  },
+  "trainingCenter": {
+    "eyebrow": "Training centres",
+    "title": "Digitize your centre. Showcase your learners.",
+    "subtitle": "Manage your courses, learners and teachers from one place, while connecting them to professional opportunities.",
+    "cta": "Discover the centre space",
+    "dashboardTitle": "Your centre, at a glance",
+    "capabilities": [
+      { "icon": "groups", "label": "Learners & teachers", "body": "Your whole community in one place." },
+      { "icon": "menu_book", "label": "Training programmes", "body": "Organise your courses and groups." },
+      { "icon": "calendar_month", "label": "Live schedule", "body": "Classes, attendance and availability, up to date." },
+      { "icon": "insights", "label": "Learning tracking", "body": "Every learner's progress, at a glance." }
+    ]
+  },
+  "bridge": {
+    "title": "Let's build bridges, together.",
+    "cta": "Learn more"
+  },
+  "clarity": {
+    "title": "Your journey deserves clarity.",
+    "subtitle": "Three principles that guide every profile, every exchange, every step.",
+    "items": [
+      { "icon": "tune", "title": "Choose what I share", "body": "You decide what information appears on your profile." },
+      { "icon": "verified_user", "title": "Share with judgment", "body": "Your profile is only visible to those you have chosen." },
+      { "icon": "route", "title": "Understand every step", "body": "Every step of your journey is explained, never assumed." }
+    ]
+  },
+  "faq": {
+    "eyebrow": "Frequently asked questions",
+    "title": "Moving forward, with a clear mind.",
+    "subtitle": "Short answers to the most common questions.",
+    "items": [
+      {
+        "question": "Is signing up paid?",
+        "answer": "No. Creating your profile is free. You pay nothing to be visible to employers."
+      },
+      {
+        "question": "Do I need to already speak German?",
+        "answer": "Not to get started. The level required depends on the trade, and you can keep improving while you complete your profile."
+      },
+      {
+        "question": "Who can view my profile?",
+        "answer": "Only employers and centres registered on the platform, once you have made your profile visible. You can withdraw that visibility at any time."
+      },
+      {
+        "question": "How are skills verified?",
+        "answer": "Your diplomas and certificates are attached to your profile, and your language level is estimated from a spoken recording. What is declared, attached and verified always stays clearly distinguished."
+      },
+      {
+        "question": "What is the role of training centres?",
+        "answer": "They prepare your skills and your German level, and can show your progress directly on your profile."
+      },
+      {
+        "question": "How am I contacted?",
+        "answer": "An interested employer must explicitly request your contact details; they are never shown in search results, and that request is recorded."
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "What if the next step started here?",
+    "subtitle": "Whether you're looking for an opportunity, a talent, or a bridge for your learners, your next step starts with a profile.",
+    "candidateCta": "Create my profile",
+    "recruiterCta": "Hire a talent",
+    "centerCta": "Digitize my centre",
+    "microcopy": "Free for candidates · No commitment"
+  },
+  "contact": {
+    "eyebrow": "Contact",
+    "title": "Got a question? Write to us.",
+    "subtitle": "Candidate, employer or training centre: our team replies directly.",
+    "form": {
+      "nameLabel": "Full name",
+      "namePlaceholder": "Your name",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "messageLabel": "Your message",
+      "messagePlaceholder": "How can we help?",
+      "submit": "Send message",
+      "submitting": "Sending…",
+      "successTitle": "Message sent.",
+      "successBody": "Thank you — we'll get back to you at the address you gave.",
+      "errorGeneric": "Sending failed. Check your connection and try again.",
+      "errorValidation": "Check the highlighted fields and try again."
+    }
+  },
+  "footer": {
+    "tagline": "The platform connecting Moroccan talent with employers and training centres in Germany.",
+    "columns": [
+      {
+        "title": "Platform",
+        "links": [
+          { "label": "For candidates", "href": "/auth-phone" },
+          { "label": "For employers", "href": "/employeurs" },
+          { "label": "For training centres", "href": "/accueil-public#centres" }
+        ]
+      },
+      {
+        "title": "Resources",
+        "links": [
+          { "label": "How it works", "href": "/accueil-public#methodology" },
+          { "label": "FAQ", "href": "/accueil-public#faq" },
+          { "label": "Contact", "href": "/accueil-public#contact" }
+        ]
+      },
+      {
+        "title": "Recruiters",
+        "links": [
+          { "label": "Recruiter space", "href": "/auth-phone?intent=recruiter" },
+          { "label": "Discover the recruiter space", "href": "/employeurs" }
+        ]
+      }
     ],
-    "popularLabel": "Most viewed trades",
-    "suggestionsLabel": "Trade suggestions",
-    "emptyTitle": "We don't have a guide for “{term}” yet.",
-    "emptyBody": "Your trade may still interest a German employer.",
-    "emptyCta": "Create my file anyway",
-    "errorMessage": "Search is unavailable right now. Browse the trades below.",
-    "errorLink": "See the trades"
-  },
-  "trust": {
-    "items": [
-      { "icon": "toll", "label": "100% free for candidates" },
-      { "icon": "visibility", "label": "You control your visibility" },
-      { "icon": "shield_lock", "label": "Your data is protected" },
-      { "icon": "folder_supervised", "label": "A file structured for recruiters" }
-    ]
-  },
-  "journey": {
-    "title": "After you're matched: your path to Germany",
-    "subtitle": "From the interview to your first day of work in Germany.",
-    "imageAlt": "Illustration connecting Moroccan skills to professional opportunities in Berlin.",
-    "startLabel": "Morocco",
-    "endLabel": "Germany",
-    "items": [
-      { "icon": "handshake", "title": "Get matched", "body": "Your file becomes visible to German companies looking for your trade." },
-      { "icon": "forum", "title": "Go through your interview", "body": "Speak directly with the recruiter interested in your profile." },
-      { "icon": "folder_shared", "title": "Prepare your travel file", "body": "Diplomas, certificates and documents gathered in one place." },
-      { "icon": "fact_check", "title": "Apply for your visa", "body": "The documents gathered in your file support your application with the relevant authorities." },
-      { "icon": "flight_takeoff", "title": "Prepare your journey", "body": "Ticket, housing, first bearings in Germany." },
-      { "icon": "flight_land", "title": "Arrive in Germany", "body": "You join your new employer." },
-      { "icon": "work", "title": "Start your new professional life", "body": "The beginning of a new chapter, professional and personal." }
-    ]
-  },
-  "techPreview": {
-    "eyebrow": "Go further",
-    "title": "See how your file works",
-    "subtitle": "Presentation video, automatic document reading, real-time matching: the technology behind your file.",
-    "imageAlt": "Diagram representing the automated matching between a candidate file and a company.",
-    "cta": "Explore the platform in detail"
+    "legalNote": "Profile visibility is controlled by the candidate.",
+    "rights": "All rights reserved."
   },
   "trades": {
     "eyebrow": "Trades in demand",
@@ -107,239 +302,6 @@
       "none": "No recognition required"
     }
   },
-  "benefits": {
-    "title": "Why create your AMUD Skills file?",
-    "subtitle": "More than a CV: a professional file designed to make your skills easier to understand.",
-    "items": [
-      { "icon": "schedule", "title": "Save time", "body": "Your CV helps structure your file without re-typing everything." },
-      { "icon": "visibility", "title": "Be better understood", "body": "Present your skills and experience in a format recruiters can read at a glance." },
-      { "icon": "video_library", "title": "Show more than a CV", "body": "Experience, video, languages and documents, brought together in one file." },
-      { "icon": "toggle_on", "title": "Stay in control", "body": "You decide when your file becomes visible to recruiters." }
-    ]
-  },
-  "steps": {
-    "title": "Four steps, at your own pace",
-    "subtitle": "Nothing to pay, nothing to print, nothing to drop off at an office.",
-    "imageAlt": "Candidate reviewing their Amud Skills file on a computer, with their skills and German level.",
-    "cta": "Create my file",
-    "items": [
-      {
-        "icon": "smartphone",
-        "title": "Create your account",
-        "body": "A phone number and a six-digit sign-in code. No password to remember."
-      },
-      {
-        "icon": "document_scanner",
-        "title": "Add your CV",
-        "body": "It is read automatically and fills in your file. You correct it, you confirm it."
-      },
-      {
-        "icon": "graphic_eq",
-        "title": "Estimate your spoken level",
-        "body": "A one-minute recording. Your CEFR level is estimated — and explained."
-      },
-      {
-        "icon": "travel_explore",
-        "title": "Make your file visible",
-        "body": "German companies find you by trade, language and availability."
-      }
-    ]
-  },
-  "credible": {
-    "eyebrow": "The file",
-    "title": "A structured file an employer can review",
-    "subtitle": "Declared information, attachments, and automated indicators remain clearly distinguished in the file.",
-    "imageAlt": "Group training session preparing candidates for German workplace requirements.",
-    "items": [
-      {
-        "icon": "folder_supervised",
-        "title": "Your diplomas attached",
-        "body": "Every document is attached to your file and opens directly for the recruiter, with no back-and-forth by email."
-      },
-      {
-        "icon": "graphic_eq",
-        "title": "Your language level argued",
-        "body": "The level is shown with what justifies it — pace, clarity, duration — instead of simply being asserted."
-      },
-      {
-        "icon": "workspace_premium",
-        "title": "An attached certificate stays distinct from the estimate",
-        "body": "If you attach a language certificate, its presence is shown separately. The attachment is not presented as authenticated by its issuer."
-      },
-      {
-        "icon": "event_available",
-        "title": "Your availability shown",
-        "body": "Immediately, within 1 month or within 2 months: recruiters filter on it and won't contact you at the wrong time."
-      }
-    ]
-  },
-  "proof": {
-    "eyebrow": "Our commitments",
-    "title": "What we can prove",
-    "subtitle": "No unverifiable promises. Three commitments you can hold us to.",
-    "items": [
-      {
-        "icon": "gavel",
-        "title": "Explicit consent",
-        "body": "Your consent is requested before your profile becomes visible, and you can pause or withdraw it."
-      },
-      {
-        "icon": "history_toggle_off",
-        "title": "Contact released only on request",
-        "body": "Your details never appear in search results. A recruiter has to ask for them, and that moment is timestamped."
-      },
-      {
-        "icon": "cancel_schedule_send",
-        "title": "Withdraw at any time",
-        "body": "You can take your file out of the search whenever you want, without having to justify it."
-      }
-    ]
-  },
-  "recruiter": {
-    "eyebrow": "Recruiter space",
-    "title": "Hiring in Germany?",
-    "subtitle": "Search by trade, German level, experience and availability. Open the full file. Contact only the profiles you have kept.",
-    "previewLabel": "Search preview",
-    "filters": ["Trade", "German level", "Experience", "Availability"],
-    "points": [
-      {
-        "icon": "filter_alt",
-        "title": "A search that filters on what matters",
-        "body": "Profession, specialisation, minimum CEFR level per language, years of experience, availability, level of education."
-      },
-      {
-        "icon": "id_card",
-        "title": "The complete file, on one page",
-        "body": "Education, languages and where each level came from, the spoken assessment with its transcript, the presentation video, openable documents."
-      },
-      {
-        "icon": "conversion_path",
-        "title": "Your application follow-up",
-        "body": "Saved, contacted, interviewing, placed, rejected — with your private notes and a CSV export."
-      }
-    ],
-    "cta": "Find Talent Now",
-    "secondaryCta": "Understand recruiter access"
-  },
-  "trainingCenter": {
-    "eyebrow": "Training centres",
-    "title": "Your training centre, connected to opportunity.",
-    "subtitle": "Manage your courses, students, instructors and attendance from one place, while preparing your talent for professional opportunities.",
-    "capabilities": [
-      { "icon": "school", "label": "Students" },
-      { "icon": "menu_book", "label": "Courses" },
-      { "icon": "calendar_month", "label": "Schedule" },
-      { "icon": "qr_code_2", "label": "QR attendance" }
-    ],
-    "cta": "Become a partner centre",
-    "imageAlt": "Preview of a partner training centre's dashboard on Amud Skills."
-  },
-  "socialProof": {
-    "title": "Building the bridge with us",
-    "subtitle": "Partner centres, companies and institutions that work with us."
-  },
-  "stats": {
-    "title": "Amud Skills in numbers",
-    "subtitle": "Real figures, updated as we grow."
-  },
-  "testimonials": {
-    "eyebrow": "Testimonials",
-    "title": "They went through Amud Skills",
-    "subtitle": "Real journeys, told by the candidates themselves.",
-    "milestones": {
-      "profileCompleted": "Profile completed",
-      "matched": "Matched",
-      "hired": "Hired"
-    }
-  },
-  "faq": {
-    "title": "The questions everyone asks",
-    "subtitle": "Short answers about the capabilities available in the platform.",
-    "items": [
-      {
-        "question": "Does it cost anything to sign up?",
-        "answer": "No. Creating your file is free. You pay nothing to be visible to companies."
-      },
-      {
-        "question": "Do you guarantee a job in Germany?",
-        "answer": "No, and nobody can seriously guarantee that. We prepare your file and make it visible to German employers; the hiring decision is theirs."
-      },
-      {
-        "question": "Who sees my file?",
-        "answer": "Companies registered on the platform, once you have accepted the terms and the processing of your data. You can withdraw your file at any time."
-      },
-      {
-        "question": "What happens to my phone number?",
-        "answer": "It is used to sign you in, and it never appears in search results. A recruiter has to request your contact details explicitly, and that request is recorded."
-      },
-      {
-        "question": "Do I need to speak German already?",
-        "answer": "Not to start your file. The level required depends on the trade — it is stated on each trade page — and you can keep improving while you build the file."
-      },
-      {
-        "question": "How long does the file take?",
-        "answer": "You can start with your CV: it is read automatically and the extracted data remains yours to confirm or correct. Documents and the spoken assessment can come later."
-      },
-      {
-        "question": "Is AMUD Skills a recruitment agency?",
-        "answer": "No. We are not a recruitment agency: we prepare your file and make it visible to German companies, who hire and decide directly."
-      },
-      {
-        "question": "Does AMUD Skills guarantee a job?",
-        "answer": "No. No platform can seriously guarantee a job. We facilitate the connection; the hiring decision always belongs to the employer."
-      },
-      {
-        "question": "Does AMUD Skills handle my visa?",
-        "answer": "No, not directly. Your file gathers the documents you need for your application, but the visa process itself is handled with the relevant authorities."
-      },
-      {
-        "question": "Who can view my documents?",
-        "answer": "Only companies registered on the platform, once your file is visible and you have given your consent. You can pause that visibility at any time."
-      },
-      {
-        "question": "Can I delete my file and my data?",
-        "answer": "Yes. You can withdraw your file from search or request deletion of your data at any time."
-      }
-    ]
-  },
-  "finalCta": {
-    "title": "Your trade is wanted elsewhere.",
-    "subtitle": "Build your file at your own pace. It is free, and you control whether recruiters can see it.",
-    "cta": "Create my file for free",
-    "secondaryCta": "I'm a company",
-    "microcopy": "No password · You can withdraw everything at any time",
-    "imageAlt": "Young Moroccan professional smiling on a street in Berlin."
-  },
-  "footer": {
-    "tagline": "The platform that prepares Moroccan candidates for the German labour market — and lets German companies find them.",
-    "columns": [
-      {
-        "title": "Candidates",
-        "links": [
-          { "label": "Create my file", "href": "/auth-phone" },
-          { "label": "Discover the technology", "href": "/produit" },
-          { "label": "Trades that are hiring", "href": "/accueil-public#sectors" },
-          { "label": "How it works", "href": "/accueil-public#methodology" }
-        ]
-      },
-      {
-        "title": "Recruiters",
-        "links": [
-          { "label": "Recruiter space", "href": "/auth-phone?intent=recruiter" },
-          { "label": "Search profiles", "href": "/employeurs" },
-          { "label": "Understand the workflow", "href": "/employeurs#workflow" }
-        ]
-      },
-      {
-        "title": "Training centres",
-        "links": [
-          { "label": "Discover the Centre space", "href": "/accueil-public#centres" }
-        ]
-      }
-    ],
-    "legalNote": "Profile visibility is controlled by the candidate.",
-    "rights": "All rights reserved."
-  },
   "tradePage": {
     "titlePattern": "{trade} in Germany",
     "levelLabel": "German level expected",
@@ -348,7 +310,7 @@
     "requirementsTitle": "What employers ask for",
     "dossierTitle": "To gather in your file",
     "disclaimer": "These pointers are indicative: they vary by Land, employer, and applicable procedure. Confirm requirements with the competent organizations.",
-    "ctaTitle": "Start your file for this trade",
+    "ctaTitle": "Start your profile for this trade",
     "ctaBody": "Add your CV: detected data is proposed for you to confirm or correct.",
     "othersTitle": "Other trades"
   },
@@ -410,6 +372,6 @@
     }
   },
   "mobileBar": {
-    "cta": "Create my file"
+    "cta": "Create my profile"
   }
 }

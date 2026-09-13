@@ -7,19 +7,44 @@ import type { CefrLevel } from "./candidateProfile";
 export type ContractType =
   "permanent" | "fixed_term" | "apprenticeship" | "temporary" | "internship";
 
+export type WorkplaceType = "onsite" | "hybrid" | "remote";
+export type ExperienceLevel =
+  | "none"
+  | "less_than_one"
+  | "one_to_three"
+  | "three_to_five"
+  | "five_plus";
+export type EducationLevel =
+  | "none"
+  | "vocational"
+  | "high_school"
+  | "bachelor"
+  | "master"
+  | "doctorate";
+
 export interface JobOffer {
   id: number;
   title: string;
   description: string;
+  responsibilities: string | null;
+  requirements: string | null;
+  benefits: string | null;
   sector: string;
   city: string;
   country: string;
+  workplace_type: WorkplaceType | null;
+  weekly_hours: number | null;
+  experience_level: ExperienceLevel | null;
+  education_level: EducationLevel | null;
   required_cefr_level: CefrLevel | null;
   salary_min: number | null;
   salary_max: number | null;
   currency: string;
   contract_type: ContractType;
-  published_at: string;
+  start_date: string | null;
+  application_deadline: string | null;
+  positions_count: number;
+  published_at: string | null;
   match_score: number | null;
   employer?: {
     id: number;

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 
 /**
  * L'écran d'auth/onboarding est une carte mobile de mx-auto max-w-md ; sur un
@@ -22,14 +23,18 @@ export function AuthShell({ children, flush = false }: { children: ReactNode; fl
   if (flush) {
     return (
       <div className="lg:min-h-screen lg:bg-gradient-to-br lg:from-primary-light lg:via-surface lg:to-secondary-light/40">
-        <div className="lg:mx-auto lg:max-w-md lg:shadow-floating lg:ring-1 lg:ring-outline-variant">{children}</div>
+        <div className="relative lg:mx-auto lg:max-w-md lg:shadow-floating lg:ring-1 lg:ring-outline-variant">
+          <HeaderPreferences className="absolute right-2 top-[max(0.5rem,env(safe-area-inset-top))] z-[70] rounded-full bg-surface/90 p-0.5 backdrop-blur-md" />
+          {children}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="lg:flex lg:min-h-screen lg:items-stretch lg:justify-center lg:bg-gradient-to-br lg:from-primary-light lg:via-surface lg:to-secondary-light/40 lg:py-10">
-      <div className="lg:w-full lg:max-w-md lg:overflow-hidden lg:rounded-card lg:shadow-floating lg:ring-1 lg:ring-outline-variant">
+      <div className="relative lg:w-full lg:max-w-md lg:overflow-hidden lg:rounded-card lg:shadow-floating lg:ring-1 lg:ring-outline-variant">
+        <HeaderPreferences className="absolute right-2 top-[max(0.5rem,env(safe-area-inset-top))] z-[70] rounded-full bg-surface/90 p-0.5 backdrop-blur-md" />
         {children}
       </div>
     </div>

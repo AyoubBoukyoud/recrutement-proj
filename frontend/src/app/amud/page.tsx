@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { DemoBanner } from '@/components/amud/DemoBanner';
+import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 
 const ESPACES = [
   {
@@ -107,7 +108,6 @@ const ESPACES_REELS: EspaceReelGroupe[] = [
     titre: 'Public / avant connexion',
     items: [
       { href: '/employeurs', label: 'Employeurs' },
-      { href: '/language', label: 'Choix de la langue' },
       { href: '/splash', label: 'Splash screen' },
       { href: '/profile-creation', label: 'Création de profil (5 étapes)' },
       { href: '/metiers/infirmier', label: 'Fiche métier (exemple : infirmier)' },
@@ -159,6 +159,7 @@ const ESPACES_REELS: EspaceReelGroupe[] = [
 export default function AmudHubPage() {
   return (
     <div className="flex min-h-screen flex-col items-center bg-amud-background px-6 py-16 text-amud-on-surface">
+      <HeaderPreferences className="fixed right-3 top-3 z-50 rounded-full bg-amud-surface/90 p-0.5 shadow-sm backdrop-blur-md" />
       <div className="mb-8 w-full max-w-4xl">
         <DemoBanner />
       </div>

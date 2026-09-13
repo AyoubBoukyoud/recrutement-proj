@@ -6,13 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\AdminActivityLog;
 use App\Models\CandidateProfile;
 use App\Models\Document;
+use App\Models\User;
 use App\Services\ActivityFeed;
 use App\Services\Notifications;
 use App\Services\ProfileCompleteness;
 use App\Services\TaskEngagement;
+use App\Support\PhoneNumber;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AdminCandidateController extends Controller
@@ -160,6 +163,68 @@ class AdminCandidateController extends Controller
         ]);
 
         return response()->json($profiles);
+    }
+
+    /**
+     * Onboard someone who cannot or has not signed themselves up — walked in,
+     * called in, or was referred offline. No password: like every account
+     * here, they sign in by OTP on their own number afterwards. The profile
+     * fields are optional and deliberately thin; the candidate (or an
+     * administrator later) fills in the rest through the normal dossier
+     * screens, this just reserves the phone number and creates the shell.
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $request->merge(['phone' => PhoneNumber::normalize((string) $request->input('phone', ''))]);
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'phone' => ['required', 'string', 'max:20', PhoneNumber::E164_RULE, 'unique:users,phone'],
+            'email' => ['sometimes', 'nullable', 'email', 'max:255', 'unique:users,email'],
+            'first_name' => ['sometimes', 'nullable', 'string', 'max:120'],
+            'last_name' => ['sometimes', 'nullable', 'string', 'max:120'],
+            'profession' => ['sometimes', 'nullable', 'string', 'max:120'],
+            'city' => ['sometimes', 'nullable', 'string', 'max:100'],
+        ], [
+            'phone.regex' => 'Enter the number in international format, for example +212600000000.',
+            'phone.unique' => 'An account already exists for this number.',
+        ]);
+
+        // Atomic: a failure between the account and the dossier shell (a
+        // stray unique-constraint race, a boot event throwing) must not
+        // leave a phone number permanently reserved by a half-created row
+        // nobody can see or delete through the UI.
+        $profile = DB::transaction(function () use ($request, $data) {
+            $user = User::create([
+                'name' => $data['name'],
+                'phone' => $data['phone'],
+                'email' => $data['email'] ?? null,
+                'status' => 'active',
+            ]);
+            // Same default role every candidate gets on their first OTP
+            // request (see AuthController::requestOtp) — there is no
+            // separate "Candidate" role, "User" is what distinguishes
+            // everyone else from staff.
+            $user->assignRole('User');
+
+            // Through the relation, not CandidateProfile::create(): user_id
+            // is deliberately absent from its fillable list (every other
+            // creation path goes through here or CandidateProfileResolver),
+            // so a plain mass-assigned create() silently drops the foreign
+            // key instead of setting it.
+            $profile = $user->candidateProfile()->create([
+                'first_name' => $data['first_name'] ?? null,
+                'last_name' => $data['last_name'] ?? null,
+                'profession' => $data['profession'] ?? null,
+                'city' => $data['city'] ?? null,
+            ]);
+
+            AdminActivityLog::record($request->user(), $profile, 'created');
+
+            return $profile;
+        });
+
+        return response()->json($profile->fresh('user:id,phone,name,email,status'), 201);
     }
 
     /**

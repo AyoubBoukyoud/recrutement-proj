@@ -71,6 +71,8 @@ class JobOfferController extends Controller
             $query->where(fn (Builder $builder) => $builder
                 ->where('title', 'like', "%{$search}%")
                 ->orWhere('description', 'like', "%{$search}%")
+                ->orWhere('responsibilities', 'like', "%{$search}%")
+                ->orWhere('requirements', 'like', "%{$search}%")
                 ->orWhere('city', 'like', "%{$search}%")
                 ->orWhere('sector', 'like', "%{$search}%"));
         }
@@ -157,14 +159,24 @@ class JobOfferController extends Controller
         return $request->validate([
             'title' => [$presence, 'string', 'max:255'],
             'description' => [$presence, 'string'],
+            'responsibilities' => ['nullable', 'string', 'max:10000'],
+            'requirements' => ['nullable', 'string', 'max:10000'],
+            'benefits' => ['nullable', 'string', 'max:10000'],
             'sector' => [$presence, 'string', 'max:100'],
             'city' => [$presence, 'string', 'max:100'],
             'country' => ['sometimes', 'string', 'max:100'],
+            'workplace_type' => ['nullable', 'in:onsite,hybrid,remote'],
+            'weekly_hours' => ['nullable', 'integer', 'min:1', 'max:80'],
+            'experience_level' => ['nullable', 'in:none,less_than_one,one_to_three,three_to_five,five_plus'],
+            'education_level' => ['nullable', 'in:none,vocational,high_school,bachelor,master,doctorate'],
             'required_cefr_level' => ['nullable', 'in:A1,A2,B1,B2,C1,C2'],
             'salary_min' => ['nullable', 'integer', 'min:0'],
             'salary_max' => ['nullable', 'integer', 'gte:salary_min'],
             'currency' => ['sometimes', 'string', 'size:3'],
             'contract_type' => [$presence, 'in:permanent,fixed_term,apprenticeship,temporary,internship'],
+            'start_date' => ['nullable', 'date'],
+            'application_deadline' => ['nullable', 'date'],
+            'positions_count' => ['sometimes', 'integer', 'min:1', 'max:999'],
             'status' => ['sometimes', 'in:draft,published,closed'],
             'published_at' => ['nullable', 'date'],
         ]);

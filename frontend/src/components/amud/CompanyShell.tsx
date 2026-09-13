@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { DropdownMenu, NavItem, isNavActive } from '@/components/amud/ui';
-import { InlineLanguageThemeControls } from '@/components/amud/HeaderLanguageThemeControls';
+import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 import { ToastProvider } from '@/components/amud/Toast';
 import { GlobalSearch, useGlobalSearchShortcut, type GlobalSearchResult } from '@/components/amud/GlobalSearch';
 import { NotificationCenter } from '@/components/amud/NotificationCenter';
@@ -228,6 +228,7 @@ export function CompanyShell({ children }: { children: ReactNode }) {
                 Créer une offre
               </Link>
 
+              <HeaderPreferences />
               <NotificationCenter key={`notif-${pathname}`} scope="employer" viewAllHref="/amud/entreprise/notifications" />
 
               <DropdownMenu
@@ -238,7 +239,6 @@ export function CompanyShell({ children }: { children: ReactNode }) {
                     <div className="text-label-sm text-amud-on-surface-variant">{entreprise?.nom ?? CURRENT_EMPLOYER.entrepriseNom}</div>
                   </div>
                 }
-                body={<InlineLanguageThemeControls />}
                 trigger={({ open, toggle }) => (
                   <button
                     onClick={toggle}

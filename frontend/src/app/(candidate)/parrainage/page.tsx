@@ -76,7 +76,8 @@ export default function ParrainagePage() {
       <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-surface-container-high bg-surface px-1.5 shadow-subtle lg:px-4">
         <div className="flex items-center gap-3">
           <Link href="/dashboard" className="flex items-center gap-2 text-primary">
-            <span className="material-symbols-outlined text-[28px]">handshake</span>
+            {/* eslint-disable-next-line @next/next/no-img-element -- pas de route Next/Image dédiée ici */}
+            <img src="/assets/images/logo-mark.png" alt="" className="h-7 w-7 object-contain" />
             <span className="text-lg font-extrabold">Amud Skills</span>
           </Link>
         </div>

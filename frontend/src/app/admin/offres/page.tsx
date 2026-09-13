@@ -5,6 +5,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import { api } from '@/lib/opsApi';
 import type { Page } from '@/lib/candidateMarketplace';
+import { Modal, ModalActions } from '@/components/amud/ui';
+import { FormGrid, SelectField, TextareaField, TextField } from '@/components/amud/form';
 import { useToast } from '@/components/amud/Toast';
 import { Pagination } from '@/components/Pagination';
 
@@ -50,6 +52,72 @@ function errorMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
+type RecruiterOption = { id: number; name: string | null; phone: string; company_name: string | null };
+
+const CONTRACT_TYPE_OPTIONS = [
+  { value: 'permanent', label: 'CDI' },
+  { value: 'fixed_term', label: 'CDD' },
+  { value: 'apprenticeship', label: 'Apprentissage' },
+  { value: 'temporary', label: 'Intérim' },
+  { value: 'internship', label: 'Stage' },
+];
+
+const WORKPLACE_TYPE_OPTIONS = [
+  { value: 'onsite', label: 'Sur site' },
+  { value: 'hybrid', label: 'Hybride' },
+  { value: 'remote', label: 'Télétravail' },
+];
+
+const EXPERIENCE_LEVEL_OPTIONS = [
+  { value: 'none', label: 'Aucune' },
+  { value: 'less_than_one', label: "Moins d'un an" },
+  { value: 'one_to_three', label: '1 à 3 ans' },
+  { value: 'three_to_five', label: '3 à 5 ans' },
+  { value: 'five_plus', label: '5 ans et plus' },
+];
+
+const EDUCATION_LEVEL_OPTIONS = [
+  { value: 'none', label: 'Aucun' },
+  { value: 'vocational', label: 'Formation professionnelle' },
+  { value: 'high_school', label: 'Baccalauréat' },
+  { value: 'bachelor', label: 'Licence' },
+  { value: 'master', label: 'Master' },
+  { value: 'doctorate', label: 'Doctorat' },
+];
+
+const CEFR_LEVEL_OPTIONS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map((v) => ({ value: v, label: v }));
+
+const OFFER_STATUS_OPTIONS = [
+  { value: 'draft', label: 'Brouillon' },
+  { value: 'published', label: 'Publiée' },
+  { value: 'closed', label: 'Fermée' },
+];
+
+const EMPTY_OFFER_FORM = {
+  user_id: '',
+  title: '',
+  description: '',
+  responsibilities: '',
+  requirements: '',
+  benefits: '',
+  sector: '',
+  city: '',
+  country: '',
+  workplace_type: '',
+  weekly_hours: '',
+  experience_level: '',
+  education_level: '',
+  required_cefr_level: '',
+  salary_min: '',
+  salary_max: '',
+  currency: '',
+  contract_type: 'permanent',
+  start_date: '',
+  application_deadline: '',
+  positions_count: '',
+  status: 'draft',
+};
+
 export default function AdminOffresPage() {
   const notify = useToast();
   const qc = useQueryClient();
@@ -58,6 +126,9 @@ export default function AdminOffresPage() {
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(1);
   const [openMenu, setOpenMenu] = useState<number | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [recruiterSearch, setRecruiterSearch] = useState('');
+  const [form, setForm] = useState(EMPTY_OFFER_FORM);
 
   const metrics = useQuery({
     queryKey: ['admin-metrics'],
@@ -73,6 +144,52 @@ export default function AdminOffresPage() {
   });
 
   const refresh = () => qc.invalidateQueries({ queryKey: ['admin-offers'] });
+
+  const recruiterOptions = useQuery({
+    queryKey: ['admin-offer-recruiter-options', recruiterSearch],
+    queryFn: () =>
+      api
+        .get('/admin/recruiters', { params: { q: recruiterSearch || undefined, page: 1 } })
+        .then((r) => r.data as Page<RecruiterOption>),
+    enabled: creating,
+  });
+
+  const create = useMutation({
+    mutationFn: () =>
+      api.post('/admin/offers', {
+        user_id: Number(form.user_id),
+        title: form.title.trim(),
+        description: form.description.trim(),
+        responsibilities: form.responsibilities.trim() || undefined,
+        requirements: form.requirements.trim() || undefined,
+        benefits: form.benefits.trim() || undefined,
+        sector: form.sector.trim(),
+        city: form.city.trim(),
+        country: form.country.trim() || undefined,
+        workplace_type: form.workplace_type || undefined,
+        weekly_hours: form.weekly_hours ? Number(form.weekly_hours) : undefined,
+        experience_level: form.experience_level || undefined,
+        education_level: form.education_level || undefined,
+        required_cefr_level: form.required_cefr_level || undefined,
+        salary_min: form.salary_min ? Number(form.salary_min) : undefined,
+        salary_max: form.salary_max ? Number(form.salary_max) : undefined,
+        currency: form.currency.trim() || undefined,
+        contract_type: form.contract_type,
+        start_date: form.start_date || undefined,
+        application_deadline: form.application_deadline || undefined,
+        positions_count: form.positions_count ? Number(form.positions_count) : undefined,
+        status: form.status,
+      }),
+    onSuccess: () => {
+      notify('Offre créée.');
+      setCreating(false);
+      setForm(EMPTY_OFFER_FORM);
+      setRecruiterSearch('');
+      refresh();
+      qc.invalidateQueries({ queryKey: ['admin-metrics'] });
+    },
+    onError: (error) => notify(errorMessage(error, "La création a échoué."), 'error'),
+  });
 
   const setOfferStatus = useMutation({
     mutationFn: ({ id, next }: { id: number; next: OfferRow['status'] }) =>
@@ -102,6 +219,13 @@ export default function AdminOffresPage() {
           <h2 className="text-headline-lg text-amud-on-surface">Gestion des offres</h2>
           <p className="mt-1 text-body-md text-amud-on-surface-variant">Modération et suivi des offres d’emploi publiées sur la plateforme.</p>
         </div>
+        <button
+          onClick={() => setCreating(true)}
+          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-amud-primary px-lg py-2 text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark"
+        >
+          <span className="material-symbols-outlined text-[18px]">add</span>
+          Ajouter une offre
+        </button>
       </div>
 
       <div className="mb-lg grid grid-cols-2 gap-md md:grid-cols-4">
@@ -226,6 +350,191 @@ export default function AdminOffresPage() {
       <div className="mt-md">
         <Pagination page={page} data={offers.data} onPage={setPage} noun="offre" />
       </div>
+
+      <Modal
+        open={creating}
+        onClose={() => setCreating(false)}
+        title="Ajouter une offre"
+        subtitle="Publie une offre pour le compte d'un recruteur existant."
+        widthClassName="max-w-2xl"
+        footer={
+          <ModalActions
+            onCancel={() => setCreating(false)}
+            submitLabel={create.isPending ? 'Création…' : 'Créer l’offre'}
+            form="create-offer-form"
+            disabled={create.isPending || !form.user_id || !form.title.trim() || !form.description.trim() || !form.sector.trim() || !form.city.trim()}
+          />
+        }
+      >
+        <FormGrid
+          id="create-offer-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            create.mutate();
+          }}
+        >
+          <TextField
+            label="Rechercher un recruteur"
+            className="sm:col-span-2"
+            value={recruiterSearch}
+            onChange={(e) => setRecruiterSearch(e.target.value)}
+            placeholder="Nom, entreprise ou téléphone…"
+            hint="Filtre la liste ci-dessous."
+          />
+          <SelectField
+            label="Recruteur"
+            required
+            className="sm:col-span-2"
+            value={form.user_id}
+            onChange={(e) => setForm({ ...form, user_id: e.target.value })}
+            placeholder={recruiterOptions.isLoading ? 'Chargement…' : 'Choisir un recruteur'}
+            options={(recruiterOptions.data?.data ?? []).map((r) => ({
+              value: String(r.id),
+              label: r.company_name || r.name || r.phone,
+            }))}
+          />
+          <TextField
+            label="Titre du poste"
+            required
+            className="sm:col-span-2"
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
+            placeholder="Soudeur qualifié"
+          />
+          <TextareaField
+            label="Description"
+            required
+            className="sm:col-span-2"
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+          />
+          <TextareaField
+            label="Missions"
+            className="sm:col-span-2"
+            value={form.responsibilities}
+            onChange={(e) => setForm({ ...form, responsibilities: e.target.value })}
+          />
+          <TextareaField
+            label="Profil recherché"
+            className="sm:col-span-2"
+            value={form.requirements}
+            onChange={(e) => setForm({ ...form, requirements: e.target.value })}
+          />
+          <TextareaField
+            label="Avantages"
+            className="sm:col-span-2"
+            value={form.benefits}
+            onChange={(e) => setForm({ ...form, benefits: e.target.value })}
+          />
+          <TextField
+            label="Secteur"
+            required
+            value={form.sector}
+            onChange={(e) => setForm({ ...form, sector: e.target.value })}
+          />
+          <TextField
+            label="Ville"
+            required
+            value={form.city}
+            onChange={(e) => setForm({ ...form, city: e.target.value })}
+          />
+          <TextField
+            label="Pays"
+            value={form.country}
+            onChange={(e) => setForm({ ...form, country: e.target.value })}
+          />
+          <SelectField
+            label="Mode de travail"
+            placeholder="Non précisé"
+            value={form.workplace_type}
+            onChange={(e) => setForm({ ...form, workplace_type: e.target.value })}
+            options={WORKPLACE_TYPE_OPTIONS}
+          />
+          <SelectField
+            label="Type de contrat"
+            required
+            value={form.contract_type}
+            onChange={(e) => setForm({ ...form, contract_type: e.target.value })}
+            options={CONTRACT_TYPE_OPTIONS}
+          />
+          <TextField
+            label="Heures / semaine"
+            type="number"
+            min={1}
+            max={80}
+            value={form.weekly_hours}
+            onChange={(e) => setForm({ ...form, weekly_hours: e.target.value })}
+          />
+          <SelectField
+            label="Expérience requise"
+            placeholder="Non précisée"
+            value={form.experience_level}
+            onChange={(e) => setForm({ ...form, experience_level: e.target.value })}
+            options={EXPERIENCE_LEVEL_OPTIONS}
+          />
+          <SelectField
+            label="Niveau d'études"
+            placeholder="Non précisé"
+            value={form.education_level}
+            onChange={(e) => setForm({ ...form, education_level: e.target.value })}
+            options={EDUCATION_LEVEL_OPTIONS}
+          />
+          <SelectField
+            label="Niveau de langue (CECR)"
+            placeholder="Non précisé"
+            value={form.required_cefr_level}
+            onChange={(e) => setForm({ ...form, required_cefr_level: e.target.value })}
+            options={CEFR_LEVEL_OPTIONS}
+          />
+          <TextField
+            label="Salaire min."
+            type="number"
+            min={0}
+            value={form.salary_min}
+            onChange={(e) => setForm({ ...form, salary_min: e.target.value })}
+          />
+          <TextField
+            label="Salaire max."
+            type="number"
+            min={0}
+            value={form.salary_max}
+            onChange={(e) => setForm({ ...form, salary_max: e.target.value })}
+          />
+          <TextField
+            label="Devise"
+            value={form.currency}
+            onChange={(e) => setForm({ ...form, currency: e.target.value })}
+            placeholder="EUR"
+          />
+          <TextField
+            label="Postes à pourvoir"
+            type="number"
+            min={1}
+            max={999}
+            value={form.positions_count}
+            onChange={(e) => setForm({ ...form, positions_count: e.target.value })}
+          />
+          <TextField
+            label="Date de début"
+            type="date"
+            value={form.start_date}
+            onChange={(e) => setForm({ ...form, start_date: e.target.value })}
+          />
+          <TextField
+            label="Date limite de candidature"
+            type="date"
+            value={form.application_deadline}
+            onChange={(e) => setForm({ ...form, application_deadline: e.target.value })}
+          />
+          <SelectField
+            label="Statut"
+            className="sm:col-span-2"
+            value={form.status}
+            onChange={(e) => setForm({ ...form, status: e.target.value })}
+            options={OFFER_STATUS_OPTIONS}
+          />
+        </FormGrid>
+      </Modal>
     </div>
   );
 }

@@ -6,7 +6,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import { api } from '@/lib/opsApi';
 import type { Page } from '@/lib/candidateMarketplace';
-import { ConfirmDialog } from '@/components/amud/ui';
+import { ConfirmDialog, Modal, ModalActions } from '@/components/amud/ui';
+import { FormGrid, TextField } from '@/components/amud/form';
 import { useToast } from '@/components/amud/Toast';
 import { Pagination } from '@/components/Pagination';
 
@@ -62,6 +63,16 @@ function errorMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
+const EMPTY_RECRUITER_FORM = {
+  name: '',
+  phone: '',
+  email: '',
+  company_name: '',
+  sector: '',
+  city: '',
+  website: '',
+};
+
 export default function AdminRecruteursPage() {
   const notify = useToast();
   const qc = useQueryClient();
@@ -72,6 +83,8 @@ export default function AdminRecruteursPage() {
   const [page, setPage] = useState(1);
   const [openMenu, setOpenMenu] = useState<number | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [form, setForm] = useState(EMPTY_RECRUITER_FORM);
 
   const recruiters = useQuery({
     queryKey: ['admin-recruiters', search, verifiedFilter, accountStatus, page],
@@ -111,6 +124,26 @@ export default function AdminRecruteursPage() {
     onError: (error) => notify(errorMessage(error, 'Suppression impossible.'), 'error'),
   });
 
+  const create = useMutation({
+    mutationFn: () =>
+      api.post('/admin/recruiters', {
+        name: form.name.trim(),
+        phone: form.phone.trim(),
+        email: form.email.trim() || undefined,
+        company_name: form.company_name.trim(),
+        sector: form.sector.trim() || undefined,
+        city: form.city.trim() || undefined,
+        website: form.website.trim() || undefined,
+      }),
+    onSuccess: () => {
+      notify('Recruteur créé.');
+      setCreating(false);
+      setForm(EMPTY_RECRUITER_FORM);
+      refresh();
+    },
+    onError: (error) => notify(errorMessage(error, "La création a échoué."), 'error'),
+  });
+
   function submitSearch(e: React.FormEvent) {
     e.preventDefault();
     setSearch(searchInput);
@@ -126,6 +159,13 @@ export default function AdminRecruteursPage() {
           <h2 className="text-headline-lg text-amud-on-surface">Recruteurs</h2>
           <p className="mt-1 text-body-md text-amud-on-surface-variant">Entreprises inscrites, vérification et accès.</p>
         </div>
+        <button
+          onClick={() => setCreating(true)}
+          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-amud-primary px-lg py-2 text-label-md font-medium text-white shadow-sm transition-colors hover:bg-amud-primary-dark"
+        >
+          <span className="material-symbols-outlined text-[18px]">add</span>
+          Ajouter un recruteur
+        </button>
       </div>
 
       <form onSubmit={submitSearch} className="mb-md flex flex-col items-center gap-md rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-md shadow-[0_4px_12px_rgba(0,0,0,0.02)] md:flex-row">
@@ -282,6 +322,75 @@ export default function AdminRecruteursPage() {
         description="La fiche entreprise sera retirée. Le compte de connexion et sa shortlist restent en place."
         confirmLabel="Supprimer"
       />
+
+      <Modal
+        open={creating}
+        onClose={() => setCreating(false)}
+        title="Ajouter un recruteur"
+        subtitle="Réserve le numéro et crée la fiche entreprise — la connexion se fait ensuite par code, comme pour tout le monde."
+        footer={
+          <ModalActions
+            onCancel={() => setCreating(false)}
+            submitLabel={create.isPending ? 'Création…' : 'Créer le recruteur'}
+            form="create-recruiter-form"
+            disabled={create.isPending || !form.name.trim() || !form.phone.trim() || !form.company_name.trim()}
+          />
+        }
+      >
+        <FormGrid
+          id="create-recruiter-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            create.mutate();
+          }}
+        >
+          <TextField
+            label="Nom complet"
+            required
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            placeholder="Amine Alami"
+          />
+          <TextField
+            label="Téléphone"
+            required
+            value={form.phone}
+            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            placeholder="+212600000000"
+            hint="Format international — c'est le numéro qui sert à se connecter."
+          />
+          <TextField
+            label="E-mail"
+            type="email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+          />
+          <TextField
+            label="Entreprise"
+            required
+            value={form.company_name}
+            onChange={(e) => setForm({ ...form, company_name: e.target.value })}
+            placeholder="Atlas Recrutement"
+          />
+          <TextField
+            label="Secteur"
+            value={form.sector}
+            onChange={(e) => setForm({ ...form, sector: e.target.value })}
+          />
+          <TextField
+            label="Ville"
+            value={form.city}
+            onChange={(e) => setForm({ ...form, city: e.target.value })}
+          />
+          <TextField
+            label="Site web"
+            className="sm:col-span-2"
+            value={form.website}
+            onChange={(e) => setForm({ ...form, website: e.target.value })}
+            placeholder="https://…"
+          />
+        </FormGrid>
+      </Modal>
     </div>
   );
 }
