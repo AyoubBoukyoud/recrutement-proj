@@ -26,10 +26,10 @@ export function MotionRoot({locale,children}:{locale:Locale;children:ReactNode})
    for(const entry of entries){if(!entry.isIntersecting)continue;
     observer.unobserve(entry.target);
     if(entry.target.getBoundingClientRect().top<80)continue;
-    animations.push(entry.target.animate([{opacity:.35,transform:'translateY(16px)'},{opacity:1,transform:'translateY(0)'}],{duration:550,easing:'cubic-bezier(.2,.7,.3,1)'}));
+    animations.push(entry.target.animate([{opacity:.35,transform:'translateY(16px)'},{opacity:1,transform:'translateY(0)'}],{duration:420,easing:'cubic-bezier(.2,.7,.3,1)'}));
    }
   },{threshold:.12});
-  root.current.querySelectorAll('.section-heading,.side-card,.features-grid article,.language-cards article,.steps-grid article').forEach(el=>observer.observe(el));
+  root.current.querySelectorAll('.section-heading,.platform-audiences,.product-window,.logo-bridge').forEach(el=>observer.observe(el));
   return()=>{observer.disconnect();animations.forEach(a=>a.cancel());};
  },[enabled]);
  function toggle(){if(reduced)return;setRequested(value=>{try{localStorage.setItem('amud-motion',value?'off':'on');}catch{}return !value;});}
