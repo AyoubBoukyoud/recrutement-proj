@@ -121,5 +121,30 @@
         "integratedAsset": "frontend/public/landing-assets/editorial/faq.webp"
       }
     ]
+  },
+  "languageCardIllustrations": {
+    "tool": "Built-in ChatGPT image_gen",
+    "style": "Premium tactile 3D paper and ceramic editorial spot illustration on ivory, using #B84A4A, #D6AE4B and #252525.",
+    "constraints": "Centered simple objects, generous padding, no text, letters, numbers or watermark.",
+    "images": [
+      {
+        "name": "language-start",
+        "concept": "Open beginner book, first step and a discreet German flag.",
+        "generatedSource": "C:\\Users\\Yacine\\.codex\\generated_images\\01a087bb-69fa-72d0-9461-ddb0c95a6d0d\\exec-2ba709ba-5173-44dc-aefb-87e70211083e.png",
+        "integratedAsset": "frontend/public/landing-assets/editorial/language-start.webp"
+      },
+      {
+        "name": "language-progress",
+        "concept": "Headphones, speech bubbles and a rising learning path.",
+        "generatedSource": "C:\\Users\\Yacine\\.codex\\generated_images\\01a087bb-69fa-72d0-9461-ddb0c95a6d0d\\exec-fa047043-29cb-4026-a439-5b074625a0a6.png",
+        "integratedAsset": "frontend/public/landing-assets/editorial/language-progress.webp"
+      },
+      {
+        "name": "language-ready",
+        "concept": "Blank certificate, check seal, speech bubble and German flag.",
+        "generatedSource": "C:\\Users\\Yacine\\.codex\\generated_images\\01a087bb-69fa-72d0-9461-ddb0c95a6d0d\\exec-7bed560d-7da4-4577-a1da-d3c2b7f52b4a.png",
+        "integratedAsset": "frontend/public/landing-assets/editorial/language-ready.webp"
+      }
+    ]
   }
 }
