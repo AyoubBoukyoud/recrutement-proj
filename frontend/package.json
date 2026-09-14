@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npx next dev --webpack",
-    "build": "NODE_OPTIONS=--max-old-space-size=4096 npx next build --webpack",
-    "start": "npx next start",
+    "dev": "node node_modules/next/dist/bin/next dev --webpack",
+    "build": "node --max-old-space-size=4096 node_modules/next/dist/bin/next build --webpack",
+    "start": "node node_modules/next/dist/bin/next start",
     "lint": "eslint src --ext .ts,.tsx",
     "test:client-demo": "node scripts/verify-client-demo.mjs",
     "verify:no-mocks": "rm -rf .next && NEXT_PUBLIC_USE_MOCKS=0 NEXT_PUBLIC_SHOW_DEV_TOOLS=0 NEXT_PUBLIC_ENABLE_PROTOTYPES=0 next build --webpack && ! grep -rlE 'mock-token-|cv-youssef-amrani|\\[maquette\\]' .next/static/chunks/"

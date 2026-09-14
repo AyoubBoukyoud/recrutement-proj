@@ -42,13 +42,13 @@ check('local OTP dispatch reaches the verification screen', () => {
 });
 
 check('public CTAs use implemented candidate, recruiter, and trade routes', () => {
-  const home = read('src/components/home/PublicHome.tsx');
-  const jobCard = read('src/components/home/JobCard.tsx');
+  const routes = read('src/components/landing/content.ts');
+  const marketplace = read('src/components/landing/marketplace.tsx');
   const tradeDetail = read('src/components/home/TradeDetail.tsx');
-  assert.match(home, /href="\/auth-phone"/);
-  assert.match(home, /href="\/auth-phone\?intent=recruiter"/);
-  assert.match(jobCard, /href=\{`\/metiers\/\$\{trade\.slug\}`\}/);
-  assert.match(tradeDetail, /href="\/accueil-public#sectors"/);
+  assert.match(routes, /AUTH='\/auth-phone'/);
+  assert.match(routes, /RECRUIT=AUTH\+'\?intent=recruiter'/);
+  assert.match(marketplace, /href=\{'\/metiers\/'\+slug\}/);
+  assert.match(tradeDetail, /href="\/accueil-public#metiers"/);
 });
 
 check('localized public footer has no placeholder links', () => {
@@ -60,13 +60,14 @@ check('localized public footer has no placeholder links', () => {
   }
 });
 
-check('public language switching uses all four localized content sets', () => {
-  const header = read('src/components/home/SiteHeader.tsx');
+check('public language switching exposes all four supported locales', () => {
+  const landing = read('src/components/landing/landing.tsx');
+  const content = read('src/components/landing/content.ts');
   const languageContext = read('src/context/LanguageContext.tsx');
-  assert.match(header, /<LanguageSwitcher \/>/);
+  assert.match(landing, /\['fr','ar','de','en'\]/);
+  assert.match(landing, /setLanguage\(lang\)/);
+  assert.match(content, /Locale = 'fr'\|'ar'\|'de'\|'en'/);
   assert.match(languageContext, /setLanguageState\(lang\)/);
-  const shapes = ['fr', 'en', 'de', 'ar'].map((locale) => Object.keys(JSON.parse(read(`src/content/home.${locale}.json`))).sort());
-  for (const shape of shapes.slice(1)) assert.deepEqual(shape, shapes[0]);
 });
 
 check('employer page contains no fake ROI interaction', () => {
