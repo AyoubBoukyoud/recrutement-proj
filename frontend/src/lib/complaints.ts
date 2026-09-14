@@ -33,10 +33,20 @@ export function submitTextComplaint(subject: string, message: string, token: str
   return apiPost<Complaint>('/complaints', { type: 'text', body: `[${subject}] ${message}` }, token);
 }
 
+/** Backend accepts these (`ComplaintController::store`); infer the real one from the recorded Blob's MIME type instead of assuming WebM (Safari records MP4/AAC). */
+function extensionForMime(type: string): string {
+  if (type.includes('mp4')) return 'mp4';
+  if (type.includes('aac')) return 'aac';
+  if (type.includes('ogg')) return 'ogg';
+  if (type.includes('wav')) return 'wav';
+  return 'webm';
+}
+
 export function submitVoiceComplaint(subject: string, audio: Blob, token: string): Promise<Complaint> {
   const form = new FormData();
   form.append('type', 'voice');
-  form.append('audio', audio, `${subject.replace(/\s+/g, '-').toLowerCase()}.webm`);
+  const extension = extensionForMime(audio.type);
+  form.append('audio', audio, `${subject.replace(/\s+/g, '-').toLowerCase()}.${extension}`);
 
   return apiPost<Complaint>('/complaints', form, token);
 }

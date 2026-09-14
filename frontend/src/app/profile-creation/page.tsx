@@ -67,6 +67,13 @@ const AVAILABILITY_OPTIONS: { key: AvailabilityStatus; icon: string; badge: stri
   { key: 'within_2_months', icon: 'event', badge: 'Sous 60 jours' },
 ];
 
+/** Anchors the "Date de naissance" field on candidates who are already 18 — e.g. today 2026-09-14 → 2008-09-14 — instead of the current year. */
+function eighteenYearsAgo(): string {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - 18);
+  return d.toISOString().slice(0, 10);
+}
+
 function messageOf(error: unknown, fallback: string): string {
   if (error instanceof ApiError) {
     if (error.isNetworkFailure) return "L'API est injoignable. Vérifiez votre connexion.";
@@ -121,7 +128,7 @@ function ProfileCreationContent() {
     if (!profile) return;
     setFirstName((v) => v || profile.first_name || '');
     setLastName((v) => v || profile.last_name || '');
-    setBirthDate((v) => v || profile.date_of_birth || '');
+    setBirthDate((v) => v || profile.date_of_birth || eighteenYearsAgo());
     setProfession((v) => v || profile.profession || '');
     setSpecialization((v) => v || profile.specialization || '');
     setYearsExperience((v) => v || profile.years_of_experience || 0);
@@ -347,7 +354,7 @@ function ProfileCreationContent() {
               <TextField label="Prénom" value={firstName} onChange={setFirstName} />
               <TextField label="Nom" value={lastName} onChange={setLastName} />
             </div>
-            <TextField label="Date de naissance" type="date" value={birthDate} onChange={setBirthDate} />
+            <TextField label="Date de naissance" type="date" value={birthDate} onChange={setBirthDate} max={eighteenYearsAgo()} />
             <div>
               <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-onSurface">Numéro WhatsApp</label>
               <div className="relative">
@@ -576,12 +583,14 @@ function TextField({
   onChange,
   type = 'text',
   placeholder,
+  max,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   type?: string;
   placeholder?: string;
+  max?: string;
 }) {
   const id = useId();
   return (
@@ -592,6 +601,7 @@ function TextField({
         type={type}
         value={value}
         placeholder={placeholder}
+        max={max}
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-pillar border border-outline bg-surface-container-lowest px-4 py-3.5 text-sm font-semibold text-onSurface outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
       />
