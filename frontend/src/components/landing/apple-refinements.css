@@ -287,3 +287,234 @@
     border: 1px solid ButtonText;
   }
 }
+
+/* Editorial hero: the journey film is the primary story, with the copy overlapping its edge. */
+.amud-site .editorial-hero {
+  padding-top: 0;
+  overflow: clip;
+}
+
+.amud-site .editorial-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: center;
+  gap: 0;
+  padding-block: 44px 58px;
+}
+
+.amud-site .journey-hero-media {
+  position: relative;
+  grid-column: 5 / -1;
+  grid-row: 1;
+  min-width: 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid rgb(184 74 74 / 18%);
+  border-radius: 22px;
+  background: #f1e3e1;
+  box-shadow: 0 24px 64px rgb(37 37 37 / 12%);
+}
+
+.amud-site .journey-hero-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 45%);
+  pointer-events: none;
+}
+
+.amud-site .journey-hero-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #f1e3e1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.amud-site .editorial-hero-copy {
+  position: relative;
+  z-index: 2;
+  grid-column: 1 / 7;
+  grid-row: 1;
+  padding: 42px 58px 42px 0;
+  border-start-end-radius: 44px;
+  border-end-end-radius: 44px;
+  background: #fcfaf7;
+  box-shadow: 28px 0 55px rgb(37 37 37 / 7%);
+}
+
+.amud-site[dir="rtl"] .editorial-hero-copy {
+  padding: 42px 0 42px 58px;
+  box-shadow: -28px 0 55px rgb(37 37 37 / 7%);
+}
+
+.amud-site .editorial-hero-copy .app-eyebrow {
+  margin-bottom: 20px;
+}
+
+.amud-site .editorial-hero-copy h1 {
+  max-width: 15ch;
+  font-size: clamp(2.8rem, 3.7vw, 3.55rem);
+  line-height: 1.08;
+}
+
+.amud-site[dir="rtl"] .editorial-hero-copy h1 {
+  max-width: 15ch;
+  font-size: clamp(2.65rem, 3.55vw, 3.4rem);
+  line-height: 1.35;
+}
+
+.amud-site .editorial-hero-copy .platform-lead {
+  max-width: 43ch;
+  margin-top: 28px;
+  font-size: 17px;
+  line-height: 1.8;
+  color: var(--amud-text-secondary);
+}
+
+.amud-site .editorial-hero-copy .actions {
+  margin-top: 28px;
+}
+
+.amud-site .editorial-hero-copy .app-start-note {
+  margin-top: 20px;
+  max-width: 48ch;
+}
+
+.amud-site .hero-milestone-rail {
+  position: absolute;
+  inset-inline-start: -18px;
+  top: 46px;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  width: 9px;
+}
+
+.amud-site .hero-milestone-rail::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  width: 1px;
+  background: #d6ae4b;
+}
+
+.amud-site .hero-milestone-rail i {
+  position: relative;
+  z-index: 1;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d6ae4b;
+}
+
+@media (max-width: 1100px) {
+  .amud-site .editorial-hero-copy {
+    grid-column: 1 / 7;
+    padding-inline-end: 38px;
+  }
+
+  .amud-site[dir="rtl"] .editorial-hero-copy {
+    padding-inline-start: 38px;
+  }
+
+  .amud-site .journey-hero-media {
+    grid-column: 5 / -1;
+  }
+
+  .amud-site .editorial-hero-copy h1 {
+    font-size: clamp(2.45rem, 4.25vw, 3.15rem);
+  }
+}
+
+@media (max-width: 850px) {
+  .amud-site .editorial-hero-grid {
+    grid-template-columns: 1fr;
+    padding-block: 24px 40px;
+  }
+
+  .amud-site .journey-hero-media {
+    grid-column: 1;
+    grid-row: 1;
+    width: 100%;
+    border-radius: 20px;
+  }
+
+  .amud-site .editorial-hero-copy,
+  .amud-site[dir="rtl"] .editorial-hero-copy {
+    grid-column: 1;
+    grid-row: 2;
+    width: calc(100% - 24px);
+    margin: -30px auto 0;
+    padding: 30px 26px 8px;
+    border-radius: 28px 28px 0 0;
+    background: #fcfaf7;
+    box-shadow: 0 -16px 34px rgb(37 37 37 / 8%);
+  }
+
+  .amud-site .editorial-hero-copy h1,
+  .amud-site[dir="rtl"] .editorial-hero-copy h1 {
+    max-width: 14ch;
+    font-size: clamp(2.35rem, 7.5vw, 3.3rem);
+  }
+
+  .amud-site .hero-milestone-rail {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .amud-site .editorial-hero-grid {
+    padding-top: 14px;
+  }
+
+  .amud-site .journey-hero-media {
+    aspect-ratio: 4 / 3;
+  }
+
+  .amud-site .journey-hero-video {
+    object-position: 47% center;
+  }
+
+  .amud-site .editorial-hero-copy,
+  .amud-site[dir="rtl"] .editorial-hero-copy {
+    width: calc(100% - 16px);
+    margin-top: -22px;
+    padding: 26px 18px 4px;
+    border-radius: 24px 24px 0 0;
+  }
+
+  .amud-site .editorial-hero-copy h1,
+  .amud-site[dir="rtl"] .editorial-hero-copy h1 {
+    font-size: clamp(2.2rem, 10.5vw, 2.75rem);
+  }
+
+  .amud-site .editorial-hero-copy .platform-lead {
+    margin-top: 20px;
+    font-size: 16px;
+  }
+
+  .amud-site .editorial-hero-copy .actions {
+    gap: 10px;
+    margin-top: 22px;
+  }
+
+  .amud-site .editorial-hero-copy .actions .btn,
+  .amud-site .editorial-hero-copy .actions .text-link {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .amud-site .journey-hero-video {
+    visibility: hidden;
+  }
+
+  .amud-site .journey-hero-media {
+    background: #f1e3e1 url('/landing-assets/hero/amud-journey-poster.webp') center / cover no-repeat;
+  }
+}
