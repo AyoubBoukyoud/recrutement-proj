@@ -1,0 +1,316 @@
+'use client';
+import {
+  ArrowUpRight,
+  Check,
+  Users,
+  Building2,
+  FileText,
+  Mail,
+  MapPin,
+  Eye,
+  Search,
+  ChevronDown,
+  QrCode,
+  Wallet,
+  CalendarDays,
+} from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from './primitives/tabs';
+import { RealAppScreens } from './product-story';
+import { DemoWorkspace } from './demo-workspace';
+import { translator, content, type Locale } from './content';
+export function Button({
+  href,
+  children,
+  secondary = false,
+}: {
+  href: string;
+  children: React.ReactNode;
+  secondary?: boolean;
+}) {
+  return (
+    <a className={'btn' + (secondary ? ' secondary' : '')} href={href}>
+      {children}
+      <ArrowUpRight size={18} />
+    </a>
+  );
+}
+export function Heading({
+  label,
+  title,
+  description,
+  center = false,
+}: {
+  label: string;
+  title: string;
+  description?: string;
+  center?: boolean;
+}) {
+  return (
+    <div className={'section-heading' + (center ? ' centered' : '')}>
+      <div className="eyebrow">
+        <span className="dot" />
+        {label}
+      </div>
+      <h2>{title}</h2>
+      {description && <p>{description}</p>}
+    </div>
+  );
+}
+export function CheckList({ items }: { items: string[] }) {
+  return (
+    <ul className="check-list">
+      {items.map((x) => (
+        <li key={x}>
+          <Check size={17} />
+          {x}
+        </li>
+      ))}
+    </ul>
+  );
+}
+export function Product({
+  view,
+  locale,
+}: {
+  view: 'talent' | 'employer' | 'centre';
+  locale: Locale;
+}) {
+  const t = translator(locale),
+    c = content(locale);
+  return (
+    <div className="product-window">
+      <div className="window-bar">
+        <span className="window-dots">
+          <i />
+          <i />
+          <i />
+        </span>
+        <span>AMUD Skills</span>
+        <span className="sample-label">
+          {t('APERÇU', 'معاينة', 'VORSCHAU', 'PREVIEW')}
+        </span>
+      </div>
+      <div className="product-body">
+        <aside className="product-sidebar">
+          <div className="mini-brand">
+            AMUD<span>SKILLS</span>
+          </div>
+          {[
+            t('Vue d’ensemble', 'نظرة عامة', 'Übersicht', 'Overview'),
+            view === 'employer'
+              ? c.talent
+              : view === 'centre'
+                ? t('Apprenants', 'المتعلمون', 'Lernende', 'Learners')
+                : t('Mon profil', 'ملفي المهني', 'Mein Profil', 'My profile'),
+            t('Documents', 'الوثائق', 'Dokumente', 'Documents'),
+            t('Messages', 'الرسائل', 'Nachrichten', 'Messages'),
+          ].map((x, i) => (
+            <span className={i === 1 ? 'selected' : ''} key={x}>
+              {i === 0 ? (
+                <Building2 size={16} />
+              ) : i === 1 ? (
+                <Users size={16} />
+              ) : i === 2 ? (
+                <FileText size={16} />
+              ) : (
+                <Mail size={16} />
+              )}{' '}
+              {x}
+            </span>
+          ))}
+        </aside>
+        <div className="product-main">
+          <div className="product-top">
+            <small>
+              {view === 'talent'
+                ? c.talent
+                : view === 'employer'
+                  ? c.employer
+                  : c.centre}
+            </small>
+            <span className="round-icon tiny">
+              <Users size={15} />
+            </span>
+          </div>
+          <h3>
+            {view === 'talent'
+              ? t(
+                  'Mon profil professionnel',
+                  'ملفي المهني',
+                  'Mein berufliches Profil',
+                  'My professional profile',
+                )
+              : view === 'employer'
+                ? t(
+                    'Votre prochain talent est peut-être ici.',
+                    'قد تجدون هنا موهبتكم القادمة.',
+                    'Ihr nächstes Talent könnte hier sein.',
+                    'Your next hire could be here.',
+                  )
+                : t(
+                    'Votre centre, une vue d’ensemble.',
+                    'مركزكم في نظرة شاملة.',
+                    'Ihr Bildungszentrum im Überblick.',
+                    'Your centre at a glance.',
+                  )}
+          </h3>
+          <p className="product-help">
+            {t(
+              'Un espace clair pour avancer.',
+              'فضاء واضح للتقدم.',
+              'Ein klarer Überblick für den nächsten Schritt.',
+              'A clear overview to move forward.',
+            )}
+          </p>
+          {view === 'talent' ? (
+            <>
+              <div className="profile-summary">
+                <div className="avatar">
+                  <Users />
+                </div>
+                <div>
+                  <strong>
+                    {t(
+                      'Votre nom, votre parcours',
+                      'اسمك ومسارك',
+                      'Ihr Name, Ihr Werdegang',
+                      'Your name, your experience',
+                    )}
+                  </strong>
+                  <span>
+                    <MapPin size={13} />
+                    {t('Maroc', 'المغرب', 'Marokko', 'Morocco')} ·{' '}
+                    {t('Votre métier', 'مهنتك', 'Ihr Beruf', 'Your profession')}
+                  </span>
+                </div>
+                <span className="pill">
+                  {t('Brouillon', 'مسودة', 'Entwurf', 'Draft')}
+                </span>
+              </div>
+              <div className="mock-grid">
+                {[
+                  t('Compétences', 'المهارات', 'Kompetenzen', 'Skills'),
+                  t('Expériences', 'الخبرات', 'Erfahrung', 'Experience'),
+                  t('Langues', 'اللغات', 'Sprachen', 'Languages'),
+                  t(
+                    'CV & diplômes',
+                    'السيرة والمؤهلات الدراسية',
+                    'Lebenslauf & Abschlüsse',
+                    'CV and qualifications',
+                  ),
+                ].map((x, i) => (
+                  <div className="mock-field" key={x}>
+                    <span>{x}</span>
+                    <strong>
+                      {
+                        [
+                          t(
+                            'À compléter',
+                            'للإكمال',
+                            'Noch offen',
+                            'To complete',
+                          ),
+                          t(
+                            'Votre parcours',
+                            'مسارك',
+                            'Ihr Werdegang',
+                            'Your experience',
+                          ),
+                          t(
+                            'Tous les niveaux',
+                            'كل المستويات',
+                            'Alle Niveaus',
+                            'All levels',
+                          ),
+                          t(
+                            'Vos documents',
+                            'وثائقك',
+                            'Ihre Dokumente',
+                            'Your documents',
+                          ),
+                        ][i]
+                      }
+                    </strong>
+                  </div>
+                ))}
+              </div>
+              <div className="mock-notice">
+                <Eye size={16} />
+                {t(
+                  'Visibilité à définir avant publication',
+                  'حدّد من يرى ملفك قبل نشره',
+                  'Sichtbarkeit vor Veröffentlichung festlegen',
+                  'Choose visibility before publishing',
+                )}
+              </div>
+            </>
+          ) : (
+            <DemoWorkspace view={view} locale={locale} />
+          )}
+        </div>
+      </div>
+      <div className="product-caption">
+        {t(
+          'Aperçu illustratif du produit · aucune donnée réelle',
+          'معاينة توضيحية للمنتج · دون بيانات حقيقية',
+          'Illustrative Produktvorschau · keine echten Daten',
+          'Illustrative product preview · no real data',
+        )}
+      </div>
+    </div>
+  );
+}
+export function Preview({ locale }: { locale: Locale }) {
+  const t = translator(locale),
+    c = content(locale);
+  return (
+    <section id="apercu" className="section wrap preview-section">
+      <Heading
+        label={t(
+          'DÉCOUVREZ LA PLATEFORME',
+          'اكتشف المنصة',
+          'ENTDECKEN SIE DIE PLATTFORM',
+          'EXPLORE THE PLATFORM',
+        )}
+        title={t(
+          'À chacun son espace. Une même connexion.',
+          'لكل طرف فضاؤه. والتواصل يجمعهم.',
+          'Eigene Bereiche. Eine Verbindung.',
+          'Your own space. A shared connection.',
+        )}
+        description={t(
+          'Du profil candidat à la recherche de talents, jusqu’au suivi des apprenants.',
+          'من الملف المهني إلى البحث عن المواهب ومتابعة المتعلمين.',
+          'Vom beruflichen Profil über die Talentsuche bis zur Begleitung von Lernenden.',
+          'From candidate profiles and talent searches to learner support.',
+        )}
+        center
+      />
+      <Tabs defaultValue="talent" className="preview-tabs">
+        <TabsList
+          aria-label={t(
+            'Espaces de la plateforme',
+            'فضاءات المنصة',
+            'Plattformbereiche',
+            'Platform areas',
+          )}
+        >
+          <TabsTrigger value="talent">{c.talent}</TabsTrigger>
+          <TabsTrigger value="employer">{c.employer}</TabsTrigger>
+          <TabsTrigger value="centre">
+            {t('Centre', 'المركز', 'Bildungszentrum', 'Training centre')}
+          </TabsTrigger>
+        </TabsList>
+        {(['talent', 'employer', 'centre'] as const).map((view) => (
+          <TabsContent key={view} value={view}>
+            {view === 'talent' ? (
+              <RealAppScreens locale={locale} />
+            ) : (
+              <Product locale={locale} view={view} />
+            )}
+          </TabsContent>
+        ))}
+      </Tabs>
+    </section>
+  );
+}

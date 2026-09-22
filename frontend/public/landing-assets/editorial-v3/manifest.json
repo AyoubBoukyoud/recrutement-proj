@@ -1,0 +1,533 @@
+{
+  "generatedAt": "2026-09-22T09:17:05.096Z",
+  "assets": [
+    {
+      "name": "hero-journey",
+      "device": "mobile",
+      "format": "avif",
+      "width": 720,
+      "height": 640,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\hero-journey-mobile.avif"
+    },
+    {
+      "name": "hero-journey",
+      "device": "mobile",
+      "format": "webp",
+      "width": 720,
+      "height": 640,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\hero-journey-mobile.webp"
+    },
+    {
+      "name": "hero-journey",
+      "device": "tablet",
+      "format": "avif",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\hero-journey-tablet.avif"
+    },
+    {
+      "name": "hero-journey",
+      "device": "tablet",
+      "format": "webp",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\hero-journey-tablet.webp"
+    },
+    {
+      "name": "hero-journey",
+      "device": "desktop",
+      "format": "avif",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\hero-journey-desktop.avif"
+    },
+    {
+      "name": "hero-journey",
+      "device": "desktop",
+      "format": "webp",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\hero-journey-desktop.webp"
+    },
+    {
+      "name": "borderless",
+      "device": "mobile",
+      "format": "avif",
+      "width": 720,
+      "height": 640,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\borderless-mobile.avif"
+    },
+    {
+      "name": "borderless",
+      "device": "mobile",
+      "format": "webp",
+      "width": 720,
+      "height": 640,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\borderless-mobile.webp"
+    },
+    {
+      "name": "borderless",
+      "device": "tablet",
+      "format": "avif",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\borderless-tablet.avif"
+    },
+    {
+      "name": "borderless",
+      "device": "tablet",
+      "format": "webp",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\borderless-tablet.webp"
+    },
+    {
+      "name": "borderless",
+      "device": "desktop",
+      "format": "avif",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\borderless-desktop.avif"
+    },
+    {
+      "name": "borderless",
+      "device": "desktop",
+      "format": "webp",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\borderless-desktop.webp"
+    },
+    {
+      "name": "language",
+      "device": "mobile",
+      "format": "avif",
+      "width": 720,
+      "height": 640,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\language-mobile.avif"
+    },
+    {
+      "name": "language",
+      "device": "mobile",
+      "format": "webp",
+      "width": 720,
+      "height": 640,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\language-mobile.webp"
+    },
+    {
+      "name": "language",
+      "device": "tablet",
+      "format": "avif",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\language-tablet.avif"
+    },
+    {
+      "name": "language",
+      "device": "tablet",
+      "format": "webp",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\language-tablet.webp"
+    },
+    {
+      "name": "language",
+      "device": "desktop",
+      "format": "avif",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\language-desktop.avif"
+    },
+    {
+      "name": "language",
+      "device": "desktop",
+      "format": "webp",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\language-desktop.webp"
+    },
+    {
+      "name": "laptop",
+      "device": "mobile",
+      "format": "avif",
+      "width": 720,
+      "height": 640,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\laptop-mobile.avif"
+    },
+    {
+      "name": "laptop",
+      "device": "mobile",
+      "format": "webp",
+      "width": 720,
+      "height": 640,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\laptop-mobile.webp"
+    },
+    {
+      "name": "laptop",
+      "device": "tablet",
+      "format": "avif",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\laptop-tablet.avif"
+    },
+    {
+      "name": "laptop",
+      "device": "tablet",
+      "format": "webp",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\laptop-tablet.webp"
+    },
+    {
+      "name": "laptop",
+      "device": "desktop",
+      "format": "avif",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\laptop-desktop.avif"
+    },
+    {
+      "name": "laptop",
+      "device": "desktop",
+      "format": "webp",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\laptop-desktop.webp"
+    },
+    {
+      "name": "city",
+      "device": "mobile",
+      "format": "avif",
+      "width": 720,
+      "height": 640,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\city-mobile.avif"
+    },
+    {
+      "name": "city",
+      "device": "mobile",
+      "format": "webp",
+      "width": 720,
+      "height": 640,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\city-mobile.webp"
+    },
+    {
+      "name": "city",
+      "device": "tablet",
+      "format": "avif",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\city-tablet.avif"
+    },
+    {
+      "name": "city",
+      "device": "tablet",
+      "format": "webp",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\city-tablet.webp"
+    },
+    {
+      "name": "city",
+      "device": "desktop",
+      "format": "avif",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\city-desktop.avif"
+    },
+    {
+      "name": "city",
+      "device": "desktop",
+      "format": "webp",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\city-desktop.webp"
+    },
+    {
+      "name": "career-health",
+      "device": "mobile",
+      "format": "avif",
+      "width": 720,
+      "height": 900,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-health-mobile.avif"
+    },
+    {
+      "name": "career-health",
+      "device": "mobile",
+      "format": "webp",
+      "width": 720,
+      "height": 900,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-health-mobile.webp"
+    },
+    {
+      "name": "career-health",
+      "device": "tablet",
+      "format": "avif",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-health-tablet.avif"
+    },
+    {
+      "name": "career-health",
+      "device": "tablet",
+      "format": "webp",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-health-tablet.webp"
+    },
+    {
+      "name": "career-health",
+      "device": "desktop",
+      "format": "avif",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-health-desktop.avif"
+    },
+    {
+      "name": "career-health",
+      "device": "desktop",
+      "format": "webp",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-health-desktop.webp"
+    },
+    {
+      "name": "career-logistics",
+      "device": "mobile",
+      "format": "avif",
+      "width": 720,
+      "height": 900,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-logistics-mobile.avif"
+    },
+    {
+      "name": "career-logistics",
+      "device": "mobile",
+      "format": "webp",
+      "width": 720,
+      "height": 900,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-logistics-mobile.webp"
+    },
+    {
+      "name": "career-logistics",
+      "device": "tablet",
+      "format": "avif",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-logistics-tablet.avif"
+    },
+    {
+      "name": "career-logistics",
+      "device": "tablet",
+      "format": "webp",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-logistics-tablet.webp"
+    },
+    {
+      "name": "career-logistics",
+      "device": "desktop",
+      "format": "avif",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-logistics-desktop.avif"
+    },
+    {
+      "name": "career-logistics",
+      "device": "desktop",
+      "format": "webp",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-logistics-desktop.webp"
+    },
+    {
+      "name": "career-truck",
+      "device": "mobile",
+      "format": "avif",
+      "width": 720,
+      "height": 900,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-truck-mobile.avif"
+    },
+    {
+      "name": "career-truck",
+      "device": "mobile",
+      "format": "webp",
+      "width": 720,
+      "height": 900,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-truck-mobile.webp"
+    },
+    {
+      "name": "career-truck",
+      "device": "tablet",
+      "format": "avif",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-truck-tablet.avif"
+    },
+    {
+      "name": "career-truck",
+      "device": "tablet",
+      "format": "webp",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-truck-tablet.webp"
+    },
+    {
+      "name": "career-truck",
+      "device": "desktop",
+      "format": "avif",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-truck-desktop.avif"
+    },
+    {
+      "name": "career-truck",
+      "device": "desktop",
+      "format": "webp",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-truck-desktop.webp"
+    },
+    {
+      "name": "career-bus",
+      "device": "mobile",
+      "format": "avif",
+      "width": 720,
+      "height": 900,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-bus-mobile.avif"
+    },
+    {
+      "name": "career-bus",
+      "device": "mobile",
+      "format": "webp",
+      "width": 720,
+      "height": 900,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-bus-mobile.webp"
+    },
+    {
+      "name": "career-bus",
+      "device": "tablet",
+      "format": "avif",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-bus-tablet.avif"
+    },
+    {
+      "name": "career-bus",
+      "device": "tablet",
+      "format": "webp",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-bus-tablet.webp"
+    },
+    {
+      "name": "career-bus",
+      "device": "desktop",
+      "format": "avif",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-bus-desktop.avif"
+    },
+    {
+      "name": "career-bus",
+      "device": "desktop",
+      "format": "webp",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-bus-desktop.webp"
+    },
+    {
+      "name": "career-mechanic",
+      "device": "mobile",
+      "format": "avif",
+      "width": 720,
+      "height": 900,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-mechanic-mobile.avif"
+    },
+    {
+      "name": "career-mechanic",
+      "device": "mobile",
+      "format": "webp",
+      "width": 720,
+      "height": 900,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-mechanic-mobile.webp"
+    },
+    {
+      "name": "career-mechanic",
+      "device": "tablet",
+      "format": "avif",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-mechanic-tablet.avif"
+    },
+    {
+      "name": "career-mechanic",
+      "device": "tablet",
+      "format": "webp",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-mechanic-tablet.webp"
+    },
+    {
+      "name": "career-mechanic",
+      "device": "desktop",
+      "format": "avif",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-mechanic-desktop.avif"
+    },
+    {
+      "name": "career-mechanic",
+      "device": "desktop",
+      "format": "webp",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-mechanic-desktop.webp"
+    },
+    {
+      "name": "career-automotive",
+      "device": "mobile",
+      "format": "avif",
+      "width": 720,
+      "height": 900,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-automotive-mobile.avif"
+    },
+    {
+      "name": "career-automotive",
+      "device": "mobile",
+      "format": "webp",
+      "width": 720,
+      "height": 900,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-automotive-mobile.webp"
+    },
+    {
+      "name": "career-automotive",
+      "device": "tablet",
+      "format": "avif",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-automotive-tablet.avif"
+    },
+    {
+      "name": "career-automotive",
+      "device": "tablet",
+      "format": "webp",
+      "width": 1100,
+      "height": 800,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-automotive-tablet.webp"
+    },
+    {
+      "name": "career-automotive",
+      "device": "desktop",
+      "format": "avif",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-automotive-desktop.avif"
+    },
+    {
+      "name": "career-automotive",
+      "device": "desktop",
+      "format": "webp",
+      "width": 1536,
+      "height": 1024,
+      "path": "C:\\Users\\Yacine\\.codex\\.chatgpt-projects\\g-p-6a9c1db4e244819188e6a7d992328fc9\\editorial-v3-staging\\assets\\career-automotive-desktop.webp"
+    }
+  ]
+}

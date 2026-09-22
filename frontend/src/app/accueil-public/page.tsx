@@ -1,9 +1,11 @@
-import type { Metadata } from 'next';
-import { PublicHome } from '@/components/home/PublicHome';
+import type {Metadata} from 'next';
+import {PublicHome} from '@/components/home/PublicHome';
 import '@/components/landing/landing.css';
-import '@/components/landing/apple-refinements.css';
-export const metadata: Metadata = {
- title: 'AMUD Skills — Talents au Maroc, opportunités en Allemagne',
- description: 'AMUD Skills relie les talents au Maroc, avec ou sans allemand, aux entreprises en Allemagne. Découvrez aussi le CRM pour les centres de formation.',
+import '@/components/editorial-v3/editorial.css';
+
+export const metadata:Metadata={
+ title:'AMUD Skills — Talents au Maroc, opportunités en Allemagne',
+ description:'AMUD Skills relie les talents au Maroc, avec ou sans allemand, aux entreprises en Allemagne.'
 };
-export default function AccueilPublicPage() { return <PublicHome/>; }
+
+export default function AccueilPublicPage(){return <PublicHome/>;}
