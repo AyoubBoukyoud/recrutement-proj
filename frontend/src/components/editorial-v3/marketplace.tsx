@@ -1,12 +1,10 @@
 import { EditorialImage } from './visual-details';
-import { CountryFlag } from './journey-details';
+import { AdaptiveImage } from './adaptive-image';
 import { CareersSlider } from './photo-slider';
-import { AnimatedFrame, HeartbeatTrace } from './motion';
+import { AnimatedFrame } from './motion';
 import {
   ArrowUpRight,
   HeartHandshake,
-  Users,
-  Briefcase,
   Check,
   Stethoscope,
   Wrench,
@@ -139,47 +137,76 @@ export function MarketplaceLower({ locale }: { locale: Locale }) {
             )}
           </p>
         </div>
-        <div className="matching-diagram">
-          <div className="match-row">
-            <span className="match-country match-morocco">
-              <CountryFlag country="MA" />
-              <span>
-                <Users />
-                {c.talent}
-              </span>
+        <div
+          className="match-search-card"
+          role="img"
+          aria-label={t(
+            'Aperçu des critères utilisés pour rechercher un profil.',
+            'معاينة لمعايير البحث عن ملف مهني.',
+            'Vorschau der Kriterien für die Profilsuche.',
+            'Preview of criteria used to find a profile.',
+          )}
+        >
+          <div className="match-search-tabs">
+            <span className="is-active">
+              {t('Emploi', 'عمل', 'Arbeit', 'Jobs')}
             </span>
-            <span className="match-country match-canada">
-              <CountryFlag country="CA" />
-              <span>
-                <Briefcase />
-                {c.employer}
-              </span>
-            </span>
+            <span>{t('Formation', 'تكوين', 'Ausbildung', 'Training')}</span>
           </div>
-          <HeartbeatTrace />
-          <div className="match-hub">
-            <span>AMUD SKILLS</span>
-            <HeartHandshake size={30} />
+          <div className="match-search-field">
+            <span aria-hidden="true">⌕</span>
+            {t(
+              'Métier, ville, secteur…',
+              'المهنة، المدينة، المجال…',
+              'Beruf, Stadt, Bereich …',
+              'Role, city, field…',
+            )}
           </div>
-          <div className="match-criteria">
+          <div className="match-search-filters">
             {[
-              t('Compétences', 'المهارات', 'Kompetenzen', 'Skills'),
-              t('Expérience', 'الخبرة', 'Erfahrung', 'Experience'),
-              t('Langues', 'اللغات', 'Sprachen', 'Languages'),
-              t(
-                'Disponibilité',
-                'التوفر للعمل',
-                'Verfügbarkeit',
-                'Availability',
-              ),
+              t('Localisation', 'الموقع', 'Standort', 'Location'),
+              t('Secteur', 'المجال', 'Bereich', 'Field'),
             ].map((x) => (
               <span key={x}>
-                <Check size={14} />
-                {x}
+                {x}<b aria-hidden="true">⌄</b>
               </span>
             ))}
           </div>
+          <div className="match-search-filters match-search-filters-bottom">
+            {[
+              t('Type de contrat', 'نوع العقد', 'Vertragsart', 'Contract type'),
+              t('Niveau de langue', 'مستوى اللغة', 'Sprachniveau', 'Language level'),
+            ].map((x) => (
+              <span key={x}>
+                {x}<b aria-hidden="true">⌄</b>
+              </span>
+            ))}
+          </div>
+          <div className="match-search-foot">
+            <Check size={15} />
+            {t(
+              'Des critères clairs pour un premier échange.',
+              'معايير واضحة لبدء التواصل.',
+              'Klare Kriterien für den ersten Austausch.',
+              'Clear criteria for a first conversation.',
+            )}
+          </div>
         </div>
+        <figure className="matching-person">
+          <AdaptiveImage
+            name="career-logistics"
+            alt={t(
+              'Jeune professionnel marocain dans un environnement de travail.',
+              'شاب مهني مغربي في بيئة عمل.',
+              'Junger marokkanischer Berufstätiger am Arbeitsplatz.',
+              'Young Moroccan professional in a work setting.',
+            )}
+            sizes="(max-width: 639px) 90vw, (max-width: 1023px) 36vw, 24vw"
+          />
+          <figcaption>
+            {t('Talents au Maroc', 'مواهب من المغرب', 'Talente aus Marokko', 'Talent in Morocco')}
+          </figcaption>
+        </figure>
       </section>
       <section id="entreprises" className="section b2b">
         <div className="wrap">
@@ -242,6 +269,51 @@ export function MarketplaceLower({ locale }: { locale: Locale }) {
                 </span>
               </div>
             </AnimatedFrame>
+            <aside
+              className="b2b-aside"
+              aria-label={t(
+                'Repères pour les entreprises',
+                'نقاط أساسية للشركات',
+                'Orientierung für Unternehmen',
+                'Information for companies',
+              )}
+            >
+              <p className="b2b-aside-label">
+                {t(
+                  'VOTRE ESPACE ENTREPRISE',
+                  'فضاء الشركات',
+                  'IHR UNTERNEHMENSBEREICH',
+                  'YOUR EMPLOYER SPACE',
+                )}
+              </p>
+              <ul>
+                {[
+                  t(
+                    'Des profils lisibles et structurés',
+                    'ملفات واضحة ومنظّمة',
+                    'Übersichtliche, strukturierte Profile',
+                    'Clear, structured profiles',
+                  ),
+                  t(
+                    'Une recherche selon vos critères',
+                    'بحث وفق معاييركم',
+                    'Suche nach Ihren Kriterien',
+                    'Search using your criteria',
+                  ),
+                  t(
+                    'La mise en relation au cœur du parcours',
+                    'التواصل في صميم المسار',
+                    'Kontaktaufnahme im Mittelpunkt',
+                    'Connecting people at every step',
+                  ),
+                ].map((item) => (
+                  <li key={item}>
+                    <Check size={18} />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </aside>
           </div>
           <div className="b2b-steps">
             {[

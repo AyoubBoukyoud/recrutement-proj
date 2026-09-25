@@ -547,7 +547,7 @@ export default function Landing({
               <div className="steps-grid">
                 {c.steps.map(([title, body], i) => (
                   <article key={title}>
-                    <span className="step-number">0{i + 1}</span>
+                    <span className="step-number">{i + 1}</span>
                     {i < c.steps.length - 1 && <StepConnector />}
                     <h3>{title}</h3>
                     <p>{body}</p>

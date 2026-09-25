@@ -2,7 +2,7 @@ export type Locale = 'fr' | 'ar' | 'de' | 'en';
 export const translator =
   (locale: Locale) => (fr: string, ar: string, de: string, en: string) =>
     locale === 'ar' ? ar : locale === 'de' ? de : locale === 'en' ? en : fr;
-export const AUTH = '/auth-phone';
+export const AUTH = 'https://amudskills.com/auth-phone';
 export const RECRUIT = AUTH + '?intent=recruiter';
 export const verifiedPartners: { name: string; url: string; logo: string }[] =
   [];
@@ -37,58 +37,58 @@ export function content(locale: Locale) {
     steps: [
       [
         t(
-          'Présentez-vous',
-          'عرّف بنفسك',
-          'Stellen Sie sich vor',
-          'Introduce yourself',
+          'Première prise de contact',
+          'التواصل الأولي',
+          'Erste Kontaktaufnahme',
+          'First contact',
         ),
         t(
-          'Votre métier, votre parcours, vos ambitions.',
-          'مهنتك ومسارك وطموحاتك.',
-          'Ihr Beruf, Ihr Werdegang, Ihre Ziele.',
-          'Your profession, your experience and your ambitions.',
-        ),
-      ],
-      [
-        t(
-          'Valorisez vos compétences',
-          'أبرز مهاراتك',
-          'Zeigen Sie Ihr Können',
-          'Showcase your skills',
-        ),
-        t(
-          'Ajoutez vos expériences, votre CV et vos diplômes.',
-          'أضف خبراتك وسيرتك الذاتية ومؤهلاتك الدراسية.',
-          'Ergänzen Sie Ihre Erfahrungen, Ihren Lebenslauf und Ihre Abschlüsse.',
-          'Add your experience, CV and qualifications.',
+          'Partagez votre métier, votre parcours et vos ambitions.',
+          'شارك مهنتك ومسارك وطموحاتك.',
+          'Teilen Sie Ihren Beruf, Ihren Werdegang und Ihre Ziele.',
+          'Share your profession, experience and ambitions.',
         ),
       ],
       [
         t(
-          'Présentez-vous en vidéo',
-          'قدّم نفسك بالفيديو',
-          'Stellen Sie sich im Video vor',
-          'Introduce yourself on video',
+          'Vérification et orientation de votre profil',
+          'مراجعة الملف وتوجيهه',
+          'Profil prüfen und Orientierung geben',
+          'Profile review and guidance',
         ),
         t(
-          'Montrez votre motivation et indiquez votre niveau d’allemand, même débutant.',
-          'أبرز دوافعك وحدّد مستواك في الألمانية، حتى لو كنت مبتدئًا.',
-          'Zeigen Sie Ihre Motivation und geben Sie Ihr Deutschniveau an – auch als Anfänger.',
-          'Share your motivation and indicate your German level, even if you’re a beginner.',
+          'Faites le point sur votre expérience et vos compétences.',
+          'راجع خبراتك ومهاراتك وحدّد مسارك.',
+          'Erfassen Sie Ihre Erfahrung und Kompetenzen.',
+          'Review your experience and skills.',
         ),
       ],
       [
         t(
-          'Ouvrez la conversation',
-          'ابدأ التواصل',
-          'Beginnen Sie ein Gespräch',
-          'Start a conversation',
+          'Préparation avec nos ressources et partenaires',
+          'الاستعداد بمواردنا وشركائنا',
+          'Vorbereitung mit unseren Ressourcen und Partnern',
+          'Preparation with our resources and partners',
         ),
         t(
-          'Choisissez votre visibilité et explorez les mises en relation.',
-          'حدّد من يمكنه رؤية ملفك واستكشف فرص التواصل.',
-          'Legen Sie fest, wer Ihr Profil sehen kann, und entdecken Sie Kontaktmöglichkeiten.',
-          'Choose your profile visibility and explore opportunities to connect.',
+          'Appuyez-vous sur des ressources utiles pour préparer la suite.',
+          'استفد من الموارد المناسبة للاستعداد للخطوات التالية.',
+          'Nutzen Sie passende Ressourcen zur Vorbereitung der nächsten Schritte.',
+          'Use helpful resources to prepare for what comes next.',
+        ),
+      ],
+      [
+        t(
+          'Des opportunités adaptées à votre profil',
+          'فرص تناسب ملفك المهني',
+          'Passende Möglichkeiten für Ihr Profil',
+          'Opportunities suited to your profile',
+        ),
+        t(
+          'Explorez les mises en relation correspondant à votre parcours.',
+          'استكشف فرص التواصل التي تناسب مسارك.',
+          'Entdecken Sie Kontakte, die zu Ihrem Werdegang passen.',
+          'Explore connections that match your experience.',
         ),
       ],
     ],
