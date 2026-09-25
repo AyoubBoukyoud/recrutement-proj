@@ -1,13 +1,9 @@
 import { EditorialImage, LogoBridge } from './visual-details';
 import {
-  GraduationCap,
   Eye,
   LockKeyhole,
   HeartHandshake,
   ChevronDown,
-  Users,
-  Briefcase,
-  ArrowUpRight,
 } from 'lucide-react';
 import {
   translator,
@@ -302,85 +298,6 @@ export function Closing({
               <p>{a}</p>
             </details>
           ))}
-        </div>
-      </section>
-      <section className="final-cta">
-        <div className="wrap">
-          <span className="eyebrow">
-            {t(
-              'LE PROCHAIN PAS COMMENCE AVEC VOUS',
-              'الخطوة القادمة تبدأ معك',
-              'DER NÄCHSTE SCHRITT BEGINNT MIT IHNEN',
-              'THE NEXT STEP STARTS WITH YOU',
-            )}
-          </span>
-          <h2>
-            {t(
-              'Et si la suite commençait ici ?',
-              'ماذا لو بدأت خطوتك القادمة هنا؟',
-              'Was, wenn Ihr nächster Schritt hier beginnt?',
-              'What if your next step started here?',
-            )}
-          </h2>
-          <p>
-            {t(
-              'Un talent. Une entreprise. Un centre. Un même horizon.',
-              'موهبة. شركة. مركز. وأفق يجمعهم.',
-              'Ein Talent. Ein Unternehmen. Ein Bildungszentrum. Ein gemeinsamer Horizont.',
-              'Talent. Employers. Training centres. A shared horizon.',
-            )}
-          </p>
-          <div className="three-grid final-entries">
-            {[
-              [
-                t(
-                  'Je cherche un emploi',
-                  'أبحث عن عمل',
-                  'Ich suche Arbeit',
-                  'I’m looking for work',
-                ),
-                c.create,
-                AUTH,
-              ],
-              [
-                t(
-                  'Je suis une entreprise',
-                  'أمثّل شركة',
-                  'Ich vertrete ein Unternehmen',
-                  'I represent a company',
-                ),
-                c.recruit,
-                RECRUIT,
-              ],
-              [
-                t(
-                  'Je représente un centre',
-                  'أمثّل مركز تكوين',
-                  'Ich vertrete ein Bildungszentrum',
-                  'I represent a training centre',
-                ),
-                t(
-                  'Découvrir le CRM',
-                  'اكتشاف CRM',
-                  'CRM entdecken',
-                  'Explore the CRM',
-                ),
-                crm,
-              ],
-            ].map(([title, label, href], i) => {
-              const Icon = [Users, Briefcase, GraduationCap][i];
-              return (
-                <a href={href} key={title}>
-                  <Icon size={27} />
-                  <strong>{title}</strong>
-                  <span>
-                    {label}
-                    <ArrowUpRight size={18} />
-                  </span>
-                </a>
-              );
-            })}
-          </div>
         </div>
       </section>
       <footer className="footer wrap">
