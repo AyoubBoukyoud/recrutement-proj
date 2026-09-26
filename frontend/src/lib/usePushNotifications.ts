@@ -20,13 +20,42 @@ function urlBase64ToUint8Array(base64: string): BufferSource {
   return Uint8Array.from(raw.split('').map((c) => c.charCodeAt(0)));
 }
 
+/*
+ * `navigator.serviceWorker.ready` never resolves if no service worker ever
+ * registers — e.g. tested via `next dev` (registration is disabled there,
+ * see `next.config.mjs`) or a PWA that was added to the home screen before
+ * install completed. Without a timeout, clicking "Autoriser les
+ * notifications" just spins on "Activation…" forever with no feedback.
+ */
+const SERVICE_WORKER_READY_TIMEOUT_MS = 8000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('service-worker-timeout')), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      },
+    );
+  });
+}
+
 export function usePushNotifications(token: string | null) {
   const [permission, setPermission] = useState<PushPermission>('default');
   const [subscribing, setSubscribing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const supported =
-    typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+    typeof window !== 'undefined' &&
+    window.isSecureContext &&
+    'serviceWorker' in navigator &&
+    'PushManager' in window &&
+    'Notification' in window;
 
   useEffect(() => {
     if (!supported) {
@@ -51,7 +80,14 @@ export function usePushNotifications(token: string | null) {
       setPermission(result);
       if (result !== 'granted') return;
 
-      const registration = await navigator.serviceWorker.ready;
+      let registration: ServiceWorkerRegistration;
+      try {
+        registration = await withTimeout(navigator.serviceWorker.ready, SERVICE_WORKER_READY_TIMEOUT_MS);
+      } catch {
+        setError("Le service d'arrière-plan n'est pas encore prêt. Rechargez la page (ou réinstallez l'application) puis réessayez.");
+        return;
+      }
+
       const subscription =
         (await registration.pushManager.getSubscription()) ??
         (await registration.pushManager.subscribe({

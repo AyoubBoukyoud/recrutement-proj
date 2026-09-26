@@ -4,27 +4,10 @@ import { useEffect, useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { readStorage, writeStorage, STORAGE_KEYS } from '@/lib/storage';
 import { Button } from '@/components/shared/Button';
+import { isStandalone, isIos, type BeforeInstallPromptEvent } from '@/lib/pwaInstall';
 
 // Ne relance pas l'invite avant ce délai lorsque l'utilisateur l'a explicitement écartée.
 const DISMISS_COOLDOWN_MS = 14 * 24 * 60 * 60 * 1000;
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
-}
-
-function isStandalone(): boolean {
-  if (typeof window === 'undefined') return false;
-  return (
-    window.matchMedia?.('(display-mode: standalone)').matches ||
-    (window.navigator as Navigator & { standalone?: boolean }).standalone === true
-  );
-}
-
-function isIos(): boolean {
-  if (typeof navigator === 'undefined') return false;
-  return /iphone|ipad|ipod/i.test(navigator.userAgent);
-}
 
 function wasRecentlyDismissed(): boolean {
   const dismissedAt = readStorage<number | null>(STORAGE_KEYS.installPromptDismissedAt, null);

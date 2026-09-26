@@ -7,6 +7,19 @@ interface AudioRecorderProps {
   onRecordingComplete?: (blobUrl: string, blob: Blob) => void;
 }
 
+/*
+ * Codecs in preference order. Safari (macOS/iOS) doesn't support the WebM
+ * container at all, so a hardcoded `audio/webm` Blob type there mislabels
+ * whatever MP4/AAC bytes `MediaRecorder` actually produced — pick a type the
+ * browser confirms it supports instead of assuming one.
+ */
+const MIME_CANDIDATES = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/aac', 'audio/ogg;codecs=opus'];
+
+function pickMimeType(): string | undefined {
+  if (typeof MediaRecorder === 'undefined' || !MediaRecorder.isTypeSupported) return undefined;
+  return MIME_CANDIDATES.find((type) => MediaRecorder.isTypeSupported(type));
+}
+
 export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [seconds, setSeconds] = useState(0);
@@ -29,11 +42,12 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
         return;
       }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
+      const mimeType = pickMimeType();
+      const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
       chunksRef.current = [];
       recorder.ondataavailable = (e) => chunksRef.current.push(e.data);
       recorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || mimeType || 'audio/webm' });
         onRecordingComplete?.(URL.createObjectURL(blob), blob);
         stream.getTracks().forEach((track) => track.stop());
       };
