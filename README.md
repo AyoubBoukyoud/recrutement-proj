@@ -32,7 +32,7 @@ cd backend && php artisan serve --host=0.0.0.0 --port=8000
 cd backend && php artisan queue:work
 
 # 4a. Web app — candidate, recruiter, admin, agent
-cd frontend && npm run dev           # http://localhost:3000
+cd frontend && npm run dev           # landing page: http://localhost:3000/accueil-public
 
 # 4b. Mobile candidate app
 cd mobile-expo && npx expo start --port 8082

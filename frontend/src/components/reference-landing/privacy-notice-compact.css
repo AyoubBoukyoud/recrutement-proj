@@ -1,0 +1,7 @@
+.amud-privacy-notice{max-height:min(45svh,420px)}
+.amud-privacy-notice h2{margin:0 0 8px;padding-inline-end:40px}
+.amud-privacy-body{margin:0;font-size:14px;line-height:1.4}
+.amud-privacy-more{margin-top:3px}
+.amud-privacy-more summary{display:flex;align-items:center;min-height:36px;color:#8e393d;font-size:12px;font-weight:650;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.amud-privacy-more>p{margin:2px 0 8px;color:#514844;font-size:13px;line-height:1.45}
+@media(max-width:600px){.amud-privacy-notice{max-height:45svh;padding:14px 16px}.amud-privacy-top{margin-bottom:6px}.amud-privacy-links{margin-top:5px;gap:2px 12px}.amud-privacy-actions{margin-top:7px;gap:7px}.amud-privacy-actions button{flex:1 1 110px;min-height:44px;padding:7px 9px;font-size:13px}}

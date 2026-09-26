@@ -29,7 +29,7 @@ import {
 } from './primitives/sheet';
 import { translator, content, AUTH, RECRUIT, type Locale } from './content';
 import { Button, Heading, CheckList, Preview } from './ui';
-import { MarketplaceLower, CRMSection, CRMPage, Closing } from './sections';
+import { MarketplaceLower, CRMPage, Closing } from './sections';
 import { AdaptiveImage } from './adaptive-image';
 export default function Landing({
   locale = 'fr',
@@ -597,7 +597,6 @@ export default function Landing({
             </section>
             <Preview locale={locale} />
             <MarketplaceLower locale={locale} />
-            <CRMSection locale={locale} crmHref={crm} />
           </>
         )}
       </main>

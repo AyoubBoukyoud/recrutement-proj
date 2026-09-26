@@ -352,3 +352,35 @@
   background: #D6AE4B;
   border-color: #D6AE4B;
 }
+
+/* Keep hero actions clear of the audience shortcuts. */
+.studio .editorial-hero { padding-bottom:40px; }
+.studio .platform-audiences { margin-top:114px; transform:none; }
+@media (min-width:640px) and (max-width:1023px) {
+  .studio .editorial-hero { padding-bottom:32px; }
+  .studio .hero-copy { min-height:0; padding:40px 38px; }
+  .studio .hero-kicker { margin-bottom:30px; }
+  .studio .hero-copy h1 { font-size:clamp(2.45rem,5.4vw,3.6rem); line-height:1.02; }
+  .studio .hero-copy > p { margin-top:20px; font-size:.98rem; line-height:1.55; }
+  .studio .hero-copy .actions { margin-top:20px; }
+  .studio .hero-copy .hero-note { margin-top:14px; }
+  .studio .platform-audiences { margin-top:270px; transform:none; }
+}
+@media (max-width:639px) {
+  .studio .editorial-hero { padding-bottom:0; }
+  .studio .platform-audiences { margin-top:42px; transform:none; }
+}
+
+/* Double the vertical breathing room between landing page sections. */
+.studio .section { padding-block:clamp(140px,16vw,240px); }
+@media (max-width:639px) {
+  .studio .section { padding-block:140px; }
+  .studio #talents.section.wrap { padding-top:310px; padding-bottom:128px; }
+  .studio .language-section.section { padding-top:350px; padding-bottom:140px; }
+  .studio #comment-ca-marche.section { padding-top:140px; padding-bottom:310px; }
+  .studio .features-section.section { padding-top:350px; padding-bottom:140px; }
+}
+.studio #talents.section.wrap { padding-block:172px 164px; }
+@media (max-width:639px) {
+  .studio #talents.section.wrap { padding-top:310px; padding-bottom:128px; }
+}

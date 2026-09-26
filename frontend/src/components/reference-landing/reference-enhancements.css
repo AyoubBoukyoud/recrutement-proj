@@ -1,0 +1,121 @@
+.r-poster-picture {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.r-poster-picture img {
+  object-fit: cover;
+  object-position: center;
+}
+
+.r-step-image {
+  display: block;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  aspect-ratio: 2.6;
+  border-radius: 24px;
+}
+
+.r-step-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.r-social svg,
+.r-social svg:nth-child(2) {
+  color: #252525;
+}
+
+@media (min-width: 901px) {
+  [dir="rtl"] .r-hero {
+    direction: ltr;
+  }
+
+  [dir="rtl"] .r-hero-card {
+    direction: rtl;
+    text-align: right;
+  }
+}
+
+@media (max-width: 600px) {
+  .r-hero {
+    gap: 20px;
+  }
+
+  .r-hero-media {
+    order: -1;
+  }
+
+  .r-languages button {
+    width: 42px;
+    min-width: 42px;
+    min-height: 44px;
+  }
+
+  .r-process {
+    padding-top: 44px;
+  }
+
+  .r-step .r-step-image {
+    grid-column: 1;
+    grid-row: 1;
+    aspect-ratio: 2.55;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .r-start {
+    padding-top: 48px;
+  }
+
+  .r-step-list {
+    gap: 30px;
+  }
+
+  .r-levels {
+    gap: 14px;
+  }
+
+  .r-faq {
+    margin-top: 48px;
+  }
+
+  .r-social {
+    display: flex;
+    grid-column: 1 / -1;
+    justify-content: center;
+    gap: 24px;
+    margin: 0;
+  }
+
+  .r-social svg,
+  .r-social svg:nth-child(2) {
+    color: #252525;
+  }
+}
+
+@media (max-width: 380px) {
+  .r-container {
+    width: calc(100% - 24px);
+  }
+
+  .r-hero h1 {
+    font-size: clamp(31px, 9vw, 38px);
+    overflow-wrap: anywhere;
+  }
+
+  .r-hero-buttons .r-button {
+    white-space: normal;
+  }
+
+  .r-step-list {
+    padding-inline-start: 11px;
+  }
+}

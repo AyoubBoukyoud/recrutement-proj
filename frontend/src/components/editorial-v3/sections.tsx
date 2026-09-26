@@ -1,91 +1,9 @@
-import {
-  ArrowUpRight,
-  Users,
-  GraduationCap,
-  CalendarDays,
-  QrCode,
-  Wallet,
-  BookOpen,
-} from 'lucide-react';
 import { translator, content, type Locale } from './content';
 import { Heading, Button, Product } from './ui';
+import { BookOpen, CalendarDays, GraduationCap, QrCode, Users, Wallet } from 'lucide-react';
 export { MarketplaceLower } from './marketplace';
 export { Closing } from './closing';
 const icons = [Users, GraduationCap, CalendarDays, QrCode, Wallet, BookOpen];
-export function CRMSection({ locale, crmHref = '/crm-centre-formation' }: { locale: Locale; crmHref?: string }) {
-  const t = translator(locale),
-    c = content(locale),
-    crm = crmHref;
-  return (
-    <section id="centres" className="section mint-section">
-      <div className="wrap crm-layout">
-        <div>
-          <Heading
-            label={t(
-              'L’ÉCOSYSTÈME AMUD SKILLS',
-              'منظومة AMUD SKILLS',
-              'DAS AMUD SKILLS ÖKOSYSTEM',
-              'THE AMUD SKILLS ECOSYSTEM',
-            )}
-            title={t(
-              'Digitalisez votre centre. Valorisez vos apprenants.',
-              'رقمنوا مركزكم. وأبرزوا مواهب المتعلمين.',
-              'Digitalisieren Sie Ihr Zentrum. Machen Sie die Fähigkeiten Ihrer Lernenden sichtbar.',
-              'Digitise your centre. Showcase your learners’ skills.',
-            )}
-            description={t(
-              'Moins de dispersion dans la gestion, plus de place pour la formation. Reliez le quotidien de votre centre au parcours de vos apprenants.',
-              'إدارة أكثر تنظيمًا ومساحة أكبر للتكوين. اربطوا العمل اليومي لمركزكم بمسار المتعلمين.',
-              'Besser organisierte Verwaltung, mehr Raum für Bildung. Verbinden Sie den Alltag Ihres Zentrums mit den Fortschritten Ihrer Lernenden.',
-              'More organised management, more room for training. Connect your centre’s day-to-day work with your learners’ progress.',
-            )}
-          />
-          <ul className="crm-feature-cards">
-            {c.crmFeatures.map(([title, body], i) => {
-              const Icon = icons[i];
-              return (
-                <li key={title}>
-                  <div className="crm-feature-symbol" aria-hidden="true">
-                    <Icon size={24} />
-                  </div>
-                  <div className="crm-feature-copy">
-                    <h3>{title}</h3>
-                    <p>{body}</p>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-          <div className="centre-discovery-link">
-            <span>
-              <GraduationCap size={23} />
-            </span>
-            <div>
-              <strong>
-                {t(
-                  'Vous dirigez un centre de formation ?',
-                  'هل تدير مركز تكوين؟',
-                  'Leiten Sie ein Bildungszentrum?',
-                  'Do you run a training centre?',
-                )}
-              </strong>
-              <a href={crm}>
-                {t(
-                  'Découvrez le CRM connecté à la plateforme',
-                  'اكتشف نظام إدارة المراكز المرتبط بالمنصة',
-                  'Entdecken Sie die mit der Plattform verbundene Verwaltung für Bildungszentren',
-                  'Explore training centre management connected to the platform',
-                )}
-                <ArrowUpRight size={15} />
-              </a>
-            </div>
-          </div>
-        </div>
-        <Product view="centre" locale={locale} />
-      </div>
-    </section>
-  );
-}
 export function CRMPage({ locale, homeHref = '/accueil-public' }: { locale: Locale; homeHref?: string }) {
   const t = translator(locale),
     c = content(locale),
