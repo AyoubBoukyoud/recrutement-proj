@@ -162,7 +162,7 @@ export default function RecruiterCandidaturesPage() {
       {applications.isLoading ? (
         <p className="text-body-md text-amud-on-surface-variant">Chargement…</p>
       ) : (
-        <div className="snap-x snap-mandatory overflow-x-auto rounded-lg bg-amud-surface-container-low">
+        <div className="relative snap-x snap-mandatory overflow-x-auto rounded-lg bg-amud-surface-container-low">
           <div className="flex w-max gap-md p-md">
             {KANBAN_COLUMNS.map((col) => (
               <div

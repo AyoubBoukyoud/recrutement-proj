@@ -13,17 +13,24 @@
  */
 
 /* ------------------------------------------------------------------ *
- * Palette Pillar Foundation — vert sarcelle (primaire), or (secondaire),
- * bordeaux (tertiaire). Reprise de la charte candidat, qui porte le logo.
+ * Palette de la page d'accueil publique, qui porte le logo : cramoisi
+ * (primaire), or (secondaire), encre (tertiaire), sur un blanc chaud. La page
+ * d'accueil est la référence visuelle du produit ; tout le reste de l'app
+ * (candidat, recruteur, admin, agent, auth) en hérite par ces tokens.
  *
  * Les valeurs vivent dans ./colors.json (JSON pur, sans logique), sous
- * `brand.light`/`brand.dark` — namespace distinct de `amud.*` (palette du
- * module mock `/amud`, consommée séparément par `frontend/tailwind.config.js`)
- * pour que les deux ne soient jamais fusionnées sous les mêmes clés :
- *   - success reprend primary : deux verts distincts sur un même écran se
- *     liraient comme deux marques ;
+ * `brand.light`/`brand.dark` — namespace distinct de `amud.*` (palette des
+ * coquilles recruteur/admin/agent, consommée séparément par
+ * `frontend/tailwind.config.js`) ; les deux portent les mêmes teintes mais
+ * sous des rôles M3 différents, et ne sont jamais fusionnés :
+ *   - success est un vert à part : avec un primaire rouge, un « succès »
+ *     emprunté au primaire se lirait comme une erreur ;
+ *   - le texte posé sur l'or est l'encre, jamais le blanc (contraste < AA) ;
  *   - attention est l'or assombri jusqu'au ratio AA sur blanc, pour les
  *     états intermédiaires des écrans ops (dossier en attente, relance due).
+ *
+ * Les valeurs sombres sont recopiées dans `frontend/src/app/globals.css`
+ * (`:root.dark`) : toute modification ici doit y être reportée.
  * ------------------------------------------------------------------ */
 const colorTokens = require('./colors.json');
 const palette = colorTokens.brand.light;
@@ -143,8 +150,10 @@ const preset = {
       },
 
       boxShadow: {
-        soft: '0px 4px 20px rgba(0, 98, 102, 0.05)',
-        floating: '0px 8px 30px rgba(0, 98, 102, 0.12)',
+        /* Ombres chaudes de la page d'accueil (brun-rouge très dilué), plutôt
+           que teintées de l'ancien primaire sarcelle. */
+        soft: '0px 4px 20px rgba(52, 32, 20, 0.05)',
+        floating: '0px 12px 32px rgba(57, 35, 39, 0.10)',
         subtle: '0px 4px 20px rgba(0, 0, 0, 0.05)',
       },
 

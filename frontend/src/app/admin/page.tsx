@@ -65,7 +65,7 @@ export default function AdminOverview() {
   });
 
   return (
-    <main className="mx-auto grid max-w-6xl gap-6 p-6">
+    <div className="mx-auto grid grid-cols-1 max-w-6xl gap-6 sm:p-6">
       <header>
         <h1 className="text-2xl font-bold">Console d’administration</h1>
         <p className="helper-text mt-1">
@@ -178,6 +178,6 @@ export default function AdminOverview() {
           </section>
         </>
       )}
-    </main>
+    </div>
   );
 }

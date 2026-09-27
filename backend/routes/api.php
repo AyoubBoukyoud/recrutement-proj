@@ -24,25 +24,41 @@ use App\Http\Controllers\Api\ContactMessageController;
 use App\Http\Controllers\Api\DeviceSessionController;
 use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\EducationController;
+use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\JobOfferController;
 use App\Http\Controllers\Api\LanguageAssessmentController;
 use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\PhoneChangeController;
 use App\Http\Controllers\Api\PushSubscriptionController;
-use App\Http\Controllers\Api\RecruitmentCenterController;
 use App\Http\Controllers\Api\RecruiterCandidateController;
 use App\Http\Controllers\Api\RecruiterInterviewController;
 use App\Http\Controllers\Api\RecruiterProfileController;
 use App\Http\Controllers\Api\RecruiterShortlistController;
 use App\Http\Controllers\Api\RecruiterStatsController;
 use App\Http\Controllers\Api\RecruiterTeamController;
+use App\Http\Controllers\Api\RecruitmentCenterController;
 use App\Http\Controllers\Api\ReferralAgentController;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
 
 // Throttles defined in AppServiceProvider. Both endpoints are unauthenticated
 // and one of them costs money to serve, so neither may be left unbounded.
 Route::post('/auth/otp/request', [AuthController::class, 'requestOtp'])->middleware('throttle:otp-request');
 Route::post('/auth/otp/verify', [AuthController::class, 'verifyOtp'])->middleware('throttle:otp-verify');
+
+// "Continue with Google". The redirect and callback are the only API routes
+// with a session: it holds the OAuth state, PKCE verifier and nonce between
+// leaving for Google and coming back — nothing about who is signed in, which
+// stays a Sanctum token like everywhere else. Both are plain GET navigations;
+// the state parameter is their CSRF protection.
+Route::middleware([EncryptCookies::class, AddQueuedCookiesToResponse::class, StartSession::class, 'throttle:google-auth'])
+    ->group(function () {
+        Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect']);
+        Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
+    });
+Route::post('/auth/google/exchange', [GoogleAuthController::class, 'exchange'])->middleware('throttle:google-auth');
 
 // The public "contact us" form at the bottom of the homepage — a visitor
 // with no account yet, so this stays outside the auth:sanctum group below.

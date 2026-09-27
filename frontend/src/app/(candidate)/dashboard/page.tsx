@@ -222,7 +222,7 @@ export default function DashboardPage() {
               <div
                 className="relative mb-5 flex h-36 w-36 items-center justify-center rounded-full shadow-inner"
                 style={{
-                  background: `radial-gradient(closest-side, white 82%, transparent 83% 100%), conic-gradient(#006266 ${percent}%, #EDEEEF 0)`,
+                  background: `radial-gradient(closest-side, var(--surface-lowest) 82%, transparent 83% 100%), conic-gradient(var(--primary) ${percent}%, var(--surface-container) 0)`,
                 }}
               >
                 <span className="text-3xl font-black text-primary">

@@ -355,7 +355,7 @@ export default function DocumentsPage() {
         )}
 
         <section>
-          <div className="flex justify-between gap-1 overflow-x-auto rounded-xl bg-surface-container p-1">
+          <div className="relative flex justify-between gap-1 overflow-x-auto rounded-xl bg-surface-container p-1">
             {DOC_TYPES.map((type) => (
               <Button
                 key={type}

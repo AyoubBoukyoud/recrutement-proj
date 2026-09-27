@@ -256,7 +256,7 @@ export function SiteHeader({ className = '' }: SiteHeaderProps) {
                         key={link.href}
                         href={link.href}
                         onClick={(e) => handleNavClick(e, link.href)}
-                        className="group flex items-center justify-between rounded-2xl border border-black/5 dark:border-[#303641] bg-slate-50/90 dark:bg-[#1d2129] p-4 text-base font-black text-onSurface dark:text-[#f3f4f6] shadow-xs backdrop-blur-md transition-all hover:border-home-coral/50 hover:bg-white dark:hover:bg-[#252a34] active:scale-[0.98]"
+                        className="group flex items-center justify-between rounded-2xl border border-black/5 dark:border-[#303641] bg-home-sand p-4 text-base font-black text-onSurface dark:text-[#f3f4f6] shadow-xs backdrop-blur-md transition-all hover:border-home-coral/50 hover:bg-white dark:hover:bg-[#252a34] active:scale-[0.98]"
                       >
                         <div className="flex items-center gap-3.5">
                           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-home-coral-soft text-home-coral-dark dark:bg-[#8fb5a1]/10 dark:text-[#8fb5a1] transition-transform group-hover:scale-110">
@@ -274,7 +274,7 @@ export function SiteHeader({ className = '' }: SiteHeaderProps) {
                   </nav>
 
                   {/* Quick Preferences Bar in Drawer */}
-                  <div className="flex items-center justify-between rounded-2xl border border-black/5 dark:border-[#303641] bg-slate-50/80 dark:bg-[#1d2129] p-3 px-4">
+                  <div className="flex items-center justify-between rounded-2xl border border-black/5 dark:border-[#303641] bg-home-sand p-3 px-4">
                     <span className="text-xs font-bold text-onSurface-variant dark:text-[#bbc1cc] flex items-center gap-2">
                       <span className="material-symbols-outlined text-base text-home-coral">tune</span>
                       {PREFERENCES_LABELS[language] ?? PREFERENCES_LABELS.fr}
@@ -295,7 +295,7 @@ export function SiteHeader({ className = '' }: SiteHeaderProps) {
                   <Link
                     href="/auth-phone"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 rounded-2xl border border-black/10 dark:border-[#303641] bg-slate-50/90 dark:bg-[#1d2129] py-3.5 text-center text-sm font-bold text-onSurface dark:text-[#f3f4f6] shadow-xs backdrop-blur-md active:scale-[0.98] transition-all hover:border-home-coral/40 hover:text-home-coral"
+                    className="flex items-center justify-center gap-2 rounded-2xl border border-black/10 dark:border-[#303641] bg-home-sand py-3.5 text-center text-sm font-bold text-onSurface dark:text-[#f3f4f6] shadow-xs backdrop-blur-md active:scale-[0.98] transition-all hover:border-home-coral/40 hover:text-home-coral"
                   >
                     <span className="material-symbols-outlined text-lg text-home-coral">login</span>
                     <span>{nav.signIn}</span>

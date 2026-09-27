@@ -2,7 +2,7 @@ import { RecruitmentCenters } from '@/components/RecruitmentCenters';
 
 export default function AgentCentersPage() {
   return (
-    <div className="mx-auto grid max-w-[1200px] gap-6">
+    <div className="mx-auto grid grid-cols-1 max-w-[1200px] gap-6">
       <header>
         <p className="eyebrow eyebrow-accent">Prospection partagée</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-on-surface">Centres et entreprises</h1>

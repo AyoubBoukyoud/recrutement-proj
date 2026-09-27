@@ -23,10 +23,13 @@ export default function ReferenceLanding({locale='fr'}:{locale?:Locale}){
   const [motion,setMotion]=useState(false),[heroVideo,setHeroVideo]=useState(false),[heroSource,setHeroSource]=useState<'responsive'|'webm'|'mp4'>('responsive'),[allFaq,setAllFaq]=useState(false);
   useEffect(()=>{
     const query=window.matchMedia('(prefers-reduced-motion: reduce)');
+    // Sur téléphone, la vidéo (~1 Mo) n'occupe qu'un bandeau décoratif dont
+    // l'affiche montre déjà la même scène : on la réserve aux écrans ≥ 640px.
+    const wide=window.matchMedia('(min-width: 640px)');
     const saveData=Boolean((navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData);
-    const update=()=>{setMotion(!query.matches);setHeroVideo(!query.matches&&!saveData);};
-    update();query.addEventListener('change',update);
-    return()=>query.removeEventListener('change',update);
+    const update=()=>{setMotion(!query.matches);setHeroVideo(!query.matches&&!saveData&&wide.matches);};
+    update();query.addEventListener('change',update);wide.addEventListener('change',update);
+    return()=>{query.removeEventListener('change',update);wide.removeEventListener('change',update);};
   },[]);
   const steps=[
     {image:'profile',Icon:UserRound,title:c.steps[0][0],body:t('Créez votre profil et partagez votre parcours, vos motivations et vos centres d’intérêt.','أنشئ ملفك وشارك مسارك ودوافعك واهتماماتك.','Erstellen Sie Ihr Profil und teilen Sie Ihren Werdegang, Ihre Motivation und Interessen.','Create your profile and share your experience, motivation and interests.'),note:t('Un profil qui vous ressemble.','ملف يعكس شخصيتك.','Ein Profil, das zu Ihnen passt.','A profile that reflects you.')},

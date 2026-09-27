@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
-import { SiteHeader } from '@/components/home/SiteHeader';
-import { SiteFooter } from '@/components/home/SiteFooter';
+import { SharedPublicFooter, SharedPublicHeader } from '@/components/reference-landing/SharedPublicChrome';
 import { EmployeursBody } from './EmployeursBody';
 
 export const metadata: Metadata = {
@@ -19,11 +18,9 @@ export const metadata: Metadata = {
 export default function EmployeursPage() {
   return (
     <>
-      <SiteHeader />
-
-
+      <SharedPublicHeader />
       <EmployeursBody />
-      <SiteFooter />
+      <SharedPublicFooter />
     </>
   );
 }

@@ -58,7 +58,7 @@ export default function AdminContact() {
   });
 
   return (
-    <main className="mx-auto grid max-w-5xl gap-4 p-6">
+    <div className="mx-auto grid grid-cols-1 max-w-5xl gap-4 sm:p-6">
       <header>
         <h1 className="text-2xl font-bold">Contact</h1>
         <p className="helper-text mt-1">
@@ -131,6 +131,6 @@ export default function AdminContact() {
       {updateStatus.isError && <Notice>{apiErrorMessage(updateStatus.error, "La mise à jour a échoué.")}</Notice>}
 
       <Pagination page={page} data={q.data} onPage={setPage} noun="message" language="fr" />
-    </main>
+    </div>
   );
 }

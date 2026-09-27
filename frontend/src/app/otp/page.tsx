@@ -12,6 +12,19 @@ import { useLanguage } from "@/context/LanguageContext";
 import { destinationForRole } from "@/lib/roleDestination";
 import { Button } from "@/components/shared/Button";
 import { AuthShell } from "@/components/AuthShell";
+import type { TranslationKey } from "@/lib/i18n";
+import {
+  clearPendingGoogleLink,
+  readPendingGoogleLink,
+} from "@/lib/googleAuth";
+
+/** Connexion réussie, mais quelque chose est à dire avant de rediriger. */
+type Notice = {
+  destination: string;
+  title: TranslationKey;
+  body: TranslationKey;
+  cta: TranslationKey;
+};
 
 const RESEND_SECONDS = 45;
 
@@ -35,16 +48,17 @@ function OtpContent() {
   );
   const [debugCode, setDebugCode] = useState<string | null>(initialDebugCode);
   const [shake, setShake] = useState(false);
-  // Rempli uniquement quand quelqu'un a choisi « Je recrute » mais que le
-  // compte, une fois vérifié, s'avère être un simple candidat : la connexion
-  // a réussi, seule la redirection est mise en pause le temps de prévenir.
-  const [pendingDestination, setPendingDestination] = useState<string | null>(
-    null,
-  );
+  // Rempli quand la connexion a réussi mais qu'il faut prévenir avant de
+  // rediriger : « Je recrute » choisi par un compte qui n'est que candidat,
+  // ou compte Google qui n'a pas pu être rattaché à ce numéro.
+  const [notice, setNotice] = useState<Notice | null>(null);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+  // « Retour » garde un rattachement Google en cours plutôt que de l'abandonner.
+  const [backHref, setBackHref] = useState("/auth-phone");
 
   useEffect(() => {
     inputsRef.current[0]?.focus();
+    if (readPendingGoogleLink()) setBackHref("/auth-phone?google=link");
   }, []);
 
   useEffect(() => {
@@ -95,7 +109,9 @@ function OtpContent() {
   const submitCode = async (code: string) => {
     setError(null);
     setIsVerifying(true);
-    const result = await verifyOtp(code, phone || undefined);
+    // Présent quand ce code termine un « Continuer avec Google ».
+    const googleLink = readPendingGoogleLink();
+    const result = await verifyOtp(code, phone || undefined, googleLink?.ticket);
     setIsVerifying(false);
     if (!result.ok) {
       setError(otpFailureMessage(result, t));
@@ -106,15 +122,37 @@ function OtpContent() {
       return;
     }
 
+    clearPendingGoogleLink();
+
     const destination = result.deletionPending
       ? "/compte"
       : destinationForRole(result.role, getIncompleteStep());
+
+    // Le numéro est vérifié et la session ouverte ; seul le rattachement
+    // Google a échoué — on le dit plutôt que de le taire.
+    if (result.googleLink === "conflict" || result.googleLink === "expired") {
+      setNotice({
+        destination,
+        title: "google_link_failed_title",
+        body:
+          result.googleLink === "conflict"
+            ? "google_link_conflict_body"
+            : "google_link_expired_body",
+        cta: "google_link_failed_cta",
+      });
+      return;
+    }
 
     // Le rôle réel décide toujours de la destination — « Je recrute » n'est
     // qu'une intention. Si le compte n'a pas d'accès recruteur, la connexion
     // reste valide (candidat) mais on le dit avant de rediriger.
     if (intent === "recruiter" && result.role === "candidate") {
-      setPendingDestination(destination);
+      setNotice({
+        destination,
+        title: "recruiter_access_pending_title",
+        body: "recruiter_access_pending_body",
+        cta: "recruiter_access_pending_cta",
+      });
       return;
     }
 
@@ -142,7 +180,7 @@ function OtpContent() {
     inputsRef.current[0]?.focus();
   };
 
-  if (pendingDestination) {
+  if (notice) {
     return (
       <AuthShell>
         <main id="main-content" tabIndex={-1} className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center bg-surface px-6 py-10 text-center shadow-subtle outline-none">
@@ -155,17 +193,17 @@ function OtpContent() {
             </span>
           </div>
           <h2 className="mb-2 text-2xl font-extrabold text-onSurface">
-            {t("recruiter_access_pending_title")}
+            {t(notice.title)}
           </h2>
           <p className="mx-auto mb-8 max-w-[320px] text-sm leading-relaxed text-onSurface-variant">
-            {t("recruiter_access_pending_body")}
+            {t(notice.body)}
           </p>
           <Button
             size="lg"
-            onClick={() => router.replace(pendingDestination)}
+            onClick={() => router.replace(notice.destination)}
             className="w-full max-w-[340px] shadow-sm"
           >
-            {t("recruiter_access_pending_cta")}
+            {t(notice.cta)}
           </Button>
         </main>
       </AuthShell>
@@ -178,7 +216,7 @@ function OtpContent() {
         <header className="sticky top-0 z-10 border-b border-surface-container-high bg-surface px-6 py-4">
           <div className="flex items-center gap-4">
             <Link
-              href="/auth-phone"
+              href={backHref}
               aria-label="Retour"
               className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-surface-container-low"
             >

@@ -42,4 +42,19 @@ return [
         'timeout' => (int) env('GEMINI_TIMEOUT', 120),
     ],
 
+    /*
+     * "Continue with Google" (OpenID Connect, authorization-code flow). The
+     * secret never leaves the server. `redirect` must match, character for
+     * character, a URI registered on the OAuth client — one per environment.
+     * `frontend_url` is where the browser lands afterwards; it comes from
+     * configuration only, never from the request, so the flow cannot be
+     * turned into an open redirect.
+     */
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI'),
+        'frontend_url' => env('FRONTEND_URL', env('APP_URL')),
+    ],
+
 ];

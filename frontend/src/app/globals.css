@@ -1,11 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
-/* IBM Plex Mono ne sert qu'aux écrans recruteur/admin/agent (portés depuis
-   web-admin) : colonnes chiffrées des tableaux, où l'alignement des chiffres
-   prime — c'est le `font-mono` du preset partagé. */
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-
+/* Polices : chargées par les <link> de app/layout.tsx (Inter, Material
+   Symbols, IBM Plex Mono), en parallèle et avec preconnect. Des @import ici
+   étaient bloquants et en série derrière cette feuille, en doublon des <link>,
+   et tiraient quatre familles que rien n'utilise (Plus Jakarta Sans, Outfit,
+   DM Sans, Space Grotesk). */
 
 @tailwind base;
 @tailwind components;
@@ -69,18 +66,18 @@ html.text-size-large { font-size: 18px; }
   color-scheme: dark;
 
   /* --- Palette partagée (candidat, admin réel, auth...) --- */
-  --primary: #8fb5a1;
-  --primary-dark: #a6c8b5;
-  --primary-light: #25362e;
-  --on-primary: #101216;
-  --on-primary-container: #f3f4f6;
+  --primary: #d9525e;
+  --primary-dark: #f0a3a9;
+  --primary-light: #3a1f23;
+  --on-primary: #1a0508;
+  --on-primary-container: #ffe9eb;
 
-  --secondary: #a1aabb;
-  --secondary-dark: #8893a6;
-  --secondary-light: #252b36;
-  --gold: #a1aabb;
-  --on-secondary: #101216;
-  --on-secondary-container: #bbc1cc;
+  --secondary: #e3b14a;
+  --secondary-dark: #f0c878;
+  --secondary-light: #3a2e14;
+  --gold: #e3b14a;
+  --on-secondary: #1a1408;
+  --on-secondary-container: #f7e2b0;
 
   --tertiary: #aaa6c0;
   --tertiary-dark: #89859e;
@@ -93,12 +90,12 @@ html.text-size-large { font-size: 18px; }
   --on-error: #690005;
   --on-error-container: #ffdad6;
 
-  --success: #52e27a;
-  --success-light: #123d2a;
+  --success: #7dd3a3;
+  --success-light: #143325;
 
-  --attention: #c6a86a;
-  --attention-light: #3d321d;
-  --on-attention-container: #f1d79a;
+  --attention: #e3b14a;
+  --attention-light: #3a2e14;
+  --on-attention-container: #f7e2b0;
 
   --background: #101216;
   --surface: #101216;
@@ -116,36 +113,36 @@ html.text-size-large { font-size: 18px; }
   --outline: #9099aa;
   --outline-variant: #303641;
 
-  /* --- Site public `/accueil-public` (navy/corail) --- */
+  /* --- Pages publiques secondaires (`home-*`, encre/cramoisi) --- */
   --home-ink: 244 247 250;
   --home-ink-soft: 217 225 233;
   --home-strong: 7 19 31;
   --home-surface: 19 27 36;
-  --home-coral: 241 105 63;
-  --home-coral-dark: 255 158 126;
-  --home-coral-hover: 200 73 37;
-  --home-coral-soft: 48 27 21;
-  --home-teal: 8 57 52;
+  --home-coral: 217 82 94;
+  --home-coral-dark: 240 163 169;
+  --home-coral-hover: 186 48 62;
+  --home-coral-soft: 58 31 35;
+  --home-teal: 45 45 60;
   --home-mint: 14 37 32;
   --home-lavender: 25 25 40;
-  --home-violet: 184 180 255;
+  --home-violet: 201 200 214;
   --home-sand: 12 18 25;
   --home-slate: 174 187 200;
   --home-line: 43 55 68;
 
   /* --- Palette amud-* (espaces Admin/Commercial/Employeur/Candidat mock) --- */
-  --amud-primary: #8fb5a1;
-  --amud-primary-dark: #a6c8b5;
-  --amud-primary-light: #16191f;
-  --amud-primary-container: #1d2129;
-  --amud-on-primary: #101216;
-  --amud-on-primary-container: #f3f4f6;
-  --amud-primary-fixed: #bbc1cc;
-  --amud-primary-fixed-dim: #8fb5a1;
-  --amud-on-primary-fixed: #101216;
-  --amud-on-primary-fixed-variant: #4c6e5d;
-  --amud-inverse-primary: #4c6e5d;
-  --amud-surface-tint: #8fb5a1;
+  --amud-primary: #d9525e;
+  --amud-primary-dark: #f0a3a9;
+  --amud-primary-light: #2e1a1d;
+  --amud-primary-container: #3a1f23;
+  --amud-on-primary: #1a0508;
+  --amud-on-primary-container: #ffe9eb;
+  --amud-primary-fixed: #f5bec2;
+  --amud-primary-fixed-dim: #d9525e;
+  --amud-on-primary-fixed: #1a0508;
+  --amud-on-primary-fixed-variant: #7a2a33;
+  --amud-inverse-primary: #ba303e;
+  --amud-surface-tint: #d9525e;
 
   --amud-secondary: #a1aabb;
   --amud-secondary-container: #303641;
@@ -156,12 +153,12 @@ html.text-size-large { font-size: 18px; }
   --amud-on-secondary-fixed: #101216;
   --amud-on-secondary-fixed-variant: #303641;
 
-  --amud-tertiary: #c6a86a;
-  --amud-tertiary-container: #3d321d;
+  --amud-tertiary: #e3b14a;
+  --amud-tertiary-container: #3a2e14;
   --amud-on-tertiary: #101216;
-  --amud-on-tertiary-container: #f1d79a;
-  --amud-tertiary-fixed: #f1d79a;
-  --amud-tertiary-fixed-dim: #c6a86a;
+  --amud-on-tertiary-container: #f7e2b0;
+  --amud-tertiary-fixed: #f7e2b0;
+  --amud-tertiary-fixed-dim: #e3b14a;
   --amud-on-tertiary-fixed: #271c05;
   --amud-on-tertiary-fixed-variant: #594612;
 
@@ -206,14 +203,14 @@ html.text-size-large { font-size: 18px; }
   color: var(--on-surface-variant);
 }
 
-/* Keep large headlines neutral; reserve the sage accent for smaller cues
+/* Keep large headlines neutral; reserve the brand accent for smaller cues
  * and actions instead of washing the page in the brand color. */
 :root.dark main.bg-surface h1 .text-primary {
   color: #c7ced8;
 }
 
 :root.dark main.bg-surface > section:first-of-type > .pointer-events-none {
-  background-image: radial-gradient(ellipse at 50% 0%, rgb(143 181 161 / 4%), transparent 65%);
+  background-image: radial-gradient(ellipse at 50% 0%, rgb(217 82 94 / 4%), transparent 65%);
 }
 
 /* The play control keeps its existing white surface over the video. */
@@ -303,60 +300,60 @@ html.text-size-large { font-size: 18px; }
  * tiers en mode clair, indépendamment du thème de l'interface.
  */
 .force-light {
-  --amud-primary: #006266;
-  --amud-primary-dark: #004245;
-  --amud-primary-light: #c8e5e6;
-  --amud-primary-container: #0b7a80;
+  --amud-primary: #ba303e;
+  --amud-primary-dark: #8f2230;
+  --amud-primary-light: #fbe9ea;
+  --amud-primary-container: #a32835;
   --amud-on-primary: #ffffff;
-  --amud-on-primary-container: #002021;
-  --amud-primary-fixed: #c8e5e6;
-  --amud-primary-fixed-dim: #6fb3b6;
-  --amud-on-primary-fixed: #002021;
-  --amud-on-primary-fixed-variant: #004245;
-  --amud-inverse-primary: #c8e5e6;
-  --amud-surface-tint: #006266;
+  --amud-on-primary-container: #ffe9eb;
+  --amud-primary-fixed: #fbe9ea;
+  --amud-primary-fixed-dim: #f2b8bd;
+  --amud-on-primary-fixed: #3d0a10;
+  --amud-on-primary-fixed-variant: #8f2230;
+  --amud-inverse-primary: #f2b8bd;
+  --amud-surface-tint: #ba303e;
 
-  --amud-secondary: #b02d2c;
-  --amud-secondary-container: #fe665f;
+  --amud-secondary: #3f3f52;
+  --amud-secondary-container: #ecebf2;
   --amud-on-secondary: #ffffff;
-  --amud-on-secondary-container: #690009;
-  --amud-secondary-fixed: #ffdad6;
-  --amud-secondary-fixed-dim: #ffb3ad;
-  --amud-on-secondary-fixed: #410003;
-  --amud-on-secondary-fixed-variant: #8e1217;
+  --amud-on-secondary-container: #25252f;
+  --amud-secondary-fixed: #ecebf2;
+  --amud-secondary-fixed-dim: #c9c8d6;
+  --amud-on-secondary-fixed: #191b20;
+  --amud-on-secondary-fixed-variant: #3f3f52;
 
-  --amud-tertiary: #4c3800;
-  --amud-tertiary-container: #694e00;
+  --amud-tertiary: #8a5a00;
+  --amud-tertiary-container: #6e4a00;
   --amud-on-tertiary: #ffffff;
-  --amud-on-tertiary-container: #f6bd1c;
-  --amud-tertiary-fixed: #ffdf9a;
-  --amud-tertiary-fixed-dim: #f7be1d;
-  --amud-on-tertiary-fixed: #251a00;
-  --amud-on-tertiary-fixed-variant: #5a4300;
+  --amud-on-tertiary-container: #fce3a6;
+  --amud-tertiary-fixed: #fcefd2;
+  --amud-tertiary-fixed-dim: #e9b949;
+  --amud-on-tertiary-fixed: #2b1d00;
+  --amud-on-tertiary-fixed-variant: #6e4a00;
 
   --amud-error: #ba1a1a;
   --amud-error-container: #ffdad6;
   --amud-on-error: #ffffff;
   --amud-on-error-container: #93000a;
 
-  --amud-background: #f9f9ff;
-  --amud-on-background: #111c2d;
-  --amud-surface: #f9f9ff;
-  --amud-surface-bright: #f9f9ff;
-  --amud-surface-dim: #cfdaf2;
-  --amud-surface-variant: #d8e3fb;
+  --amud-background: #fffdfb;
+  --amud-on-background: #191b20;
+  --amud-surface: #fffdfb;
+  --amud-surface-bright: #fffdfb;
+  --amud-surface-dim: #e9e1dc;
+  --amud-surface-variant: #f1e9e5;
   --amud-surface-container-lowest: #ffffff;
-  --amud-surface-container-low: #f0f3ff;
-  --amud-surface-container: #e7eeff;
-  --amud-surface-container-high: #dee8ff;
-  --amud-surface-container-highest: #d8e3fb;
-  --amud-on-surface: #111c2d;
-  --amud-on-surface-variant: #404941;
-  --amud-inverse-surface: #263143;
-  --amud-inverse-on-surface: #ecf1ff;
+  --amud-surface-container-low: #fbf6f2;
+  --amud-surface-container: #f6efeb;
+  --amud-surface-container-high: #f0e8e3;
+  --amud-surface-container-highest: #eae1dc;
+  --amud-on-surface: #191b20;
+  --amud-on-surface-variant: #55556a;
+  --amud-inverse-surface: #2a2b31;
+  --amud-inverse-on-surface: #f7f2ef;
 
-  --amud-outline: #707970;
-  --amud-outline-variant: #c0c9bf;
+  --amud-outline: #7c7680;
+  --amud-outline-variant: #e6dcd8;
 }
 
 body {
@@ -366,22 +363,6 @@ body {
   -webkit-tap-highlight-color: transparent;
   -webkit-font-smoothing: antialiased;
 }
-
-/* Page d'accueil publique : pairing Plus Jakarta Sans (texte courant) /
-   Outfit (titres h1-h4) pour une lisibilité cristalline, moderne et percutante. */
-.home-font-pairing {
-  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  letter-spacing: -0.012em;
-}
-
-.home-font-pairing h1,
-.home-font-pairing h2,
-.home-font-pairing h3,
-.home-font-pairing h4 {
-  font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  letter-spacing: -0.025em;
-}
-
 
 /* Bague de focus commune à toute l'application. Les écrans candidat s'en
    passaient — chaque bouton porte la sienne — mais les champs/menus déroulants

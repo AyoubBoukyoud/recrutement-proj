@@ -139,15 +139,15 @@ export default function VideoRecordingPage() {
               </div>
             )}
             {isRecording && (
-              <span className="absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-red-500 px-2.5 py-1 text-[11px] font-bold text-white">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" /> {formatTime(seconds)}
+              <span className="absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-error px-2.5 py-1 text-[11px] font-bold text-onError">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-onError" /> {formatTime(seconds)}
               </span>
             )}
           </div>
         )}
 
-        {error && <p className="text-xs font-medium text-red-500">{error}</p>}
-        {saved && <p className="text-xs font-medium text-green-600">{content.saved}</p>}
+        {error && <p className="text-xs font-medium text-error">{error}</p>}
+        {saved && <p className="text-xs font-medium text-success">{content.saved}</p>}
 
         <div className="flex justify-center gap-3">
           {!recordedUrl && (
@@ -156,10 +156,10 @@ export default function VideoRecordingPage() {
               onClick={isRecording ? stopRecording : startRecording}
               aria-label={isRecording ? content.stopRecordingAria : content.startRecordingAria}
               className={`flex h-16 w-16 items-center justify-center rounded-full shadow-floating ${
-                isRecording ? 'bg-red-500 animate-pulse' : 'bg-primary'
+                isRecording ? 'bg-error animate-pulse' : 'bg-primary'
               }`}
             >
-              {isRecording ? <Square size={22} className="text-white" /> : <Video size={22} className="text-white" />}
+              {isRecording ? <Square size={22} className="text-onError" /> : <Video size={22} className="text-onPrimary" />}
             </button>
           )}
         </div>

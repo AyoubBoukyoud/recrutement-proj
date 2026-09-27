@@ -116,4 +116,22 @@ if [ -n "$vapid_public" ] || [ -n "$vapid_private" ] || [ -n "$browser_public" ]
     fi
 fi
 
+google_button="$(env_value NEXT_PUBLIC_GOOGLE_SIGN_IN)"
+google_id="$(env_value GOOGLE_CLIENT_ID)"
+google_secret="$(env_value GOOGLE_CLIENT_SECRET)"
+if [ "$google_button" = "1" ] || [ -n "$google_id" ] || [ -n "$google_secret" ]; then
+    require_value GOOGLE_CLIENT_ID
+    require_value GOOGLE_CLIENT_SECRET
+    google_redirect="$(env_value GOOGLE_REDIRECT_URI)"
+    case "${google_redirect:-$public_url/api/auth/google/callback}" in
+        https://*) ;;
+        *)
+            if [ "$bootstrap_http" -ne 1 ]; then
+                echo "GOOGLE_REDIRECT_URI must be https in production." >&2
+                exit 1
+            fi
+            ;;
+    esac
+fi
+
 echo "Production environment passed preflight: $env_file"

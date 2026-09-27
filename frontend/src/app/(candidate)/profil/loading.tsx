@@ -35,7 +35,7 @@ export default function ProfilLoading() {
           <div className="space-y-6 lg:col-span-3">
             <section className="space-y-3">
               <Skeleton className="h-5 w-24" />
-              <div className="-mx-6 flex gap-4 overflow-x-auto px-6 pb-2">
+              <div className="relative -mx-6 flex gap-4 overflow-x-auto px-6 pb-2">
                 {Array.from({ length: 2 }).map((_, i) => (
                   <Skeleton key={i} className="h-28 w-[220px] shrink-0 rounded-xl" />
                 ))}

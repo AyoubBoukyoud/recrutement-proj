@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\OtpCode;
 use App\Models\ReferralAgent;
 use App\Models\User;
+use App\Services\AuthSession;
+use App\Services\GoogleAuth\GoogleSignIn;
 use App\Services\OtpService;
 use App\Support\AdminPhones;
 use App\Support\PhoneNumber;
@@ -15,7 +17,11 @@ use Illuminate\Support\Carbon;
 
 class AuthController extends Controller
 {
-    public function __construct(private readonly OtpService $otpService) {}
+    public function __construct(
+        private readonly OtpService $otpService,
+        private readonly AuthSession $authSession,
+        private readonly GoogleSignIn $googleSignIn,
+    ) {}
 
     public function requestOtp(Request $request): JsonResponse
     {
@@ -89,6 +95,9 @@ class AuthController extends Controller
             'code' => ['required', 'string', 'size:'.config('otp.code_length', 6)],
             // Named so the candidate can recognise it in their device list.
             'device_name' => ['sometimes', 'nullable', 'string', 'max:100'],
+            // Set when this code finishes a "Continue with Google" that found
+            // no linked account — see GoogleSignIn.
+            'google_link_ticket' => ['sometimes', 'nullable', 'string', 'max:128'],
         ]);
 
         $this->otpService->verify($data['phone'], $data['code']);
@@ -107,20 +116,13 @@ class AuthController extends Controller
 
         $user->forceFill(['phone_verified_at' => Carbon::now()])->save();
 
-        $token = $user->createToken($data['device_name'] ?? null ?: 'Mobile app');
+        $googleLink = empty($data['google_link_ticket'])
+            ? null
+            : $this->googleSignIn->completeLink($user, $data['google_link_ticket']);
 
         return response()->json([
-            'token' => $token->plainTextToken,
-            'session' => [
-                'id' => $token->accessToken->getKey(),
-                'device_name' => $token->accessToken->name,
-            ],
-            'user' => [
-                'id' => $user->id,
-                'phone' => $user->phone,
-                'roles' => $user->getRoleNames(),
-            ],
-            'deletion_pending' => $user->deletion_requested_at !== null,
+            ...$this->authSession->issue($user, $data['device_name'] ?? null),
+            'google_link' => $googleLink,
         ]);
     }
 

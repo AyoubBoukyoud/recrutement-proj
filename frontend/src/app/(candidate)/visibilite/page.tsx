@@ -200,7 +200,7 @@ export default function VisibilitePage() {
         {identityVerified && (
           <section className="mb-10">
             <h2 className="mb-4 text-xl font-bold text-onSurface">{content.badges.title}</h2>
-            <div className="flex gap-4 overflow-x-auto pb-4">
+            <div className="relative flex gap-4 overflow-x-auto pb-4">
               <div className="flex w-32 shrink-0 flex-col items-center rounded-pillar border border-outline-variant bg-surface-container-lowest p-4 text-center shadow-subtle">
                 <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <span className="material-symbols-outlined fill text-[28px]">verified_user</span>

@@ -6,14 +6,15 @@ import QRCode from 'qrcode';
 interface QRCodeGeneratorProps {
   value: string;
   size?: number;
+  alt?: string;
 }
 
-export function QRCodeGenerator({ value, size = 160 }: QRCodeGeneratorProps) {
+export function QRCodeGenerator({ value, size = 160, alt = 'QR code' }: QRCodeGeneratorProps) {
   const [dataUrl, setDataUrl] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
-    // Le vert de marque vient des tokens partagés, exposés par next.config.mjs :
+    // La couleur de marque vient des tokens partagés, exposés par next.config.mjs :
     // un canvas ne peut pas porter de classe Tailwind.
     QRCode.toDataURL(value, {
       width: size,
@@ -37,7 +38,7 @@ export function QRCodeGenerator({ value, size = 160 }: QRCodeGeneratorProps) {
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={dataUrl}
-      alt="QR code"
+      alt={alt}
       width={size}
       height={size}
       className="rounded-xl border-2 border-dashed border-primary bg-white p-2 shadow-soft"
