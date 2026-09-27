@@ -19,7 +19,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class RecruitmentCenter extends Model
 {
     const CATEGORIES = ['training_center', 'business_germany'];
+
     const CALL_STATUSES = ['not_called', 'no_answer', 'called', 'call_back'];
+
     const OFFER_STATUSES = ['pending', 'negotiating', 'accepted', 'refused'];
 
     public function creator(): BelongsTo

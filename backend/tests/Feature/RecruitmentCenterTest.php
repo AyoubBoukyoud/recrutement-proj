@@ -59,10 +59,10 @@ class RecruitmentCenterTest extends TestCase
 
         $this->actingAs($agent, 'sanctum')
             ->postJson("/api/recruitment-centers/{$center['id']}/notes", [
-                'body' => "Appelé le 12/09, intéressés, à relancer début octobre.",
+                'body' => 'Appelé le 12/09, intéressés, à relancer début octobre.',
             ])
             ->assertCreated()
-            ->assertJsonPath('body', "Appelé le 12/09, intéressés, à relancer début octobre.");
+            ->assertJsonPath('body', 'Appelé le 12/09, intéressés, à relancer début octobre.');
 
         $show = $this->actingAs($agent, 'sanctum')
             ->getJson("/api/recruitment-centers/{$center['id']}")->assertOk()->json();
