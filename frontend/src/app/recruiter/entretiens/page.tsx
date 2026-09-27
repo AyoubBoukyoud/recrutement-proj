@@ -172,7 +172,7 @@ function RecruiterEntretiensPageInner() {
         </button>
       </div>
 
-      <div className="mb-md flex flex-wrap gap-sm overflow-x-auto">
+      <div className="relative mb-md flex flex-wrap gap-sm overflow-x-auto">
         {TABS.map((t) => (
           <button
             key={t.id}

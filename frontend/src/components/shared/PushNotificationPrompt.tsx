@@ -24,8 +24,13 @@ export function PushNotificationPrompt() {
   const [dismissed, setDismissed] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [installing, setInstalling] = useState(false);
+  // Plateforme, mode installé et support Push ne se lisent que dans le
+  // navigateur : les évaluer au premier rendu faisait diverger le HTML serveur
+  // (rien) du client mobile (la carte d'installation) — erreur d'hydratation.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
-  const needsInstallFirst = isMobileDevice() && !isStandalone();
+  const needsInstallFirst = mounted && isMobileDevice() && !isStandalone();
 
   useEffect(() => {
     if (!needsInstallFirst || isIos()) return;
@@ -37,7 +42,7 @@ export function PushNotificationPrompt() {
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, [needsInstallFirst]);
 
-  if (dismissed) return null;
+  if (!mounted || dismissed) return null;
 
   if (needsInstallFirst) {
     if (!isIos() && !deferredPrompt) return null;

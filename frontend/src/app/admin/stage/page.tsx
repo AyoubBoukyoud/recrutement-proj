@@ -45,7 +45,9 @@ export default function AdminStagePage() {
 
   const tasks = useQuery({
     queryKey: ['admin-tasks'],
-    queryFn: () => api.get('/admin/tasks', { params: { include_inactive: true, per_page: 100 } }).then((response) => response.data as PaginatedResponse<Task>),
+    // `1`, pas `true` : axios envoie la chaîne "true", que la règle `boolean` de
+    // Laravel refuse dans une query string (422 — le catalogue ne chargeait pas).
+    queryFn: () => api.get('/admin/tasks', { params: { include_inactive: 1, per_page: 100 } }).then((response) => response.data as PaginatedResponse<Task>),
   });
 
   const save = useMutation({
@@ -91,7 +93,7 @@ export default function AdminStagePage() {
   }
 
   return (
-    <main className="mx-auto grid max-w-6xl gap-6">
+    <div className="mx-auto grid grid-cols-1 max-w-6xl gap-6">
       <header className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
         <div>
           <p className="eyebrow">Stage quotidien</p>
@@ -101,7 +103,7 @@ export default function AdminStagePage() {
         <Link href="/admin/candidats" className="text-sm font-bold text-primary hover:underline">Voir les candidats à accompagner →</Link>
       </header>
 
-      <section className="grid gap-6 lg:grid-cols-[360px_1fr]">
+      <section className="grid grid-cols-1 gap-6 lg:grid-cols-[360px_1fr]">
         <Card>
           <div className="mb-4">
             <h2 className="text-lg font-bold">{editing ? 'Modifier l’activité' : 'Nouvelle activité'}</h2>
@@ -135,6 +137,6 @@ export default function AdminStagePage() {
           ))}
         </section>
       </section>
-    </main>
+    </div>
   );
 }

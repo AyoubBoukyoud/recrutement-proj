@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { readStorage, STORAGE_KEYS } from '@/lib/storage';
 import { recoverFromUnauthorized } from '@/lib/authSession';
+import { API_BASE_URL } from '@/lib/api';
 
 /*
  * Le client HTTP des écrans recruteur/admin/agent, portés depuis web-admin.
@@ -10,7 +11,9 @@ import { recoverFromUnauthorized } from '@/lib/authSession';
  * appels du candidat qui passent chacun par un dépôt de src/data.
  */
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  // Même base que lib/api.ts : les deux clients ne peuvent plus diverger
+  // (celui-ci partait sur des chemins relatifs quand la variable manquait).
+  baseURL: API_BASE_URL,
   headers: { Accept: 'application/json' },
 });
 

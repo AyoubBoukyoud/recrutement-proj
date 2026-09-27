@@ -16,7 +16,7 @@ export function DateRangeFilter({
   onCustomRangeChange?: (next: PeriodRange) => void;
 }) {
   return (
-    <div className="flex flex-col gap-sm">
+    <div className="flex min-w-0 max-w-full flex-col gap-sm">
       <SegmentedControl label="Période" options={PERIOD_OPTIONS} value={value} onChange={onChange} />
       {value === 'custom' ? (
         <div className="flex flex-wrap items-center gap-sm">

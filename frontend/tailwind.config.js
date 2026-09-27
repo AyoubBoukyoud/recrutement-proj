@@ -26,28 +26,31 @@ const amudCssVars = Object.fromEntries(Object.entries(amudLight).map(([key, valu
 /*
  * Palette de la page d'accueil publique (`/accueil-public`) et du chrome
  * qu'elle partage avec `/employeurs`, `/produit`, `/metiers/[slug]`
- * (`SiteHeader`/`SiteFooter`) — refonte reprenant la maquette navy/corail.
+ * (`SiteHeader`/`SiteFooter`) — alignée sur la page d'accueil (encre/cramoisi).
  *
  * La page suit le thème global. Les canaux RGB permettent aux modificateurs
  * d'opacité Tailwind (`bg-home-ink/5`, par exemple) de continuer à fonctionner
  * pendant que `globals.css` remplace les variables sous `.dark`.
  */
 const homeLight = {
-  ink: '16 35 58',
-  'ink-soft': '23 55 83',
-  strong: '16 35 58',
-  surface: '255 255 255',
-  coral: '241 105 63',
-  'coral-dark': '216 83 43',
-  'coral-hover': '200 73 37',
-  'coral-soft': '252 234 225',
-  teal: '14 92 80',
-  mint: '228 241 234',
-  lavender: '238 240 252',
-  violet: '91 87 166',
-  sand: '251 248 243',
-  slate: '87 96 111',
-  line: '228 231 238',
+  // Mêmes teintes que la page d'accueil (reference.css) et packages/design-tokens :
+  // encre, cramoisi du logo, blancs chauds. Les noms historiques (`coral`,
+  // `teal`, `mint`...) sont conservés pour ne pas toucher aux classes.
+  ink: '25 27 32',
+  'ink-soft': '63 63 82',
+  strong: '25 27 32',
+  surface: '255 253 251',
+  coral: '186 48 62',
+  'coral-dark': '143 34 48',
+  'coral-hover': '163 40 53',
+  'coral-soft': '251 233 234',
+  teal: '63 63 82',
+  mint: '246 239 235',
+  lavender: '236 235 242',
+  violet: '63 63 82',
+  sand: '251 246 242',
+  slate: '85 85 106',
+  line: '230 220 216',
 };
 const home = Object.fromEntries(
   Object.keys(homeLight).map((key) => [key, `rgb(var(--home-${key}) / <alpha-value>)`]),
@@ -119,7 +122,12 @@ module.exports = {
         'amud-fade-in': 'amud-fade-in 0.2s ease-out',
         'amud-scale-in': 'amud-scale-in 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
         'amud-slide-in-right': 'amud-slide-in-right 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-        'amud-rise-in': 'amud-rise-in 0.25s ease-out both',
+        // `backwards`, pas `both` : l'état final est l'état naturel, et un
+        // `transform` laissé en place après l'animation fait du <main> des
+        // coquilles le bloc conteneur de ses descendants `fixed` — tiroirs et
+        // modales s'y retrouvaient piégés (défilement horizontal sur mobile,
+        // modales qui défilent avec la page).
+        'amud-rise-in': 'amud-rise-in 0.25s ease-out backwards',
         'amud-sheet-up': 'amud-sheet-up 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
         'menu-drawer-in': 'menu-drawer-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both',
       },

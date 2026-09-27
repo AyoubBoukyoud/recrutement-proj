@@ -258,7 +258,7 @@ export default function RecruiterSearch() {
   }
 
   return (
-    <div className="mx-auto grid max-w-5xl gap-6">
+    <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6">
       <h1 className="sr-only">Recherche recruteur</h1>
         {openId ? (
           <CandidateDossier id={openId} onBack={() => setOpenId(null)} />
@@ -415,7 +415,7 @@ export default function RecruiterSearch() {
                     </div>
                   </div>
 
-                  <div className="mt-6 flex gap-2">
+                  <div className="mt-6 flex flex-wrap gap-2">
                     <Button onClick={() => applyFilters(filters)}>Rechercher</Button>
                     <Button
                       variant="ghost"

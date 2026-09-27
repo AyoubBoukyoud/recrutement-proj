@@ -11,10 +11,12 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/shared/Button';
+import { QRCodeGenerator } from '@/components/shared/QRCodeGenerator';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { candidateParrainageContentFor } from '@/lib/candidateParrainageContent';
 import { marketplaceApi, type ReferralMe } from '@/lib/candidateMarketplace';
+import { useCandidateProfile } from '@/lib/useCandidateProfile';
 
 /** Initiales affichées dans la pastille d'un filleul (« Yassine B. » -> « YB »). */
 function initialsOf(name: string | null): string {
@@ -41,6 +43,9 @@ export default function ParrainagePage() {
   const content = candidateParrainageContentFor(language);
   const { token } = useAuth();
   const [copied, setCopied] = useState(false);
+  const { data: profile } = useCandidateProfile();
+  const profileInitials =
+    `${profile?.first_name?.[0] ?? ''}${profile?.last_name?.[0] ?? ''}`.toUpperCase() || '·';
 
   const query = useQuery<ReferralMe>({
     queryKey: ['candidate-referral'],
@@ -57,16 +62,26 @@ export default function ParrainagePage() {
   const goal = 3;
   const progressPct = Math.min(100, Math.round((completedCount / goal) * 100));
 
+  /*
+   * Le code n'est utilisable que par ce lien : /auth-phone le lit dans `?ref=`
+   * et le transmet à la demande de code (même format que les QR des agents,
+   * cf. AgentDashboard). Aucun écran ne permet de le saisir à la main — un
+   * code partagé seul ne servait donc à rien à la personne qui le recevait.
+   */
+  const referralLink = query.data
+    ? `${window.location.origin}/auth-phone?ref=${encodeURIComponent(query.data.code)}`
+    : null;
+
   const copyCode = () => {
-    if (!query.data) return;
-    navigator.clipboard.writeText(referralCode);
+    if (!referralLink) return;
+    void navigator.clipboard?.writeText(referralLink).catch(() => undefined);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const shareWhatsApp = () => {
     if (!query.data) return;
-    const text = encodeURIComponent(`${content.codeCard.shareMessagePrefix} ${referralCode}`);
+    const text = encodeURIComponent(`${content.codeCard.shareMessagePrefix} ${referralCode}\n${referralLink}`);
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 
@@ -81,12 +96,14 @@ export default function ParrainagePage() {
             <span className="text-lg font-extrabold">Amud Skills</span>
           </Link>
         </div>
-        <div className="h-10 w-10 overflow-hidden rounded-full border border-outline-variant">
-          <img
-            className="h-full w-full object-cover"
-            alt={content.profileAlt}
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBd4TCaezSThyQP19dulzza0czNA9IA07iOkJPiCCWM9fUceYSCnNXpKxZYLpti03fDleRe5FLOWByB0qhO1eXPGuy8i2jOdTZ_k7QpyO_1SMPHhDC65snZVB70WWR64YwonnSkMMCjqspz54Y8O746P6yB3mnnJb42gd-Kc_v2ZosZd1h2z73_RhvNYoDp8wxO-VB3gpTKy0s4C_iyojfkMZTfD-HibdIjuiL6p2iBPfNq88ovt-a9"
-          />
+        {/* Initiales du candidat connecté — la maquette affichait ici la photo
+            d'un inconnu, servie depuis un hébergement tiers. */}
+        <div
+          role="img"
+          aria-label={content.profileAlt}
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-black text-onPrimary shadow-sm"
+        >
+          {profileInitials}
         </div>
       </header>
 
@@ -115,7 +132,7 @@ export default function ParrainagePage() {
             onClick={copyCode}
             className="group flex cursor-pointer items-center justify-between rounded-lg border border-outline-variant bg-surface-container p-4 transition-colors hover:border-primary"
           >
-            <span className="text-2xl font-black tracking-[0.2em] text-primary">
+            <span className="min-w-0 break-all text-xl font-black tracking-[0.08em] text-primary sm:text-2xl sm:tracking-[0.2em]">
               {query.isLoading ? '…' : referralCode}
             </span>
             <span className="material-symbols-outlined text-outline group-hover:text-primary" style={{ fontSize: 22 }}>
@@ -125,7 +142,7 @@ export default function ParrainagePage() {
           {copied && <p className="mt-1 text-xs font-bold text-primary">{content.codeCard.copiedNotice}</p>}
 
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-            <Button onClick={copyCode} disabled={!query.data} className="flex-1 text-xs shadow-sm">
+            <Button onClick={copyCode} disabled={!query.data} className="text-xs shadow-sm sm:flex-1">
               <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
                 content_copy
               </span>
@@ -134,7 +151,7 @@ export default function ParrainagePage() {
             <Button
               onClick={shareWhatsApp}
               disabled={!query.data}
-              className="flex-1 bg-[#25D366] text-xs text-white shadow-sm hover:enabled:bg-[#20ba5a]"
+              className="bg-[#25D366] text-xs text-white shadow-sm hover:enabled:bg-[#20ba5a] sm:flex-1"
             >
               <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
                 share
@@ -147,15 +164,15 @@ export default function ParrainagePage() {
         {/* QR Code Card */}
         <div className="mb-6 flex flex-col items-center justify-center rounded-xl border border-outline-variant bg-surface-container-lowest p-6 text-center shadow-subtle lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:mb-0 lg:h-full lg:justify-center">
           <div className="mb-3 rounded-xl border border-outline-variant bg-white p-3 shadow-sm">
-            <img
-              className="h-36 w-36"
-              alt={content.qrCard.alt}
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDehmNW9i40bVElibHulNmC8v8ikVC6dJNV08VB_OKbuN4vDQPJYI67o-A1zJL_E7Rgml7qMIuWf9nCq43OWj-P7BEqXafjX1uIc_cxHN_N3u6B73XTKTYGq-RjUa5wo8ZCfD-aICGMn_RuVbXtOvkK-VlcbRBUEY0Du6ZJysknfbufRj5BZ_sSoH999kOlU_77zs4hctZxaVo1NcwbLJn05QkTcHrOQiBveg3lN04vBPO_7HW_q6Yl"
-            />
+            {referralLink ? (
+              <QRCodeGenerator value={referralLink} size={144} alt={content.qrCard.alt} />
+            ) : (
+              <div className="h-36 w-36 animate-pulse rounded-lg bg-surface-container" aria-hidden="true" />
+            )}
           </div>
           <p className="text-xs font-bold text-onSurface-variant">{content.qrCard.instructions}</p>
           <div className="mt-2 rounded-full bg-surface-container px-3 py-1">
-            <span className="text-[10px] font-bold uppercase tracking-tighter text-onSurface">
+            <span className="break-all text-[10px] font-bold uppercase tracking-tighter text-onSurface">
               {content.qrCard.tokenLabel}: {query.isLoading ? '…' : referralCode}
             </span>
           </div>
@@ -231,7 +248,7 @@ export default function ParrainagePage() {
                     </div>
                   </div>
                   {completed ? (
-                    <span className="flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">
+                    <span className="flex items-center gap-1 rounded-full bg-success-light px-3 py-1 text-xs font-bold text-success">
                       <span className="material-symbols-outlined text-[14px]">check_circle</span>
                       {content.list.statusProfileCompleted}
                     </span>

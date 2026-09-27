@@ -16,7 +16,7 @@ export default function GlobalError({
 
   return (
     <html lang="fr">
-      <body style={{ margin: 0, background: '#F9F9FF', color: '#191C1D', fontFamily: 'system-ui, sans-serif' }}>
+      <body style={{ margin: 0, background: '#FFFDFB', color: '#191B20', fontFamily: 'Inter, system-ui, sans-serif' }}>
         <main
           style={{
             display: 'flex',
@@ -33,7 +33,7 @@ export default function GlobalError({
             Erreur critique
           </span>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 800, margin: 0 }}>L&apos;application n&apos;a pas pu démarrer</h1>
-          <p style={{ maxWidth: '28rem', fontSize: '0.875rem', lineHeight: 1.6, color: '#43474E' }}>
+          <p style={{ maxWidth: '28rem', fontSize: '0.875rem', lineHeight: 1.6, color: '#55556A' }}>
             Un problème inattendu a empêché le chargement de la page. Réessayez ; si cela persiste, revenez plus
             tard.
           </p>
@@ -41,11 +41,12 @@ export default function GlobalError({
             type="button"
             onClick={() => reset()}
             style={{
-              borderRadius: '0.75rem',
-              background: '#006266',
+              borderRadius: '6px',
+              background: '#BA303E',
               color: '#FFFFFF',
-              fontWeight: 700,
+              fontWeight: 600,
               fontSize: '0.875rem',
+              minHeight: '46px',
               padding: '0.75rem 1.5rem',
               border: 'none',
               cursor: 'pointer',

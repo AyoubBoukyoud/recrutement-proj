@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module';
 import withPWAInit from 'next-pwa';
 import runtimeCaching from 'next-pwa/cache.js';
+import { PHASE_PRODUCTION_BUILD } from 'next/constants.js';
 
 /*
  * La palette partagée, lue à la construction. Tout ce qui passe par Tailwind
@@ -40,6 +41,8 @@ const withPWA = withPWAInit({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Ne pas annoncer le framework dans chaque réponse (`X-Powered-By: Next.js`).
+  poweredByHeader: false,
   // The repository also contains a mobile lockfile and a legacy empty root
   // lockfile. Keep Next's trace boundary at this app instead of guessing the
   // monorepo root during production builds.
@@ -57,6 +60,8 @@ const nextConfig = {
      * sorte qu'un oubli parle à la vraie API plutôt que d'inventer.
      */
     NEXT_PUBLIC_USE_MOCKS: process.env.NEXT_PUBLIC_USE_MOCKS ?? '0',
+    // Même raison : le bouton Google doit être une constante du bundle.
+    NEXT_PUBLIC_GOOGLE_SIGN_IN: process.env.NEXT_PUBLIC_GOOGLE_SIGN_IN ?? '0',
 
     /* Couleurs de marque, issues de packages/design-tokens. */
     NEXT_PUBLIC_BRAND_PRIMARY: palette.primary,
@@ -72,4 +77,21 @@ const nextConfig = {
   },
 };
 
-export default withPWA(nextConfig);
+/*
+ * `NEXT_PUBLIC_API_URL` est figée dans le bundle à la construction. Absente,
+ * le client `fetch` (lib/api.ts) retombe sur `http://localhost:8000/api` —
+ * valeur de développement qui, livrée, ferait appeler au navigateur du
+ * visiteur sa propre machine — et le client axios (lib/opsApi.ts) sur des
+ * chemins relatifs. La production définit `/api` (Dockerfile.prod,
+ * deploy/docker-compose.prod.yml, CI) ; un build qui l'oublie doit échouer
+ * plutôt que d'expédier une app qui ne parle à aucune API.
+ */
+export default function config(phase) {
+  if (phase === PHASE_PRODUCTION_BUILD && !process.env.NEXT_PUBLIC_API_URL?.trim()) {
+    throw new Error(
+      'NEXT_PUBLIC_API_URL is not set for this production build. Set it to the API base the browser should call ' +
+        '(`/api` behind the reverse proxy, or an absolute URL) — see frontend/.env.example.',
+    );
+  }
+  return withPWA(nextConfig);
+}

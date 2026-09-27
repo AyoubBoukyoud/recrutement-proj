@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { SiteHeader } from '@/components/home/SiteHeader';
-import { SiteFooter } from '@/components/home/SiteFooter';
+import { SharedPublicFooter, SharedPublicHeader } from '@/components/reference-landing/SharedPublicChrome';
 import { TradeDetail } from '@/components/home/TradeDetail';
 import { allSlugs, findTrade } from '@/lib/trades';
 
@@ -42,15 +41,12 @@ export default async function TradePage({ params }: { params: TradePageParams })
 
   return (
     <>
-      <SiteHeader />
-
-
-
-      <main id="main-content" tabIndex={-1} className="pt-28 outline-none lg:pt-36">
+      <SharedPublicHeader />
+      <main id="main-content" tabIndex={-1} className="pt-2 outline-none lg:pt-6">
         <TradeDetail slug={slug} />
       </main>
 
-      <SiteFooter />
+      <SharedPublicFooter />
     </>
   );
 }

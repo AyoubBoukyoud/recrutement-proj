@@ -15,8 +15,9 @@ import {
   STORAGE_KEYS,
 } from "@/lib/storage";
 import { setCookie, deleteCookie } from "@/lib/cookies";
+import { isProtectedPath } from "@/lib/protectedRoutes";
 import { ApiError } from "@/lib/api";
-import { authRepository } from "@/data/auth";
+import { authRepository, type OtpVerifyResponse } from "@/data/auth";
 import type { AuthUser, UserRole } from "@/lib/types";
 
 /**
@@ -30,6 +31,8 @@ export type AuthFailure =
   | "throttled"
   | "delivery"
   | "network"
+  /** Compte bloqué ou désactivé côté back : réessayer n'y changera rien. */
+  | "blocked"
   | "unknown";
 
 type Failure = { ok: false; reason: AuthFailure; retryAfter?: number };
@@ -49,7 +52,14 @@ export type AuthResult = ({ ok: true } & OtpDispatch) | Failure;
 /** Le rôle est connu dès la vérification réussie — inutile d'attendre le
  *  prochain rendu pour savoir où envoyer l'appelant. */
 export type VerifyResult =
-  { ok: true; role: UserRole; deletionPending: boolean } | Failure;
+  | {
+      ok: true;
+      role: UserRole;
+      deletionPending: boolean;
+      /** Issue du rattachement Google demandé avec ce code, s'il y en avait un. */
+      googleLink: OtpVerifyResponse["google_link"];
+    }
+  | Failure;
 
 /** Le compte réellement consulté pendant une session empruntée. */
 export type Impersonation = {
@@ -73,7 +83,13 @@ interface AuthContextValue {
   requestOtp: (phone: string, referralToken?: string) => Promise<AuthResult>;
   /** `phone` prime sur `pendingPhone` : l'écran OTP le tient de son URL et
    *  survit donc à un rechargement de la PWA. */
-  verifyOtp: (code: string, phone?: string) => Promise<VerifyResult>;
+  verifyOtp: (
+    code: string,
+    phone?: string,
+    googleLinkTicket?: string,
+  ) => Promise<VerifyResult>;
+  /** Termine « Continuer avec Google » : même session qu'après un code OTP. */
+  signInWithGoogleCode: (code: string) => Promise<VerifyResult>;
   logout: () => void;
 }
 
@@ -135,6 +151,8 @@ function failureFrom(error: unknown): Failure {
 
   if (error.status === 429)
     return { ok: false, reason: "throttled", retryAfter };
+  // 403 sur requestOtp/verifyOtp : « This account cannot sign in. »
+  if (error.status === 403) return { ok: false, reason: "blocked" };
   // 502 : la chaîne WhatsApp/SMS n'a pas pu livrer le code.
   if (error.status === 502 || error.status === 503)
     return { ok: false, reason: "delivery" };
@@ -189,10 +207,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       persistUser(storedUser);
     }
 
+    /*
+     * Le cookie de rôle (lu par proxy.ts) et le jeton (localStorage) peuvent
+     * diverger : cookie expiré au bout de 30 jours alors que le jeton vit
+     * encore, ou stockage vidé par le navigateur alors que le cookie reste.
+     * Dans le second cas, le proxy laissait entrer sur une page protégée dont
+     * chaque requête partait sans jeton — des 401 que rien ne rattrapait,
+     * puisque `recoverFromUnauthorized` n'agit que si un jeton était envoyé.
+     * La session locale fait foi : on réaligne le cookie sur elle.
+     */
+    if (storedUser && storedToken) {
+      persistUser(storedUser);
+    } else {
+      storedUser = null;
+      storedToken = null;
+      persistUser(null);
+      removeStorage(STORAGE_KEYS.token);
+      if (isProtectedPath(window.location.pathname)) {
+        window.location.replace("/auth-phone");
+        return;
+      }
+    }
+
     setUser(storedUser);
     setToken(storedToken);
     setImpersonator(readStorage<AuthUser | null>(STORAGE_KEYS.impersonatorUser, null));
     setIsLoading(false);
+
+    /*
+     * Un jeton restauré n'est qu'une présomption : il a pu être révoqué depuis
+     * un autre appareil (« déconnecter les autres sessions ») ou par un
+     * administrateur. On le confirme en arrière-plan, sans bloquer le rendu —
+     * l'app reste utilisable hors-ligne, où une erreur réseau ne prouve rien.
+     */
+    if (!storedToken) return;
+    const restoredToken = storedToken;
+    authRepository.validateSession(restoredToken).catch((error: unknown) => {
+      if (!(error instanceof ApiError) || error.status !== 401) return;
+      // Un autre flux a pu remplacer le jeton entre-temps (nouvelle connexion).
+      if (readStorage<string | null>(STORAGE_KEYS.token, null) !== restoredToken) return;
+      removeStorage(STORAGE_KEYS.token);
+      removeStorage(STORAGE_KEYS.impersonatorToken);
+      removeStorage(STORAGE_KEYS.impersonatorUser);
+      persistUser(null);
+      setUser(null);
+      setToken(null);
+      setImpersonator(null);
+      if (isProtectedPath(window.location.pathname)) {
+        window.location.replace("/auth-phone?reason=session_expired");
+      }
+    });
   }, []);
 
   /*
@@ -270,44 +334,72 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
+  /*
+   * La seule façon d'ouvrir une session, quelle que soit la preuve d'identité
+   * (code OTP ou Google) : même jeton Sanctum, même stockage, mêmes cookies
+   * de rôle pour proxy.ts. Rien de propre à Google n'existe au-delà.
+   */
+  const openSession = useCallback(
+    (data: OtpVerifyResponse): VerifyResult => {
+      const role = roleFrom(data.user.roles ?? []);
+
+      const authUser: AuthUser = {
+        id: String(data.user.id),
+        role,
+        // Le back ne renvoie pas de nom à ce stade : le profil candidat, qui
+        // le porte, est chargé juste après par ProfileContext. Les autres
+        // rôles n'ont pas cette étape, donc un nom de repli leur suffit.
+        name: user?.name ?? DEFAULT_NAME_BY_ROLE[role],
+        phone: data.user.phone,
+        roles: data.user.roles ?? [],
+      };
+
+      setToken(data.token);
+      writeStorage(STORAGE_KEYS.token, data.token);
+      setUser(authUser);
+      persistUser(authUser);
+      setResendAvailableIn(null);
+
+      return {
+        ok: true,
+        role,
+        deletionPending: data.deletion_pending ?? false,
+        googleLink: data.google_link ?? null,
+      };
+    },
+    [user?.name],
+  );
+
   const verifyOtp = useCallback(
-    async (code: string, phone?: string): Promise<VerifyResult> => {
+    async (
+      code: string,
+      phone?: string,
+      googleLinkTicket?: string,
+    ): Promise<VerifyResult> => {
       const target = phone ?? pendingPhone;
 
       if (!target) return { ok: false, reason: "expired" };
 
       try {
-        const data = await authRepository.verifyOtp(target, code);
-
-        const role = roleFrom(data.user.roles ?? []);
-
-        const authUser: AuthUser = {
-          id: String(data.user.id),
-          role,
-          // Le back ne renvoie pas de nom à ce stade : le profil candidat, qui
-          // le porte, est chargé juste après par ProfileContext. Les autres
-          // rôles n'ont pas cette étape, donc un nom de repli leur suffit.
-          name: user?.name ?? DEFAULT_NAME_BY_ROLE[role],
-          phone: data.user.phone,
-          roles: data.user.roles ?? [],
-        };
-
-        setToken(data.token);
-        writeStorage(STORAGE_KEYS.token, data.token);
-        setUser(authUser);
-        persistUser(authUser);
-        setResendAvailableIn(null);
-
-        return {
-          ok: true,
-          role,
-          deletionPending: data.deletion_pending ?? false,
-        };
+        return openSession(
+          await authRepository.verifyOtp(target, code, googleLinkTicket),
+        );
       } catch (error) {
         return failureFrom(error);
       }
     },
-    [pendingPhone, user?.name],
+    [pendingPhone, openSession],
+  );
+
+  const signInWithGoogleCode = useCallback(
+    async (code: string): Promise<VerifyResult> => {
+      try {
+        return openSession(await authRepository.exchangeGoogleCode(code));
+      } catch (error) {
+        return failureFrom(error);
+      }
+    },
+    [openSession],
   );
 
   const logout = useCallback(() => {
@@ -340,6 +432,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       stopImpersonating,
       requestOtp,
       verifyOtp,
+      signInWithGoogleCode,
       logout,
     }),
     [
@@ -353,6 +446,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       stopImpersonating,
       requestOtp,
       verifyOtp,
+      signInWithGoogleCode,
       logout,
     ],
   );

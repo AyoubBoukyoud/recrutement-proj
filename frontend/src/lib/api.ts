@@ -41,7 +41,17 @@ type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
  * est multipart, et fixer nous-mêmes `Content-Type` effacerait le `boundary`
  * que le navigateur ajoute — Laravel ne verrait alors aucun fichier.
  */
-async function request<T>(method: Method, path: string, body?: unknown, token?: string | null): Promise<T> {
+type RequestOptions = {
+  /**
+   * Laisse l'appelant gérer lui-même un 401. Par défaut, un 401 sur une requête
+   * authentifiée ferme la session et renvoie vers /auth-phone ; une vérification
+   * de session faite en arrière-plan depuis une page publique ne doit pas
+   * arracher le visiteur à la page qu'il lit.
+   */
+  handleUnauthorized?: boolean;
+};
+
+async function request<T>(method: Method, path: string, body?: unknown, token?: string | null, options: RequestOptions = {}): Promise<T> {
   const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
 
   const headers: Record<string, string> = { Accept: 'application/json' };
@@ -74,15 +84,15 @@ async function request<T>(method: Method, path: string, body?: unknown, token?: 
 
   if (!response.ok) {
     const message = typeof payload.message === 'string' ? payload.message : `HTTP ${response.status}`;
-    if (response.status === 401 && token) recoverFromUnauthorized();
+    if (response.status === 401 && token && !options.handleUnauthorized) recoverFromUnauthorized();
     throw new ApiError(response.status, message, payload);
   }
 
   return payload as T;
 }
 
-export function apiGet<T>(path: string, token?: string | null): Promise<T> {
-  return request<T>('GET', path, undefined, token);
+export function apiGet<T>(path: string, token?: string | null, options?: RequestOptions): Promise<T> {
+  return request<T>('GET', path, undefined, token, options);
 }
 
 export function apiPost<T>(path: string, body: unknown, token?: string | null): Promise<T> {

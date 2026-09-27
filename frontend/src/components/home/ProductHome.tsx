@@ -47,7 +47,7 @@ export function ProductHome() {
     <main id="main-content" tabIndex={-1} className="overflow-x-hidden bg-amud-background text-amud-on-background outline-none transition-colors duration-300 selection:bg-amud-primary/30 selection:text-amud-inverse-surface">
       <RevealNoScriptFallback />
       {/* Hero */}
-      <section className="relative overflow-hidden pb-32 pt-20 sm:pt-28 lg:pt-36">
+      <section className="relative overflow-hidden pb-32 pt-12 sm:pt-16 lg:pt-20">
         <div
           className="pointer-events-none absolute inset-0 z-0 bg-amud-inverse-surface/5"
           style={{

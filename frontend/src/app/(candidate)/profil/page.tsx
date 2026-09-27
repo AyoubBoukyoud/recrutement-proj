@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Button, IconButton } from "@/components/shared/Button";
+import { Button } from "@/components/shared/Button";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -31,7 +31,6 @@ import {
 import { CEFRGauge } from "@/components/shared/CEFRGauge";
 import { DocumentViewer } from "@/components/shared/DocumentViewer";
 import { VideoPlayer } from "@/components/shared/VideoPlayer";
-import { QRCodeGenerator } from "@/components/shared/QRCodeGenerator";
 import { Timeline } from "@/components/shared/Timeline";
 import { SkeletonLoader } from "@/components/shared/SkeletonLoader";
 import type { TimelineStep } from "@/lib/types";
@@ -79,7 +78,6 @@ export default function ProfilPage() {
   const [timeline, setTimeline] = useState<TimelineStep[]>([]);
   const [documents, setDocuments] = useState<CandidateDocument[]>([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [showQr, setShowQr] = useState(false);
   const [form, setForm] = useState({ profession: "", specialization: "" });
   const [isSaving, setIsSaving] = useState(false);
   const [newSkill, setNewSkill] = useState("");
@@ -167,7 +165,12 @@ export default function ProfilPage() {
 
   const avatarInitials =
     `${profile?.first_name?.[0] ?? ""}${profile?.last_name?.[0] ?? ""}`.toUpperCase();
-  const shareUrl = `https://amudskills.app/p/${avatarInitials || "candidat"}`;
+  /*
+   * Le bouton « Partager mon profil » et son QR ont été retirés : ils
+   * encodaient `https://amudskills.app/p/<initiales>`, une adresse qui n'existe
+   * ni dans cette app ni côté API (aucun profil public). À rebrancher le jour
+   * où le back exposera un lien de profil partageable.
+   */
 
   return (
     <div className="min-h-screen bg-surface pb-32">
@@ -195,19 +198,6 @@ export default function ProfilPage() {
           >
             <span className="material-symbols-outlined">manage_accounts</span>
           </Link>
-          <IconButton
-            variant="ghost"
-            onClick={() => setShowQr((v) => !v)}
-            aria-label={content.header.shareAriaLabel}
-            className="text-primary"
-          >
-            <span
-              className="material-symbols-outlined text-primary"
-              style={{ fontSize: 22 }}
-            >
-              ios_share
-            </span>
-          </IconButton>
         </div>
       </header>
 
@@ -325,7 +315,7 @@ export default function ProfilPage() {
                     {content.sections.languagesEmpty}
                   </p>
                 ) : (
-                  <div className="-mx-6 flex gap-4 overflow-x-auto px-6 pb-2">
+                  <div className="relative -mx-6 flex gap-4 overflow-x-auto px-6 pb-2">
                     {profile.languages.map((lang) => (
                       <div
                         key={lang.language}
@@ -396,7 +386,7 @@ export default function ProfilPage() {
                         }
                       }}
                       placeholder={content.skills.placeholder}
-                      className="min-h-11 flex-1 rounded-lg border border-outline px-3 text-sm"
+                      className="min-h-11 min-w-0 flex-1 rounded-lg border border-outline px-3 text-sm"
                     />
                     <Button
                       size="sm"
@@ -504,30 +494,6 @@ export default function ProfilPage() {
         </main>
       )}
 
-      {showQr && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-surface p-6">
-          <IconButton
-            variant="ghost"
-            onClick={() => setShowQr(false)}
-            aria-label={content.qr.closeAriaLabel}
-            className="absolute right-6 top-6 text-primary"
-          >
-            <span
-              className="material-symbols-outlined text-primary"
-              style={{ fontSize: 28 }}
-            >
-              close
-            </span>
-          </IconButton>
-          <h2 className="text-lg font-bold text-primary">{content.qr.title}</h2>
-          <div className="flex flex-col items-center gap-3 rounded-xl border border-outline-variant/20 bg-surface-lowest p-6 shadow-lg">
-            <QRCodeGenerator value={shareUrl} size={220} />
-            <span className="text-xs font-bold text-primary">
-              {content.qr.scanMe}
-            </span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

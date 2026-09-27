@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
-import { SiteHeader } from '@/components/home/SiteHeader';
-import { SiteFooter } from '@/components/home/SiteFooter';
+import { SharedPublicFooter, SharedPublicHeader } from '@/components/reference-landing/SharedPublicChrome';
 import { ProductHome } from '@/components/home/ProductHome';
 
 export const metadata: Metadata = {
@@ -18,11 +17,9 @@ export const metadata: Metadata = {
 export default function ProduitPage() {
   return (
     <>
-      <SiteHeader />
-
-
+      <SharedPublicHeader />
       <ProductHome />
-      <SiteFooter />
+      <SharedPublicFooter />
     </>
   );
 }

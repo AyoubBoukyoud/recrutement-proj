@@ -262,7 +262,7 @@ export default function SalairePage() {
                     {content.results.migrationBadge}
                   </span>
                 </div>
-                <div className="overflow-x-auto">
+                <div className="relative overflow-x-auto">
                   <table className="w-full text-left text-sm">
                     <thead className="border-b border-outline-variant/40">
                       <tr>

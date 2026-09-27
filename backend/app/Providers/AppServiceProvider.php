@@ -51,6 +51,10 @@ class AppServiceProvider extends ServiceProvider
             Limit::perMinute(10)->by($this->phoneKey($request)),
             Limit::perMinute(30)->by('otp-verify-ip:'.$request->ip()),
         ]);
+
+        // "Continue with Google": no phone to key on, and nothing sent that
+        // costs money — this only bounds a host hammering the endpoints.
+        RateLimiter::for('google-auth', fn (Request $request) => Limit::perMinute(30)->by('google-auth-ip:'.$request->ip()));
     }
 
     /** Same normalisation the controllers apply, so spacing cannot split buckets. */

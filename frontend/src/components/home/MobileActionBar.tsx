@@ -31,8 +31,8 @@ export function MobileActionBar() {
     <aside
       aria-label={content.mobileBar.cta}
       aria-hidden={!visible}
-      className={`fixed bottom-0 inset-x-0 z-40 sm:hidden pb-[env(safe-area-inset-bottom)] transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
-        visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-full opacity-0'
+      className={`fixed bottom-0 inset-x-0 z-40 sm:hidden pb-[env(safe-area-inset-bottom)] transition-[opacity,transform,visibility] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
+        visible ? 'visible translate-y-0 opacity-100' : 'pointer-events-none invisible translate-y-full opacity-0'
       }`}
     >
       <div className="mx-3 mb-3 flex items-center gap-3 rounded-2xl border border-home-line bg-home-surface/95 p-3 shadow-[0_10px_35px_rgba(16,35,58,0.15)] backdrop-blur-xl">

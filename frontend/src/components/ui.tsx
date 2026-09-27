@@ -383,7 +383,7 @@ export function Tabs({
   onChange: (key: string) => void
 }) {
   return (
-    <div className="-mx-6 mb-6 overflow-x-auto border-b border-outline-variant px-6">
+    <div className="relative -mx-4 mb-6 overflow-x-auto border-b border-outline-variant px-4 sm:-mx-6 sm:px-6">
       <div className="flex gap-1">
         {tabs.map((tab) => (
           <button

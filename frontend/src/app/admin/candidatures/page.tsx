@@ -140,12 +140,12 @@ export default function AdminCandidaturesPage() {
   return (
     <div className="flex min-h-[calc(100vh-96px)] flex-col md:min-h-[calc(100vh-160px)]">
       <header className="mb-md flex shrink-0 flex-col gap-md">
-        <div className="flex flex-col gap-md sm:flex-row sm:items-center sm:justify-between">
-          <div>
+        <div className="flex flex-col gap-md lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
             <h2 className="text-headline-lg text-amud-on-surface">Gestion des candidatures</h2>
             <p className="mt-xs text-amud-on-surface-variant">Suivi et gestion du pipeline de recrutement.</p>
           </div>
-          <div className="flex rounded-lg bg-amud-surface-container-low p-xs">
+          <div className="flex shrink-0 self-start rounded-lg bg-amud-surface-container-low p-xs lg:self-auto">
             <button
               onClick={() => setVue('kanban')}
               className={`flex items-center gap-xs rounded-md px-md py-xs text-label-md ${vue === 'kanban' ? 'bg-amud-surface text-amud-primary shadow-sm' : 'text-amud-on-surface-variant hover:bg-amud-surface-container-high'}`}
@@ -188,7 +188,7 @@ export default function AdminCandidaturesPage() {
       {applications.isLoading ? (
         <p className="text-body-md text-amud-on-surface-variant">Chargement…</p>
       ) : vue === 'kanban' ? (
-        <div className="snap-x snap-mandatory overflow-x-auto rounded-lg bg-amud-surface-container-low">
+        <div className="relative snap-x snap-mandatory overflow-x-auto rounded-lg bg-amud-surface-container-low">
           <div className="flex w-max gap-md p-md">
             {KANBAN_COLUMNS.map((col) => (
               <div

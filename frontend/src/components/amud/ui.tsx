@@ -142,17 +142,23 @@ export function Drawer({
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
+  /*
+   * Fermé, le panneau n'est que déplacé hors écran : sans `invisible`, ses
+   * champs et boutons restaient atteignables au clavier (Tab) et annoncés par
+   * les lecteurs d'écran. `visibility` suit la transition, donc bascule en fin
+   * d'animation de sortie et au début de celle d'entrée.
+   */
   const asideCls =
     anchor === 'bottom'
-      ? `fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] w-full flex-col rounded-t-2xl border-t border-amud-outline-variant bg-amud-surface shadow-2xl transition-transform duration-300 ease-in-out ${
-          open ? 'translate-y-0' : 'translate-y-full'
+      ? `fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] w-full flex-col rounded-t-2xl border-t border-amud-outline-variant bg-amud-surface shadow-2xl transition-[transform,visibility] duration-300 ease-in-out ${
+          open ? 'visible translate-y-0' : 'invisible translate-y-full'
         }`
       : anchor === 'full'
-        ? `fixed inset-0 z-50 flex h-full w-full flex-col bg-amud-surface transition-opacity duration-200 ease-in-out ${
-            open ? 'opacity-100' : 'pointer-events-none opacity-0'
+        ? `fixed inset-0 z-50 flex h-full w-full flex-col bg-amud-surface transition-[opacity,visibility] duration-200 ease-in-out ${
+            open ? 'visible opacity-100' : 'pointer-events-none invisible opacity-0'
           }`
-        : `fixed right-0 top-0 z-50 flex h-full w-full ${widthClassName} flex-col border-l border-amud-outline-variant bg-amud-surface shadow-2xl transition-transform duration-300 ease-in-out ${
-            open ? 'translate-x-0' : 'translate-x-full'
+        : `fixed right-0 top-0 z-50 flex h-full w-full ${widthClassName} flex-col border-l border-amud-outline-variant bg-amud-surface shadow-2xl transition-[transform,visibility] duration-300 ease-in-out ${
+            open ? 'visible translate-x-0' : 'invisible translate-x-full'
           }`;
 
   const content = (
@@ -539,7 +545,7 @@ export function Tabs({
   onChange: (id: string) => void;
 }) {
   return (
-    <div className="flex gap-lg overflow-x-auto border-b border-amud-outline-variant px-sm">
+    <div className="relative flex gap-lg overflow-x-auto border-b border-amud-outline-variant px-sm">
       {tabs.map((t) => (
         <button
           key={t.id}
@@ -836,7 +842,7 @@ export function FilterBar({
             ) : null}
           </button>
         ) : null}
-        {filters ? <div className="hidden w-full items-center gap-sm overflow-x-auto md:flex md:w-auto">{filters}</div> : null}
+        {filters ? <div className="relative hidden w-full items-center gap-sm overflow-x-auto md:flex md:w-auto">{filters}</div> : null}
         {trailing ? <div className="hidden md:block">{trailing}</div> : null}
       </div>
 
@@ -1046,7 +1052,7 @@ export function ResponsiveTable({
         ))}
       </ul>
 
-      <div className="hidden overflow-x-auto rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest shadow-sm md:block">
+      <div className="relative hidden overflow-x-auto rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest shadow-sm md:block">
         <table className="w-full border-collapse text-left">
           {caption ? <caption className="sr-only">{caption}</caption> : null}
           <thead>
@@ -1099,7 +1105,7 @@ export function SegmentedControl<T extends string>({
   label?: string;
 }) {
   return (
-    <div className="flex gap-sm overflow-x-auto pb-1" role="tablist" aria-label={label}>
+    <div className="relative flex min-w-0 max-w-full gap-sm overflow-x-auto pb-1" role="tablist" aria-label={label}>
       {options.map((o) => {
         const active = o.value === value;
         return (

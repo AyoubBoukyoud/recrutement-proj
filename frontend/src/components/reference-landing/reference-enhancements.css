@@ -47,11 +47,20 @@
 
 @media (max-width: 600px) {
   .r-hero {
-    gap: 20px;
+    gap: 14px;
+    margin-top: 12px;
   }
 
+  /* L'image reste en tête, mais en bandeau : en 16/10 elle repoussait titre et
+     appels à l'action sous la ligne de flottaison d'un téléphone. */
   .r-hero-media {
     order: -1;
+    aspect-ratio: 2 / 1;
+    border-radius: 20px;
+  }
+
+  .r-hero-card > .r-eyebrow {
+    margin-bottom: 16px;
   }
 
   .r-languages button {
@@ -117,5 +126,47 @@
 
   .r-step-list {
     padding-inline-start: 11px;
+  }
+}
+
+/* Hiérarchie du premier écran : le rouge reste l'accent (fin du titre, icône,
+   bouton). Le corps de texte en rouge lui aussi se disputait l'attention avec
+   le titre et diluait l'appel à l'action. */
+.r-hero-description {
+  color: #3d3d4d;
+}
+
+.r-note {
+  color: var(--r-muted);
+}
+
+.r-note svg {
+  color: var(--r-red);
+}
+
+/* Tablettes (601–1180px) : la règle ≤1180px de reference.css réduisait boutons
+   et sélecteur de langue à 10px / 30–37px de haut — illisible et sous la cible
+   tactile de 44px sur un écran qu'on utilise au doigt. */
+@media (min-width: 601px) and (max-width: 1180px) {
+  .r-hero-buttons .r-button {
+    min-height: 44px;
+    font-size: 12px;
+    padding-inline: 16px;
+  }
+
+  .r-header-cta {
+    min-height: 40px;
+    font-size: 12px;
+  }
+
+  .r-desktop-nav,
+  .r-header-actions {
+    font-size: 12px;
+  }
+
+  .r-languages button {
+    min-width: 36px;
+    min-height: 40px;
+    font-size: 11px;
   }
 }

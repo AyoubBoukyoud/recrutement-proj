@@ -16,7 +16,7 @@ export function EmployeursBody() {
     <main id="main-content" tabIndex={-1} className="overflow-x-hidden bg-surface text-onSurface outline-none transition-colors duration-300">
       <RevealNoScriptFallback />
 
-      <section className="relative overflow-hidden pb-20 pt-32 lg:pb-28 lg:pt-44">
+      <section className="relative overflow-hidden pb-20 pt-12 lg:pb-28 lg:pt-20">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(27,94,55,0.14),transparent_48%)]" />
         <div className="relative mx-auto grid max-w-[1280px] items-center gap-12 px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-12">
           <div>

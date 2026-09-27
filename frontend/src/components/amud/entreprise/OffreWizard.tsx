@@ -183,7 +183,7 @@ export function OffreWizard({ mode, initial }: { mode: 'create' | 'edit'; initia
     <div className="pb-24">
       <h2 className="text-headline-lg text-amud-on-surface">{mode === 'create' ? 'Créer une offre' : 'Modifier l’offre'}</h2>
 
-      <div className="mt-lg mb-lg overflow-x-auto">
+      <div className="relative mt-lg mb-lg overflow-x-auto">
         <div className="flex min-w-max items-center gap-2">
           {STEPS.map((label, i) => (
             <div key={label} className="flex items-center gap-2">

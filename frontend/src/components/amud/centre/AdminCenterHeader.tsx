@@ -73,7 +73,7 @@ export function AdminCenterHeader({
         </div>
       </div>
 
-      <div className="mb-6 overflow-x-auto">
+      <div className="relative mb-6 overflow-x-auto">
         <Tabs tabs={ADMIN_CENTER_TABS as unknown as { id: string; label: string }[]} active={activeTab} onChange={onTabChange} />
       </div>
     </>

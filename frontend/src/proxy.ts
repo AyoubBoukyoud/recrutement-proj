@@ -1,36 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-
-/*
- * Les chemins de l'espace candidat. Cette liste et le `matcher` en bas
- * doivent rester identiques : le `matcher` décide où le middleware
- * s'exécute, la liste décide ce qu'il protège, et un chemin présent dans
- * l'une mais pas dans l'autre est une page ouverte sans que rien ne le
- * signale.
- */
-const CANDIDATE_PATHS = [
-  '/dashboard',
-  '/matching-preferences',
-  '/documents',
-  '/video',
-  '/test-langue',
-  '/reclamation',
-  '/faq',
-  '/profil',
-  '/profile-creation',
-  '/lecon-jour',
-  '/taches',
-  '/offres',
-  '/quiz-metier',
-  '/visibilite',
-  '/salaire',
-  '/parrainage',
-  '/verification-identite',
-  '/candidatures',
-  '/favoris',
-  '/notifications',
-  '/compte',
-  '/messages',
-];
+import { isCandidatePath } from '@/lib/protectedRoutes';
 
 /**
  * Duplicate Stitch-template pages, superseded by a functional rewrite. The
@@ -65,10 +34,6 @@ function realDestinationForAmud(pathname: string): string | null {
   if (!SHOW_PROTOTYPES && (pathname.startsWith('/amud/entreprise') || pathname === '/amud/employer')) return '/recruiter';
   if (!SHOW_PROTOTYPES && pathname.startsWith('/amud/commercial')) return '/agent';
   return null;
-}
-
-function isCandidatePath(pathname: string) {
-  return CANDIDATE_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
 function isRecruiterPath(pathname: string) {
@@ -163,6 +128,8 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
+  // Recopie statique de `CANDIDATE_PATHS` (lib/protectedRoutes.ts) + espaces staff :
+  // Next exige un littéral ici. Un chemin ajouté à l'un doit l'être à l'autre.
   matcher: [
     '/',
     '/simulateur-salaire/:path*',

@@ -7,11 +7,21 @@ import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { otpFailureMessage } from '@/lib/authMessages';
+import { googleFailureMessage, otpFailureMessage } from '@/lib/authMessages';
 import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/shared/Button';
 import { AuthShell } from '@/components/AuthShell';
 import { toInternationalPhone } from '@/lib/phoneNumber';
+import { useProfile } from '@/context/ProfileContext';
+import { destinationForRole } from '@/lib/roleDestination';
+import { GoogleSignInButton } from '@/components/GoogleSignInButton';
+import {
+  GOOGLE_SIGN_IN_ENABLED,
+  asGoogleFailure,
+  clearPendingGoogleLink,
+  readPendingGoogleLink,
+  type PendingGoogleLink,
+} from '@/lib/googleAuth';
 
 /**
  * Les raccourcis sont opt-in, même sous `next dev`. Cela permet de lancer une
@@ -38,7 +48,8 @@ type Intent = 'job_seeker' | 'recruiter';
 
 export default function AuthPhonePage() {
   const router = useRouter();
-  const { requestOtp } = useAuth();
+  const { requestOtp, user, token, isLoading } = useAuth();
+  const { getIncompleteStep } = useProfile();
   const { t } = useLanguage();
   const [intent, setIntent] = useState<Intent>('job_seeker');
   const [countryCode, setCountryCode] = useState(COUNTRY_CODES[0].code);
@@ -47,13 +58,37 @@ export default function AuthPhonePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
   const [referralToken, setReferralToken] = useState<string | null>(null);
+  // Compte Google vérifié, en attente du numéro qui lui sera rattaché.
+  const [googleLink, setGoogleLink] = useState<PendingGoogleLink | null>(null);
+
+  // Déjà connecté : l'écran de connexion n'a rien à offrir, sinon une seconde
+  // session sur le même appareil. On renvoie vers l'espace du rôle.
+  useEffect(() => {
+    if (isLoading || !user || !token) return;
+    router.replace(destinationForRole(user.role, getIncompleteStep()));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, user, token]);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     if (query.get('intent') === 'recruiter') setIntent('recruiter');
     setSessionExpired(query.get('reason') === 'session_expired');
     setReferralToken(query.get('ref'));
+
+    // Retour d'un « Continuer avec Google » : échec à expliquer, ou compte
+    // Google vérifié dont il reste à confirmer le numéro.
+    const googleFailure = asGoogleFailure(query.get('google_error'));
+    if (googleFailure) setError(googleFailureMessage(googleFailure, t));
+    if (query.get('google') === 'link') setGoogleLink(readPendingGoogleLink());
+    else clearPendingGoogleLink();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const cancelGoogleLink = () => {
+    clearPendingGoogleLink();
+    setGoogleLink(null);
+    router.replace('/auth-phone');
+  };
 
   const submit = async () => {
     const fullPhone = toInternationalPhone(phone, countryCode);
@@ -107,6 +142,23 @@ export default function AuthPhonePage() {
             {t('auth_session_expired')}
           </div>
         )}
+        {googleLink && (
+          <div role="status" className="mb-4 rounded-pillar border border-primary/20 bg-primary/10 p-3 text-xs font-medium text-onSurface">
+            <div className="flex items-start gap-2">
+              <span className="material-symbols-outlined text-primary" aria-hidden="true" style={{ fontSize: 18 }}>link</span>
+              <div className="min-w-0 flex-1">
+                <p className="font-bold text-primary">{t('google_link_title')}</p>
+                {googleLink.email && <p className="mt-0.5 break-all font-semibold">{googleLink.email}</p>}
+                <p className="mt-1 leading-normal">{t('google_link_body')}</p>
+              </div>
+            </div>
+            <div className="mt-2 flex justify-end">
+              <Button variant="link" size="sm" onClick={cancelGoogleLink}>
+                {t('google_link_cancel')}
+              </Button>
+            </div>
+          </div>
+        )}
         {referralToken && (
           <div role="status" className="mb-4 flex items-start gap-2 rounded-pillar border border-primary/20 bg-primary/10 p-3 text-xs font-medium text-onSurface">
             <span className="material-symbols-outlined text-primary" style={{ fontSize: 18 }}>how_to_reg</span>
@@ -142,6 +194,17 @@ export default function AuthPhonePage() {
           </p>
         </div>
 
+        {GOOGLE_SIGN_IN_ENABLED && !googleLink && (
+          <div className="fade-in-entry stagger-1 opacity-0 mb-6">
+            <GoogleSignInButton disabled={isSubmitting} />
+            <div className="mt-6 flex items-center gap-3" aria-hidden="true">
+              <span className="h-px flex-1 bg-outline-variant" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-onSurface-variant">{t('auth_or')}</span>
+              <span className="h-px flex-1 bg-outline-variant" />
+            </div>
+          </div>
+        )}
+
         <div className="fade-in-entry stagger-1 opacity-0 mb-2 space-y-2">
           <label htmlFor="auth-phone-number" className="block text-[10px] font-bold uppercase tracking-widest text-onSurface-variant">
             {t('phone_field_label')}
@@ -155,7 +218,7 @@ export default function AuthPhonePage() {
               aria-label={t('phone_country_label')}
               value={countryCode}
               onChange={(e) => setCountryCode(e.target.value)}
-              className="border-none bg-transparent p-0 text-sm font-bold text-primary outline-none focus:ring-0 cursor-pointer"
+              className="shrink-0 border-none bg-transparent p-0 text-sm font-bold text-primary outline-none focus:ring-0 cursor-pointer"
             >
               {COUNTRY_CODES.map((c) => (
                 <option key={c.code} value={c.code}>
@@ -171,7 +234,7 @@ export default function AuthPhonePage() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="6 12 34 56 78"
-              className="flex-1 border-none bg-transparent p-0 text-sm font-semibold text-onSurface placeholder:text-outline outline-none focus:ring-0"
+              className="min-w-0 flex-1 border-none bg-transparent p-0 text-sm font-semibold text-onSurface placeholder:text-outline outline-none focus:ring-0"
             />
           </div>
         </div>

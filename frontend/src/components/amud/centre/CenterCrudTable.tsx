@@ -181,7 +181,7 @@ export function CenterCrudTable({
           </ul>
 
           {/* ---- Tableau (desktop) ---- */}
-          <div className="hidden overflow-x-auto rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest shadow-sm md:block">
+          <div className="relative hidden overflow-x-auto rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest shadow-sm md:block">
             <table className="w-full border-collapse text-left">
               <thead>
                 <tr className="border-b border-amud-outline-variant bg-amud-surface-container-low/50 text-label-sm uppercase tracking-wider text-amud-on-surface-variant">

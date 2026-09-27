@@ -17,7 +17,7 @@ export default function OffresLoading() {
           <Skeleton className="h-12 w-full rounded-xl" />
         </div>
 
-        <div className="mb-6 flex items-center gap-2 overflow-x-auto pb-2">
+        <div className="relative mb-6 flex items-center gap-2 overflow-x-auto pb-2">
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="h-9 w-24 shrink-0 rounded-full" />
           ))}
