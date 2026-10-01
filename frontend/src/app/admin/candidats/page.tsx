@@ -283,7 +283,7 @@ function AdminCandidatsPageInner() {
                 <tr key={c.id} className="transition-colors hover:bg-amud-surface-container-lowest/50">
                   <td className="px-6 py-4">
                     <Link href={`/admin/candidats/${c.id}`} className="group flex items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amud-primary-container text-sm font-bold text-amud-primary">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amud-primary-container text-sm font-bold text-white">
                         {initials(name)}
                       </div>
                       <div className="min-w-0">

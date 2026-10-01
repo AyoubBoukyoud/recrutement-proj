@@ -124,7 +124,7 @@ export default function AdminJournalPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amud-primary-container text-[11px] font-bold text-amud-primary">
+                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amud-primary-container text-[11px] font-bold text-white">
                           {initials(actorName)}
                         </div>
                         <span className="text-body-md text-amud-on-surface">{actorName}</span>

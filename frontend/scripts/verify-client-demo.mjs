@@ -38,7 +38,10 @@ check('local OTP dispatch reaches the verification screen', () => {
   assert.match(context, /debugCode: data\.debug_otp_code \?\? null/);
   assert.match(auth, /query\.set\('debug_code', result\.debugCode\)/);
   assert.match(otp, /setDebugCode\(result\.debugCode\)/);
-  assert.match(otp, /Code local : \{debugCode\}/);
+  // The code is shown, labelled, and the screen does not claim a WhatsApp was sent.
+  assert.match(otp, /t\("otp_local_code_label"\)/);
+  assert.match(otp, />\{debugCode\}<\/span>/);
+  assert.match(otp, /debugCode \? t\("otp_local_subtitle_prefix"\) : t\("otp_subtitle_prefix"\)/);
 });
 
 check('public CTAs use implemented candidate, recruiter, and trade routes', () => {
@@ -89,11 +92,21 @@ check('recruiter intent never replaces server-side role authorization', () => {
   assert.doesNotMatch(proxy, /intent.*employer/);
 });
 
-check('authenticated 401 recovers the session while 403 is untouched', () => {
+check('401 recovers the session while 403 is untouched', () => {
   const fetchClient = read('src/lib/api.ts');
   const axiosClient = read('src/lib/opsApi.ts');
-  assert.match(fetchClient, /response\.status === 401 && token/);
-  assert.match(axiosClient, /status === 401 && hadAuthorization/);
+  // lib/api.ts: `token` is a parameter the caller explicitly passed (some
+  // repositories call it with `token: null` on purpose, for endpoints that
+  // work logged out) — only recover when that specific call was meant to
+  // be authenticated.
+  assert.match(fetchClient, /response\.status === 401 && token && !options\.handleUnauthorized/);
+  // opsApi.ts: every route behind this client requires auth (recruiter,
+  // agent and admin — see routes/api.php's `auth:sanctum` group), so a 401
+  // means "sign in again" whether or not a token was attached. Gating on
+  // "a token was attached" used to leave a signed-out visitor stuck on a
+  // fully rendered but silently broken admin page instead of redirecting —
+  // see git history for src/lib/opsApi.ts.
+  assert.match(axiosClient, /error\?\.response\?\.status === 401\) recoverFromUnauthorized\(\)/);
   assert.doesNotMatch(fetchClient, /status === 403.*recoverFromUnauthorized/);
   assert.doesNotMatch(axiosClient, /status === 403.*recoverFromUnauthorized/);
 });

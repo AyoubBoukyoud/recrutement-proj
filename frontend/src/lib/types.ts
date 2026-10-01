@@ -10,7 +10,8 @@ export interface AuthUser {
   id: string;
   role: UserRole;
   name: string;
-  phone?: string;
+  /** Absent pour un compte ouvert avec Google, tant qu'aucun numéro n'a été ajouté. */
+  phone?: string | null;
   email?: string;
   /** Rôles Spatie bruts renvoyés par l'API (ex. "Administrator", "Company") —
    *  conservés pour les écrans portés depuis web-admin, qui les affichent tels quels. */

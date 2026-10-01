@@ -246,29 +246,37 @@ class GoogleAuthTest extends TestCase
         $this->assertSame(1, User::count());
     }
 
-    public function test_a_new_person_registers_through_the_usual_phone_code_and_is_linked(): void
+    public function test_a_first_google_sign_in_creates_the_account_without_a_phone(): void
     {
         $this->googleReturns($this->claims());
-        $ticket = $this->googleCallback()['link'];
         $this->assertSame(0, User::count());
 
-        $this->signInWithCode('+212600000003', $ticket)
+        $fragment = $this->googleCallback();
+        $this->assertArrayHasKey('code', $fragment);
+        $this->assertArrayNotHasKey('link', $fragment);
+
+        $this->postJson('/api/auth/google/exchange', ['code' => $fragment['code']])
             ->assertOk()
-            ->assertJsonPath('google_link', 'linked')
+            ->assertJsonPath('user.phone', null)
             ->assertJsonPath('user.roles', ['User']);
 
         $user = User::sole();
         $this->assertSame('google-sub-1', $user->google_id);
         $this->assertSame('amina@gmail.com', $user->email);
+        $this->assertNotNull($user->email_verified_at);
         $this->assertSame('Amina El Idrissi', $user->name);
+        $this->assertNull($user->phone);
+        $this->assertSame('active', $user->status);
 
-        // Next time Google alone is enough.
+        // The next sign-in reaches the same account.
         $this->assertArrayHasKey('code', $this->googleCallback());
         $this->assertSame(1, User::count());
     }
 
     public function test_a_link_ticket_is_single_use_and_never_blocks_the_phone_sign_in(): void
     {
+        // Tickets are only issued when the email belongs to an unverified account.
+        User::factory()->unverified()->create(['phone' => '+212600000008', 'email' => 'amina@gmail.com']);
         $this->googleReturns($this->claims());
         $ticket = $this->googleCallback()['link'];
 
@@ -281,6 +289,7 @@ class GoogleAuthTest extends TestCase
     public function test_a_phone_account_already_linked_to_another_google_account_is_a_conflict(): void
     {
         User::factory()->create(['phone' => '+212600000006', 'google_id' => 'someone-else']);
+        User::factory()->unverified()->create(['phone' => '+212600000009', 'email' => 'amina@gmail.com']);
         $this->googleReturns($this->claims());
         $ticket = $this->googleCallback()['link'];
 

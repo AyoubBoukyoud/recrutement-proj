@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useState } from 'react';
 import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 import { ToastProvider } from '@/components/amud/Toast';
@@ -50,6 +50,14 @@ function initialsOf(name: string) {
 export function RecruiterShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const router = useRouter();
+  // `logout()` ne fait que vider la session locale ; sans redirection, le
+  // clic ne changeait rien à l'écran (toujours sur une route protégée) et
+  // semblait ne rien faire — c'est ce que les écrans candidat font déjà.
+  const handleLogout = () => {
+    logout();
+    router.replace('/auth-phone');
+  };
   const [collapsed, setCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const hiddenWhenCollapsed = collapsed ? 'md:hidden md:group-hover:block' : '';
@@ -106,7 +114,7 @@ export function RecruiterShell({ children }: { children: ReactNode }) {
             style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}
           >
             <div className={`flex items-center gap-3 rounded-lg p-2 ${collapsed ? 'md:justify-center' : ''}`}>
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amud-primary-container font-bold text-amud-primary">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amud-primary-container font-bold text-white">
                 {initialsOf(displayName)}
               </div>
               <div className={`min-w-0 ${hiddenWhenCollapsed}`}>
@@ -115,7 +123,7 @@ export function RecruiterShell({ children }: { children: ReactNode }) {
               </div>
             </div>
             <button
-              onClick={logout}
+              onClick={handleLogout}
               className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-amud-outline-variant px-3 py-2 text-label-sm font-medium text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-error"
               title={collapsed ? 'Déconnexion' : undefined}
             >
@@ -154,7 +162,7 @@ export function RecruiterShell({ children }: { children: ReactNode }) {
             <div className="ml-auto flex items-center gap-sm">
               <HeaderPreferences />
               <button
-                onClick={logout}
+                onClick={handleLogout}
                 aria-label="Déconnexion"
                 className="flex h-9 w-9 items-center justify-center rounded-full text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-error md:hidden"
               >

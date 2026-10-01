@@ -244,7 +244,7 @@ export default function AdminRecruteursPage() {
                 <tr key={r.id} className="transition-colors hover:bg-amud-surface-container-lowest/50">
                   <td className="px-6 py-4">
                     <Link href={`/admin/recruteurs/${r.id}`} className="group flex items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amud-primary-container text-sm font-bold text-amud-primary">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amud-primary-container text-sm font-bold text-white">
                         {initials(label)}
                       </div>
                       <div className="min-w-0">

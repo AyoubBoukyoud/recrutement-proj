@@ -13,18 +13,21 @@ use Laravel\Socialite\Contracts\User as GoogleUser;
 /**
  * Decides which account a verified Google identity reaches.
  *
- * Every account here is anchored on a verified phone — that is the one
- * registration rule the application has (see AuthController::requestOtp) —
- * and `users.email` is typed in by administrators, never verified by its
- * owner. So Google is an additional key to an account, never the way one is
- * created, and an email match alone is not trusted:
+ * Google is a full way in, like the phone code: a first sign-in creates the
+ * candidate account, and the profile is completed afterwards (the app sends a
+ * new account to /profile-creation). What stays guarded is an email match
+ * alone, because `users.email` can be typed in by administrators and never
+ * verified by its owner:
  *
  *  1. `google_id` already linked            → signed in.
  *  2. email matches an account whose email
  *     was verified (by an earlier link)     → linked, then signed in.
- *  3. anything else                          → the person confirms a phone
- *     number with the usual code; that account (existing, or created by the
- *     usual registration) is then linked. One person, one account.
+ *  3. email matches an account whose email
+ *     was never verified                    → the person confirms that
+ *     account's phone once, then it is linked. Linking on the email alone
+ *     would hand someone else's account to whoever owns that Gmail.
+ *  4. no account uses this email            → a new candidate account is
+ *     created (Google-verified email, no phone) and signed in.
  */
 class GoogleSignIn
 {
@@ -77,15 +80,15 @@ class GoogleSignIn
                 }
                 $owner->forceFill(['google_id' => $sub])->save();
                 $user = $owner;
+            } elseif ($owner) {
+                return [
+                    'outcome' => 'confirm_phone',
+                    'ticket' => $this->issueLinkTicket($sub, $email, $google->getName()),
+                    'email' => $email,
+                ];
+            } else {
+                $user = $this->register($sub, $email, $google->getName());
             }
-        }
-
-        if (! $user) {
-            return [
-                'outcome' => 'confirm_phone',
-                'ticket' => $this->issueLinkTicket($sub, $email, $google->getName()),
-                'email' => $email,
-            ];
         }
 
         if (! $this->session->canSignIn($user)) {
@@ -145,6 +148,31 @@ class GoogleSignIn
         }
 
         return self::LINKED;
+    }
+
+    /**
+     * A first Google sign-in: the same candidate account the phone code would
+     * create (`User` role, active), keyed on Google instead of a phone.
+     */
+    private function register(string $sub, string $email, ?string $name): User
+    {
+        try {
+            $user = new User;
+            $user->forceFill([
+                'google_id' => $sub,
+                'email' => $email,
+                'email_verified_at' => Carbon::now(),
+                'name' => $name ? Str::limit(trim($name), 255, '') : null,
+                'status' => 'active',
+            ])->save();
+        } catch (UniqueConstraintViolationException) {
+            // A second tab finished the same first sign-in a moment earlier.
+            return User::where('google_id', $sub)->firstOrFail();
+        }
+
+        $user->assignRole('User');
+
+        return $user;
     }
 
     private function issueExchangeCode(User $user): string

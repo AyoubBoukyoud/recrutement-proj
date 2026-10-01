@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { type ReactNode, useState } from 'react';
 import { Drawer } from '@/components/amud/ui';
 import { ToastProvider } from '@/components/amud/Toast';
@@ -83,6 +83,14 @@ function NavigationLinks({
 export function AgentShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const router = useRouter();
+  // `logout()` ne fait que vider la session locale ; sans redirection, le
+  // clic ne changeait rien à l'écran (toujours sur une route protégée) et
+  // semblait ne rien faire — c'est ce que les écrans candidat font déjà.
+  const handleLogout = () => {
+    logout();
+    router.replace('/auth-phone');
+  };
   const [collapsed, setCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const hiddenWhenCollapsed = collapsed ? 'md:hidden md:group-hover:block' : '';
@@ -126,7 +134,7 @@ export function AgentShell({ children }: { children: ReactNode }) {
             </div>
             <button
               type="button"
-              onClick={logout}
+              onClick={handleLogout}
               className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-amud-outline-variant px-3 py-2 text-label-sm font-medium text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-error"
               title={collapsed ? 'Déconnexion' : undefined}
             >
@@ -172,7 +180,7 @@ export function AgentShell({ children }: { children: ReactNode }) {
               <HeaderPreferences />
               <button
                 type="button"
-                onClick={logout}
+                onClick={handleLogout}
                 aria-label="Déconnexion"
                 className="flex h-9 w-9 items-center justify-center rounded-full text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-error md:hidden"
               >

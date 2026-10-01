@@ -247,8 +247,15 @@ function OtpContent() {
             <h2 className="text-2xl font-extrabold text-onSurface mb-2">
               {t("otp_title")}
             </h2>
+            {/*
+             * Un code renvoyé par l'API (`debug_otp_code`) signifie qu'il n'est
+             * parti que dans le journal du serveur — local/testing uniquement,
+             * quand la passerelle WhatsApp n'a pas pu l'envoyer. Dire « nous
+             * avons envoyé un code » laissait attendre un message qui n'arrivait
+             * jamais.
+             */}
             <p className="mx-auto max-w-[320px] text-sm leading-relaxed text-onSurface-variant">
-              {t("otp_subtitle_prefix")}{" "}
+              {debugCode ? t("otp_local_subtitle_prefix") : t("otp_subtitle_prefix")}{" "}
               <span className="font-bold text-primary">{phone || "—"}</span>
             </p>
           </div>
@@ -258,9 +265,15 @@ function OtpContent() {
             onSubmit={(e) => e.preventDefault()}
           >
             {debugCode && (
-              <p className="rounded-full bg-primary/10 px-4 py-2 font-mono text-sm font-bold text-primary">
-                Code local : {debugCode}
-              </p>
+              <div
+                role="status"
+                className="flex flex-col items-center gap-1 rounded-pillar border border-primary/30 bg-primary-light px-5 py-3"
+              >
+                <span className="text-[11px] font-bold uppercase tracking-wider text-onSurface-variant">
+                  {t("otp_local_code_label")}
+                </span>
+                <span className="font-mono text-2xl font-bold tracking-[0.3em] text-primary">{debugCode}</span>
+              </div>
             )}
             <fieldset
               className={`flex items-center justify-center gap-2 border-0 p-0 m-0 ${shake ? "animate-[shake_0.4s]" : ""}`}

@@ -7,6 +7,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/shared/Button";
+import { ApiError } from "@/lib/api";
+import { toInternationalPhone } from "@/lib/phoneNumber";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useSettings } from "@/context/SettingsContext";
@@ -15,13 +17,27 @@ import { getProfilePreview } from "@/lib/candidateProfile";
 import { candidateCompteContentFor } from "@/lib/candidateCompteContent";
 
 export default function AccountPage() {
-  const { token, logout } = useAuth();
-  const { language } = useLanguage();
+  const { token, logout, user, updateUser } = useAuth();
+  const { language, t } = useLanguage();
   const { textSize, setTextSize } = useSettings();
   const content = candidateCompteContentFor(language);
   const router = useRouter();
   const queryClient = useQueryClient();
   const [phone, setPhone] = useState("");
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  // Même normalisation que l'écran de connexion : « 06… », « 00212… » et
+  // « +212 6… » aboutissent au même numéro E.164 (Maroc par défaut).
+  const normalizedPhone = toInternationalPhone(phone, "+212");
+  const phoneFailureMessage = (error: unknown): string => {
+    if (error instanceof ApiError) {
+      if (error.isNetworkFailure) return t("otp_error_network");
+      const phoneErrors = (error.payload.errors as Record<string, string[]> | undefined)?.phone ?? [];
+      if (phoneErrors.some((m) => /already belongs/i.test(m))) return t("phone_error_taken");
+      if (error.status === 429) return t("otp_error_throttled");
+      if (error.payload.reason === "invalid" || error.payload.reason === "expired") return t("otp_error_invalid");
+    }
+    return content.phone.error;
+  };
   const [code, setCode] = useState("");
   const [stage, setStage] = useState<"phone" | "code">("phone");
   const [notice, setNotice] = useState<string | null>(null);
@@ -46,12 +62,13 @@ export default function AccountPage() {
     onSuccess: refreshSessions,
   });
   const requestPhone = useMutation({
-    mutationFn: () => accountApi.requestPhone(phone, token as string),
+    mutationFn: () => accountApi.requestPhone(normalizedPhone, token as string),
     onSuccess: () => setStage("code"),
   });
   const confirmPhone = useMutation({
-    mutationFn: () => accountApi.confirmPhone(phone, code, token as string),
+    mutationFn: () => accountApi.confirmPhone(normalizedPhone, code, token as string),
     onSuccess: () => {
+      updateUser({ phone: normalizedPhone });
       setStage("phone");
       setPhone("");
       setCode("");
@@ -195,41 +212,65 @@ export default function AccountPage() {
         </section>
 
         <section className="rounded-xl border border-outline-variant p-5">
-          <h2 className="font-bold">{content.phone.title}</h2>
+          <h2 className="font-bold">{user?.phone ? content.phone.title : t("phone_add_title")}</h2>
           <p className="mt-1 text-sm text-onSurface-variant">
             {content.phone.hint}
           </p>
           {stage === "phone" ? (
             <input
               aria-label={content.phone.phoneFieldLabel}
+              aria-invalid={phoneError ? true : undefined}
               value={phone}
-              onChange={(event) => setPhone(event.target.value)}
+              onChange={(event) => {
+                setPhone(event.target.value);
+                setPhoneError(null);
+              }}
               placeholder={content.phone.phonePlaceholder}
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              maxLength={20}
               className="mt-4 min-h-11 w-full rounded-lg border border-outline p-3"
             />
           ) : (
             <input
               aria-label={content.phone.codeFieldLabel}
               value={code}
-              onChange={(event) => setCode(event.target.value)}
+              onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
               placeholder={content.phone.codePlaceholder}
-              maxLength={6}
+              // Pas de maxLength : il tronquerait un collage (« Code : 123456 »)
+              // avant le filtre ci-dessus, qui garde déjà 6 chiffres au plus.
               inputMode="numeric"
+              autoComplete="one-time-code"
               className="mt-4 min-h-11 w-full rounded-lg border border-outline p-3"
             />
           )}
           <Button
             className="mt-3"
             disabled={stage === "phone" ? !phone : code.length !== 6}
-            onClick={() =>
-              stage === "phone" ? requestPhone.mutate() : confirmPhone.mutate()
-            }
+            onClick={() => {
+              if (stage === "code") {
+                confirmPhone.mutate();
+                return;
+              }
+              // Même règle E.164 que l'API (PhoneNumber::E164_RULE).
+              if (!/^\+[1-9]\d{7,14}$/.test(normalizedPhone)) {
+                setPhoneError(t("phone_error_invalid"));
+                return;
+              }
+              requestPhone.mutate();
+            }}
           >
             {stage === "phone" ? content.phone.send : content.phone.confirm}
           </Button>
-          {(requestPhone.isError || confirmPhone.isError) && (
+          {phoneError && (
             <p role="alert" className="mt-2 text-sm text-error">
-              {content.phone.error}
+              {phoneError}
+            </p>
+          )}
+          {!phoneError && (requestPhone.isError || confirmPhone.isError) && (
+            <p role="alert" className="mt-2 text-sm text-error">
+              {phoneFailureMessage(requestPhone.error ?? confirmPhone.error)}
             </p>
           )}
         </section>

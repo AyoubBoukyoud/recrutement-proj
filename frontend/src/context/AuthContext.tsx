@@ -91,6 +91,9 @@ interface AuthContextValue {
   /** Termine « Continuer avec Google » : même session qu'après un code OTP. */
   signInWithGoogleCode: (code: string) => Promise<VerifyResult>;
   logout: () => void;
+  /** Met à jour l'utilisateur en session après un changement confirmé par
+   *  l'API (ex. numéro ajouté depuis « Mon compte »). */
+  updateUser: (patch: Partial<Pick<AuthUser, "name" | "phone" | "email">>) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -420,6 +423,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     removeStorage(STORAGE_KEYS.impersonatorUser);
   }, [token]);
 
+  const updateUser = useCallback(
+    (patch: Partial<Pick<AuthUser, "name" | "phone" | "email">>) => {
+      setUser((current) => {
+        if (!current) return current;
+        const next = { ...current, ...patch };
+        persistUser(next);
+        return next;
+      });
+    },
+    [],
+  );
+
   const value = useMemo(
     () => ({
       user,
@@ -434,6 +449,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       verifyOtp,
       signInWithGoogleCode,
       logout,
+      updateUser,
     }),
     [
       user,
@@ -448,6 +464,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       verifyOtp,
       signInWithGoogleCode,
       logout,
+      updateUser,
     ],
   );
 

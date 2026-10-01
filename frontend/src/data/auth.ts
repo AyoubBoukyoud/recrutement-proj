@@ -19,7 +19,7 @@ export interface OtpRequestResponse {
 
 export interface OtpVerifyResponse {
   token: string;
-  user: { id: number | string; phone: string; roles: string[] };
+  user: { id: number | string; phone: string | null; roles: string[] };
   deletion_pending?: boolean;
   /** Présent quand le code finit un « Continuer avec Google » à rattacher. */
   google_link?: "linked" | "expired" | "conflict" | null;

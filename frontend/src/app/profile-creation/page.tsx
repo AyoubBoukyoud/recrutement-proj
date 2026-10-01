@@ -68,10 +68,40 @@ const AVAILABILITY_OPTIONS: { key: AvailabilityStatus; icon: string; badge: stri
 ];
 
 /** Anchors the "Date de naissance" field on candidates who are already 18 — e.g. today 2026-09-14 → 2008-09-14 — instead of the current year. */
-function eighteenYearsAgo(): string {
+function yearsAgo(years: number): string {
   const d = new Date();
-  d.setFullYear(d.getFullYear() - 18);
+  d.setFullYear(d.getFullYear() - years);
   return d.toISOString().slice(0, 10);
+}
+
+/* Bornes de saisie, alignées sur la validation de l'API
+   (CandidateProfileController / EducationController). */
+const NAME_MAX = 60;
+const TEXT_MAX = 120;
+const MAX_EXPERIENCE_YEARS = 60;
+const MIN_AGE = 18;
+const MAX_AGE = 75;
+// Lettres de toutes les écritures (latin accentué, arabe…), séparées par un
+// espace, un tiret ou une apostrophe : « Aït-Ali », « O'Neil », « El Idrissi ».
+const NAME_PATTERN = /^[\p{L}\p{M}]+(?:[ '’.-]+[\p{L}\p{M}]+)*\.?$/u;
+
+type FieldErrors = Partial<Record<'firstName' | 'lastName' | 'birthDate', string>>;
+
+function nameError(value: string, label: string): string | undefined {
+  const v = value.trim();
+  if (!v) return `${label} est requis.`;
+  if (v.length < 2) return `${label} doit contenir au moins 2 lettres.`;
+  if (v.length > NAME_MAX) return `${label} ne peut pas dépasser ${NAME_MAX} caractères.`;
+  if (!NAME_PATTERN.test(v)) return `${label} ne peut contenir que des lettres, espaces, tirets ou apostrophes.`;
+  return undefined;
+}
+
+function birthDateError(value: string): string | undefined {
+  if (!value) return 'La date de naissance est requise.';
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(Date.parse(value))) return 'Date de naissance invalide.';
+  if (value > yearsAgo(MIN_AGE)) return `Vous devez avoir au moins ${MIN_AGE} ans.`;
+  if (value < yearsAgo(MAX_AGE)) return 'Vérifiez l’année de naissance.';
+  return undefined;
 }
 
 function messageOf(error: unknown, fallback: string): string {
@@ -119,6 +149,7 @@ function ProfileCreationContent() {
   const [consents, setConsents] = useState({ cgu: false, privacy: false });
 
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Le formulaire se pré-remplit avec ce qui existe déjà, une fois par visite
@@ -128,10 +159,12 @@ function ProfileCreationContent() {
     if (!profile) return;
     setFirstName((v) => v || profile.first_name || '');
     setLastName((v) => v || profile.last_name || '');
-    setBirthDate((v) => v || profile.date_of_birth || eighteenYearsAgo());
+    // Jamais de valeur par défaut : une date pré-remplie passait la
+    // validation sans que le candidat ait saisi la sienne.
+    setBirthDate((v) => v || profile.date_of_birth || '');
     setProfession((v) => v || profile.profession || '');
     setSpecialization((v) => v || profile.specialization || '');
-    setYearsExperience((v) => v || profile.years_of_experience || 0);
+    setYearsExperience((v) => v || Math.min(profile.years_of_experience || 0, MAX_EXPERIENCE_YEARS));
     setAvailability((v) => v || profile.availability_status || '');
 
     const existingEducation = profile.educations[0];
@@ -162,10 +195,23 @@ function ProfileCreationContent() {
 
   const validateStep = (): string | null => {
     if (step === 1) {
-      if (!firstName || !lastName || !birthDate) return 'Merci de remplir tous les champs requis.';
+      const errors: FieldErrors = {
+        firstName: nameError(firstName, 'Le prénom'),
+        lastName: nameError(lastName, 'Le nom'),
+        birthDate: birthDateError(birthDate),
+      };
+      setFieldErrors(errors);
+      if (errors.firstName || errors.lastName || errors.birthDate) return 'Merci de corriger les champs signalés.';
+    }
+    if (step === 2) {
+      if (specialization.trim().length > TEXT_MAX) return `La spécialisation ne peut pas dépasser ${TEXT_MAX} caractères.`;
+      if (yearsExperience < 0 || yearsExperience > MAX_EXPERIENCE_YEARS) return "Nombre d'années d'expérience invalide.";
     }
     if (step === 3) {
       if (!educationLevel) return 'Merci de sélectionner votre niveau de formation.';
+      if (educationField.trim().length > TEXT_MAX || educationInstitution.trim().length > TEXT_MAX) {
+        return `Chaque champ est limité à ${TEXT_MAX} caractères.`;
+      }
     }
     if (step === 4) {
       if (!LANGUAGE_CODES.some((code) => languageLevels[code])) {
@@ -186,7 +232,7 @@ function ProfileCreationContent() {
 
     if (step === 1) {
       await candidateProfileRepository.update(
-        { first_name: firstName, last_name: lastName, date_of_birth: birthDate },
+        { first_name: firstName.trim().replace(/\s+/g, ' '), last_name: lastName.trim().replace(/\s+/g, ' '), date_of_birth: birthDate },
         token
       );
     }
@@ -194,7 +240,7 @@ function ProfileCreationContent() {
       await candidateProfileRepository.update(
         {
           profession: profession || null,
-          specialization: specialization || null,
+          specialization: specialization.trim() || null,
           years_of_experience: yearsExperience || null,
         },
         token
@@ -205,12 +251,12 @@ function ProfileCreationContent() {
       if (existing) {
         await candidateProfileRepository.updateEducation(
           existing.id,
-          { level: educationLevel, field: educationField || null, institution: educationInstitution || null },
+          { level: educationLevel, field: educationField.trim() || null, institution: educationInstitution.trim() || null },
           token
         );
       } else {
         await candidateProfileRepository.createEducation(
-          { level: educationLevel, field: educationField || null, institution: educationInstitution || null },
+          { level: educationLevel, field: educationField.trim() || null, institution: educationInstitution.trim() || null },
           token
         );
       }
@@ -351,16 +397,17 @@ function ProfileCreationContent() {
         {step === 1 && (
           <div className="fade-in-entry stagger-1 opacity-0 space-y-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <TextField label="Prénom" value={firstName} onChange={setFirstName} />
-              <TextField label="Nom" value={lastName} onChange={setLastName} />
+              <TextField label="Prénom" value={firstName} onChange={(v) => { setFirstName(v); setFieldErrors((e) => ({ ...e, firstName: undefined })); }} required maxLength={NAME_MAX} autoComplete="given-name" error={fieldErrors.firstName} />
+              <TextField label="Nom" value={lastName} onChange={(v) => { setLastName(v); setFieldErrors((e) => ({ ...e, lastName: undefined })); }} required maxLength={NAME_MAX} autoComplete="family-name" error={fieldErrors.lastName} />
             </div>
-            <TextField label="Date de naissance" type="date" value={birthDate} onChange={setBirthDate} max={eighteenYearsAgo()} />
+            <TextField label="Date de naissance" type="date" value={birthDate} onChange={(v) => { setBirthDate(v); setFieldErrors((e) => ({ ...e, birthDate: undefined })); }} required min={yearsAgo(MAX_AGE)} max={yearsAgo(MIN_AGE)} autoComplete="bday" error={fieldErrors.birthDate} />
+            {user?.phone ? (
             <div>
               <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-onSurface">Numéro WhatsApp</label>
               <div className="relative">
                 <input
                   disabled
-                  value={user?.phone ?? '+212 6XX-XXXXXX'}
+                  value={user.phone}
                   className="w-full cursor-not-allowed rounded-pillar border border-outline bg-surface-container-low px-4 py-3.5 text-sm font-bold text-onSurface-variant"
                 />
                 <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline" style={{ fontSize: 18 }}>
@@ -369,6 +416,13 @@ function ProfileCreationContent() {
               </div>
               <p className="mt-1 px-1 text-[11px] text-onSurface-variant">Vérifié lors de l&apos;inscription.</p>
             </div>
+            ) : (
+              // Compte ouvert avec Google : aucun numéro n'a été vérifié, on
+              // n'affiche donc pas de faux numéro « verrouillé ».
+              <p className="rounded-pillar border border-outline-variant bg-surface-container-low px-4 py-3 text-xs text-onSurface-variant">
+                Connecté avec Google. Vous pourrez ajouter votre numéro WhatsApp plus tard depuis « Mon compte ».
+              </p>
+            )}
           </div>
         )}
 
@@ -400,7 +454,7 @@ function ProfileCreationContent() {
                 })}
               </div>
             </div>
-            <TextField label="Spécialisation" value={specialization} onChange={setSpecialization} placeholder="ex: Électricien industriel, Infirmier…" />
+            <TextField label="Spécialisation" value={specialization} onChange={setSpecialization} maxLength={TEXT_MAX} placeholder="ex: Électricien industriel, Infirmier…" />
             <div className="flex items-center justify-between rounded-pillar border border-outline-variant bg-surface-container-lowest p-4 shadow-subtle">
               <div>
                 <h3 className="text-sm font-bold text-primary">Années d&apos;expérience</h3>
@@ -411,6 +465,7 @@ function ProfileCreationContent() {
                   variant="surface"
                   aria-label="Retirer une année d'expérience"
                   onClick={() => setYearsExperience((v) => Math.max(0, v - 1))}
+                  disabled={yearsExperience <= 0}
                   className="border border-outline-variant"
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: 18 }}>remove</span>
@@ -419,7 +474,8 @@ function ProfileCreationContent() {
                 <IconButton
                   variant="surface"
                   aria-label="Ajouter une année d'expérience"
-                  onClick={() => setYearsExperience((v) => v + 1)}
+                  onClick={() => setYearsExperience((v) => Math.min(MAX_EXPERIENCE_YEARS, v + 1))}
+                  disabled={yearsExperience >= MAX_EXPERIENCE_YEARS}
                   className="border border-outline-variant"
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: 18 }}>add</span>
@@ -459,8 +515,8 @@ function ProfileCreationContent() {
                 })}
               </div>
             </div>
-            <TextField label="Filière / domaine (optionnel)" value={educationField} onChange={setEducationField} placeholder="ex: Soins infirmiers, Électrotechnique…" />
-            <TextField label="Établissement (optionnel)" value={educationInstitution} onChange={setEducationInstitution} placeholder="ex: ISTA Casablanca…" />
+            <TextField label="Filière / domaine (optionnel)" value={educationField} onChange={setEducationField} maxLength={TEXT_MAX} placeholder="ex: Soins infirmiers, Électrotechnique…" />
+            <TextField label="Établissement (optionnel)" value={educationInstitution} onChange={setEducationInstitution} maxLength={TEXT_MAX} autoComplete="organization" placeholder="ex: ISTA Casablanca…" />
           </div>
         )}
 
@@ -583,28 +639,55 @@ function TextField({
   onChange,
   type = 'text',
   placeholder,
+  min,
   max,
+  maxLength,
+  required = false,
+  autoComplete,
+  error,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   type?: string;
   placeholder?: string;
+  min?: string;
   max?: string;
+  maxLength?: number;
+  required?: boolean;
+  autoComplete?: string;
+  error?: string;
 }) {
   const id = useId();
+  const errorId = `${id}-error`;
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-onSurface">{label}</label>
+      <label htmlFor={id} className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-onSurface">
+        {label}
+        {required && <span aria-hidden="true" className="text-error"> *</span>}
+      </label>
       <input
         id={id}
         type={type}
         value={value}
         placeholder={placeholder}
+        min={min}
         max={max}
+        maxLength={maxLength}
+        required={required}
+        autoComplete={autoComplete}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : undefined}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-pillar border border-outline bg-surface-container-lowest px-4 py-3.5 text-sm font-semibold text-onSurface outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm"
+        className={`w-full rounded-pillar border bg-surface-container-lowest px-4 py-3.5 text-sm font-semibold text-onSurface outline-none transition-all focus:ring-2 shadow-sm ${
+          error ? 'border-error focus:border-error focus:ring-error/20' : 'border-outline focus:border-primary focus:ring-primary/20'
+        }`}
       />
+      {error && (
+        <p id={errorId} className="mt-1 px-1 text-xs font-semibold text-error">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

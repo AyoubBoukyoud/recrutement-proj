@@ -24,15 +24,25 @@ class CandidateProfileController extends Controller
         return response()->json($this->payload($profile));
     }
 
+    private const NAME_PATTERN = "/^[\\pL\\pM]+(?:[ '’.-]+[\\pL\\pM]+)*\\.?$/u";
+
     public function update(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'first_name' => ['sometimes', 'string', 'max:255'],
-            'last_name' => ['sometimes', 'string', 'max:255'],
+            // Letters of any script (accented Latin, Arabic…) joined by spaces,
+            // hyphens or apostrophes — "Aït-Ali", "O'Neil", "El Idrissi".
+            'first_name' => ['sometimes', 'string', 'min:2', 'max:60', 'regex:'.self::NAME_PATTERN],
+            'last_name' => ['sometimes', 'string', 'min:2', 'max:60', 'regex:'.self::NAME_PATTERN],
             'profession' => ['sometimes', 'nullable', 'string', 'max:255'],
             'specialization' => ['sometimes', 'nullable', 'string', 'max:255'],
             'years_of_experience' => ['sometimes', 'nullable', 'integer', 'min:0', 'max:60'],
-            'date_of_birth' => ['sometimes', 'date'],
+            // Adults only (the recruitment programme's rule, also enforced by
+            // the profile form), and no implausible year.
+            'date_of_birth' => [
+                'sometimes', 'date_format:Y-m-d',
+                'before_or_equal:'.now()->subYears(18)->toDateString(),
+                'after_or_equal:'.now()->subYears(75)->toDateString(),
+            ],
             'availability_status' => ['sometimes', 'in:immediate,within_1_month,within_2_months'],
             'matching_preferences' => ['sometimes', 'nullable', 'array'],
             'matching_preferences.regions' => ['sometimes', 'array'],

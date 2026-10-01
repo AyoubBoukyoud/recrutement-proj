@@ -55,8 +55,15 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const hadAuthorization = Boolean(error?.config?.headers?.Authorization);
-    if (error?.response?.status === 401 && hadAuthorization) recoverFromUnauthorized();
+    // Every route behind this client requires a session (see routes/api.php:
+    // recruiter, agent and admin endpoints all sit inside the `auth:sanctum`
+    // group), so a 401 here always means "sign in again" — whether or not a
+    // token was attached. Gating on "a token was attached" used to leave a
+    // signed-out visitor stuck on a fully rendered but silently broken admin
+    // page: no token → no Authorization header → the 401 was ignored instead
+    // of redirecting, and every list on the page looked empty rather than
+    // saying the session had ended.
+    if (error?.response?.status === 401) recoverFromUnauthorized();
     return Promise.reject(error);
   }
 );

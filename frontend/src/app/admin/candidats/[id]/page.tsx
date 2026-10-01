@@ -234,7 +234,7 @@ export default function AdminCandidatDetailPage() {
         <div className="absolute bottom-0 left-0 top-0 w-2 bg-amud-primary" />
         <div className="flex flex-col items-start justify-between gap-lg md:flex-row md:items-center">
           <div className="flex items-center gap-lg">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-amud-surface bg-amud-primary-container text-title-lg font-bold text-amud-primary shadow-sm">
+            <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-amud-surface bg-amud-primary-container text-title-lg font-bold text-white shadow-sm">
               {initials(name)}
             </div>
             <div>
