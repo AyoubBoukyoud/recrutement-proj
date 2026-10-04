@@ -1,10 +1,10 @@
 'use client';
 
 /*
- * « Continuer avec Google » — une action secondaire à côté du numéro de
- * téléphone, pas à sa place : contour neutre (variante `outline` du kit), le
- * « G » multicolore de Google tel que ses consignes de marque l'exigent, et le
- * CTA plein du formulaire téléphone reste l'action principale de l'écran.
+ * « Continuer avec Google » — l'une des deux méthodes proposées côte à côte
+ * avec « Continuer avec mon numéro », au même poids : contour neutre
+ * (variante `outline` du kit) et le « G » multicolore de Google tel que ses
+ * consignes de marque l'exigent.
  */
 
 import { useEffect, useState } from 'react';

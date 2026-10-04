@@ -1,8 +1,9 @@
 'use client';
 
-// Interface 3 — Authentification par téléphone : saisie du numéro, validation, puis /otp?phone=...
+// Interface 3 — Authentification : choix de la méthode (Google ou numéro), puis
+// pour le numéro saisie, validation, et /otp?phone=...
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -46,6 +47,23 @@ const COUNTRY_CODES = [
  */
 type Intent = 'job_seeker' | 'recruiter';
 
+/**
+ * Google et le numéro sont deux portes d'entrée indépendantes : l'écran
+ * s'ouvre sur ce choix, et le formulaire du numéro n'apparaît qu'une fois
+ * cette méthode choisie. Les présenter ensemble laissait croire qu'il fallait
+ * fournir les deux. Le formulaire est aussi une entrée d'historique
+ * (`?method=phone`), pour que « Précédent » ramène au choix.
+ */
+type Method = 'choose' | 'phone';
+
+function urlWithMethod(method: Method): string {
+  const query = new URLSearchParams(window.location.search);
+  if (method === 'phone') query.set('method', 'phone');
+  else query.delete('method');
+  const search = query.toString();
+  return search ? `?${search}` : window.location.pathname;
+}
+
 export default function AuthPhonePage() {
   const router = useRouter();
   const { requestOtp, user, token, isLoading } = useAuth();
@@ -60,6 +78,14 @@ export default function AuthPhonePage() {
   const [referralToken, setReferralToken] = useState<string | null>(null);
   // Compte Google vérifié, en attente du numéro qui lui sera rattaché.
   const [googleLink, setGoogleLink] = useState<PendingGoogleLink | null>(null);
+  // Sans Google configuré, il n'y a rien à choisir : on va droit au numéro.
+  const [method, setMethod] = useState<Method>(GOOGLE_SIGN_IN_ENABLED ? 'choose' : 'phone');
+  // Le formulaire a été ouvert depuis le choix, dans cet écran : revenir au
+  // choix, c'est alors reculer d'une entrée d'historique.
+  const openedFromChooser = useRef(false);
+  const phoneInputRef = useRef<HTMLInputElement>(null);
+  // Un rattachement Google en cours attend précisément un numéro.
+  const canChoose = GOOGLE_SIGN_IN_ENABLED && !googleLink;
 
   // Déjà connecté : l'écran de connexion n'a rien à offrir, sinon une seconde
   // session sur le même appareil. On renvoie vers l'espace du rôle.
@@ -79,14 +105,50 @@ export default function AuthPhonePage() {
     // Google vérifié dont il reste à confirmer le numéro.
     const googleFailure = asGoogleFailure(query.get('google_error'));
     if (googleFailure) setError(googleFailureMessage(googleFailure, t));
-    if (query.get('google') === 'link') setGoogleLink(readPendingGoogleLink());
+    const pendingLink = query.get('google') === 'link' ? readPendingGoogleLink() : null;
+    if (pendingLink) setGoogleLink(pendingLink);
     else clearPendingGoogleLink();
+    if (pendingLink || query.get('method') === 'phone') setMethod('phone');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // « Précédent » / « Suivant » du navigateur entre le choix et le formulaire.
+  useEffect(() => {
+    if (!canChoose) return;
+    const sync = () => {
+      setError(null);
+      setMethod(new URLSearchParams(window.location.search).get('method') === 'phone' ? 'phone' : 'choose');
+    };
+    window.addEventListener('popstate', sync);
+    return () => window.removeEventListener('popstate', sync);
+  }, [canChoose]);
+
+  useEffect(() => {
+    if (method === 'phone' && openedFromChooser.current) phoneInputRef.current?.focus();
+  }, [method]);
+
+  const choosePhone = () => {
+    setError(null);
+    openedFromChooser.current = true;
+    window.history.pushState(null, '', urlWithMethod('phone'));
+    setMethod('phone');
+  };
+
+  const backToChooser = () => {
+    setError(null);
+    if (openedFromChooser.current) {
+      openedFromChooser.current = false;
+      window.history.back();
+      return;
+    }
+    window.history.replaceState(null, '', urlWithMethod('choose'));
+    setMethod('choose');
+  };
 
   const cancelGoogleLink = () => {
     clearPendingGoogleLink();
     setGoogleLink(null);
+    if (GOOGLE_SIGN_IN_ENABLED) setMethod('choose');
     router.replace('/auth-phone');
   };
 
@@ -117,25 +179,26 @@ export default function AuthPhonePage() {
     <AuthShell>
     <main id="main-content" tabIndex={-1} className="mx-auto flex min-h-screen max-w-md flex-col bg-surface shadow-subtle outline-none">
       <header className="relative flex flex-col items-center px-6 py-4 border-b border-surface-container-high">
-        <Link href="/" aria-label="Retour" className="absolute left-6 top-5 text-primary hover:opacity-80 transition-opacity">
-          <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
-            arrow_back
-          </span>
-        </Link>
+        {method === 'phone' && canChoose ? (
+          <button type="button" onClick={backToChooser} aria-label="Retour" className="absolute left-6 top-5 text-primary hover:opacity-80 transition-opacity">
+            <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
+              arrow_back
+            </span>
+          </button>
+        ) : (
+          <Link href="/" aria-label="Retour" className="absolute left-6 top-5 text-primary hover:opacity-80 transition-opacity">
+            <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
+              arrow_back
+            </span>
+          </Link>
+        )}
         {/* eslint-disable-next-line @next/next/no-img-element -- pas de route Next/Image dédiée ici */}
         <img src="/assets/images/logo-mark.png" alt="" className="mb-1 h-10 w-10 object-contain" />
         <h1 className="text-sm font-extrabold text-primary">Amud Skills</h1>
         <p className="text-[10px] font-bold uppercase tracking-wider text-tertiary">{t('auth_screen_label')}</p>
       </header>
 
-      <form
-        id="auth-phone-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          submit();
-        }}
-        className="flex flex-1 flex-col justify-center px-6 py-6"
-      >
+      <div className="flex flex-1 flex-col justify-center px-6 py-6">
         {sessionExpired && (
           <div role="status" className="mb-4 flex items-start gap-2 rounded-pillar border border-gold/30 bg-gold/10 p-3 text-xs font-medium text-onSurface">
             <span className="material-symbols-outlined text-gold-dark" style={{ fontSize: 18 }}>schedule</span>
@@ -185,62 +248,90 @@ export default function AuthPhonePage() {
           ))}
         </div>
 
-        <div className="fade-in-entry opacity-0">
-          <h2 className="mb-2 text-2xl font-extrabold text-primary">
-            {intent === 'recruiter' ? t('phone_screen_title_recruiter') : t('phone_screen_title')}
-          </h2>
-          <p className="mb-6 text-sm leading-relaxed text-onSurface-variant">
-            {intent === 'recruiter' ? t('phone_screen_subtitle_recruiter') : t('phone_screen_subtitle')}
-          </p>
-        </div>
-
-        {GOOGLE_SIGN_IN_ENABLED && !googleLink && (
-          <div className="fade-in-entry stagger-1 opacity-0 mb-6">
-            <GoogleSignInButton disabled={isSubmitting} />
-            <div className="mt-6 flex items-center gap-3" aria-hidden="true">
-              <span className="h-px flex-1 bg-outline-variant" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-onSurface-variant">{t('auth_or')}</span>
-              <span className="h-px flex-1 bg-outline-variant" />
+        {method === 'choose' ? (
+          <>
+            <div className="fade-in-entry opacity-0">
+              <h2 className="mb-2 text-2xl font-extrabold text-primary">
+                {intent === 'recruiter' ? t('phone_screen_title_recruiter') : t('auth_choose_title')}
+              </h2>
+              <p className="mb-6 text-sm leading-relaxed text-onSurface-variant">
+                {intent === 'recruiter' ? t('auth_choose_subtitle_recruiter') : t('auth_choose_subtitle')}
+              </p>
             </div>
-          </div>
-        )}
+            <div className="fade-in-entry stagger-1 opacity-0 mb-6 space-y-3">
+              <GoogleSignInButton />
+              <Button
+                variant="outline"
+                size="md"
+                fullWidth
+                onClick={choosePhone}
+                leadingIcon={
+                  <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 20 }}>
+                    smartphone
+                  </span>
+                }
+                className="shadow-sm"
+              >
+                {t('auth_method_phone')}
+              </Button>
+            </div>
+          </>
+        ) : (
+          <form
+            id="auth-phone-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              submit();
+            }}
+          >
+            <div className="fade-in-entry opacity-0">
+              <h2 className="mb-2 text-2xl font-extrabold text-primary">
+                {intent === 'recruiter' ? t('phone_screen_title_recruiter') : t('phone_screen_title')}
+              </h2>
+              <p className="mb-6 text-sm leading-relaxed text-onSurface-variant">
+                {intent === 'recruiter' ? t('phone_screen_subtitle_recruiter') : t('phone_screen_subtitle')}
+              </p>
+            </div>
 
-        <div className="fade-in-entry stagger-1 opacity-0 mb-2 space-y-2">
-          <label htmlFor="auth-phone-number" className="block text-[10px] font-bold uppercase tracking-widest text-onSurface-variant">
-            {t('phone_field_label')}
-          </label>
-          <div className="flex items-center gap-2 rounded-pillar border border-outline-variant bg-surface-container-lowest p-3.5 transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 shadow-sm">
-            <span className="material-symbols-outlined text-primary" style={{ fontSize: 20 }} aria-hidden="true">
-              phone
-            </span>
-            <select
-              id="auth-phone-country"
-              aria-label={t('phone_country_label')}
-              value={countryCode}
-              onChange={(e) => setCountryCode(e.target.value)}
-              className="shrink-0 border-none bg-transparent p-0 text-sm font-bold text-primary outline-none focus:ring-0 cursor-pointer"
-            >
-              {COUNTRY_CODES.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
-            <div className="h-6 w-px bg-outline-variant" aria-hidden="true" />
-            <input
-              id="auth-phone-number"
-              type="tel"
-              inputMode="numeric"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="6 12 34 56 78"
-              className="min-w-0 flex-1 border-none bg-transparent p-0 text-sm font-semibold text-onSurface placeholder:text-outline outline-none focus:ring-0"
-            />
-          </div>
-        </div>
-        <p className="fade-in-entry stagger-1 opacity-0 mb-6 text-[11px] text-onSurface-variant">
-          {t('phone_field_hint')}
-        </p>
+            <div className="fade-in-entry stagger-1 opacity-0 mb-2 space-y-2">
+              <label htmlFor="auth-phone-number" className="block text-[10px] font-bold uppercase tracking-widest text-onSurface-variant">
+                {t('phone_field_label')}
+              </label>
+              <div className="flex items-center gap-2 rounded-pillar border border-outline-variant bg-surface-container-lowest p-3.5 transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 shadow-sm">
+                <span className="material-symbols-outlined text-primary" style={{ fontSize: 20 }} aria-hidden="true">
+                  phone
+                </span>
+                <select
+                  id="auth-phone-country"
+                  aria-label={t('phone_country_label')}
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                  className="shrink-0 border-none bg-transparent p-0 text-sm font-bold text-primary outline-none focus:ring-0 cursor-pointer"
+                >
+                  {COUNTRY_CODES.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="h-6 w-px bg-outline-variant" aria-hidden="true" />
+                <input
+                  ref={phoneInputRef}
+                  id="auth-phone-number"
+                  type="tel"
+                  inputMode="numeric"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="6 12 34 56 78"
+                  className="min-w-0 flex-1 border-none bg-transparent p-0 text-sm font-semibold text-onSurface placeholder:text-outline outline-none focus:ring-0"
+                />
+              </div>
+            </div>
+            <p className="fade-in-entry stagger-1 opacity-0 mb-6 text-[11px] text-onSurface-variant">
+              {t('phone_field_hint')}
+            </p>
+          </form>
+        )}
 
         {error && (
           <div role="alert" className="fade-in-entry opacity-0 mb-4 flex items-center gap-2 rounded-pillar bg-error-container/40 p-3 text-xs font-medium text-error">
@@ -251,30 +342,34 @@ export default function AuthPhonePage() {
           </div>
         )}
 
-        <div className="fade-in-entry stagger-2 opacity-0 flex gap-3 rounded-pillar border border-primary/15 bg-surface-container-low p-4">
-          <span className="material-symbols-outlined mt-0.5 shrink-0 text-primary" style={{ fontSize: 18 }}>
-            verified_user
-          </span>
-          <p className="text-[11px] leading-normal text-primary font-medium">{t('phone_consent')}</p>
-        </div>
-      </form>
+        {method === 'phone' && (
+          <div className="fade-in-entry stagger-2 opacity-0 flex gap-3 rounded-pillar border border-primary/15 bg-surface-container-low p-4">
+            <span className="material-symbols-outlined mt-0.5 shrink-0 text-primary" style={{ fontSize: 18 }}>
+              verified_user
+            </span>
+            <p className="text-[11px] leading-normal text-primary font-medium">{t('phone_consent')}</p>
+          </div>
+        )}
+      </div>
 
       {DevAuthTools && <DevAuthTools />}
 
-      <footer className="fade-in-entry stagger-3 opacity-0 space-y-3 border-t border-outline-variant bg-surface-container-lowest p-6">
-        <Button
-          type="submit"
-          form="auth-phone-form"
-          size="lg"
-          fullWidth
-          disabled={isSubmitting}
-          isLoading={isSubmitting}
-          loadingLabel={t('phone_sending')}
-          className="shadow-sm"
-        >
-          {isSubmitting ? t('phone_sending') : t('phone_submit_cta')}
-        </Button>
-      </footer>
+      {method === 'phone' && (
+        <footer className="fade-in-entry stagger-3 opacity-0 space-y-3 border-t border-outline-variant bg-surface-container-lowest p-6">
+          <Button
+            type="submit"
+            form="auth-phone-form"
+            size="lg"
+            fullWidth
+            disabled={isSubmitting}
+            isLoading={isSubmitting}
+            loadingLabel={t('phone_sending')}
+            className="shadow-sm"
+          >
+            {isSubmitting ? t('phone_sending') : t('phone_submit_cta')}
+          </Button>
+        </footer>
+      )}
     </main>
     </AuthShell>
   );

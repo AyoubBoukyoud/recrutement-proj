@@ -54,7 +54,7 @@ function OtpContent() {
   const [notice, setNotice] = useState<Notice | null>(null);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   // « Retour » garde un rattachement Google en cours plutôt que de l'abandonner.
-  const [backHref, setBackHref] = useState("/auth-phone");
+  const [backHref, setBackHref] = useState("/auth-phone?method=phone");
 
   useEffect(() => {
     inputsRef.current[0]?.focus();
