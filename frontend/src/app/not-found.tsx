@@ -15,7 +15,7 @@ export default function NotFound() {
         la liste des métiers, ou votre espace de connexion.
       </p>
       <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
-        <PrimaryCta href="/accueil-public">Retour à l&apos;accueil</PrimaryCta>
+        <PrimaryCta href="/">Retour à l&apos;accueil</PrimaryCta>
         <GhostCta href="/produit">Voir les métiers</GhostCta>
         <GhostCta href="/auth-phone">Se connecter</GhostCta>
       </div>

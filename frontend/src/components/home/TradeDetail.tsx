@@ -19,7 +19,7 @@ export function TradeDetail({ slug }: { slug: string }) {
 
   return (
     <div className="mx-auto w-full max-w-[820px] px-6 lg:px-12 pt-8">
-      <Link href="/accueil-public#metiers" className="inline-flex items-center gap-1.5 text-sm font-bold text-primary hover:underline">
+      <Link href="/#metiers" className="inline-flex items-center gap-1.5 text-sm font-bold text-primary hover:underline">
         <span className="material-symbols-outlined text-base rtl:rotate-180" aria-hidden="true">
           arrow_back
         </span>

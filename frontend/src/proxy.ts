@@ -28,8 +28,8 @@ const SHOW_PROTOTYPES = process.env.NEXT_PUBLIC_ENABLE_PROTOTYPES === '1';
  */
 function realDestinationForAmud(pathname: string): string | null {
   if (!SHOW_PROTOTYPES && pathname.startsWith('/amud/marketing/employers')) return '/employeurs';
-  if (!SHOW_PROTOTYPES && pathname.startsWith('/amud/marketing')) return '/accueil-public';
-  if (!SHOW_PROTOTYPES && (pathname === '/amud' || pathname.startsWith('/amud/centre'))) return '/accueil-public';
+  if (!SHOW_PROTOTYPES && pathname.startsWith('/amud/marketing')) return '/';
+  if (!SHOW_PROTOTYPES && (pathname === '/amud' || pathname.startsWith('/amud/centre'))) return '/';
   if (!SHOW_PROTOTYPES && pathname.startsWith('/amud/admin')) return '/admin';
   if (!SHOW_PROTOTYPES && (pathname.startsWith('/amud/entreprise') || pathname === '/amud/employer')) return '/recruiter';
   if (!SHOW_PROTOTYPES && pathname.startsWith('/amud/commercial')) return '/agent';
@@ -58,8 +58,6 @@ function redirectTo(request: NextRequest, targetPathname: string) {
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const role = request.cookies.get('as_role')?.value;
-
-  if (pathname === '/') return redirectTo(request, '/accueil-public');
 
   const amudDestination = realDestinationForAmud(pathname);
   if (amudDestination) return redirectTo(request, amudDestination);
@@ -131,7 +129,6 @@ export const config = {
   // Recopie statique de `CANDIDATE_PATHS` (lib/protectedRoutes.ts) + espaces staff :
   // Next exige un littéral ici. Un chemin ajouté à l'un doit l'être à l'autre.
   matcher: [
-    '/',
     '/simulateur-salaire/:path*',
     '/cours-allemand/:path*',
     '/dashboard/:path*',

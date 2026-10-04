@@ -117,7 +117,7 @@ export default function AuthPhonePage() {
     <AuthShell>
     <main id="main-content" tabIndex={-1} className="mx-auto flex min-h-screen max-w-md flex-col bg-surface shadow-subtle outline-none">
       <header className="relative flex flex-col items-center px-6 py-4 border-b border-surface-container-high">
-        <Link href="/accueil-public" aria-label="Retour" className="absolute left-6 top-5 text-primary hover:opacity-80 transition-opacity">
+        <Link href="/" aria-label="Retour" className="absolute left-6 top-5 text-primary hover:opacity-80 transition-opacity">
           <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
             arrow_back
           </span>

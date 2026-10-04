@@ -37,7 +37,7 @@ export default function MobileJourney({locale}:{locale:Locale}){
   return <div className="mobile-journey" data-device="mobile" lang={locale} dir={locale==='ar'?'rtl':'ltr'}>
     <a className="m-skip" href="#journey-main">{t('Aller au contenu','انتقل إلى المحتوى','Zum Inhalt','Skip to content')}</a>
     <header className="m-header">
-      <a className="m-brand" href="/accueil-public" aria-label="AMUD Skills"><span className="m-brand-icon"><img src="/landing-assets/amud-logo-brand.svg" alt=""/></span><span>AMUD<small>SKILLS</small></span></a>
+      <a className="m-brand" href="/" aria-label="AMUD Skills"><span className="m-brand-icon"><img src="/landing-assets/amud-logo-brand.svg" alt=""/></span><span>AMUD<small>SKILLS</small></span></a>
       <div className="m-header-actions"><select aria-label={t('Langue','اللغة','Sprache','Language')} value={locale} onChange={e=>setLanguage(e.target.value as Locale)}><option value="fr">FR</option><option value="ar">ع</option><option value="de">DE</option><option value="en">EN</option></select><button ref={menuButton} type="button" aria-controls="mobile-journey-nav" aria-expanded={menu} aria-label={menu?t('Fermer le menu','إغلاق القائمة','Menü schließen','Close menu'):t('Ouvrir le menu','فتح القائمة','Menü öffnen','Open menu')} onClick={()=>setMenu(!menu)}>{menu?<X/>:<Menu/>}</button></div>
       {menu&&<nav id="mobile-journey-nav" className="m-nav">{links.map(([href,label])=><a key={href} href={href} onClick={()=>setMenu(false)}>{label}</a>)}<a href={AUTH}>{t('Connexion','الدخول','Anmelden','Sign in')}</a></nav>}
     </header>

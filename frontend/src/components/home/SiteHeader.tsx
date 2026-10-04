@@ -125,11 +125,7 @@ export function SiteHeader({ className = '' }: SiteHeaderProps) {
 
       if (href.includes('#')) {
         const [path, hash] = href.split('#');
-        const isCurrentPage =
-          !path ||
-          pathname === path ||
-          (pathname === '/' && path === '/accueil-public') ||
-          (pathname === '/accueil-public' && path === '/');
+        const isCurrentPage = !path || pathname === path;
 
         if (isCurrentPage && hash) {
           e.preventDefault();
@@ -158,7 +154,7 @@ export function SiteHeader({ className = '' }: SiteHeaderProps) {
       >
         <div className="mx-auto flex h-[68px] w-full max-w-[1360px] items-center justify-between gap-4 px-6 lg:px-12">
           {/* Logo and Brand */}
-          <Link href="/accueil-public" className="group flex shrink-0 items-center" aria-label="Amud Skills — accueil">
+          <Link href="/" className="group flex shrink-0 items-center" aria-label="Amud Skills — accueil">
             <span className="flex h-14 w-16 items-center justify-center bg-transparent px-1 transition-transform duration-200 group-hover:scale-[1.03]">
               <Image
                 src="/assets/images/logo.png"

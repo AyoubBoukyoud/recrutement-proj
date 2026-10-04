@@ -45,7 +45,7 @@ export default function Landing({
   const t = translator(locale),
     c = content(locale),
     localeBase = locale === 'fr' ? '' : '/' + locale,
-    home = standalone ? localeBase || '/' : '/accueil-public',
+    home = standalone ? localeBase || '/' : '/',
     crm = standalone ? localeBase + '/crm-centre-formation' : '/crm-centre-formation';
   const [menuOpen, setMenuOpen] = useState(false);
   const nav = [

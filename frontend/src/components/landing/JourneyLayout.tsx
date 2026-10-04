@@ -29,7 +29,7 @@ export default function JourneyLayout({locale='fr',device}:{locale?:Locale;devic
   return <div className={`journey-page journey-page--${device}`} data-device={device} dir={locale==='ar'?'rtl':'ltr'}>
     <a className="j-skip" href="#journey-main">{t('Aller au contenu','الانتقال إلى المحتوى','Zum Inhalt','Skip to content')}</a>
     <header className="j-header">
-      <a href="/accueil-public" className="j-logo"><img src="/landing-assets/amud-logo-brand.svg" alt="AMUD Skills"/></a>
+      <a href="/" className="j-logo"><img src="/landing-assets/amud-logo-brand.svg" alt="AMUD Skills"/></a>
       <nav>{nav.map(([href,label])=><a href={href} key={href}>{label}</a>)}</nav>
       <div className="j-actions"><div className="j-langs">{(['fr','ar','de','en'] as const).map(lang=><button key={lang} aria-pressed={locale===lang} onClick={()=>setLanguage(lang)}>{lang==='ar'?'ع':lang.toUpperCase()}</button>)}</div><a className="j-login" href={AUTH}>{t('Connexion','الدخول','Anmelden','Sign in')}</a><a className="j-button j-header-cta" href={AUTH}>{t('Créer mon profil','إنشاء ملفي','Profil erstellen','Create profile')}<ArrowUpRight/></a><button className="j-menu" aria-expanded={open} aria-controls="journey-mobile-nav" aria-label={open?t('Fermer le menu','إغلاق القائمة','Menü schließen','Close menu'):t('Ouvrir le menu','فتح القائمة','Menü öffnen','Open menu')} onClick={()=>setOpen(!open)}>{open?<X/>:<Menu/>}</button></div>
       {open&&<div id="journey-mobile-nav" className="j-mobile-nav">{nav.map(([href,label])=><a onClick={()=>setOpen(false)} href={href} key={href}>{label}</a>)}<a href={AUTH}>{t('Connexion','الدخول','Anmelden','Sign in')}</a></div>}

@@ -76,7 +76,7 @@ const MARKETING = [
  */
 const ACCES_DIRECT = [
   {
-    href: '/accueil-public',
+    href: '/',
     icon: 'public',
     titre: 'Site public (sans connexion)',
     description: 'La vraie page d’accueil de l’app (marketing + produit), accessible sans authentification.',

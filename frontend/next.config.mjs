@@ -75,6 +75,14 @@ const nextConfig = {
       },
     ],
   },
+  /*
+   * L'accueil vivait à `/accueil-public` avant de passer à la racine. La
+   * redirection permanente transmet à `/` les liens partagés et l'indexation
+   * acquise ; le navigateur conserve l'ancre (`#faq`, `#parcours`…).
+   */
+  async redirects() {
+    return [{ source: '/accueil-public', destination: '/', permanent: true }];
+  },
 };
 
 /*

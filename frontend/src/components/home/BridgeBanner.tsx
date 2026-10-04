@@ -17,7 +17,7 @@ export function BridgeBanner() {
           {bridge.title}
         </p>
         <Link
-          href="/accueil-public#candidats"
+          href="/#candidats"
           className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-home-coral-hover transition-colors hover:bg-white/90"
         >
           {bridge.cta}

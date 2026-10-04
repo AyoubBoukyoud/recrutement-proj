@@ -12,15 +12,16 @@ function check(name, test) {
   checks.push(name);
 }
 
-check('root uses the canonical public home', () => {
-  assert.match(read('src/app/page.tsx'), /redirect\('\/accueil-public'\)/);
+check('root serves the public home and the old address redirects there', () => {
+  assert.match(read('src/app/page.tsx'), /<PublicHome \/>/);
+  assert.match(read('next.config.mjs'), /source: '\/accueil-public', destination: '\/', permanent: true/);
 });
 
 check('prototype marketing routes are opt-in and redirected by default', () => {
   const proxy = read('src/proxy.ts');
   assert.match(proxy, /NEXT_PUBLIC_ENABLE_PROTOTYPES === '1'/);
   assert.match(proxy, /marketing\/employers.*'\/employeurs'/);
-  assert.match(proxy, /startsWith\('\/amud\/marketing'\).*'\/accueil-public'/);
+  assert.match(proxy, /startsWith\('\/amud\/marketing'\)\) return '\/';/);
 });
 
 check('developer shortcuts are explicitly opt-in', () => {
@@ -51,7 +52,7 @@ check('public CTAs use implemented candidate, recruiter, and trade routes', () =
   assert.match(routes, /AUTH='\/auth-phone'/);
   assert.match(routes, /RECRUIT=AUTH\+'\?intent=recruiter'/);
   assert.match(marketplace, /href=\{'\/metiers\/'\+slug\}/);
-  assert.match(tradeDetail, /href="\/accueil-public#metiers"/);
+  assert.match(tradeDetail, /href="\/#metiers"/);
 });
 
 check('localized public footer has no placeholder links', () => {

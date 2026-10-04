@@ -2,11 +2,11 @@
   "_note": "Contenu de la page d'accueil publique (refonte maquette navy/corail). Aucune chaîne ne doit être codée en dur dans les composants. Règle héritée : aucun chiffre, logo ou témoignage non vérifié. `trades`, `tradePage` et `product` restent partagés avec /metiers/[slug] et /produit — ne pas modifier leur forme sans vérifier ces pages.",
   "nav": {
     "links": [
-      { "label": "Pour les candidats", "href": "/accueil-public#candidats" },
+      { "label": "Pour les candidats", "href": "/#candidats" },
       { "label": "Pour les employeurs", "href": "/employeurs" },
-      { "label": "Pour les centres de formation", "href": "/accueil-public#centres" },
-      { "label": "Contact", "href": "/accueil-public#contact" },
-      { "label": "FAQ", "href": "/accueil-public#faq" }
+      { "label": "Pour les centres de formation", "href": "/#centres" },
+      { "label": "Contact", "href": "/#contact" },
+      { "label": "FAQ", "href": "/#faq" }
     ],
     "signIn": "Connexion",
     "cta": "Créer mon profil",
@@ -266,15 +266,15 @@
         "links": [
           { "label": "Pour les candidats", "href": "/auth-phone" },
           { "label": "Pour les employeurs", "href": "/employeurs" },
-          { "label": "Pour les centres de formation", "href": "/accueil-public#centres" }
+          { "label": "Pour les centres de formation", "href": "/#centres" }
         ]
       },
       {
         "title": "Ressources",
         "links": [
-          { "label": "Comment ça marche", "href": "/accueil-public#methodology" },
-          { "label": "FAQ", "href": "/accueil-public#faq" },
-          { "label": "Contact", "href": "/accueil-public#contact" }
+          { "label": "Comment ça marche", "href": "/#methodology" },
+          { "label": "FAQ", "href": "/#faq" },
+          { "label": "Contact", "href": "/#contact" }
         ]
       },
       {

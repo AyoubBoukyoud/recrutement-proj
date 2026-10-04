@@ -2,11 +2,11 @@
   "_note": "النسخة العربية من الصفحة الرئيسية. نفس بنية home.fr.json — TypeScript يوقف البناء إذا نقص مفتاح. العربية تعرض الصفحة من اليمين إلى اليسار: تحقق من التخطيط بعد كل تعديل. تبقى `trades` و`tradePage` و`product` مشتركة مع /metiers/[slug] و/produit.",
   "nav": {
     "links": [
-      { "label": "للمترشحين", "href": "/accueil-public#candidats" },
+      { "label": "للمترشحين", "href": "/#candidats" },
       { "label": "لأرباب العمل", "href": "/employeurs" },
-      { "label": "لمراكز التكوين", "href": "/accueil-public#centres" },
-      { "label": "اتصل بنا", "href": "/accueil-public#contact" },
-      { "label": "الأسئلة الشائعة", "href": "/accueil-public#faq" }
+      { "label": "لمراكز التكوين", "href": "/#centres" },
+      { "label": "اتصل بنا", "href": "/#contact" },
+      { "label": "الأسئلة الشائعة", "href": "/#faq" }
     ],
     "signIn": "تسجيل الدخول",
     "cta": "أنشئ ملفي",
@@ -266,15 +266,15 @@
         "links": [
           { "label": "للمترشحين", "href": "/auth-phone" },
           { "label": "لأرباب العمل", "href": "/employeurs" },
-          { "label": "لمراكز التكوين", "href": "/accueil-public#centres" }
+          { "label": "لمراكز التكوين", "href": "/#centres" }
         ]
       },
       {
         "title": "موارد",
         "links": [
-          { "label": "كيف تعمل المنصة", "href": "/accueil-public#methodology" },
-          { "label": "الأسئلة الشائعة", "href": "/accueil-public#faq" },
-          { "label": "اتصل بنا", "href": "/accueil-public#contact" }
+          { "label": "كيف تعمل المنصة", "href": "/#methodology" },
+          { "label": "الأسئلة الشائعة", "href": "/#faq" },
+          { "label": "اتصل بنا", "href": "/#contact" }
         ]
       },
       {

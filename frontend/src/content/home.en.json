@@ -2,11 +2,11 @@
   "_note": "English homepage copy. Same shape as home.fr.json — TypeScript fails the build if a key is missing. `trades`, `tradePage` and `product` stay shared with /metiers/[slug] and /produit.",
   "nav": {
     "links": [
-      { "label": "For candidates", "href": "/accueil-public#candidats" },
+      { "label": "For candidates", "href": "/#candidats" },
       { "label": "For employers", "href": "/employeurs" },
-      { "label": "For training centres", "href": "/accueil-public#centres" },
-      { "label": "Contact", "href": "/accueil-public#contact" },
-      { "label": "FAQ", "href": "/accueil-public#faq" }
+      { "label": "For training centres", "href": "/#centres" },
+      { "label": "Contact", "href": "/#contact" },
+      { "label": "FAQ", "href": "/#faq" }
     ],
     "signIn": "Sign in",
     "cta": "Create my profile",
@@ -266,15 +266,15 @@
         "links": [
           { "label": "For candidates", "href": "/auth-phone" },
           { "label": "For employers", "href": "/employeurs" },
-          { "label": "For training centres", "href": "/accueil-public#centres" }
+          { "label": "For training centres", "href": "/#centres" }
         ]
       },
       {
         "title": "Resources",
         "links": [
-          { "label": "How it works", "href": "/accueil-public#methodology" },
-          { "label": "FAQ", "href": "/accueil-public#faq" },
-          { "label": "Contact", "href": "/accueil-public#contact" }
+          { "label": "How it works", "href": "/#methodology" },
+          { "label": "FAQ", "href": "/#faq" },
+          { "label": "Contact", "href": "/#contact" }
         ]
       },
       {

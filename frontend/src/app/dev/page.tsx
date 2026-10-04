@@ -17,7 +17,7 @@ const GROUPES: Groupe[] = [
   {
     titre: 'Public / avant connexion',
     items: [
-      { href: '/accueil-public', label: 'Accueil public' },
+      { href: '/', label: 'Accueil public' },
       { href: '/employeurs', label: 'Employeurs' },
       { href: '/metiers/infirmier', label: 'Fiche métier (exemple : infirmier)' },
       { href: '/splash', label: 'Splash screen' },
@@ -148,7 +148,7 @@ const GROUPES: Groupe[] = [
   },
   {
     titre: 'Maquette — Espace centre de formation (/amud/centre)',
-    note: 'Prototype localStorage sans backend. Redirigée vers /accueil-public sauf si NEXT_PUBLIC_ENABLE_PROTOTYPES=1.',
+    note: 'Prototype localStorage sans backend. Redirigée vers / sauf si NEXT_PUBLIC_ENABLE_PROTOTYPES=1.',
     items: [
       { href: '/amud/centre/dashboard', label: 'Tableau de bord' },
       { href: '/amud/centre/etudiants', label: 'Étudiants' },
@@ -171,7 +171,7 @@ const GROUPES: Groupe[] = [
   },
   {
     titre: 'Maquette — Admin Amud Skills (/amud/admin)',
-    note: 'Prototype localStorage sans backend. Redirigée vers / (donc /accueil-public) sauf si NEXT_PUBLIC_ENABLE_PROTOTYPES=1.',
+    note: 'Prototype localStorage sans backend. Redirigée vers / sauf si NEXT_PUBLIC_ENABLE_PROTOTYPES=1.',
     items: [
       { href: '/amud/admin', label: 'Accueil / tableau de bord' },
       { href: '/amud/admin/centres', label: 'Centres' },
@@ -229,7 +229,7 @@ const GROUPES: Groupe[] = [
   },
   {
     titre: 'Maquette — Marketing (/amud/marketing)',
-    note: 'Maquette figée, copie historique de l’ancien accueil. Redirigée vers /accueil-public ou /employeurs sauf si NEXT_PUBLIC_ENABLE_PROTOTYPES=1.',
+    note: 'Maquette figée, copie historique de l’ancien accueil. Redirigée vers / ou /employeurs sauf si NEXT_PUBLIC_ENABLE_PROTOTYPES=1.',
     items: [
       { href: '/amud/marketing/home', label: 'Accueil' },
       { href: '/amud/marketing/employers', label: 'Employeurs' },
@@ -254,7 +254,7 @@ export default function DevPage() {
           <Link href="/amud" className="text-primary hover:underline">
             /amud
           </Link>{' '}
-          — sélecteur d’espace des maquettes (mêmes liens que « Changer d’espace » dans chaque coquille). Redirigé vers /accueil-public sauf si NEXT_PUBLIC_ENABLE_PROTOTYPES=1.
+          — sélecteur d’espace des maquettes (mêmes liens que « Changer d’espace » dans chaque coquille). Redirigé vers / sauf si NEXT_PUBLIC_ENABLE_PROTOTYPES=1.
         </p>
 
         <div className="mt-10 space-y-4">

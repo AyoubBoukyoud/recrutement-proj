@@ -11,7 +11,7 @@ cd 'C:\Users\Yacine\Desktop\Amud Skills\recrutement-proj\frontend'
 npm run dev
 ```
 
-- Accueil : `http://localhost:3000/accueil-public` ; `/` redirige vers cette page.
+- Accueil : `http://localhost:3000/` ; l'ancienne adresse `/accueil-public` redirige vers la racine.
 - Présentation du CRM : `http://localhost:3000/crm-centre-formation`.
 - Français, arabe, allemand et anglais : sélecteur de langue intégré ; direction RTL en arabe.
 - Les boutons candidat et entreprise utilisent l'authentification locale `/auth-phone`.
@@ -21,7 +21,7 @@ npm run dev
 - `frontend/src/components/landing/` : sections, traductions, animations, vidéos et styles.
 - `frontend/src/components/landing/landing.css` : styles isolés avec `.amud-site` ; arrière-plans unis de la dernière version.
 - `frontend/src/components/home/PublicHome.tsx` : liaison avec la langue de l'application.
-- `frontend/src/app/accueil-public/page.tsx` et `frontend/src/app/crm-centre-formation/page.tsx` : routes publiques.
+- `frontend/src/app/page.tsx` et `frontend/src/app/crm-centre-formation/page.tsx` : routes publiques.
 - `frontend/public/landing-assets/` : médias de la page, dont les démonstrations vidéo dans les quatre langues.
 
 ## Vérification du transfert — 13 septembre 2026

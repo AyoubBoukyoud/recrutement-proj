@@ -194,7 +194,7 @@ npm install
 npm run dev
 ```
 
-Opens the public landing page on http://localhost:3000/accueil-public (the root URL redirects there). `.env.example` points at `http://localhost:8000/api`; copy it to
+Opens the public landing page on http://localhost:3000. `.env.example` points at `http://localhost:8000/api`; copy it to
 `.env.local` and adjust if the backend runs elsewhere. Set `NEXT_PUBLIC_USE_MOCKS=1` there instead to
 work on any of the four surfaces with no backend running at all — every screen falls back to fixture
 data behind a mock seam (`src/data/`, `src/data/mockAdapter.ts`).

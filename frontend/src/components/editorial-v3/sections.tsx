@@ -4,7 +4,7 @@ import { BookOpen, CalendarDays, GraduationCap, QrCode, Users, Wallet } from 'lu
 export { MarketplaceLower } from './marketplace';
 export { Closing } from './closing';
 const icons = [Users, GraduationCap, CalendarDays, QrCode, Wallet, BookOpen];
-export function CRMPage({ locale, homeHref = '/accueil-public' }: { locale: Locale; homeHref?: string }) {
+export function CRMPage({ locale, homeHref = '/' }: { locale: Locale; homeHref?: string }) {
   const t = translator(locale),
     c = content(locale),
     home = homeHref;

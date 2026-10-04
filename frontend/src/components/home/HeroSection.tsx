@@ -29,7 +29,7 @@ export function HeroSection() {
                 <Icon name="arrow_forward" className="text-xl rtl:rotate-180" />
               </span>
             </CoralButton>
-            <OutlineButton href="/accueil-public#methodology" size="lg">
+            <OutlineButton href="/#methodology" size="lg">
               {hero.secondaryCta}
             </OutlineButton>
           </div>

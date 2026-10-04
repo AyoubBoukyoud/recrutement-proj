@@ -10,7 +10,7 @@ import {translator,content,AUTH,RECRUIT,type Locale} from './content';
 import {Button,Heading,CheckList,Preview} from './ui';
 import {MarketplaceLower,CRMSection,CRMPage,Closing} from './sections';
 export default function Landing({locale='fr',crmOnly=false}:{locale?:Locale;crmOnly?:boolean}){
-const t=translator(locale),c=content(locale),home='/accueil-public',crm='/crm-centre-formation';
+const t=translator(locale),c=content(locale),home='/',crm='/crm-centre-formation';
 const [menuOpen,setMenuOpen]=useState(false);
 const {setLanguage}=useLanguage();
 const nav=[[home+'#talents',t("Pour les talents","للمواهب","Für Talente","For talent")],[home+'#entreprises',t("Pour les entreprises","للشركات","Für Unternehmen","For companies")],[crm,c.centre],[home+'#faq',t("FAQ","الأسئلة الشائعة","FAQ","FAQ")]];

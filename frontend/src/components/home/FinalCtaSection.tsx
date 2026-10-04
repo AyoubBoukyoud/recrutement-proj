@@ -23,7 +23,7 @@ export function FinalCtaSection() {
             <OutlineButton href="/auth-phone?intent=recruiter" size="lg" onDark>
               {finalCta.recruiterCta}
             </OutlineButton>
-            <OutlineButton href="/accueil-public#centres" size="lg" onDark>
+            <OutlineButton href="/#centres" size="lg" onDark>
               {finalCta.centerCta}
             </OutlineButton>
           </div>

@@ -24,7 +24,7 @@ const amud = Object.fromEntries(Object.keys(amudLight).map((key) => [key, `var(-
 const amudCssVars = Object.fromEntries(Object.entries(amudLight).map(([key, value]) => [`--amud-${key}`, value]));
 
 /*
- * Palette de la page d'accueil publique (`/accueil-public`) et du chrome
+ * Palette de la page d'accueil publique (`/`) et du chrome
  * qu'elle partage avec `/employeurs`, `/produit`, `/metiers/[slug]`
  * (`SiteHeader`/`SiteFooter`) — alignée sur la page d'accueil (encre/cramoisi).
  *

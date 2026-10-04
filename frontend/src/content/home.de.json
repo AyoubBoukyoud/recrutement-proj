@@ -2,11 +2,11 @@
   "_note": "Deutsche Startseiten-Texte. Gleiche Struktur wie home.fr.json — TypeScript bricht den Build ab, wenn ein Schlüssel fehlt. Deutsche Labels sind rund 30 % länger als die französischen: Button-Umbrüche prüfen. `trades`, `tradePage` und `product` bleiben mit /metiers/[slug] und /produit geteilt.",
   "nav": {
     "links": [
-      { "label": "Für Bewerber", "href": "/accueil-public#candidats" },
+      { "label": "Für Bewerber", "href": "/#candidats" },
       { "label": "Für Arbeitgeber", "href": "/employeurs" },
-      { "label": "Für Ausbildungszentren", "href": "/accueil-public#centres" },
-      { "label": "Kontakt", "href": "/accueil-public#contact" },
-      { "label": "FAQ", "href": "/accueil-public#faq" }
+      { "label": "Für Ausbildungszentren", "href": "/#centres" },
+      { "label": "Kontakt", "href": "/#contact" },
+      { "label": "FAQ", "href": "/#faq" }
     ],
     "signIn": "Anmelden",
     "cta": "Profil erstellen",
@@ -266,15 +266,15 @@
         "links": [
           { "label": "Für Bewerber", "href": "/auth-phone" },
           { "label": "Für Arbeitgeber", "href": "/employeurs" },
-          { "label": "Für Ausbildungszentren", "href": "/accueil-public#centres" }
+          { "label": "Für Ausbildungszentren", "href": "/#centres" }
         ]
       },
       {
         "title": "Ressourcen",
         "links": [
-          { "label": "So funktioniert es", "href": "/accueil-public#methodology" },
-          { "label": "FAQ", "href": "/accueil-public#faq" },
-          { "label": "Kontakt", "href": "/accueil-public#contact" }
+          { "label": "So funktioniert es", "href": "/#methodology" },
+          { "label": "FAQ", "href": "/#faq" },
+          { "label": "Kontakt", "href": "/#contact" }
         ]
       },
       {

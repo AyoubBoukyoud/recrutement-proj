@@ -38,7 +38,7 @@ npm ci
 npm run dev
 ```
 
-Open <http://localhost:3000>. The root redirects to `/accueil-public`.
+Open <http://localhost:3000> — the public landing page.
 
 ## Truthful walkthrough
 

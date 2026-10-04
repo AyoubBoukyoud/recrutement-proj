@@ -31,7 +31,7 @@ export default function Error({
           Réessayer
         </button>
         <a
-          href="/accueil-public"
+          href="/"
           className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-outline-variant px-6 py-3 text-sm font-semibold text-onSurface transition-colors hover:bg-surface-container"
         >
           Retour à l&apos;accueil

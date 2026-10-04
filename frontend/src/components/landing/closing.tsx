@@ -2,7 +2,7 @@ import {EditorialImage,LogoBridge} from './visual-details';
 import {GraduationCap,Eye,LockKeyhole,HeartHandshake,ChevronDown,Users,Briefcase,ArrowUpRight} from 'lucide-react';
 import {translator,content,AUTH,RECRUIT,verifiedPartners,verifiedTestimonials,type Locale} from './content';
 import {Button,Heading} from './ui';
-export function Closing({locale,crmOnly}:{locale:Locale;crmOnly:boolean}){const t=translator(locale),c=content(locale),home='/accueil-public',crm='/crm-centre-formation';
+export function Closing({locale,crmOnly}:{locale:Locale;crmOnly:boolean}){const t=translator(locale),c=content(locale),home='/',crm='/crm-centre-formation';
 const footerColumns:[string,[string,string][]][]=[
 [c.talent,[[c.create,AUTH],[t("Comment ça marche","كيف تعمل المنصة","So funktioniert es","How it works"),home+'#comment-ca-marche'],[t("Les métiers","المهن","Berufsfelder","Career areas"),home+'#metiers']]],
 [c.employer,[[c.recruit,RECRUIT],[t("Espace entreprise","فضاء الشركات","Arbeitgeberbereich","Employer area"),'/employeurs']]],

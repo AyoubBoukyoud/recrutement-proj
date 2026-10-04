@@ -18,7 +18,7 @@ import { Button, Heading } from './ui';
 export function Closing({
   locale,
   crmOnly,
-  homeHref = '/accueil-public',
+  homeHref = '/',
   crmHref = '/crm-centre-formation',
 }: {
   locale: Locale;
