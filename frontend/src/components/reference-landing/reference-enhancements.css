@@ -29,9 +29,29 @@
   object-fit: cover;
 }
 
-.r-social svg,
-.r-social svg:nth-child(2) {
+/* Liens Instagram / Facebook : une cible tactile de 44 px autour de l'icône. */
+.r-social {
+  gap: 4px;
+}
+
+.r-social a {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
   color: #252525;
+  transition: background-color 150ms, color 150ms;
+}
+
+.r-social a:hover {
+  background: #f4ede9;
+  color: var(--r-red);
+}
+
+.r-social a:focus-visible {
+  outline: 2px solid var(--r-red);
+  outline-offset: 2px;
 }
 
 @media (min-width: 901px) {
@@ -100,13 +120,8 @@
     display: flex;
     grid-column: 1 / -1;
     justify-content: center;
-    gap: 24px;
+    gap: 8px;
     margin: 0;
-  }
-
-  .r-social svg,
-  .r-social svg:nth-child(2) {
-    color: #252525;
   }
 }
 

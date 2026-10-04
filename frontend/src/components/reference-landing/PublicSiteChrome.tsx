@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ArrowUpRight, Instagram, Linkedin, Menu, X, Youtube } from 'lucide-react';
+import { ArrowUpRight, Facebook, Instagram, Menu, X } from 'lucide-react';
 import Image from 'next/image';
 import { useLanguage } from '@/context/LanguageContext';
 import { AUTH, translator, type Locale } from '@/components/landing/content';
@@ -41,7 +41,12 @@ export function PublicSiteHeader({ locale }: { locale: Locale }) {
   </div></header>;
 }
 
+const SOCIAL_LINKS = [
+  { name: 'Instagram', href: 'https://www.instagram.com/amud_skills/', Icon: Instagram },
+  { name: 'Facebook', href: 'https://www.facebook.com/profile.php?id=61590919101643', Icon: Facebook },
+];
+
 export function PublicSiteFooter({ locale }: { locale: Locale }) {
   const t = translator(locale);
-  return <><footer className="r-footer"><div className="r-container"><a href="/" className="r-footer-brand"><Image src="/landing-assets/amud-logo-brand.svg" alt="AMUD Skills" width={62} height={62} unoptimized/></a><nav aria-label={t('Pied de page', 'روابط التذييل', 'Fußnavigation', 'Footer navigation')}><a href="/#parcours">{t('À propos', 'حول المنصة', 'Über uns', 'About')}</a><a href="/#faq">FAQ</a><a href="/crm-centre-formation">{t('Centres de formation', 'مراكز التكوين', 'Bildungszentren', 'Training centres')}</a><a href="/entreprises">{t('Entreprises', 'الشركات', 'Unternehmen', 'Companies')}</a></nav><div className="r-social" aria-hidden="true"><Linkedin/><Youtube/><Instagram/></div><small>© 2026 AMUD Skills<br/>{t('Tous droits réservés.', 'جميع الحقوق محفوظة.', 'Alle Rechte vorbehalten.', 'All rights reserved.')}</small></div></footer><PrivacyNotice locale={locale}/></>;
+  return <><footer className="r-footer"><div className="r-container"><a href="/" className="r-footer-brand"><Image src="/landing-assets/amud-logo-brand.svg" alt="AMUD Skills" width={62} height={62} unoptimized/></a><nav aria-label={t('Pied de page', 'روابط التذييل', 'Fußnavigation', 'Footer navigation')}><a href="/#parcours">{t('À propos', 'حول المنصة', 'Über uns', 'About')}</a><a href="/#faq">FAQ</a><a href="/crm-centre-formation">{t('Centres de formation', 'مراكز التكوين', 'Bildungszentren', 'Training centres')}</a><a href="/entreprises">{t('Entreprises', 'الشركات', 'Unternehmen', 'Companies')}</a></nav><div className="r-social">{SOCIAL_LINKS.map(({name,href,Icon})=><a key={name} href={href} target="_blank" rel="noopener noreferrer" aria-label={t(`AMUD Skills sur ${name}`, `AMUD Skills على ${name}`, `AMUD Skills auf ${name}`, `AMUD Skills on ${name}`)}><Icon aria-hidden="true"/></a>)}</div><small>© 2026 AMUD Skills<br/>{t('Tous droits réservés.', 'جميع الحقوق محفوظة.', 'Alle Rechte vorbehalten.', 'All rights reserved.')}</small></div></footer><PrivacyNotice locale={locale}/></>;
 }
