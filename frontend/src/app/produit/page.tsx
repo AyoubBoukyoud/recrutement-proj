@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: 'La technologie derrière votre dossier — Amud Skills',
   description:
     "Vidéo de présentation, lecture automatique des documents, mise en relation en temps réel : découvrez comment fonctionne la plateforme Amud Skills.",
+  alternates: { canonical: '/produit' },
 };
 
 /**

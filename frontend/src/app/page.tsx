@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   title: 'AMUD Skills — Un profil vivant pour aller plus loin',
   description:
     'Créez votre profil, valorisez vos compétences et entrez en contact avec des employeurs en Allemagne, avec ou sans allemand.',
+  alternates: { canonical: '/' },
 };
 
 export default function HomePage() {

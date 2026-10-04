@@ -32,6 +32,7 @@ export async function generateMetadata({ params }: { params: TradePageParams }):
   return {
     title: `${trade.label} en Allemagne — Amud Skills`,
     description: trade.summary,
+    alternates: { canonical: `/metiers/${slug}` },
   };
 }
 

@@ -3,5 +3,6 @@ import { PublicMarketingLanding } from '@/components/reference-landing/PublicMar
 export const metadata: Metadata = {
   title: 'CRM pour centres de formation — AMUD Skills',
   description: 'Organisez les cours, les groupes, les enseignants et le suivi des apprenants avec le CRM AMUD Skills.',
+  alternates: { canonical: '/crm-centre-formation' },
 };
 export default function Page() { return <PublicMarketingLanding kind="centre"/>; }

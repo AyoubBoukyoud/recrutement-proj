@@ -1,11 +1,16 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Providers } from '@/components/shared/Providers';
+import { SITE_URL } from '@/lib/site';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: 'Amud Skills Recruitment App',
   description: 'Plateforme de recrutement transcontinental Maroc - Allemagne',
   applicationName: 'Amud Skills',
+  verification: {
+    google: 'BGjobcxF6OnklCX0OWOqR8rI73o1aDRosrV_dgN8HE0',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',

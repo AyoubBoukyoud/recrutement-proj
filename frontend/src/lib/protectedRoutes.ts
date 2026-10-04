@@ -30,7 +30,7 @@ export const CANDIDATE_PATHS = [
   '/messages',
 ] as const;
 
-const STAFF_PREFIXES = ['/recruiter', '/agent', '/admin'] as const;
+export const STAFF_PREFIXES = ['/recruiter', '/agent', '/admin'] as const;
 
 const matches = (pathname: string, path: string) => pathname === path || pathname.startsWith(`${path}/`);
 

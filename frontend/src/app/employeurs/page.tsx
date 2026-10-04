@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: 'Recrutez au Maroc — Amud Skills',
   description:
     'Découvrez comment Amud Skills permet aux recruteurs autorisés de publier des offres et de consulter des dossiers candidats avec leur consentement.',
+  alternates: { canonical: '/employeurs' },
 };
 
 /**
