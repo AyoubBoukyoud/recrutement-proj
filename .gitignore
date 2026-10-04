@@ -3,6 +3,9 @@ node_modules/
 **/node_modules/
 vendor/
 **/vendor/
+.venv/
+__pycache__/
+
 
 # Build & Output directories
 .next/
