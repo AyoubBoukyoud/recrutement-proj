@@ -4,7 +4,7 @@ import { useState, type FormEvent } from 'react';
 import Image from 'next/image';
 import { ArrowDown, ArrowUpRight, Check, Code2, Gamepad2, GraduationCap, Network, ShieldCheck, Smartphone, Wrench } from 'lucide-react';
 import { ApiError } from '@/lib/api';
-import { submitContactMessage } from '@/lib/contactMessages';
+import { submitQuoteRequest, type QuoteService } from '@/lib/quoteRequests';
 import { translator, type Locale } from '@/components/landing/content';
 
 const ASSETS = '/landing-assets/company';
@@ -14,29 +14,29 @@ export function CompanyAboutPage({ locale }: { locale: Locale }) {
   const t = translator(locale);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [service, setService] = useState('');
+  const [service, setService] = useState<QuoteService | ''>('');
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [error, setError] = useState('');
 
-  const services = [
-    { Icon: Smartphone, image: 'apps.webp', title: t('Applications Android & iOS', 'تطبيقات Android وiOS', 'Android- und iOS-Apps', 'Android & iOS apps'), body: t('Nous concevons et développons des applications mobiles adaptées à vos utilisateurs et à vos objectifs.', 'نصمّم ونطوّر تطبيقات الهاتف بما يناسب المستخدمين وأهداف المشروع.', 'Wir konzipieren und entwickeln mobile Apps, die zu Ihren Nutzenden und Zielen passen.', 'We design and build mobile apps around your users and goals.'), alt: t('Téléphones et espace de conception d’application mobile', 'هواتف وواجهة تصميم تطبيق للهاتف', 'Smartphones und Arbeitsplatz für App-Entwicklung', 'Phones and a mobile app design workspace') },
-    { Icon: Wrench, image: 'engineering.webp', title: t('Ingénierie & infrastructures numériques', 'الهندسة والبنية التحتية الرقمية', 'Technische Entwicklung & digitale Infrastruktur', 'Engineering & digital infrastructure'), body: t('Des solutions techniques et l’installation de réseaux numériques pour les entreprises.', 'حلول تقنية وتركيب شبكات رقمية للشركات.', 'Technische Lösungen und Installation digitaler Netzwerke für Unternehmen.', 'Technical solutions and digital network installation for businesses.'), alt: t('Maquette technique et équipements d’ingénierie numérique', 'نموذج تقني وتجهيزات للهندسة الرقمية', 'Technisches Modell und digitale Engineering-Ausrüstung', 'Technical model and digital engineering equipment') },
-    { Icon: Gamepad2, image: 'games.webp', title: t('Jeux éducatifs & gamification', 'الألعاب التعليمية وGamification', 'Lernspiele & Gamification', 'Educational games & gamification'), body: t('Des jeux sérieux et des expériences interactives pour apprendre, s’exercer et progresser.', 'ألعاب جادة وتجارب تفاعلية للتعلّم والتدرب والتقدم.', 'Serious Games und interaktive Erlebnisse zum Lernen, Üben und Weiterkommen.', 'Serious games and interactive experiences for learning, practice and progress.'), alt: t('Parcours d’apprentissage interactif sous forme de jeu', 'مسار تعلّم تفاعلي بأسلوب الألعاب', 'Interaktiver Lernpfad in Spielform', 'Interactive learning path presented as a game') },
-    { Icon: GraduationCap, image: 'training.webp', title: t('Formation continue', 'التكوين المستمر', 'Kontinuierliche Weiterbildung', 'Continuing education'), body: t('Nous mettons les entreprises en relation avec notre réseau de formateurs spécialisés en technologies, dont la cybersécurité.', 'نربط الشركات بشبكة مدرّبين متخصصين في التكنولوجيا، ومن ضمنها الأمن السيبراني.', 'Wir verbinden Unternehmen mit unserem Netzwerk spezialisierter Technologie-Trainer, unter anderem für Cybersicherheit.', 'We connect companies with specialist technology trainers, including in cybersecurity.'), alt: t('Formateur et participants lors d’une formation en cybersécurité', 'مدرّب ومشاركون في دورة للأمن السيبراني', 'Trainer und Teilnehmende in einer Cybersicherheitsschulung', 'Trainer and learners in a cybersecurity course') },
+  const services: { key: QuoteService; Icon: typeof Smartphone; image: string; title: string; body: string; alt: string }[] = [
+    { key: 'mobile-apps', Icon: Smartphone, image: 'apps.webp', title: t('Applications Android & iOS', 'تطبيقات Android وiOS', 'Android- und iOS-Apps', 'Android & iOS apps'), body: t('Nous concevons et développons des applications mobiles adaptées à vos utilisateurs et à vos objectifs.', 'نصمّم ونطوّر تطبيقات الهاتف بما يناسب المستخدمين وأهداف المشروع.', 'Wir konzipieren und entwickeln mobile Apps, die zu Ihren Nutzenden und Zielen passen.', 'We design and build mobile apps around your users and goals.'), alt: t('Téléphones et espace de conception d’application mobile', 'هواتف وواجهة تصميم تطبيق للهاتف', 'Smartphones und Arbeitsplatz für App-Entwicklung', 'Phones and a mobile app design workspace') },
+    { key: 'engineering', Icon: Wrench, image: 'engineering.webp', title: t('Ingénierie & infrastructures numériques', 'الهندسة والبنية التحتية الرقمية', 'Technische Entwicklung & digitale Infrastruktur', 'Engineering & digital infrastructure'), body: t('Des solutions techniques et l’installation de réseaux numériques pour les entreprises.', 'حلول تقنية وتركيب شبكات رقمية للشركات.', 'Technische Lösungen und Installation digitaler Netzwerke für Unternehmen.', 'Technical solutions and digital network installation for businesses.'), alt: t('Maquette technique et équipements d’ingénierie numérique', 'نموذج تقني وتجهيزات للهندسة الرقمية', 'Technisches Modell und digitale Engineering-Ausrüstung', 'Technical model and digital engineering equipment') },
+    { key: 'games', Icon: Gamepad2, image: 'games.webp', title: t('Jeux éducatifs & gamification', 'الألعاب التعليمية وGamification', 'Lernspiele & Gamification', 'Educational games & gamification'), body: t('Des jeux sérieux et des expériences interactives pour apprendre, s’exercer et progresser.', 'ألعاب جادة وتجارب تفاعلية للتعلّم والتدرب والتقدم.', 'Serious Games und interaktive Erlebnisse zum Lernen, Üben und Weiterkommen.', 'Serious games and interactive experiences for learning, practice and progress.'), alt: t('Parcours d’apprentissage interactif sous forme de jeu', 'مسار تعلّم تفاعلي بأسلوب الألعاب', 'Interaktiver Lernpfad in Spielform', 'Interactive learning path presented as a game') },
+    { key: 'training', Icon: GraduationCap, image: 'training.webp', title: t('Formation continue', 'التكوين المستمر', 'Kontinuierliche Weiterbildung', 'Continuing education'), body: t('Nous mettons les entreprises en relation avec notre réseau de formateurs spécialisés en technologies, dont la cybersécurité.', 'نربط الشركات بشبكة مدرّبين متخصصين في التكنولوجيا، ومن ضمنها الأمن السيبراني.', 'Wir verbinden Unternehmen mit unserem Netzwerk spezialisierter Technologie-Trainer, unter anderem für Cybersicherheit.', 'We connect companies with specialist technology trainers, including in cybersecurity.'), alt: t('Formateur et participants lors d’une formation en cybersécurité', 'مدرّب ومشاركون في دورة للأمن السيبراني', 'Trainer und Teilnehmende in einer Cybersicherheitsschulung', 'Trainer and learners in a cybersecurity course') },
   ];
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setStatus('submitting');
     setError('');
-    const localizedRequest = t('Demande de devis', 'طلب عرض سعر', 'Angebotsanfrage', 'Quote request');
-    const serviceLabel = service || t('À préciser', 'يُحدّد لاحقًا', 'Noch offen', 'To be discussed');
+    if (!service) return;
     try {
-      await submitContactMessage({
+      await submitQuoteRequest({
         name: name.trim(),
         email: email.trim(),
-        message: `${localizedRequest} — ${serviceLabel}\n\n${message.trim()}`,
+        service,
+        message: message.trim(),
       });
       setStatus('success');
       setName(''); setEmail(''); setService(''); setMessage('');
@@ -77,7 +77,7 @@ export function CompanyAboutPage({ locale }: { locale: Locale }) {
       <section id="demander-un-devis" className="company-quote"><div className="company-quote-intro"><p className="company-eyebrow">{t('PARLONS DE VOTRE PROJET', 'لنتحدث عن مشروعكم', 'LASSEN SIE UNS ÜBER IHR PROJEKT SPRECHEN', 'LET’S TALK ABOUT YOUR PROJECT')}</p><h2>{t('Vous avez un projet ?', 'هل لديكم مشروع؟', 'Sie haben ein Projekt?', 'Have a project in mind?')}</h2><p>{t('Décrivez-nous votre besoin. Nous reviendrons vers vous pour en discuter.', 'أخبرونا عن احتياجكم، وسنتواصل معكم لمناقشته.', 'Beschreiben Sie Ihren Bedarf. Wir melden uns, um die nächsten Schritte zu besprechen.', 'Tell us what you need. We’ll get back to discuss the next steps.')}</p></div><form className="company-quote-form" onSubmit={handleSubmit}>
         {status === 'success' ? <div className="company-form-success" role="status"><Check size={22}/><h3>{t('Merci pour votre demande.', 'شكرًا على طلبكم.', 'Vielen Dank für Ihre Anfrage.', 'Thank you for your request.')}</h3><p>{t('Votre demande de devis a bien été transmise.', 'تم إرسال طلب عرض السعر بنجاح.', 'Ihre Angebotsanfrage wurde übermittelt.', 'Your quote request has been sent.')}</p></div> : <>
           <div className="company-form-row"><label>{t('Votre nom', 'الاسم', 'Ihr Name', 'Your name')}<input className={inputClass} name="name" autoComplete="name" required value={name} onChange={event => setName(event.target.value)} placeholder={t('Nom et prénom', 'الاسم الكامل', 'Vor- und Nachname', 'Full name')}/></label><label>{t('Votre e-mail', 'البريد الإلكتروني', 'Ihre E-Mail', 'Your email')}<input className={inputClass} type="email" name="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} placeholder="nom@entreprise.com"/></label></div>
-          <label>{t('Service concerné', 'الخدمة المطلوبة', 'Gewünschte Leistung', 'Service of interest')}<select className={inputClass} required value={service} onChange={event => setService(event.target.value)}><option value="">{t('Choisissez un service', 'اختاروا خدمة', 'Leistung auswählen', 'Select a service')}</option>{services.map(item => <option key={item.title} value={item.title}>{item.title}</option>)}</select></label>
+          <label>{t('Service concerné', 'الخدمة المطلوبة', 'Gewünschte Leistung', 'Service of interest')}<select className={inputClass} required value={service} onChange={event => setService(event.target.value as QuoteService | '')}><option value="">{t('Choisissez un service', 'اختاروا خدمة', 'Leistung auswählen', 'Select a service')}</option>{services.map(item => <option key={item.key} value={item.key}>{item.title}</option>)}</select></label>
           <label>{t('Votre besoin', 'تفاصيل الطلب', 'Ihr Anliegen', 'Your requirements')}<textarea className={inputClass} name="message" required rows={4} value={message} onChange={event => setMessage(event.target.value)} placeholder={t('Quelques mots sur votre projet…', 'اكتبوا نبذة عن مشروعكم…', 'Ein paar Worte zu Ihrem Projekt …', 'A few words about your project…')}/></label>
           {status === 'error' && <p className="company-form-error" role="alert">{error}</p>}
           <button className="company-button" type="submit" disabled={status === 'submitting'}>{status === 'submitting' ? t('Envoi…', 'جارٍ الإرسال…', 'Wird gesendet …', 'Sending…') : t('Demander un devis', 'طلب عرض سعر', 'Angebot anfragen', 'Request a quote')}<ArrowUpRight size={17}/></button>
