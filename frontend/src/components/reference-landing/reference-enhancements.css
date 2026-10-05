@@ -54,6 +54,33 @@
   outline-offset: 2px;
 }
 
+.r-social a,
+.r-social-placeholder {
+  display: inline-grid;
+  min-width: 40px;
+  min-height: 40px;
+  place-items: center;
+  border-radius: 10px;
+  color: #252525;
+  text-decoration: none;
+  transition: color .18s ease, background-color .18s ease;
+}
+
+.r-social a:hover {
+  color: #ba303e;
+  background: #fcf0ed;
+}
+
+.r-social a:focus-visible {
+  outline: 3px solid #cc920e;
+  outline-offset: 2px;
+}
+
+.r-social-placeholder {
+  color: #777786;
+  opacity: .65;
+}
+
 @media (min-width: 901px) {
   [dir="rtl"] .r-hero {
     direction: ltr;

@@ -225,3 +225,116 @@
   .reference-home .centre-module-grid article,.reference-home .centre-module-image img,.reference-home .centre-faq-list summary svg { transition:none; }
 }
 
+/* AMUD Skills company landing page */
+.reference-home .company-page { --company-red:#ba303e; --company-ink:#191b20; --company-muted:#55556a; --company-gold:#cc920e; --company-paper:#fffdfb; color:var(--company-ink); background:var(--company-paper); }
+.reference-home .company-page :is(h1,h2,h3,p,figure) { margin-top:0; }
+.reference-home .company-page img { display:block; width:100%; height:100%; object-fit:cover; }
+.reference-home .company-page :is(a,button):focus-visible { outline:3px solid var(--company-gold); outline-offset:4px; }
+.reference-home .company-hero,.reference-home .company-services,.reference-home .company-process,.reference-home .company-quote { width:min(1220px,calc(100% - 48px)); margin-inline:auto; }
+.reference-home .company-hero { min-height:590px; display:grid; grid-template-columns:.88fr 1.12fr; align-items:center; gap:clamp(26px,5vw,72px); padding:46px 0 65px; }
+.reference-home .company-hero-copy { max-width:530px; padding-inline:2px; }
+.reference-home .company-eyebrow { margin-bottom:15px; color:var(--company-red); font-size:.73rem; font-weight:800; letter-spacing:.105em; line-height:1.5; }
+.reference-home .company-hero h1 { max-width:13ch; margin-bottom:18px; color:var(--company-ink); font-size:clamp(2.75rem,5.2vw,4.65rem); font-weight:850; letter-spacing:-.055em; line-height:.99; }
+.reference-home .company-hero h1 span { color:var(--company-red); }
+.reference-home .company-lead { max-width:53ch; margin-bottom:23px; color:var(--company-muted); font-size:1.05rem; line-height:1.72; }
+.reference-home .company-button { min-height:48px; display:inline-flex; align-items:center; justify-content:center; gap:12px; padding:12px 19px; border:0; border-radius:11px; color:#fff; background:var(--company-red); box-shadow:0 9px 22px #ba303e24; font-size:.9rem; font-weight:750; text-decoration:none; transition:background .18s ease,transform .18s ease; cursor:pointer; }
+.reference-home .company-button:hover { background:#a92737; transform:translateY(-1px); }
+.reference-home .company-button:disabled { opacity:.7; cursor:wait; transform:none; }
+.reference-home .company-proof { display:flex; align-items:center; gap:8px; margin:18px 0 0; color:var(--company-muted); font-size:.78rem; line-height:1.5; }
+.reference-home .company-proof svg { flex:none; color:#558f4b; }
+.reference-home .company-hero-art { position:relative; min-width:0; margin:0; overflow:hidden; border:1px solid #f1e7df; border-radius:26px; background:#fbf2ec; box-shadow:0 20px 60px #34201412; }
+.reference-home .company-hero-art img { aspect-ratio:1.5; }
+.reference-home .company-hero-art figcaption { position:absolute; inset-inline-end:15px; bottom:14px; padding:9px 13px; border:1px solid #fff9; border-radius:999px; color:#55556a; background:#fffdf0eb; font-size:.72rem; font-weight:650; backdrop-filter:blur(8px); }
+.reference-home .company-services { padding:25px 0 88px; scroll-margin-top:32px; }
+.reference-home .company-section-heading { max-width:780px; margin:0 auto 30px; text-align:center; }
+.reference-home .company-section-heading h2,.reference-home .company-process h2 { margin:0 0 10px; color:var(--company-ink); font-size:clamp(2rem,3.4vw,3rem); font-weight:820; letter-spacing:-.045em; line-height:1.08; }
+.reference-home .company-section-heading>p:last-child { margin:0; color:var(--company-muted); font-size:.98rem; line-height:1.6; }
+.reference-home .company-service-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px; }
+.reference-home .company-service { min-width:0; overflow:hidden; border:1px solid #f0e5dd; border-radius:22px; background:#fff; box-shadow:0 12px 36px #3420140b; transition:transform .2s ease,box-shadow .2s ease; }
+.reference-home .company-service:hover { transform:translateY(-3px); box-shadow:0 17px 38px #34201414; }
+.reference-home .company-service-art { height:230px; overflow:hidden; background:#faf2eb; }
+.reference-home .company-service-art img { transition:transform .35s ease; }
+.reference-home .company-service:hover .company-service-art img { transform:scale(1.025); }
+.reference-home .company-service-copy { position:relative; min-height:180px; padding:21px 24px 23px; }
+.reference-home .company-service-icon { width:42px; height:42px; display:grid; place-items:center; float:inline-start; margin-inline-end:13px; border-radius:13px; color:var(--company-red); background:#fcf0ed; }
+.reference-home .company-service-number { float:inline-end; color:#cc920e; font-size:.78rem; font-weight:800; letter-spacing:.06em; }
+.reference-home .company-service-copy h3 { min-height:42px; margin:1px 46px 9px 0; color:var(--company-ink); font-size:1.18rem; font-weight:780; letter-spacing:-.025em; line-height:1.3; }
+.reference-home [dir=rtl] .company-service-copy h3 { margin:1px 0 9px 46px; }
+.reference-home .company-service-copy>p { clear:both; margin:0; color:var(--company-muted); font-size:.91rem; line-height:1.65; }
+.reference-home .company-service-note { display:inline-flex; align-items:center; gap:7px; margin-top:13px; color:#7a5b13; font-size:.75rem; font-weight:700; }
+.reference-home .company-training { width:min(1220px,calc(100% - 48px)); display:grid; grid-template-columns:1fr 1fr; align-items:center; gap:clamp(25px,4vw,55px); margin:0 auto 86px; padding:clamp(20px,3vw,38px); overflow:hidden; border:1px solid #f2dfd8; border-radius:26px; background:linear-gradient(120deg,#fcf0ed,#fff8f2); }
+.reference-home .company-training-image { min-height:260px; overflow:hidden; border-radius:19px; background:#f7e9df; }
+.reference-home .company-training-image img { aspect-ratio:1.6; }
+.reference-home .company-training-copy h2 { max-width:17ch; margin:0 0 12px; color:var(--company-ink); font-size:clamp(1.85rem,3.1vw,2.75rem); font-weight:820; letter-spacing:-.045em; line-height:1.07; }
+.reference-home .company-training-copy>p:not(.company-eyebrow) { max-width:54ch; margin:0; color:var(--company-muted); font-size:.96rem; line-height:1.7; }
+.reference-home .company-training-tags { display:flex; flex-wrap:wrap; gap:9px; margin-top:19px; }
+.reference-home .company-training-tags span { min-height:34px; display:inline-flex; align-items:center; gap:7px; padding:6px 10px; border:1px solid #ead9d0; border-radius:999px; color:#514844; background:#fffdfb; font-size:.73rem; font-weight:700; }
+.reference-home .company-training-tags svg { color:var(--company-red); }
+.reference-home .company-process { padding:0 0 82px; }
+.reference-home .company-process-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.reference-home .company-process-grid article { position:relative; min-height:165px; padding:24px 23px; border:1px solid #efe6de; border-radius:19px; background:#fff; }
+.reference-home .company-process-grid article>span { color:var(--company-red); font-size:1.65rem; font-weight:850; letter-spacing:-.04em; }
+.reference-home .company-process-grid h3 { margin:9px 0 6px; font-size:1.1rem; font-weight:780; }
+.reference-home .company-process-grid p { margin:0; color:var(--company-muted); font-size:.85rem; line-height:1.6; }
+.reference-home .company-quote { display:grid; grid-template-columns:.8fr 1.2fr; gap:clamp(24px,5vw,65px); margin-bottom:72px; padding:clamp(24px,4vw,48px); border:1px solid #f0ddd6; border-radius:25px; background:#fcf0ed; scroll-margin-top:24px; }
+.reference-home .company-quote-intro h2 { margin:0 0 12px; font-size:clamp(2rem,3.3vw,3rem); font-weight:830; letter-spacing:-.045em; line-height:1.04; }
+.reference-home .company-quote-intro>p:last-child { max-width:40ch; margin:0; color:var(--company-muted); line-height:1.7; }
+.reference-home .company-quote-form { display:grid; gap:14px; }
+.reference-home .company-quote-form label { display:grid; gap:7px; color:#454451; font-size:.79rem; font-weight:720; }
+.reference-home .company-form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.reference-home .company-quote-form textarea { resize:vertical; }
+.reference-home .company-quote-form .company-button { justify-self:start; }
+.reference-home [dir=rtl] .company-quote-form .company-button { justify-self:end; }
+.reference-home .company-form-error { margin:0; color:#a92737; font-size:.84rem; }
+.reference-home .company-form-success { min-height:220px; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:8px; padding:24px; border-radius:18px; color:#245a3b; background:#fff; }
+.reference-home .company-form-success h3,.reference-home .company-form-success p { margin:0; }
+.reference-home .r-company-cta { display:flex; align-items:center; justify-content:space-between; gap:24px; margin:38px 0 20px; padding:24px 27px; border:1px solid #f1ded7; border-radius:20px; background:#fff6f1; }
+.reference-home .r-company-cta>div { max-width:750px; }
+.reference-home .r-company-cta h2 { margin:0 0 7px; color:#191b20; font-size:clamp(1.35rem,2.5vw,2rem); font-weight:800; letter-spacing:-.035em; line-height:1.15; }
+.reference-home .r-company-cta p:not(.r-eyebrow) { margin:0; color:#55556a; font-size:.9rem; line-height:1.55; }
+.reference-home .r-company-cta .r-button { flex:none; }
+@media(max-width:800px) {
+  .reference-home .company-hero { grid-template-columns:1fr; min-height:0; gap:27px; padding:34px 0 52px; }
+  .reference-home .company-hero-copy { max-width:650px; }
+  .reference-home .company-hero h1 { max-width:15ch; font-size:clamp(2.7rem,9vw,4rem); }
+  .reference-home .company-hero-art img { aspect-ratio:1.45; }
+  .reference-home .company-services { padding-bottom:58px; }
+  .reference-home .company-service-grid { gap:14px; }
+  .reference-home .company-service-art { height:185px; }
+  .reference-home .company-service-copy { padding:17px 16px 19px; }
+  .reference-home .company-service-copy h3 { font-size:1.02rem; }
+  .reference-home .company-training { grid-template-columns:1fr; gap:23px; margin-bottom:60px; }
+  .reference-home .company-training-image { min-height:0; }
+  .reference-home .company-process { padding-bottom:58px; }
+  .reference-home .company-quote { grid-template-columns:1fr; gap:23px; margin-bottom:52px; }
+}
+@media(max-width:560px) {
+  .reference-home .company-hero,.reference-home .company-services,.reference-home .company-process,.reference-home .company-quote,.reference-home .company-training { width:calc(100% - 32px); }
+  .reference-home .company-hero { gap:20px; padding-top:25px; }
+  .reference-home .company-hero h1 { font-size:2.65rem; }
+  .reference-home .company-lead { font-size:.94rem; }
+  .reference-home .company-hero-art { border-radius:18px; }
+  .reference-home .company-hero-art img { aspect-ratio:1.22; }
+  .reference-home .company-hero-art figcaption { inset-inline-end:8px; bottom:8px; padding:6px 9px; font-size:.63rem; }
+  .reference-home .company-section-heading { margin-bottom:21px; text-align:start; }
+  .reference-home .company-section-heading h2,.reference-home .company-process h2 { font-size:1.85rem; }
+  .reference-home .company-service-grid { grid-template-columns:1fr; gap:13px; }
+  .reference-home .company-service { border-radius:17px; }
+  .reference-home .company-service-art { height:205px; }
+  .reference-home .company-service-copy { min-height:0; }
+  .reference-home .company-training { padding:15px; border-radius:19px; }
+  .reference-home .company-training-copy h2 { font-size:1.9rem; }
+  .reference-home .company-training-tags { gap:7px; }
+  .reference-home .company-training-tags span { font-size:.68rem; }
+  .reference-home .company-process-grid { grid-template-columns:1fr; }
+  .reference-home .company-process-grid article { min-height:0; padding:18px; }
+  .reference-home .company-quote { padding:19px 15px; border-radius:19px; }
+  .reference-home .company-form-row { grid-template-columns:1fr; }
+  .reference-home .company-quote-form .company-button { width:100%; }
+  .reference-home .r-company-cta { flex-direction:column; align-items:stretch; padding:19px 16px; }
+  .reference-home .r-company-cta .r-button { justify-content:center; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .reference-home .company-service,.reference-home .company-service-art img,.reference-home .company-button { transition:none; }
+}
+
