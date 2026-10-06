@@ -2,9 +2,9 @@
 
 /*
  * « Continuer avec Google » — l'une des deux méthodes proposées côte à côte
- * avec « Continuer avec mon numéro », au même poids : contour neutre
- * (variante `outline` du kit) et le « G » multicolore de Google tel que ses
- * consignes de marque l'exigent.
+ * avec « Continuer avec mon numéro », au même poids : variante `neutral` du
+ * kit (fond clair, contour, texte foncé) et le « G » multicolore de Google
+ * tel que ses consignes de marque l'exigent.
  */
 
 import { useEffect, useState } from 'react';
@@ -51,15 +51,14 @@ export function GoogleSignInButton({ disabled = false }: { disabled?: boolean })
 
   return (
     <Button
-      variant="outline"
-      size="md"
+      variant="neutral"
+      size="lg"
       fullWidth
       onClick={onClick}
       disabled={disabled}
       isLoading={isRedirecting}
       loadingLabel={t('google_redirecting')}
       leadingIcon={<GoogleMark />}
-      className="shadow-sm"
     >
       {t('google_continue')}
     </Button>

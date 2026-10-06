@@ -21,6 +21,7 @@ export type ButtonVariant =
   | 'primary'
   | 'secondary'
   | 'outline'
+  | 'neutral'
   | 'tonal'
   | 'ghost'
   | 'destructive'
@@ -47,6 +48,15 @@ const VARIANTS: Record<ButtonVariant, string> = {
   secondary: 'bg-secondary text-on-secondary-container hover:enabled:bg-secondary-dark hover:enabled:text-onPrimary',
   outline:
     'border-outline bg-transparent text-primary hover:enabled:border-primary hover:enabled:bg-primary/5',
+  /* Un choix parmi plusieurs de même poids (« Continuer avec Google » /
+     « avec mon numéro ») : carte blanche bordée, libellé neutre. Aucune n'a
+     l'air d'être l'action attendue, et le bouton Google reste conforme aux
+     consignes de sa marque (fond clair, contour, texte foncé). Le `!` est
+     nécessaire : `.border-transparent` de BASE est émis après les couleurs
+     de bordure dans la feuille générée et l'emporterait sinon. */
+  neutral:
+    '!border-outline bg-surface-container-lowest text-onSurface shadow-sm ' +
+    'hover:enabled:!border-on-surface-variant hover:enabled:bg-surface-container-low',
   /* Action secondaire posée sur une surface : un aplat neutre, un libellé teal.
      Elle accompagne une action primaire sans lui disputer l'attention. */
   tonal: 'bg-surface-container-high text-primary hover:enabled:bg-surface-container-highest',
