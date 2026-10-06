@@ -212,3 +212,65 @@
     font-size: 11px;
   }
 }
+
+/*
+ * Bandeau « Nos services » en bas de la page d'accueil (`ReferenceLanding`).
+ * Ces règles vivaient dans `reference-pages.css`, que seules les pages
+ * employeurs / centres importent : sur l'accueil le bandeau s'affichait sans
+ * carte, sans marges et avec un titre à la taille du texte courant.
+ */
+.reference-home .r-company-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  margin: 56px 0 64px;
+  padding: 32px 36px;
+  border: 1px solid #f1ded7;
+  border-radius: 20px;
+  background: #fff6f1;
+}
+
+.reference-home .r-company-cta > div {
+  max-width: 720px;
+}
+
+.reference-home .r-company-cta .r-eyebrow {
+  margin: 0 0 10px;
+}
+
+.reference-home .r-company-cta h2 {
+  margin: 0 0 10px;
+  color: var(--r-ink);
+  font-size: clamp(1.4rem, 2.6vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+
+.reference-home .r-company-cta p:not(.r-eyebrow) {
+  margin: 0;
+  color: var(--r-muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.reference-home .r-company-cta .r-button {
+  flex: none;
+  min-height: 48px;
+  padding-inline: 22px;
+}
+
+@media (max-width: 800px) {
+  .reference-home .r-company-cta {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 22px;
+    margin: 48px 0 52px;
+    padding: 26px 22px;
+  }
+
+  .reference-home .r-company-cta .r-button {
+    min-height: 50px;
+  }
+}

@@ -3,7 +3,7 @@ import { PublicMarketingLanding } from '@/components/reference-landing/PublicMar
 
 export const metadata: Metadata = {
   title: 'Notre entreprise — AMUD Skills',
-  description: 'Applications Android et iOS, ingénierie et infrastructures numériques, jeux éducatifs et formation continue avec un réseau de formateurs.',
+  description: 'Sites web, applications Android et iOS, ingénierie et infrastructures numériques, jeux éducatifs et formation continue avec un réseau de formateurs.',
 };
 
 export default function CompanyPage() {

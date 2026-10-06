@@ -288,11 +288,6 @@
 .reference-home .company-form-error { margin:0; color:#a92737; font-size:.84rem; }
 .reference-home .company-form-success { min-height:220px; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:8px; padding:24px; border-radius:18px; color:#245a3b; background:#fff; }
 .reference-home .company-form-success h3,.reference-home .company-form-success p { margin:0; }
-.reference-home .r-company-cta { display:flex; align-items:center; justify-content:space-between; gap:24px; margin:38px 0 20px; padding:24px 27px; border:1px solid #f1ded7; border-radius:20px; background:#fff6f1; }
-.reference-home .r-company-cta>div { max-width:750px; }
-.reference-home .r-company-cta h2 { margin:0 0 7px; color:#191b20; font-size:clamp(1.35rem,2.5vw,2rem); font-weight:800; letter-spacing:-.035em; line-height:1.15; }
-.reference-home .r-company-cta p:not(.r-eyebrow) { margin:0; color:#55556a; font-size:.9rem; line-height:1.55; }
-.reference-home .r-company-cta .r-button { flex:none; }
 @media(max-width:800px) {
   .reference-home .company-hero { grid-template-columns:1fr; min-height:0; gap:27px; padding:34px 0 52px; }
   .reference-home .company-hero-copy { max-width:650px; }
@@ -331,8 +326,6 @@
   .reference-home .company-quote { padding:19px 15px; border-radius:19px; }
   .reference-home .company-form-row { grid-template-columns:1fr; }
   .reference-home .company-quote-form .company-button { width:100%; }
-  .reference-home .r-company-cta { flex-direction:column; align-items:stretch; padding:19px 16px; }
-  .reference-home .r-company-cta .r-button { justify-content:center; }
 }
 @media(prefers-reduced-motion:reduce) {
   .reference-home .company-service,.reference-home .company-service-art img,.reference-home .company-button { transition:none; }

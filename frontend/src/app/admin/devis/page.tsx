@@ -29,7 +29,7 @@ const STATUS_TABS: { key: string; label: string }[] = [
 ];
 
 const SERVICE_LABEL: Record<QuoteService, string> = {
-  'mobile-apps': 'Applications Android & iOS',
+  'mobile-apps': 'Sites web & applications mobiles',
   engineering: 'Ingénierie & infrastructures',
   games: 'Jeux éducatifs & gamification',
   training: 'Formation continue',
