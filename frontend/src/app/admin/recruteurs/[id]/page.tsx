@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import { api } from '@/lib/opsApi';
+import { initials } from '@/lib/initials';
 import { ConfirmDialog, Modal, Tabs } from '@/components/amud/ui';
 import { useToast } from '@/components/amud/Toast';
 
@@ -27,7 +28,7 @@ type ShortlistEntry = {
 type RecruiterDetail = {
   id: number;
   name: string | null;
-  phone: string;
+  phone: string | null;
   email: string | null;
   status: 'active' | 'inactive' | 'blocked';
   status_reason: string | null;
@@ -40,7 +41,7 @@ type RecruiterDetail = {
     website: string | null;
     employees_count: number | null;
     verified_at: string | null;
-    verified_by: { name: string | null; phone: string } | null;
+    verified_by: { name: string | null; phone: string | null } | null;
   } | null;
   shortlist: ShortlistEntry[];
 };
@@ -74,16 +75,6 @@ const TABS = [
   { id: 'pipeline', label: 'Pipeline' },
   { id: 'activite', label: 'Activité' },
 ];
-
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
-}
 
 function errorMessage(error: unknown, fallback: string) {
   if (isAxiosError(error)) {
@@ -171,7 +162,7 @@ export default function AdminRecruteurDetailPage() {
   }
 
   const r = detail.data;
-  const label = r.company?.company_name || r.name || r.phone;
+  const label = r.company?.company_name || r.name || r.phone || r.email || `Recruteur #${r.id}`;
   const placedCount = r.shortlist.filter((s) => s.stage === 'placed').length;
 
   return (
@@ -205,9 +196,11 @@ export default function AdminRecruteurDetailPage() {
                 ) : null}
               </p>
               <div className="mt-sm flex flex-wrap gap-md text-label-md text-amud-on-surface-variant">
-                <span className="flex items-center gap-xs">
-                  <span className="material-symbols-outlined text-sm">phone</span> {r.phone}
-                </span>
+                {r.phone ? (
+                  <span className="flex items-center gap-xs">
+                    <span className="material-symbols-outlined text-sm">phone</span> {r.phone}
+                  </span>
+                ) : null}
                 {r.email ? (
                   <span className="flex items-center gap-xs">
                     <span className="material-symbols-outlined text-sm">mail</span> {r.email}
@@ -299,7 +292,7 @@ export default function AdminRecruteurDetailPage() {
               <div className="rounded-xl border border-amud-outline-variant/30 bg-amud-surface-container-lowest p-lg">
                 <h3 className="mb-md text-title-lg text-amud-on-surface">Vérification</h3>
                 <p className="text-body-md text-amud-on-surface-variant">
-                  Vérifiée par {r.company.verified_by.name ?? r.company.verified_by.phone} le {new Date(r.company.verified_at).toLocaleDateString('fr-FR')}
+                  Vérifiée par {r.company.verified_by.name ?? r.company.verified_by.phone ?? 'un administrateur'} le {new Date(r.company.verified_at).toLocaleDateString('fr-FR')}
                 </p>
               </div>
             ) : null}

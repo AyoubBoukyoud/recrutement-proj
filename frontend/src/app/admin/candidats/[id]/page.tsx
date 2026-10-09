@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import { api } from '@/lib/opsApi';
+import { initials } from '@/lib/initials';
 import { ConfirmDialog, Modal, Tabs } from '@/components/amud/ui';
 import { useToast } from '@/components/amud/Toast';
 
@@ -26,7 +27,7 @@ type CandidateDocument = {
   approval_status: 'pending' | 'approved' | 'rejected';
   rejection_reason: string | null;
   url: string | null;
-  reviewed_by: { name: string | null; phone: string } | null;
+  reviewed_by: { name: string | null; phone: string | null } | null;
   reviewed_at: string | null;
   created_at: string;
 };
@@ -45,8 +46,8 @@ type CandidateDetail = {
   submitted_at: string | null;
   verified_at: string | null;
   admin_notes: string | null;
-  verified_by: { name: string | null; phone: string } | null;
-  user: { name: string | null; phone: string; email: string | null; status: 'active' | 'inactive' | 'blocked'; status_reason: string | null; created_at: string };
+  verified_by: { name: string | null; phone: string | null } | null;
+  user: { name: string | null; phone: string | null; email: string | null; status: 'active' | 'inactive' | 'blocked'; status_reason: string | null; created_at: string };
   documents: CandidateDocument[];
   educations: Education[];
   languages: Language[];
@@ -91,16 +92,6 @@ const TABS = [
   { id: 'stage', label: 'Stage quotidien' },
   { id: 'activite', label: 'Activité' },
 ];
-
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
-}
 
 function errorMessage(error: unknown, fallback: string) {
   if (isAxiosError(error)) {
@@ -225,7 +216,7 @@ export default function AdminCandidatDetailPage() {
   }
 
   const c = detail.data;
-  const name = `${c.first_name ?? ''} ${c.last_name ?? ''}`.trim() || c.user.phone;
+  const name = `${c.first_name ?? ''} ${c.last_name ?? ''}`.trim() || c.user.phone || c.user.email || `Candidat #${c.id}`;
   const pendingDocs = c.documents.filter((d) => d.approval_status === 'pending').length;
 
   return (
@@ -259,9 +250,11 @@ export default function AdminCandidatDetailPage() {
                 ) : null}
               </p>
               <div className="mt-sm flex flex-wrap gap-md text-label-md text-amud-on-surface-variant">
-                <span className="flex items-center gap-xs">
-                  <span className="material-symbols-outlined text-sm">phone</span> {c.user.phone}
-                </span>
+                {c.user.phone ? (
+                  <span className="flex items-center gap-xs">
+                    <span className="material-symbols-outlined text-sm">phone</span> {c.user.phone}
+                  </span>
+                ) : null}
                 {c.user.email ? (
                   <span className="flex items-center gap-xs">
                     <span className="material-symbols-outlined text-sm">mail</span> {c.user.email}
@@ -427,7 +420,7 @@ export default function AdminCandidatDetailPage() {
                     ) : null}
                     {doc.reviewed_by ? (
                       <p className="mt-1 text-label-sm text-amud-on-surface-variant">
-                        Revu par {doc.reviewed_by.name ?? doc.reviewed_by.phone}
+                        Revu par {doc.reviewed_by.name ?? doc.reviewed_by.phone ?? 'un administrateur'}
                         {doc.reviewed_at ? ` le ${new Date(doc.reviewed_at).toLocaleDateString('fr-FR')}` : ''}
                       </p>
                     ) : null}

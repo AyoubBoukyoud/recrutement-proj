@@ -10,6 +10,7 @@ import { ConfirmDialog, Modal, ModalActions } from '@/components/amud/ui';
 import { FormGrid, TextField } from '@/components/amud/form';
 import { useToast } from '@/components/amud/Toast';
 import { Pagination } from '@/components/Pagination';
+import { initials } from '@/lib/initials';
 
 /*
  * Liste des recruteurs — même transformation que `admin/candidats` : style
@@ -22,7 +23,8 @@ import { Pagination } from '@/components/Pagination';
 type RecruiterRow = {
   id: number;
   name: string | null;
-  phone: string;
+  /** Absent pour un compte créé avec Google. */
+  phone: string | null;
   email: string | null;
   account_status: 'active' | 'inactive' | 'blocked';
   company_name: string | null;
@@ -44,16 +46,6 @@ const ACCOUNT_STATUS_CLASS: Record<RecruiterRow['account_status'], string> = {
   inactive: 'bg-amud-surface-container-highest text-amud-on-surface-variant',
   blocked: 'bg-amud-error-container text-amud-on-error-container',
 };
-
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
-}
 
 function errorMessage(error: unknown, fallback: string) {
   if (isAxiosError(error)) {
@@ -239,7 +231,7 @@ export default function AdminRecruteursPage() {
               </tr>
             ) : null}
             {rows.map((r) => {
-              const label = r.company_name || r.name || r.phone;
+              const label = r.company_name || r.name || r.phone || r.email || `Recruteur #${r.id}`;
               return (
                 <tr key={r.id} className="transition-colors hover:bg-amud-surface-container-lowest/50">
                   <td className="px-6 py-4">
@@ -249,7 +241,7 @@ export default function AdminRecruteursPage() {
                       </div>
                       <div className="min-w-0">
                         <p className="truncate font-semibold text-amud-on-surface transition-colors group-hover:text-amud-primary">{label}</p>
-                        <p className="truncate text-label-sm text-amud-on-surface-variant">{r.name ?? r.phone}{r.sector ? ` · ${r.sector}` : ''}</p>
+                        <p className="truncate text-label-sm text-amud-on-surface-variant">{r.name ?? r.phone ?? r.email ?? '—'}{r.sector ? ` · ${r.sector}` : ''}</p>
                       </div>
                     </Link>
                   </td>
