@@ -1,6 +1,13 @@
 'use client';
 
-import { ReactNode, useRef } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
+import {
+  PHONE_COUNTRIES,
+  checkPhone,
+  formatInternationalPhone,
+  formatNationalPhone,
+  splitInternationalPhone,
+} from '@/lib/phoneNumber';
 
 /**
  * Primitives de formulaire du module `/amud`.
@@ -242,5 +249,168 @@ export function FormSection({ title, children }: { title: string; children: Reac
       <h4 className="mb-sm border-b border-amud-outline-variant pb-1 text-label-md font-semibold uppercase tracking-wider text-amud-on-surface-variant">{title}</h4>
       <div className="grid grid-cols-1 gap-md sm:grid-cols-2">{children}</div>
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * PhoneField — indicatif pays + numéro national, validé pendant la saisie.
+ *
+ * `value` / `onChange` parlent E.164 (« +212632594914 ») : le formulaire
+ * parent n'a rien à normaliser. `onChange` reçoit '' tant que le numéro est
+ * vide, incomplet ou inutilisable pour recevoir un code WhatsApp — les
+ * formulaires qui désactivent « Créer » sur `!phone` restent donc corrects
+ * sans autre code.
+ *
+ * Saisie libre : « 06 32 59 49 14 », « +212 632-594-914 » ou
+ * « 00212632594914 » collés donnent le même résultat, et l'indicatif se
+ * règle tout seul quand on colle un numéro international.
+ * ------------------------------------------------------------------ */
+export function PhoneField({
+  label,
+  value,
+  onChange,
+  required,
+  hint,
+  className,
+  id,
+  autoFocus,
+  defaultCountry = '+212',
+}: {
+  label: string;
+  value: string;
+  onChange: (e164: string) => void;
+  required?: boolean;
+  hint?: string;
+  className?: string;
+  id?: string;
+  autoFocus?: boolean;
+  defaultCountry?: string;
+}) {
+  const fieldId = useFieldId(id);
+  const initial = value ? splitInternationalPhone(value) : null;
+  const [country, setCountry] = useState(initial?.country ?? defaultCountry);
+  const [raw, setRaw] = useState(initial?.national ?? '');
+  const [touched, setTouched] = useState(false);
+  const emitted = useRef(value);
+
+  // Le parent peut remplacer ou vider la valeur (réinitialisation du formulaire).
+  useEffect(() => {
+    if (value === emitted.current) return;
+    emitted.current = value;
+    if (value) {
+      const split = splitInternationalPhone(value);
+      setCountry(split.country);
+      setRaw(split.national);
+    } else {
+      setRaw('');
+      setTouched(false);
+    }
+  }, [value]);
+
+  const check = checkPhone(raw, country);
+  const placeholder = PHONE_COUNTRIES.find((c) => c.code === country)?.placeholder ?? '';
+  const digitCount = raw.replace(/\D/g, '').length;
+  // On n'accuse pas d'erreur pendant qu'on tape : après la sortie du champ, ou
+  // dès que la longueur d'un numéro complet est atteinte.
+  const showError = !check.empty && !check.valid && (touched || digitCount >= 10);
+
+  const emit = (nextRaw: string, nextCountry: string) => {
+    const result = checkPhone(nextRaw, nextCountry);
+    emitted.current = result.e164;
+    onChange(result.e164);
+  };
+
+  const handleInput = (text: string) => {
+    // Numéro international collé ou tapé en entier : on règle l'indicatif.
+    if (/^(\+|00)/.test(text.trim())) {
+      const known = checkPhone(text, country);
+      const split = known.e164 ? splitInternationalPhone(known.e164) : null;
+      if (split && split.country) {
+        setCountry(split.country);
+        setRaw(split.national);
+        emit(split.national, split.country);
+        return;
+      }
+      if (country !== '') {
+        setCountry('');
+        setRaw(text);
+        emit(text, '');
+        return;
+      }
+    }
+    setRaw(text);
+    emit(text, country);
+  };
+
+  const handleCountry = (next: string) => {
+    setCountry(next);
+    const converted = next === '' && check.e164 ? check.e164 : raw;
+    if (converted !== raw) setRaw(converted);
+    emit(converted, next);
+  };
+
+  const handleBlur = () => {
+    setTouched(true);
+    if (check.valid && country) {
+      const formatted = formatNationalPhone(raw, country);
+      if (formatted !== raw) setRaw(formatted);
+    }
+  };
+
+  const describedBy = `${fieldId}-status`;
+
+  return (
+    <Field label={label} htmlFor={fieldId} required={required} error={showError ? check.message : undefined} className={className}>
+      <div
+        className={`flex min-h-[44px] w-full items-center rounded-lg border bg-amud-surface transition-colors focus-within:ring-2 ${
+          showError ? 'border-amud-error focus-within:ring-amud-error' : 'border-amud-outline-variant focus-within:ring-amud-primary'
+        }`}
+      >
+        <select
+          aria-label="Indicatif du pays"
+          value={country}
+          onChange={(e) => handleCountry(e.target.value)}
+          className="h-[42px] shrink-0 cursor-pointer rounded-l-lg border-none bg-transparent py-0 pl-3 pr-1 text-body-md font-semibold text-amud-on-surface outline-none focus:ring-0"
+        >
+          {PHONE_COUNTRIES.map((c) => (
+            <option key={c.code || 'other'} value={c.code}>
+              {c.label}
+            </option>
+          ))}
+        </select>
+        <span className="h-6 w-px shrink-0 bg-amud-outline-variant" aria-hidden="true" />
+        <input
+          id={fieldId}
+          type="tel"
+          inputMode="tel"
+          autoComplete="off"
+          spellCheck={false}
+          autoFocus={autoFocus}
+          required={required}
+          maxLength={32}
+          value={raw}
+          placeholder={placeholder}
+          aria-invalid={showError ? true : undefined}
+          aria-describedby={describedBy}
+          onChange={(e) => handleInput(e.target.value)}
+          onBlur={handleBlur}
+          className="h-[42px] min-w-0 flex-1 rounded-r-lg border-none bg-transparent px-3 py-0 text-body-md text-amud-on-surface outline-none placeholder:text-amud-on-surface-variant/70 focus:ring-0"
+        />
+        {check.valid ? (
+          <span className="material-symbols-outlined mr-3 shrink-0 text-[20px] text-success" aria-hidden="true">
+            check_circle
+          </span>
+        ) : null}
+      </div>
+      <p id={describedBy} className="mt-1 text-label-sm text-amud-on-surface-variant" aria-live="polite">
+        {check.valid ? (
+          <>
+            Sera enregistré : <strong className="font-semibold text-amud-on-surface">{formatInternationalPhone(check.e164)}</strong> · c&apos;est le numéro qui sert à se connecter.
+          </>
+        ) : showError ? null : (
+          hint ?? 'Collez le numéro tel quel ou saisissez-le : le format est géré automatiquement.'
+        )}
+      </p>
+    </Field>
   );
 }

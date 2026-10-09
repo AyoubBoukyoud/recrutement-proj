@@ -7,7 +7,7 @@ import { isAxiosError } from 'axios';
 import { api } from '@/lib/opsApi';
 import type { Page } from '@/lib/candidateMarketplace';
 import { ConfirmDialog, Modal, ModalActions } from '@/components/amud/ui';
-import { FormGrid, TextField } from '@/components/amud/form';
+import { FormGrid, PhoneField, TextField } from '@/components/amud/form';
 import { useToast } from '@/components/amud/Toast';
 import { Pagination } from '@/components/Pagination';
 import { initials } from '@/lib/initials';
@@ -343,13 +343,12 @@ export default function AdminRecruteursPage() {
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             placeholder="Amine Alami"
           />
-          <TextField
+          <PhoneField
             label="Téléphone"
             required
+            className="sm:col-span-2"
             value={form.phone}
-            onChange={(e) => setForm({ ...form, phone: e.target.value })}
-            placeholder="+212600000000"
-            hint="Format international — c'est le numéro qui sert à se connecter."
+            onChange={(phone) => setForm((current) => ({ ...current, phone }))}
           />
           <TextField
             label="E-mail"
