@@ -12,6 +12,8 @@ import { OfflineBanner } from "./OfflineBanner";
 import { ImpersonationBanner } from '@/components/ImpersonationBanner';
 import { SyncBadge } from "./SyncBadge";
 import { InstallPrompt } from "./InstallPrompt";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { PrivacyNotice } from "@/components/reference-landing/PrivacyNotice";
 
 // Reflète la langue choisie sur <html lang/dir> (RTL pour l'arabe) partout dans l'app.
 function HtmlLangSync() {
@@ -54,6 +56,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
                 <ThemeProvider>
                   <HtmlLangSync />
                   <HtmlThemeSync />
+                  <GoogleAnalytics />
+                  <PrivacyNotice />
                   <OfflineBanner />
                   <ImpersonationBanner />
                   {children}

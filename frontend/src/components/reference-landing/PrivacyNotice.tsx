@@ -1,67 +1,97 @@
 'use client';
 
-import { useState, useSyncExternalStore } from 'react';
-import { ArrowUpRight, X } from 'lucide-react';
-import type { Locale } from '@/components/landing/content';
+import { useEffect, useState } from 'react';
+import { BarChart3, X } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { useLanguage } from '@/context/LanguageContext';
+import { ANALYTICS_CONSENT_EVENT, ANALYTICS_CONSENT_KEY, isPublicAnalyticsPage } from '@/lib/analytics';
 import './privacy-notice.css';
 import './privacy-notice-compact.css';
 
-type Copy = {
-  label: string; euTitle: string; euBody: string; maTitle: string; maBody: string;
-  euLink: string; maLink: string; decline: string; done: string;
-  close: string; declined: string; browse: string;
-};
-const copy: Record<Locale, Copy> = {
-  fr: { label: 'DONNÉES & CONFIDENTIALITÉ', euTitle: 'Union européenne', euBody: 'Cette notice informe sur les données; elle ne recueille pas votre consentement. Les choix liés au compte se font séparément.', maTitle: 'Maroc', maBody: 'La loi marocaine 09-08 encadre les données personnelles. Consultez la CNDP; cette note ne remplace pas la politique complète.', euLink: 'RGPD · article 7', maLink: 'Loi 09-08 · CNDP', decline: 'Ne pas confirmer', done: 'J’ai compris', close: 'Fermer', declined: 'Vous pouvez consulter les pages publiques. La création de profil ou le partage de documents peut demander des informations et choix séparés.', browse: 'Continuer la visite' },
-  ar: { label: 'البيانات والخصوصية', euTitle: 'الاتحاد الأوروبي', euBody: 'يوضح هذا الإشعار معلومات البيانات ولا يطلب موافقتك. تُعرض خيارات الحساب ومعالجة البيانات بشكل منفصل.', maTitle: 'المغرب', maBody: 'يؤطر القانون المغربي 09-08 حماية البيانات الشخصية. راجع معلومات CNDP؛ فهذا الإشعار لا يغني عن سياسة الخصوصية الكاملة.', euLink: 'اللائحة الأوروبية · المادة 7', maLink: 'القانون 09-08 · CNDP', decline: 'عدم التأكيد', done: 'فهمت', close: 'إغلاق', declined: 'يمكنك تصفح الصفحات العامة. قد يتطلب إنشاء ملف أو مشاركة وثائق عرض معلومات وخيارات منفصلة.', browse: 'متابعة تصفح الموقع' },
-  de: { label: 'DATEN & DATENSCHUTZ', euTitle: 'Europäische Union', euBody: 'Dieser Hinweis informiert über Daten; er fragt nicht nach Einwilligung. Entscheidungen zum Konto erfolgen getrennt.', maTitle: 'Marokko', maBody: 'Das marokkanische Gesetz 09-08 regelt personenbezogene Daten. Die CNDP informiert darüber; dieser Hinweis ersetzt keine vollständige Datenschutzerklärung.', euLink: 'DSGVO · Artikel 7', maLink: 'Gesetz 09-08 · CNDP', decline: 'Nicht bestätigen', done: 'Verstanden', close: 'Schließen', declined: 'Sie können die öffentlichen Seiten ansehen. Für ein Profil oder geteilte Unterlagen können gesonderte Informationen und Entscheidungen erforderlich sein.', browse: 'Weiter surfen' },
-  en: { label: 'DATA & PRIVACY', euTitle: 'European Union', euBody: 'This notice explains data use; it does not ask for consent. Choices related to an account are handled separately.', maTitle: 'Morocco', maBody: 'Moroccan Law 09-08 governs personal data. See the CNDP guidance; this notice does not replace the full privacy policy.', euLink: 'GDPR · Article 7', maLink: 'Law 09-08 · CNDP', decline: 'Do not confirm', done: 'Understood', close: 'Close', declined: 'You can browse public pages. Creating a profile or sharing documents may require separate information and choices.', browse: 'Continue browsing' },
+type Locale = 'fr' | 'ar' | 'de' | 'en';
+type Choice = 'unknown' | 'granted' | 'denied';
+
+const copy: Record<Locale, {
+  label: string; title: string; body: string; accept: string; reject: string;
+  settings: string; close: string; eu: string; morocco: string;
+}> = {
+  fr: {
+    label: 'VOS DONNÉES ET VOTRE CHOIX', title: 'Cookies analytiques',
+    body: 'Avec votre accord, Google Analytics mesure la fréquentation de nos pages publiques pour nous aider à améliorer le site. Vous pouvez refuser et continuer votre visite. Votre choix peut être modifié à tout moment.',
+    accept: 'Autoriser les statistiques', reject: 'Tout refuser', settings: 'Gérer les cookies', close: 'Fermer les préférences',
+    eu: 'RGPD · article 7', morocco: 'Loi 09-08 · CNDP',
+  },
+  ar: {
+    label: 'بياناتك واختيارك', title: 'ملفات تعريف الارتباط التحليلية',
+    body: 'بموافقتك، تقيس Google Analytics عدد زيارات الصفحات العامة لمساعدتنا على تحسين الموقع. يمكنك الرفض ومواصلة التصفح. يمكنك تغيير اختيارك في أي وقت.',
+    accept: 'السماح بالإحصاءات', reject: 'رفض الكل', settings: 'إدارة ملفات الارتباط', close: 'إغلاق الإعدادات',
+    eu: 'اللائحة الأوروبية · المادة 7', morocco: 'القانون 09-08 · CNDP',
+  },
+  de: {
+    label: 'IHRE DATEN UND IHRE WAHL', title: 'Analyse-Cookies',
+    body: 'Mit Ihrer Zustimmung misst Google Analytics die Besuche unserer öffentlichen Seiten, damit wir die Website verbessern können. Sie können ablehnen und weiter surfen. Ihre Wahl können Sie jederzeit ändern.',
+    accept: 'Statistik erlauben', reject: 'Alle ablehnen', settings: 'Cookie-Einstellungen', close: 'Einstellungen schließen',
+    eu: 'DSGVO · Artikel 7', morocco: 'Gesetz 09-08 · CNDP',
+  },
+  en: {
+    label: 'YOUR DATA AND YOUR CHOICE', title: 'Analytics cookies',
+    body: 'With your permission, Google Analytics measures visits to our public pages so we can improve the site. You can refuse and continue browsing. You can change your choice at any time.',
+    accept: 'Allow analytics', reject: 'Reject all', settings: 'Cookie settings', close: 'Close preferences',
+    eu: 'GDPR · Article 7', morocco: 'Law 09-08 · CNDP',
+  },
 };
 
-const NOTICE_EVENT = 'amud-privacy-notice-change';
-const NOTICE_KEY = 'amud-privacy-notice-v1';
-const subscribeNotice = (notify: () => void) => {
-  window.addEventListener(NOTICE_EVENT, notify);
-  return () => window.removeEventListener(NOTICE_EVENT, notify);
-};
-/*
- * La notice informe, elle ne recueille pas de consentement : une fois lue, rien
- * ne justifie de la rouvrir à chaque visite. Elle était gardée en
- * sessionStorage et réapparaissait dans chaque nouvel onglet, par-dessus le
- * premier écran mobile. On la retient désormais durablement (localStorage), en
- * relisant l'ancienne clé de session pour ne pas la reposer à qui l'a déjà vue.
- */
-const readNoticeVisibility = () => {
-  try { return !localStorage.getItem(NOTICE_KEY) && !sessionStorage.getItem(NOTICE_KEY); }
-  catch { return true; }
-};
-// Rendu serveur : masquée. Elle n'apparaît qu'après hydratation, ce qui évite
-// aussi de la faire clignoter pour un visiteur qui l'a déjà fermée.
-const hiddenOnServer = () => false;
-
-export function PrivacyNotice({ locale }: { locale: Locale }) {
-  const visible = useSyncExternalStore(subscribeNotice, readNoticeVisibility, hiddenOnServer);
-  const [dismissedLocally, setDismissedLocally] = useState(false);
-  const [declined, setDeclined] = useState(false);
+export function PrivacyNotice() {
+  const pathname = usePathname();
+  const { language } = useLanguage();
+  const routeLocale = pathname.startsWith('/ar/') ? 'ar' : pathname.startsWith('/de/') ? 'de' : pathname.startsWith('/fr/') ? 'fr' : language;
+  const locale = (['fr', 'ar', 'de', 'en'].includes(routeLocale) ? routeLocale : 'fr') as Locale;
   const text = copy[locale];
-  if (!visible || dismissedLocally) return null;
-  const finish = (choice: 'acknowledged' | 'declined') => {
-    try { localStorage.setItem(NOTICE_KEY, choice); }
-    catch { /* Local state still closes the notice if storage is disabled. */ }
-    setDismissedLocally(true);
-    window.dispatchEvent(new Event(NOTICE_EVENT));
+  const [choice, setChoice] = useState<Choice>('unknown');
+  const [ready, setReady] = useState(false);
+  const [open, setOpen] = useState(false);
+  const isPublic = isPublicAnalyticsPage(pathname);
+
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(ANALYTICS_CONSENT_KEY);
+      setChoice(stored === 'granted' || stored === 'denied' ? stored : 'unknown');
+    } catch {
+      setChoice('unknown');
+    }
+    setReady(true);
+  }, []);
+
+  const saveChoice = (next: 'granted' | 'denied') => {
+    try { window.localStorage.setItem(ANALYTICS_CONSENT_KEY, next); }
+    catch { /* The choice still applies for this session if storage is unavailable. */ }
+    setChoice(next);
+    setOpen(false);
+    window.dispatchEvent(new CustomEvent(ANALYTICS_CONSENT_EVENT, { detail: next }));
   };
-  const title = declined
-    ? locale === 'ar' ? 'يمكنك متابعة التصفح' : locale === 'de' ? 'Sie können weiter surfen' : locale === 'en' ? 'You can keep browsing' : 'Vous pouvez continuer'
-    : text.euTitle;
-  // Une seule étape : UE, puis Maroc repliable — mêmes textes qu'avant, un clic
-  // pour refermer au lieu de deux.
-  return <section className="amud-privacy-notice" aria-live="polite" aria-labelledby="amud-privacy-title" dir={locale === 'ar' ? 'rtl' : 'ltr'} lang={locale}>
-    <div className="amud-privacy-top"><p>{text.label}</p><button type="button" className="amud-privacy-close" aria-label={text.close} onClick={() => finish(declined ? 'declined' : 'acknowledged')}><X size={18}/></button></div>
-    <h2 id="amud-privacy-title">{title}</h2>
-    <p className="amud-privacy-body">{declined ? text.declined : text.euBody}</p>
-    {!declined && <details className="amud-privacy-more"><summary>{text.maTitle}</summary><p>{text.maBody}</p></details>}
-    {!declined && <div className="amud-privacy-links"><a href="https://eur-lex.europa.eu/eli/reg/2016/679/art_7/oj" target="_blank" rel="noreferrer">{text.euLink}<ArrowUpRight size={13}/></a><a href="https://www.cndp.ma/conformite-des-sites-web/" target="_blank" rel="noreferrer">{text.maLink}<ArrowUpRight size={13}/></a></div>}
-    <div className="amud-privacy-actions">{declined ? <button className="amud-privacy-primary" type="button" onClick={() => finish('declined')}>{text.browse}</button> : <><button className="amud-privacy-primary" type="button" onClick={() => finish('acknowledged')}>{text.done}</button><button className="amud-privacy-secondary" type="button" onClick={() => setDeclined(true)}>{text.decline}</button></>}</div>
-  </section>;
+
+  if (!ready || !isPublic) return null;
+
+  const showPanel = choice === 'unknown' || open;
+
+  return <>
+    {showPanel ? <section className="amud-privacy-notice" aria-live="polite" aria-labelledby="amud-privacy-title" dir={locale === 'ar' ? 'rtl' : 'ltr'} lang={locale}>
+      <div className="amud-privacy-top">
+        <p>{text.label}</p>
+        {choice !== 'unknown' && <button type="button" className="amud-privacy-close" aria-label={text.close} onClick={() => setOpen(false)}><X size={18}/></button>}
+      </div>
+      <h2 id="amud-privacy-title">{text.title}</h2>
+      <p className="amud-privacy-body">{text.body}</p>
+      <div className="amud-privacy-links">
+        <a href="https://eur-lex.europa.eu/eli/reg/2016/679/art_7/oj" target="_blank" rel="noreferrer">{text.eu}</a>
+        <a href="https://www.cndp.ma/conformite-des-sites-web/" target="_blank" rel="noreferrer">{text.morocco}</a>
+      </div>
+      <div className="amud-privacy-actions">
+        <button className="amud-privacy-primary" type="button" onClick={() => saveChoice('granted')}><BarChart3 size={16}/>{text.accept}</button>
+        <button className="amud-privacy-secondary" type="button" onClick={() => saveChoice('denied')}>{text.reject}</button>
+      </div>
+    </section> : <button className="amud-privacy-settings" type="button" onClick={() => setOpen(true)} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+      {text.settings}
+    </button>}
+  </>;
 }
