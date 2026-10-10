@@ -7,7 +7,6 @@ import { useLanguage } from '@/context/LanguageContext';
 import { AUTH, translator, type Locale } from '@/components/landing/content';
 import './reference.css';
 import './reference-enhancements.css';
-import { PrivacyNotice } from './PrivacyNotice';
 
 export function PublicSiteHeader({ locale }: { locale: Locale }) {
   const t = translator(locale);
@@ -53,5 +52,5 @@ export function PublicSiteFooter({ locale }: { locale: Locale }) {
   return <><footer className="r-footer"><div className="r-container"><a href="/" className="r-footer-brand"><Image src="/landing-assets/amud-logo-brand.svg" alt="AMUD Skills" width={62} height={62} unoptimized/></a><nav aria-label={t('Pied de page', 'روابط التذييل', 'Fußnavigation', 'Footer navigation')}><a href="/notre-entreprise">{t('Notre entreprise', 'عن الشركة', 'Unser Unternehmen', 'Our company')}</a><a href="/#faq">FAQ</a><a href="/crm-centre-formation">{t('Centres de formation', 'مراكز التكوين', 'Bildungszentren', 'Training centres')}</a><a href="/entreprises">{t('Entreprises', 'الشركات', 'Unternehmen', 'Companies')}</a></nav><nav className="r-social" aria-label={t('Réseaux sociaux', 'الشبكات الاجتماعية', 'Soziale Medien', 'Social media')}>
     {SOCIAL_LINKS.map(({name,href,Icon})=><a key={name} href={href} target="_blank" rel="noopener noreferrer" aria-label={t(`AMUD Skills sur ${name}`, `AMUD Skills على ${name}`, `AMUD Skills auf ${name}`, `AMUD Skills on ${name}`)}><Icon aria-hidden="true"/></a>)}
     <span className="r-social-placeholder" role="img" aria-label={t('YouTube, bientôt', 'يوتيوب، قريبًا', 'YouTube, demnächst', 'YouTube, coming soon')}><Youtube aria-hidden="true"/></span>
-  </nav><small>© 2026 AMUD Skills<br/>{t('Tous droits réservés.', 'جميع الحقوق محفوظة.', 'Alle Rechte vorbehalten.', 'All rights reserved.')}</small></div></footer><PrivacyNotice locale={locale}/></>;
+  </nav><small>© 2026 AMUD Skills<br/>{t('Tous droits réservés.', 'جميع الحقوق محفوظة.', 'Alle Rechte vorbehalten.', 'All rights reserved.')}</small></div></footer></>;
 }
