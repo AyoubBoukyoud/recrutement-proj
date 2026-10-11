@@ -1,0 +1,24 @@
+[data-landing-motion-scope] [data-landing-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+  transition:
+    opacity 560ms cubic-bezier(.2, .7, .2, 1) var(--landing-reveal-delay, 0ms),
+    transform 560ms cubic-bezier(.2, .7, .2, 1) var(--landing-reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+[data-landing-motion-scope] [data-landing-reveal].is-in-view {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-landing-motion-scope] [data-landing-reveal],
+  [data-landing-motion-scope] [data-landing-reveal].is-in-view {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+}

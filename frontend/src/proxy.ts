@@ -52,7 +52,15 @@ function redirectTo(request: NextRequest, targetPathname: string) {
   const url = request.nextUrl.clone();
   url.pathname = targetPathname;
   url.search = '';
-  return NextResponse.redirect(url);
+  const response = NextResponse.redirect(url);
+  response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+  return response;
+}
+
+function privateResponse() {
+  const response = NextResponse.next();
+  response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+  return response;
 }
 
 export function proxy(request: NextRequest) {
@@ -79,7 +87,7 @@ export function proxy(request: NextRequest) {
        * existant : ce n'est pas la première visite, donc pas de bascule.
        */
       if (!role && process.env.NEXT_PUBLIC_USE_MOCKS === '1') {
-        const response = NextResponse.next();
+        const response = privateResponse();
         response.cookies.set('as_role', 'candidate', { path: '/' });
         response.cookies.set('as_uid', '101', { path: '/' });
         return response;
@@ -122,6 +130,9 @@ export function proxy(request: NextRequest) {
     }
   }
 
+  if (isCandidatePath(pathname) || isRecruiterPath(pathname) || isAgentPath(pathname) || isAdminPath(pathname) || pathname.startsWith('/amud/') || ['/auth-phone', '/auth-google', '/otp', '/splash', '/language', '/offline'].includes(pathname)) {
+    return privateResponse();
+  }
   return NextResponse.next();
 }
 
@@ -157,5 +168,11 @@ export const config = {
     '/agent/:path*',
     '/admin/:path*',
     '/amud/:path*',
+    '/auth-phone/:path*',
+    '/auth-google/:path*',
+    '/otp/:path*',
+    '/splash/:path*',
+    '/language/:path*',
+    '/offline/:path*',
   ],
 };

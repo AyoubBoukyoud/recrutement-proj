@@ -5,9 +5,9 @@ export function journeyCopy(locale:Locale){
   const t=translator(locale);
   return {
     heroEyebrow: t("DU PROFIL À L’OPPORTUNITÉ","من الملف إلى الفرصة","VOM PROFIL ZUR CHANCE","FROM PROFILE TO OPPORTUNITY"),
-    heroTitle: t('Un profil vivant','ملف مهني حي','Ein lebendiges Profil','A living profile'),
-    heroAccent: t('pour aller plus loin.','للوصول إلى أبعد.','für den nächsten Schritt.','to go further.'),
-    heroBody: t("AMUD Skills donne aux étudiants et chercheurs d’emploi une voie claire vers les employeurs en Allemagne.","تمنح AMUD Skills الطلاب والباحثين عن عمل مسارًا واضحًا نحو المشغّلين في ألمانيا.","AMUD Skills eröffnet Studierenden und Arbeitssuchenden einen klaren Weg zu Arbeitgebern in Deutschland.","AMUD Skills gives students and job seekers a clear path to employers in Germany."),
+    heroTitle: t('Trouvez un emploi ou une opportunité','ابحث عن عمل أو فرصة مهنية','Finden Sie Arbeit oder eine berufliche Chance','Find a job or professional opportunity'),
+    heroAccent: t('professionnelle en Allemagne.','في ألمانيا.','in Deutschland.','in Germany.'),
+    heroBody: t("AMUD Skills met en relation les talents marocains avec des entreprises et des opportunités professionnelles en Allemagne.","تربط AMUD Skills المواهب المغربية بالشركات والفرص المهنية في ألمانيا.","AMUD Skills bringt marokkanische Talente mit Unternehmen und beruflichen Chancen in Deutschland zusammen.","AMUD Skills connects Moroccan talent with companies and professional opportunities in Germany."),
     create: t('Construire mon profil','بناء ملفي','Profil erstellen','Build my profile'),
     recruit: t('Rechercher des talents','البحث عن مواهب','Talente finden','Find talent'),
     heroNote: t('Avec ou sans allemand, votre parcours peut commencer.','مع الألمانية أو بدونها، يمكن لمسارك أن يبدأ.','Mit oder ohne Deutsch kann Ihr Weg beginnen.','With or without German, your journey can begin.'),

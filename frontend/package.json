@@ -7,6 +7,7 @@
     "build": "node --max-old-space-size=4096 node_modules/next/dist/bin/next build --webpack",
     "start": "node node_modules/next/dist/bin/next start",
     "lint": "eslint src --ext .ts,.tsx",
+    "generate:landing-blurhash": "node scripts/generate-landing-blurhash.mjs",
     "test:client-demo": "node scripts/verify-client-demo.mjs",
     "verify:no-mocks": "rm -rf .next && NEXT_PUBLIC_USE_MOCKS=0 NEXT_PUBLIC_SHOW_DEV_TOOLS=0 NEXT_PUBLIC_ENABLE_PROTOTYPES=0 next build --webpack && ! grep -rlE 'mock-token-|cv-youssef-amrani|\\[maquette\\]' .next/static/chunks/"
   },

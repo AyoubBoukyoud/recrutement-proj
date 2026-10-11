@@ -2,20 +2,27 @@
 
 import {useEffect,useState} from 'react';
 import {ArrowRight,ArrowUpRight,BarChart3,Camera,Check,ChevronDown,Compass,GraduationCap,MessageCircle,MessagesSquare,UserRound} from 'lucide-react';
-import Image from 'next/image';
 import {AUTH,RECRUIT,content,translator,type Locale} from '@/components/landing/content';
 import {journeyCopy} from '@/components/landing/journey-copy';
 import './reference.css';
 import {PublicSiteHeader,PublicSiteFooter} from './PublicSiteChrome';
+import { LandingScrollReveal, SequentialLandingImage } from './LandingMotion';
 
 const MEDIA='/landing-assets/reference-v4';
 
 function ResponsiveStepArtwork({ name }: { name: string }) {
-  return <picture className="r-step-image">
-    <source media="(min-width: 1024px)" srcSet={`${MEDIA}/${name}-desktop.webp`} type="image/webp"/>
-    <source media="(min-width: 640px)" srcSet={`${MEDIA}/${name}-tablet.webp`} type="image/webp"/>
-    <Image className="r-step-art" src={`${MEDIA}/${name}-mobile.webp`} alt="" width={1200} height={460} loading="lazy" decoding="async" unoptimized/>
-  </picture>;
+  return <SequentialLandingImage
+    pictureClassName="r-step-image"
+    className="r-step-art"
+    sources={[
+      { media: '(min-width: 1024px)', srcSet: `${MEDIA}/${name}-desktop.webp`, type: 'image/webp' },
+      { media: '(min-width: 640px)', srcSet: `${MEDIA}/${name}-tablet.webp`, type: 'image/webp' },
+    ]}
+    src={`${MEDIA}/${name}-mobile.webp`}
+    alt=""
+    width={1200}
+    height={460}
+  />;
 }
 
 export default function ReferenceLanding({locale='fr'}:{locale?:Locale}){
@@ -49,13 +56,26 @@ export default function ReferenceLanding({locale='fr'}:{locale?:Locale}){
     [t('Comment sont sélectionnées les offres ?','كيف يتم اختيار الفرص؟','Wie werden Angebote ausgewählt?','How are opportunities selected?'),c.faq[4][1]],
     c.faq[1],c.faq[2],c.faq[6],
   ];
-  return <div className="reference-home" data-motion={motion ? 'on' : 'off'} dir={locale==='ar'?'rtl':'ltr'} lang={locale}>
+  return <div className="reference-home" data-landing-motion-scope data-motion={motion ? 'on' : 'off'} dir={locale==='ar'?'rtl':'ltr'} lang={locale}>
+    <LandingScrollReveal/>
     <PublicSiteHeader locale={locale}/>
     <main id="main-content" className="r-container">
       <section className="r-hero" aria-labelledby="r-title">
-        <div className="r-hero-media"><picture className="r-poster-picture"><source media="(min-width: 1024px)" srcSet="/landing-assets/hero/amud-journey-poster-desktop.webp" type="image/webp"/><source media="(min-width: 640px)" srcSet="/landing-assets/hero/amud-journey-poster-tablet.webp" type="image/webp"/><Image className="r-poster" src="/landing-assets/hero/amud-journey-poster-mobile.webp" alt="" width={1280} height={720} priority unoptimized/></picture>{heroVideo&&<video key={heroSource} autoPlay muted loop playsInline preload="none" poster="/landing-assets/hero/amud-journey-poster-mobile.webp" onError={(event)=>{if(heroSource==='responsive')setHeroSource(event.currentTarget.currentSrc.endsWith('.mp4')?'webm':'mp4');else if(heroSource==='webm')setHeroSource('mp4');else event.currentTarget.style.display='none';}} aria-hidden="true">{heroSource==='responsive'?<><source media="(max-width: 639px)" src="/landing-assets/hero/amud-journey-mobile.webm" type="video/webm"/><source src="/landing-assets/hero/amud-journey.mp4" type="video/mp4"/></>:<source src={heroSource==='webm'?'/landing-assets/hero/amud-journey-mobile.webm':'/landing-assets/hero/amud-journey.mp4'} type={heroSource==='webm'?'video/webm':'video/mp4'}/>}</video>}
+        <div className="r-hero-media"><SequentialLandingImage
+          pictureClassName="r-poster-picture"
+          className="r-poster"
+          src="/landing-assets/hero/amud-journey-poster-mobile.webp"
+          sources={[
+            { media: '(min-width: 1024px)', srcSet: '/landing-assets/hero/amud-journey-poster-desktop.webp', type: 'image/webp' },
+            { media: '(min-width: 640px)', srcSet: '/landing-assets/hero/amud-journey-poster-tablet.webp', type: 'image/webp' },
+          ]}
+          alt=""
+          width={1280}
+          height={720}
+          priority
+        />{heroVideo&&<video key={heroSource} autoPlay muted loop playsInline preload="none" poster="/landing-assets/hero/amud-journey-poster-mobile.webp" onError={(event)=>{if(heroSource==='responsive')setHeroSource(event.currentTarget.currentSrc.endsWith('.mp4')?'webm':'mp4');else if(heroSource==='webm')setHeroSource('mp4');else event.currentTarget.style.display='none';}} aria-hidden="true">{heroSource==='responsive'?<><source media="(max-width: 639px)" src="/landing-assets/hero/amud-journey-mobile.webm" type="video/webm"/><source src="/landing-assets/hero/amud-journey.mp4" type="video/mp4"/></>:<source src={heroSource==='webm'?'/landing-assets/hero/amud-journey-mobile.webm':'/landing-assets/hero/amud-journey.mp4'} type={heroSource==='webm'?'video/webm':'video/mp4'}/>}</video>}
         </div>
-        <div className="r-hero-card"><p className="r-eyebrow">{copy.heroEyebrow}</p><h1 id="r-title">{copy.heroTitle}<span>{copy.heroAccent}</span></h1><p className="r-hero-description">{copy.heroBody}</p><div className="r-hero-buttons"><a className="r-button" href={AUTH}>{copy.create}<ArrowUpRight/></a><a className="r-button r-button--outline" href={RECRUIT}>{copy.recruit}</a></div><p className="r-note"><Check/>{copy.heroNote}</p></div>
+        <div className="r-hero-card"><p className="r-eyebrow">{copy.heroEyebrow}</p><h1 id="r-title">{copy.heroTitle}<span>{copy.heroAccent}</span></h1><p className="r-hero-description">{copy.heroBody}</p><div className="r-hero-buttons"><a className="r-button" href="/offres">{t('Voir les offres','عرض الفرص','Stellenangebote ansehen','View opportunities')}<ArrowUpRight/></a><a className="r-button r-button--outline" href={AUTH}>{t('Créer mon profil gratuitement','أنشئ ملفي مجانًا','Profil kostenlos erstellen','Create my free profile')}</a></div><p className="r-note"><Check/>{copy.heroNote}</p></div>
       </section>
       <section className="r-process" id="parcours"><div className="r-heading"><p className="r-eyebrow">{t('VOTRE PARCOURS','مسارك','IHR WEG','YOUR JOURNEY')}</p><h2>{t('Votre profil, en','ملفك، في','Ihr Profil in','Your profile in')} <span>{t('quatre étapes.','أربع خطوات.','vier Schritten.','four steps.')}</span></h2><p>{t('Un parcours simple et guidé pour vous rapprocher des employeurs en Allemagne.','مسار بسيط وموجّه يقرّبك من المشغّلين في ألمانيا.','Ein einfacher, begleiteter Weg zu Arbeitgebern in Deutschland.','A simple, guided journey to connect with employers in Germany.')}</p></div>
         <ol className="r-step-list">{steps.map(({image,Icon,title,body,note},index)=><li className={`r-step r-step--${index%2?'reverse':'forward'}`} key={image}><ResponsiveStepArtwork name={image}/><div className="r-step-copy"><span className="r-step-number" aria-hidden="true">{String(index+1).padStart(2,'0')}</span><div><h3>{title}</h3><p>{body}</p></div></div><aside className="r-step-note"><span><Icon aria-hidden="true"/></span><p>{note}</p></aside></li>)}</ol>
@@ -63,8 +83,19 @@ export default function ReferenceLanding({locale='fr'}:{locale?:Locale}){
       <section className="r-start" id="commencer"><div className="r-heading"><p className="r-eyebrow">{t('COMMENCEZ AUJOURD’HUI','ابدأ اليوم','STARTEN SIE HEUTE','START TODAY')}</p><h2>{t('Avec ou sans allemand,','مع الألمانية أو بدونها،','Mit oder ohne Deutsch,','With or without German,')} <span>{t('commencez maintenant.','ابدأ الآن.','starten Sie jetzt.','start now.')}</span></h2><p>{t('Choisissez votre situation et découvrez le parcours adapté à votre profil.','اختر وضعك واكتشف المسار المناسب لملفك.','Wählen Sie Ihre Situation und entdecken Sie Ihren passenden Weg.','Choose your situation and discover the path that fits your profile.')}</p></div>
         <div className="r-levels">{levels.map(({Icon,tone,title,body})=><a href={AUTH} className={`r-level r-level--${tone}`} key={tone}><span className="r-level-icon"><Icon aria-hidden="true"/></span><div><h3>{title}</h3><p>{body}</p></div><ArrowRight className="r-level-arrow" aria-hidden="true"/></a>)}</div>
       </section>
+      <section className="r-seo-explore" aria-labelledby="candidate-profile-title"><div className="r-heading"><p className="r-eyebrow">{t('DES OPPORTUNITÉS SELON VOTRE PARCOURS','فرص تناسب مسارك','CHANCEN PASSEND ZU IHREM WEG','OPPORTUNITIES FOR YOUR BACKGROUND')}</p><h2 id="candidate-profile-title">{t('Quel est votre profil ?','ما هو ملفك المهني؟','Welches Profil haben Sie?','What is your profile?')}</h2><p>{t('Choisissez un secteur pour découvrir les profils et critères fréquemment recherchés.','اختر مجالًا لاكتشاف الملفات والمعايير المطلوبة.','Wählen Sie einen Bereich und erfahren Sie mehr über typische Anforderungen.','Choose a field to learn about common profiles and requirements.')}</p></div><div className="r-seo-card-grid">{[
+        ['/emploi-allemagne-maroc',t('Diplômé Bac+2 / Bac+3 / Bac+5','خريج Bac+2 أو Bac+3 أو Bac+5','Abschluss Bac+2 / Bac+3 / Bac+5','Graduate Bac+2 / Bac+3 / Bac+5')],
+        ['/technicien-allemagne',t('Technicien spécialisé','تقني متخصص','Spezialisierte Fachkraft','Specialized technician')],
+        ['/chauffeur-allemagne',t('Chauffeur','سائق','Fahrer','Driver')],
+        ['/hotellerie-allemagne',t('Hôtellerie / Restauration','الفندقة والمطاعم','Hotellerie / Gastronomie','Hospitality / Restaurants')],
+        ['/sante-allemagne',t('Santé','الصحة','Gesundheitswesen','Healthcare')],
+        ['/btp-allemagne',t('BTP','البناء والأشغال','Bau','Construction')],
+        ['/logistique-allemagne',t('Logistique','اللوجستيك','Logistik','Logistics')],
+        ['/informatique-allemagne',t('Informatique et autres métiers','المعلوميات ومهن أخرى','IT und weitere Berufe','IT and other professions')],
+      ].map(([href,label])=><a href={href} key={href}>{label}<ArrowUpRight aria-hidden="true"/></a>)}</div><div className="r-seo-levels"><h3>{t('Quel est votre niveau d’allemand ?','ما مستواك في الألمانية؟','Wie gut ist Ihr Deutsch?','What is your German level?')}</h3><div>{[['Aucun','None','بدون','Keine'],'A1','A2','B1','B2','C1+'].map((item,index)=>{const level=Array.isArray(item)?t(item[0],item[2],item[3],item[1]):item;return <a key={index} href="/niveau-allemand-travail-allemagne">{level}</a>;})}</div><p>{t('Le niveau demandé dépend du métier, des tâches, de l’employeur et des règles professionnelles.','يعتمد المستوى المطلوب على المهنة والمهام وصاحب العمل والقواعد المهنية.','Das erforderliche Niveau hängt von Beruf, Aufgaben, Arbeitgeber und Vorschriften ab.','Requirements depend on the role, tasks, employer and professional rules.')}</p></div></section>
       <section className="r-faq" id="faq"><div><p className="r-eyebrow">{t('QUESTIONS FRÉQUENTES','الأسئلة الشائعة','HÄUFIGE FRAGEN','FREQUENTLY ASKED QUESTIONS')}</p><h2>FAQ</h2><p>{t('Des réponses claires aux questions les plus courantes.','إجابات واضحة على الأسئلة الأكثر شيوعًا.','Klare Antworten auf häufige Fragen.','Clear answers to common questions.')}</p><button className="r-button r-button--outline" type="button" aria-expanded={allFaq} aria-controls="reference-faq-list" onClick={()=>setAllFaq(!allFaq)}>{allFaq?t('Réduire les questions','عرض أسئلة أقل','Weniger Fragen','Show fewer questions'):t('Voir toutes les questions','عرض جميع الأسئلة','Alle Fragen anzeigen','View all questions')}<ArrowRight/></button></div><div className="r-faq-list" id="reference-faq-list">{faq.slice(0,allFaq?faq.length:4).map(([question,answer])=><details key={question}><summary>{question}<ChevronDown aria-hidden="true"/></summary><p>{answer}</p></details>)}</div></section>
       <section className="r-company-cta" aria-labelledby="r-company-cta-title"><div><p className="r-eyebrow">{t('AMUD SKILLS · NOS SERVICES','AMUD SKILLS · خدماتنا','AMUD SKILLS · UNSERE LEISTUNGEN','AMUD SKILLS · OUR SERVICES')}</p><h2 id="r-company-cta-title">{t('Un projet numérique ou un besoin de formation ?', 'هل لديكم مشروع رقمي أو حاجة إلى تكوين؟', 'Ein Digitalprojekt oder Weiterbildungsbedarf?', 'A digital project or a training need?')}</h2><p>{t('Applications, réseaux, jeux éducatifs et formation continue pour les entreprises.', 'تطبيقات وشبكات وألعاب تعليمية وتكوين مستمر للشركات.', 'Apps, Netzwerke, Lernspiele und Weiterbildung für Unternehmen.', 'Apps, networks, educational games and continuing education for companies.')}</p></div><a className="r-button" href="/notre-entreprise">{t('Découvrir AMUD Skills','اكتشفوا AMUD Skills','AMUD Skills entdecken','Explore AMUD Skills')}<ArrowUpRight/></a></section>
+      <section className="r-company-cta r-startup-cta" id="startup-profile-link" aria-labelledby="r-startup-cta-title"><div><p className="r-eyebrow">{t('NOTRE HISTOIRE · NOTRE ÉQUIPE','قصتنا · فريقنا','UNSERE GESCHICHTE · UNSER TEAM','OUR STORY · OUR TEAM')}</p><h2 id="r-startup-cta-title">{t('Découvrez la startup derrière AMUD Skills.', 'تعرّفوا على الشركة الناشئة وفريق AMUD Skills.', 'Lernen Sie das Startup hinter AMUD Skills kennen.', 'Meet the startup behind AMUD Skills.')}</h2><p>{t('Sa date de création, ses objectifs et les personnes qui la dirigent.', 'تاريخ تأسيسها وأهدافها وأعضاء فريق قيادتها.', 'Gründungsdatum, Ziele und Führungsteam.', 'Its founding date, goals and leadership team.')}</p></div><a className="r-button" href="/notre-entreprise/startup">{t('Découvrir notre startup','اكتشفوا شركتنا الناشئة','Unser Startup kennenlernen','Discover our startup')}<ArrowUpRight/></a></section>
     </main>
     <PublicSiteFooter locale={locale}/>
   </div>;

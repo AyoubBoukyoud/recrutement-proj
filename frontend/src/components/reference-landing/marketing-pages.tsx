@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { RECRUIT, translator, type Locale } from '@/components/landing/content';
+import { SequentialLandingImage } from './LandingMotion';
 
 const ASSETS = '/landing-assets/marketing';
 
@@ -12,11 +13,18 @@ function MarketingImage({
   name, width, height, alt, priority = false,
 }: { name: string; width: number; height: number; alt: string; priority?: boolean }) {
   const path = (size: 'desktop' | 'tablet' | 'mobile') => `${ASSETS}/${name}-${size}.webp`;
-  return <picture className="marketing-picture">
-    <source media="(min-width: 1024px)" srcSet={path('desktop')} type="image/webp"/>
-    <source media="(min-width: 640px)" srcSet={path('tablet')} type="image/webp"/>
-    <Image src={path('mobile')} width={width} height={height} alt={alt} priority={priority} loading={priority ? undefined : 'lazy'} decoding="async" unoptimized/>
-  </picture>;
+  return <SequentialLandingImage
+    pictureClassName="marketing-picture"
+    sources={[
+      { media: '(min-width: 1024px)', srcSet: path('desktop'), type: 'image/webp' },
+      { media: '(min-width: 640px)', srcSet: path('tablet'), type: 'image/webp' },
+    ]}
+    src={path('mobile')}
+    width={width}
+    height={height}
+    alt={alt}
+    priority={priority}
+  />;
 }
 
 export function EmployersPage({ locale }: { locale: Locale }) {

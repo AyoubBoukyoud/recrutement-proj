@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from 'next/navigation';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/context/AuthContext";
 import { ProfileProvider } from "@/context/ProfileContext";
@@ -12,17 +13,20 @@ import { OfflineBanner } from "./OfflineBanner";
 import { ImpersonationBanner } from '@/components/ImpersonationBanner';
 import { SyncBadge } from "./SyncBadge";
 import { InstallPrompt } from "./InstallPrompt";
-import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
-import { PrivacyNotice } from "@/components/reference-landing/PrivacyNotice";
+import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
+import { PrivacyNotice } from '@/components/reference-landing/PrivacyNotice';
 
 // Reflète la langue choisie sur <html lang/dir> (RTL pour l'arabe) partout dans l'app.
 function HtmlLangSync() {
   const { language, dir } = useLanguage();
+  const pathname = usePathname();
+  const routeLanguage = pathname.startsWith('/ar/') ? 'ar' : pathname.startsWith('/de/') ? 'de' : pathname.startsWith('/fr/') ? 'fr' : language;
+  const routeDirection = routeLanguage === 'ar' ? 'rtl' : dir;
 
   useEffect(() => {
-    document.documentElement.lang = language;
-    document.documentElement.dir = dir;
-  }, [language, dir]);
+    document.documentElement.lang = routeLanguage;
+    document.documentElement.dir = routeDirection;
+  }, [routeLanguage, routeDirection]);
 
   return null;
 }

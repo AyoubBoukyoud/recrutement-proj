@@ -5,9 +5,16 @@ import { SITE_URL } from '@/lib/site';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: 'Amud Skills Recruitment App',
-  description: 'Plateforme de recrutement transcontinental Maroc - Allemagne',
+  title: 'Emploi en Allemagne pour Marocains | Amud Skills',
+  description: 'Amud Skills met en relation les talents marocains avec des entreprises et des opportunités professionnelles en Allemagne.',
   applicationName: 'Amud Skills',
+  openGraph: {
+    siteName: 'Amud Skills', type: 'website', locale: 'fr_MA',
+    title: 'Emploi en Allemagne pour Marocains | Amud Skills',
+    description: 'Des opportunités professionnelles selon votre métier, votre expérience et votre niveau d’allemand.',
+    images: [{ url: '/landing-assets/hero/amud-journey-poster-desktop.webp', width: 1280, height: 720, alt: 'Talents marocains et opportunités professionnelles en Allemagne' }],
+  },
+  twitter: { card: 'summary_large_image' },
   verification: {
     google: 'BGjobcxF6OnklCX0OWOqR8rI73o1aDRosrV_dgN8HE0',
   },
@@ -55,7 +62,7 @@ export default function RootLayout({
         <script
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var raw=localStorage.getItem('as_theme');var mode=raw?JSON.parse(raw):'light';var dark=mode==='dark'||(mode==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);var root=document.documentElement;if(dark){root.classList.add('dark');root.style.colorScheme='dark';}else{root.style.colorScheme='light';}}catch(e){}})();`,
+            __html: `(function(){var path=window.location.pathname;var root=document.documentElement;if(path.indexOf('/ar/')===0){root.lang='ar';root.dir='rtl';}else if(path.indexOf('/de/')===0){root.lang='de';root.dir='ltr';}else if(path.indexOf('/fr/')===0){root.lang='fr';root.dir='ltr';}try{var raw=localStorage.getItem('as_theme');var mode=raw?JSON.parse(raw):'light';var dark=mode==='dark'||(mode==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(dark){root.classList.add('dark');root.style.colorScheme='dark';}else{root.style.colorScheme='light';}}catch(e){}})();`,
           }}
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
