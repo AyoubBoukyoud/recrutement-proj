@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { PublicHome } from '@/components/home/PublicHome';
+import { OrganizationJsonLd } from '@/components/seo/OrganizationJsonLd';
 
 /**
  * La page d'accueil publique vit à la racine. L'ancienne adresse
@@ -14,5 +15,5 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  return <PublicHome />;
+  return <><OrganizationJsonLd /><PublicHome /></>;
 }

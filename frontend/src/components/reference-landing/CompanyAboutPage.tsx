@@ -6,6 +6,7 @@ import { ArrowDown, ArrowUpRight, Check, Code2, Gamepad2, GraduationCap, Network
 import { ApiError } from '@/lib/api';
 import { submitQuoteRequest, type QuoteService } from '@/lib/quoteRequests';
 import { translator, type Locale } from '@/components/landing/content';
+import { COMPANY, companyFounded, companyPlace } from '@/lib/company';
 
 const ASSETS = '/landing-assets/company';
 const inputClass = 'w-full rounded-xl border border-[#eaded5] bg-white px-4 py-3 text-sm text-[#191b20] placeholder:text-[#777786] focus:border-[#ba303e] focus:outline-none focus:ring-2 focus:ring-[#ba303e]/15';
@@ -24,6 +25,20 @@ export function CompanyAboutPage({ locale }: { locale: Locale }) {
     { key: 'engineering', Icon: Wrench, image: 'engineering.webp', title: t('Ingénierie & infrastructures numériques', 'الهندسة والبنية التحتية الرقمية', 'Technische Entwicklung & digitale Infrastruktur', 'Engineering & digital infrastructure'), body: t('Des solutions techniques et l’installation de réseaux numériques pour les entreprises.', 'حلول تقنية وتركيب شبكات رقمية للشركات.', 'Technische Lösungen und Installation digitaler Netzwerke für Unternehmen.', 'Technical solutions and digital network installation for businesses.'), alt: t('Maquette technique et équipements d’ingénierie numérique', 'نموذج تقني وتجهيزات للهندسة الرقمية', 'Technisches Modell und digitale Engineering-Ausrüstung', 'Technical model and digital engineering equipment') },
     { key: 'games', Icon: Gamepad2, image: 'games.webp', title: t('Jeux éducatifs & gamification', 'الألعاب التعليمية وGamification', 'Lernspiele & Gamification', 'Educational games & gamification'), body: t('Des jeux sérieux et des expériences interactives pour apprendre, s’exercer et progresser.', 'ألعاب جادة وتجارب تفاعلية للتعلّم والتدرب والتقدم.', 'Serious Games und interaktive Erlebnisse zum Lernen, Üben und Weiterkommen.', 'Serious games and interactive experiences for learning, practice and progress.'), alt: t('Parcours d’apprentissage interactif sous forme de jeu', 'مسار تعلّم تفاعلي بأسلوب الألعاب', 'Interaktiver Lernpfad in Spielform', 'Interactive learning path presented as a game') },
     { key: 'training', Icon: GraduationCap, image: 'training.webp', title: t('Formation continue', 'التكوين المستمر', 'Kontinuierliche Weiterbildung', 'Continuing education'), body: t('Nous mettons les entreprises en relation avec notre réseau de formateurs spécialisés en technologies, dont la cybersécurité.', 'نربط الشركات بشبكة مدرّبين متخصصين في التكنولوجيا، ومن ضمنها الأمن السيبراني.', 'Wir verbinden Unternehmen mit unserem Netzwerk spezialisierter Technologie-Trainer, unter anderem für Cybersicherheit.', 'We connect companies with specialist technology trainers, including in cybersecurity.'), alt: t('Formateur et participants lors d’une formation en cybersécurité', 'مدرّب ومشاركون في دورة للأمن السيبراني', 'Trainer und Teilnehmende in einer Cybersicherheitsschulung', 'Trainer and learners in a cybersecurity course') },
+  ];
+
+  const place = companyPlace(locale);
+  const founded = companyFounded(locale);
+  const legalName = COMPANY.legalName ? [COMPANY.legalName, COMPANY.legalForm].filter(Boolean).join(' · ') : undefined;
+  const facts: [string, React.ReactNode][] = [
+    [t('Activité principale', 'النشاط الرئيسي', 'Hauptgeschäft', 'Main activity'), t('Plateforme de mise en relation de talents', 'منصة للتواصل بين المواهب والمشغّلين', 'Vermittlungsplattform für Talente', 'Talent matching platform')],
+    [t('Activités complémentaires', 'أنشطة مكمّلة', 'Weitere Leistungen', 'Additional services'), t('Sites web et applications, ingénierie, jeux éducatifs, formation continue', 'مواقع وتطبيقات، هندسة، ألعاب تعليمية، تكوين مستمر', 'Websites und Apps, Technik, Lernspiele, Weiterbildung', 'Websites and apps, engineering, educational games, continuing education')],
+    [t('Zone d’activité', 'مجال العمل', 'Tätigkeitsraum', 'Where we work'), t('Maroc ↔ Allemagne', 'المغرب ↔ ألمانيا', 'Marokko ↔ Deutschland', 'Morocco ↔ Germany')],
+    ...(legalName ? [[t('Raison sociale', 'الاسم القانوني', 'Firmenname', 'Legal name'), legalName] as [string, React.ReactNode]] : []),
+    ...(COMPANY.registration ? [[t('Immatriculation', 'التسجيل', 'Registrierung', 'Registration'), COMPANY.registration] as [string, React.ReactNode]] : []),
+    ...(place ? [[t('Siège', 'المقر', 'Sitz', 'Headquarters'), place] as [string, React.ReactNode]] : []),
+    ...(founded ? [[t('Fondée en', 'تأسست في', 'Gegründet', 'Founded'), founded] as [string, React.ReactNode]] : []),
+    [t('Contact', 'التواصل', 'Kontakt', 'Contact'), <a key="mail" href={`mailto:${COMPANY.email}`} dir="ltr">{COMPANY.email}</a>],
   ];
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -59,6 +74,19 @@ export function CompanyAboutPage({ locale }: { locale: Locale }) {
           <p className="company-proof"><Check size={16}/>{t('Un partenaire pour vos projets et les compétences de vos équipes.', 'شريك لمشاريعكم وتطوير مهارات فرقكم.', 'Ein Partner für Ihre Projekte und die Kompetenzen Ihrer Teams.', 'A partner for your projects and your teams’ skills.')}</p>
         </div>
         <figure className="company-hero-art"><Image src={`${ASSETS}/hero.webp`} width={1185} height={755} alt={t('Maquette 3D réunissant applications, cybersécurité, ingénierie, jeu éducatif et formation', 'مجسم ثلاثي الأبعاد يجمع التطبيقات والأمن السيبراني والهندسة والألعاب التعليمية والتكوين', '3D-Miniaturlandschaft mit Apps, Cybersicherheit, Technik, Lernspielen und Weiterbildung', '3D miniature landscape showing apps, cybersecurity, engineering, educational games and training')} priority unoptimized/><figcaption>{t('Des idées connectées aux solutions.', 'أفكار مترابطة تتحول إلى حلول.', 'Vernetzte Ideen werden zu Lösungen.', 'Connected ideas, turned into solutions.')}</figcaption></figure>
+      </section>
+
+      <section className="company-facts" aria-labelledby="company-facts-title">
+        <div className="company-facts-copy">
+          <p className="company-eyebrow">{t('À PROPOS D’AMUD SKILLS', 'نبذة عن AMUD SKILLS', 'ÜBER AMUD SKILLS', 'ABOUT AMUD SKILLS')}</p>
+          <h2 id="company-facts-title">{t('Une plateforme de talents entre le Maroc et l’Allemagne.', 'منصة للمواهب بين المغرب وألمانيا.', 'Eine Talentplattform zwischen Marokko und Deutschland.', 'A talent platform between Morocco and Germany.')}</h2>
+          <p>{t('AMUD Skills relie les étudiants et les chercheurs d’emploi au Maroc aux employeurs en Allemagne : un profil structuré, une courte vidéo de présentation et une progression en allemand documentée. En parallèle, nous réalisons pour les entreprises des sites web, des applications, des jeux éducatifs et des formations.', 'تربط AMUD Skills الطلاب والباحثين عن عمل في المغرب بالمشغّلين في ألمانيا: ملف منظّم، وفيديو تقديمي قصير، وتقدّم موثّق في تعلّم الألمانية. وبالتوازي، ننجز للشركات مواقع إلكترونية وتطبيقات وألعابًا تعليمية وبرامج تكوين.', 'AMUD Skills verbindet Studierende und Arbeitssuchende in Marokko mit Arbeitgebern in Deutschland: mit strukturiertem Profil, kurzem Vorstellungsvideo und dokumentiertem Fortschritt beim Deutschlernen. Daneben realisieren wir für Unternehmen Websites, Apps, Lernspiele und Weiterbildungen.', 'AMUD Skills connects students and job seekers in Morocco with employers in Germany: a structured profile, a short introduction video and documented progress in German. Alongside, we build websites, apps, educational games and training for businesses.')}</p>
+        </div>
+        <dl className="company-facts-list">{facts.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
+        {COMPANY.founders.length > 0 && <div className="company-founders">
+          <h3>{t('Fondateurs', 'المؤسسون', 'Gründer', 'Founders')}</h3>
+          <ul>{COMPANY.founders.map(({ name, role, linkedin }) => <li key={name}><strong>{name}</strong><span>{role}</span>{linkedin && <a href={linkedin} target="_blank" rel="noopener noreferrer" aria-label={t(`${name} sur LinkedIn`, `${name} على LinkedIn`, `${name} auf LinkedIn`, `${name} on LinkedIn`)}>LinkedIn</a>}</li>)}</ul>
+        </div>}
       </section>
 
       <section id="expertises" className="company-services" aria-labelledby="services-title">

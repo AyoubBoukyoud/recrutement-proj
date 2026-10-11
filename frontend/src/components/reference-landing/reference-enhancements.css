@@ -274,3 +274,9 @@
     min-height: 50px;
   }
 }
+
+.r-footer small a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

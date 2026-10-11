@@ -3,7 +3,7 @@ import { allSlugs } from '@/lib/trades';
 import { SITE_URL } from '@/lib/site';
 
 /** Les pages publiques, celles que Search Console doit connaître. */
-const PUBLIC_PAGES = ['/', '/entreprises', '/employeurs', '/crm-centre-formation', '/produit'];
+const PUBLIC_PAGES = ['/', '/notre-entreprise', '/entreprises', '/employeurs', '/crm-centre-formation', '/produit'];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
