@@ -44,7 +44,7 @@ export default function ReferenceLanding({locale='fr'}:{locale?:Locale}){
   ];
   const faq=[
     [t('Le service est-il vraiment gratuit ?','هل الخدمة مجانية حقًا؟','Ist der Service wirklich kostenlos?','Is the service really free?'),c.faq[5][1]],
-    [t('Est-ce que je peux m’inscrire sans parler allemand ?','هل يمكنني التسجيل دون التحدث بالألمانية؟','Kann ich mich ohne Deutschkenntnisse anmelden?','Can I join without speaking German?'),c.faq[0][1]],
+    c.faq[0],
     [t('Qui peut voir mon profil ?','من يمكنه رؤية ملفي؟','Wer kann mein Profil sehen?','Who can see my profile?'),c.faq[3][1]],
     [t('Comment sont sélectionnées les offres ?','كيف يتم اختيار الفرص؟','Wie werden Angebote ausgewählt?','How are opportunities selected?'),c.faq[4][1]],
     c.faq[1],c.faq[2],c.faq[6],
