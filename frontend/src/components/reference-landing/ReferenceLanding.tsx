@@ -43,7 +43,7 @@ export default function ReferenceLanding({locale='fr'}:{locale?:Locale}){
     {Icon:MessagesSquare,tone:'green',title:t('Je parle allemand','أتحدث الألمانية','Ich spreche Deutsch','I speak German'),body:t('Je suis à l’aise en allemand et je veux trouver des opportunités.','أتقن الألمانية وأبحث عن فرص.','Ich spreche gut Deutsch und suche Chancen.','I’m comfortable with German and want to find opportunities.')},
   ];
   const faq=[
-    [t('Le service est-il vraiment gratuit ?','هل الخدمة مجانية حقًا؟','Ist der Service wirklich kostenlos?','Is the service really free?'),c.faq[5][1]],
+    [t('Le service est-il vraiment gratuit ?','هل الخدمة مجانية حقًا؟','Ist der Service wirklich kostenlos?','Is the service really free?'),t('Oui pour les candidats : créer son profil et être visible des employeurs est gratuit. Pour les entreprises et les centres de formation, contactez l’équipe AMUD Skills pour connaître les conditions.','نعم للمرشحين: إنشاء الملف الشخصي والظهور أمام المشغّلين مجاني. أما الشركات ومراكز التكوين، فيُرجى التواصل مع فريق AMUD Skills لمعرفة الشروط.','Ja für Bewerberinnen und Bewerber: Ein Profil zu erstellen und für Arbeitgeber sichtbar zu sein, ist kostenlos. Unternehmen und Bildungszentren erfragen die Konditionen beim AMUD Skills Team.','Yes for candidates: creating a profile and being visible to employers is free. Companies and training centres can contact the AMUD Skills team for the terms.')],
     c.faq[0],
     [t('Qui peut voir mon profil ?','من يمكنه رؤية ملفي؟','Wer kann mein Profil sehen?','Who can see my profile?'),c.faq[3][1]],
     [t('Comment sont sélectionnées les offres ?','كيف يتم اختيار الفرص؟','Wie werden Angebote ausgewählt?','How are opportunities selected?'),c.faq[4][1]],
