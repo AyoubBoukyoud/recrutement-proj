@@ -7,6 +7,8 @@ import { useLanguage } from '@/context/LanguageContext';
 import { AUTH, translator, type Locale } from '@/components/landing/content';
 import './reference.css';
 import './reference-enhancements.css';
+import './premium-footer.css';
+import { AccordionFooterColumn } from './AccordionFooterColumn';
 
 export function PublicSiteHeader({ locale }: { locale: Locale }) {
   const t = translator(locale);
@@ -49,12 +51,40 @@ const SOCIAL_LINKS = [
 
 export function PublicSiteFooter({ locale }: { locale: Locale }) {
   const t = translator(locale);
-  return <><footer className="r-footer"><div className="r-container"><a href="/" className="r-footer-brand"><Image src="/landing-assets/amud-logo-brand.svg" alt="AMUD Skills" width={62} height={62} unoptimized/></a><nav aria-label={t('Pied de page', 'روابط التذييل', 'Fußnavigation', 'Footer navigation')}><a href="/notre-entreprise">{t('Notre entreprise', 'عن الشركة', 'Unser Unternehmen', 'Our company')}</a><a href="/notre-entreprise/startup">{t('Notre startup', 'شركتنا الناشئة', 'Unser Startup', 'Our startup')}</a><a href="/#faq">FAQ</a><a href="/crm-centre-formation">{t('Centres de formation', 'مراكز التكوين', 'Bildungszentren', 'Training centres')}</a><a href="/entreprises">{t('Entreprises', 'الشركات', 'Unternehmen', 'Companies')}</a></nav><nav className="r-footer-seo" aria-label={t('Guides emploi et métiers', 'أدلة العمل والمهن', 'Berufs- und Arbeitsratgeber', 'Employment and profession guides')}>
-    <div><strong>{t('Candidats','المرشحون','Bewerber','Candidates')}</strong><a href="/emploi-allemagne-maroc">{t('Emploi en Allemagne','العمل في ألمانيا','Arbeit in Deutschland','Jobs in Germany')}</a><a href="/contrat-travail-allemagne">{t('Contrat de travail','عقد العمل','Arbeitsvertrag','Employment contract')}</a><a href="/ausbildung-allemagne-maroc">Ausbildung</a><a href="/niveau-allemand-travail-allemagne">{t('Niveau d’allemand','مستوى الألمانية','Deutschkenntnisse','German level')}</a></div>
-    <div><strong>{t('Métiers','المهن','Berufe','Professions')}</strong><a href="/chauffeur-allemagne">{t('Chauffeur','سائق','Fahrer','Driver')}</a><a href="/logistique-allemagne">{t('Logistique','اللوجستيك','Logistik','Logistics')}</a><a href="/hotellerie-allemagne">{t('Hôtellerie','الفندقة','Hotellerie','Hospitality')}</a><a href="/sante-allemagne">{t('Santé','الصحة','Gesundheit','Healthcare')}</a><a href="/btp-allemagne">BTP</a></div>
-    <div><strong>{t('Entreprises','الشركات','Unternehmen','Employers')}</strong><a href="/employeurs">{t('Recruter des talents','استقطاب المواهب','Talente rekrutieren','Recruit talent')}</a><a href="/de/fachkraefte-aus-marokko">Fachkräfte aus Marokko</a><strong>{t('Informations','معلومات','Informationen','Information')}</strong><a href="/comment-ca-marche">{t('Comment ça marche','كيف تعمل المنصة','So funktioniert es','How it works')}</a><a href="/securite-des-offres">{t('Sécurité des offres','سلامة فرص العمل','Sicherheit von Stellenangeboten','Job safety')}</a><a href="/contact">{t('Contact','اتصل بنا','Kontakt','Contact')}</a><strong>Amud Skills</strong><a href="/a-propos">{t('À propos','من نحن','Über uns','About')}</a><a href="/confidentialite">{t('Confidentialité','الخصوصية','Datenschutz','Privacy')}</a><a href="/mentions-legales">{t('Mentions légales','الإشعارات القانونية','Impressum','Legal notice')}</a><a href="/conditions-utilisation">{t('Conditions d’utilisation','شروط الاستخدام','Nutzungsbedingungen','Terms of use')}</a></div>
-  </nav><nav className="r-social" aria-label={t('Réseaux sociaux', 'الشبكات الاجتماعية', 'Soziale Medien', 'Social media')}>
-    {SOCIAL_LINKS.map(({name,href,Icon})=><a key={name} href={href} target="_blank" rel="noopener noreferrer" aria-label={t(`AMUD Skills sur ${name}`, `AMUD Skills على ${name}`, `AMUD Skills auf ${name}`, `AMUD Skills on ${name}`)}><Icon aria-hidden="true"/></a>)}
-    <span className="r-social-placeholder" role="img" aria-label={t('YouTube, bientôt', 'يوتيوب، قريبًا', 'YouTube, demnächst', 'YouTube, coming soon')}><Youtube aria-hidden="true"/></span>
-  </nav><small>© 2026 AMUD Skills<br/>{t('Tous droits réservés.', 'جميع الحقوق محفوظة.', 'Alle Rechte vorbehalten.', 'All rights reserved.')}</small></div></footer></>;
+  const columns = [
+    { title: t('Candidats','المرشحون','Bewerber','Candidates'), links: [
+      ['/emploi-allemagne-maroc',t('Emploi en Allemagne','العمل في ألمانيا','Arbeit in Deutschland','Jobs in Germany')],
+      ['/contrat-travail-allemagne',t('Contrat de travail','عقد العمل','Arbeitsvertrag','Employment contract')],
+      ['/ausbildung-allemagne-maroc','Ausbildung'],
+      ['/niveau-allemand-travail-allemagne',t('Niveau d’allemand','مستوى الألمانية','Deutschkenntnisse','German level')],
+      ['/#faq','FAQ'],
+    ]},
+    { title: t('Métiers','المهن','Berufe','Professions'), links: [
+      ['/chauffeur-allemagne',t('Chauffeur','سائق','Fahrer','Driver')],
+      ['/logistique-allemagne',t('Logistique','اللوجستيك','Logistik','Logistics')],
+      ['/hotellerie-allemagne',t('Hôtellerie','الفندقة','Hotellerie','Hospitality')],
+      ['/sante-allemagne',t('Santé','الصحة','Gesundheit','Healthcare')],
+      ['/btp-allemagne',t('BTP','البناء والأشغال','Bauwesen','Construction')],
+    ]},
+    { title: t('Entreprises','الشركات','Unternehmen','Employers'), links: [
+      ['/employeurs',t('Recruter des talents','استقطاب المواهب','Talente rekrutieren','Recruit talent')],
+      ['/entreprises',t('Solutions entreprises','حلول الشركات','Unternehmenslösungen','Business solutions')],
+      ['/de/fachkraefte-aus-marokko','Fachkräfte aus Marokko'],
+      ['/crm-centre-formation',t('Centres de formation','مراكز التكوين','Bildungszentren','Training centres')],
+    ]},
+    { title: t('Informations Amud Skills','معلومات Amud Skills','Über Amud Skills','Amud Skills information'), links: [
+      ['/notre-entreprise',t('Notre entreprise','عن الشركة','Unser Unternehmen','Our company')],
+      ['/notre-entreprise/startup',t('Notre startup','شركتنا الناشئة','Unser Startup','Our startup')],
+      ['/a-propos',t('À propos','من نحن','Über uns','About')],
+      ['/comment-ca-marche',t('Comment ça marche','كيف تعمل المنصة','So funktioniert es','How it works')],
+      ['/securite-des-offres',t('Sécurité des offres','سلامة فرص العمل','Sicherheit von Stellenangeboten','Job safety')],
+      ['/contact',t('Contact','اتصل بنا','Kontakt','Contact')],
+    ]},
+  ];
+  return <footer className="r-footer"><div className="r-container">
+    <div className="premium-footer-top"><div className="premium-footer-brand"><a href="/" aria-label={t('Accueil Amud Skills','الرئيسية Amud Skills','Amud Skills Startseite','Amud Skills home')}><Image src="/landing-assets/amud-logo-brand.svg" alt="AMUD Skills" width={62} height={62} unoptimized/></a><p>{t('Des compétences. Des rencontres. Un avenir.','مهارات. لقاءات. مستقبل.','Kompetenzen. Begegnungen. Zukunft.','Skills. Connections. A future.')}<span>{t('Du Maroc vers l’Allemagne.','من المغرب إلى ألمانيا.','Von Marokko nach Deutschland.','From Morocco to Germany.')}</span></p></div>
+    <nav className="r-social" aria-label={t('Réseaux sociaux','الشبكات الاجتماعية','Soziale Medien','Social media')}>{SOCIAL_LINKS.map(({name,href,Icon})=><a key={name} href={href} target="_blank" rel="noopener noreferrer" aria-label={name}><Icon size={18} aria-hidden="true"/></a>)}<span className="r-social-placeholder" role="img" aria-label={t('YouTube, bientôt','يوتيوب، قريبًا','YouTube, demnächst','YouTube, coming soon')}><Youtube size={18} aria-hidden="true"/></span></nav></div>
+    <nav className="premium-footer-nav" aria-label={t('Pied de page','روابط التذييل','Fußnavigation','Footer navigation')}>{columns.map(column=><AccordionFooterColumn key={column.title} {...column}/>)}</nav>
+    <div className="premium-footer-bottom"><small>© 2026 AMUD Skills · {t('Tous droits réservés.','جميع الحقوق محفوظة.','Alle Rechte vorbehalten.','All rights reserved.')}</small><nav className="premium-footer-legal" aria-label={t('Informations légales','المعلومات القانونية','Rechtliche Informationen','Legal information')}><a href="/confidentialite">{t('Confidentialité','الخصوصية','Datenschutz','Privacy')}</a><a href="/mentions-legales">{t('Mentions légales','الإشعارات القانونية','Impressum','Legal notice')}</a><a href="/conditions-utilisation">{t('Conditions d’utilisation','شروط الاستخدام','Nutzungsbedingungen','Terms of use')}</a></nav></div>
+  </div></footer>;
 }

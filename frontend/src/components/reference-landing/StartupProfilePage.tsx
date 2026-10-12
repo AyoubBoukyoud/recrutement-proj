@@ -4,18 +4,17 @@ import { ArrowLeft, ArrowUpRight, CalendarDays, Target } from 'lucide-react';
 import { translator, type Locale } from '@/components/landing/content';
 import { SequentialLandingImage } from './LandingMotion';
 
+import { SectorHero } from './SectorComponents';
+import { StartupGoalsVisual, StartupSections } from './StartupSections';
+
 const ASSETS = '/landing-assets/company';
 
 export function StartupProfilePage({ locale }: { locale: Locale }) {
   const t = translator(locale);
 
-  return <div className="company-page company-startup-page" dir={locale === 'ar' ? 'rtl' : 'ltr'} lang={locale}>
+  return <div className="startup-editorial" dir={locale === 'ar' ? 'rtl' : 'ltr'} lang={locale}>
     <div id="main-content">
-      <header className="company-startup-page-heading">
-        <p className="company-eyebrow">{t('AMUD SKILLS · PROFIL DE LA STARTUP', 'AMUD SKILLS · ملف الشركة الناشئة', 'AMUD SKILLS · STARTUP-PROFIL', 'AMUD SKILLS · STARTUP PROFILE')}</p>
-        <h1>{t('Une startup numérique, portée par une ambition claire.', 'شركة رقمية ناشئة برؤية وأهداف واضحة.', 'Ein Digital-Startup mit klarer Vision.', 'A digital startup with a clear ambition.')}</h1>
-        <p>{t('Découvrez notre histoire, notre équipe dirigeante et les objectifs qui guident AMUD Skills.', 'تعرّفوا على قصتنا وفريق القيادة والأهداف التي توجه AMUD Skills.', 'Erfahren Sie mehr über unsere Geschichte, unser Führungsteam und die Ziele von AMUD Skills.', 'Learn about our story, leadership team and the goals guiding AMUD Skills.')}</p>
-      </header>
+      <SectorHero eyebrow={t('AMUD SKILLS · PROFIL DE LA STARTUP', 'AMUD SKILLS · ملف الشركة الناشئة', 'AMUD SKILLS · STARTUP-PROFIL', 'AMUD SKILLS · STARTUP PROFILE')} title={t('Une startup numérique, portée par une ambition claire.', 'شركة رقمية ناشئة برؤية وأهداف واضحة.', 'Ein Digital-Startup mit klarer Vision.', 'A digital startup with a clear ambition.')} intro={t('Découvrez notre histoire, notre équipe dirigeante et les objectifs qui guident AMUD Skills.', 'تعرّفوا على قصتنا وفريق القيادة والأهداف التي توجه AMUD Skills.', 'Erfahren Sie mehr über unsere Geschichte, unser Führungsteam und die Ziele von AMUD Skills.', 'Learn about our story, leadership team and the goals guiding AMUD Skills.')} image="startup" alt={t('Illustration de coopération entre talents et entreprises du Maroc et d’Allemagne','تصور توضيحي للتعاون بين المواهب والشركات في المغرب وألمانيا','Illustration der Zusammenarbeit zwischen Talenten und Unternehmen in Marokko und Deutschland','Illustration of cooperation between talent and businesses in Morocco and Germany')}><a className="sector-button" href="/notre-entreprise#demander-un-devis">{t('Parlons de votre projet','لنتحدث عن مشروعكم','Sprechen wir über Ihr Projekt','Let’s talk about your project')}<ArrowUpRight size={18}/></a><a className="sector-text-link" href="#startup-services">{t('Nos services','خدماتنا','Unsere Leistungen','Our services')}</a></SectorHero>
 
       <section className="company-startup-profile" id="profil-startup" aria-labelledby="startup-profile-title">
         <div className="company-startup-overview">
@@ -30,6 +29,7 @@ export function StartupProfilePage({ locale }: { locale: Locale }) {
         </div>
         <div className="company-startup-goals">
           <div className="company-startup-goals-heading"><span className="company-startup-fact-icon"><Target size={19}/></span><div><p className="company-eyebrow">{t('NOTRE CAP', 'وجهتنا', 'UNSER ZIEL', 'OUR DIRECTION')}</p><h3>{t('Nos objectifs', 'أهدافنا', 'Unsere Ziele', 'Our goals')}</h3></div></div>
+          <StartupGoalsVisual locale={locale}/>
           <div className="company-startup-goals-grid">
             <article><span>01</span><h4>{t('Accélérer la transformation numérique', 'تسريع التحول الرقمي', 'Die digitale Transformation voranbringen', 'Advance digital transformation')}</h4><p>{t('Créer des applications et installer des infrastructures numériques adaptées aux besoins des entreprises.', 'إنشاء تطبيقات وتركيب بنية تحتية رقمية تستجيب لاحتياجات الشركات.', 'Apps entwickeln und digitale Infrastrukturen passend zum Bedarf von Unternehmen einrichten.', 'Build applications and digital infrastructure that respond to organisations’ needs.')}</p></article>
             <article><span>02</span><h4>{t('Développer les compétences technologiques', 'تطوير المهارات التكنولوجية', 'Technologiekompetenzen entwickeln', 'Develop technology skills')}</h4><p>{t('Faciliter l’accès à la formation continue grâce à un réseau de formateurs spécialisés, notamment en cybersécurité.', 'تسهيل الوصول إلى التكوين المستمر عبر شبكة من المدربين المتخصصين، خصوصًا في الأمن السيبراني.', 'Weiterbildung durch ein Netzwerk spezialisierter Trainerinnen und Trainer zugänglich machen, insbesondere im Bereich Cybersicherheit.', 'Make continuing education accessible through a network of specialist trainers, including in cybersecurity.')}</p></article>
@@ -38,9 +38,10 @@ export function StartupProfilePage({ locale }: { locale: Locale }) {
         </div>
       </section>
 
+      <StartupSections locale={locale}/>
       <div className="company-startup-page-actions">
         <a className="company-startup-back-link" href="/notre-entreprise"><ArrowLeft size={17}/>{t('Retour à nos services', 'العودة إلى خدماتنا', 'Zurück zu unseren Leistungen', 'Back to our services')}</a>
-        <a className="company-button" href="/notre-entreprise#demander-un-devis">{t('Demander un devis', 'طلب عرض سعر', 'Angebot anfragen', 'Request a quote')}<ArrowUpRight size={17}/></a>
+        <a className="sector-button" href="/notre-entreprise#demander-un-devis">{t('Demander un devis', 'طلب عرض سعر', 'Angebot anfragen', 'Request a quote')}<ArrowUpRight size={17}/></a>
       </div>
     </div>
   </div>;

@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { getSeoPage, type SeoFaq, type SeoPage } from '@/lib/seoPages';
 import { SITE_URL } from '@/lib/site';
 import { LandingScrollReveal } from '@/components/reference-landing/LandingMotion';
+import { isSectorPage, SectorLandingPage } from './SectorLandingPage';
+import { SharedPublicFooter, SharedPublicHeader } from '@/components/reference-landing/SharedPublicChrome';
 
 const levelLabels = ['Aucun', 'A1', 'A2', 'B1', 'B2', 'C1+'];
 
@@ -21,6 +23,7 @@ function faqSchema(faqs: SeoFaq[]) {
 }
 
 export function SeoLandingPage({ page }: { page: SeoPage }) {
+  if (isSectorPage(page.slug)) return <><SharedPublicHeader/><SectorLandingPage page={page}/><SharedPublicFooter/></>;
   const sections = [
     ['Opportunités disponibles', page.opportunity],
     ['Profil recherché', page.profile],
