@@ -13,7 +13,7 @@ export function StartupProfilePage({ locale }: { locale: Locale }) {
   const t = translator(locale);
 
   return <div className="startup-editorial" dir={locale === 'ar' ? 'rtl' : 'ltr'} lang={locale}>
-    <div id="main-content">
+    <div>
       <SectorHero eyebrow={t('AMUD SKILLS · PROFIL DE LA STARTUP', 'AMUD SKILLS · ملف الشركة الناشئة', 'AMUD SKILLS · STARTUP-PROFIL', 'AMUD SKILLS · STARTUP PROFILE')} title={t('Une startup numérique, portée par une ambition claire.', 'شركة رقمية ناشئة برؤية وأهداف واضحة.', 'Ein Digital-Startup mit klarer Vision.', 'A digital startup with a clear ambition.')} intro={t('Découvrez notre histoire, notre équipe dirigeante et les objectifs qui guident AMUD Skills.', 'تعرّفوا على قصتنا وفريق القيادة والأهداف التي توجه AMUD Skills.', 'Erfahren Sie mehr über unsere Geschichte, unser Führungsteam und die Ziele von AMUD Skills.', 'Learn about our story, leadership team and the goals guiding AMUD Skills.')} image="startup" alt={t('Illustration de coopération entre talents et entreprises du Maroc et d’Allemagne','تصور توضيحي للتعاون بين المواهب والشركات في المغرب وألمانيا','Illustration der Zusammenarbeit zwischen Talenten und Unternehmen in Marokko und Deutschland','Illustration of cooperation between talent and businesses in Morocco and Germany')}><a className="sector-button" href="/notre-entreprise#demander-un-devis">{t('Parlons de votre projet','لنتحدث عن مشروعكم','Sprechen wir über Ihr Projekt','Let’s talk about your project')}<ArrowUpRight size={18}/></a><a className="sector-text-link" href="#startup-services">{t('Nos services','خدماتنا','Unsere Leistungen','Our services')}</a></SectorHero>
 
       <section className="company-startup-profile" id="profil-startup" aria-labelledby="startup-profile-title">

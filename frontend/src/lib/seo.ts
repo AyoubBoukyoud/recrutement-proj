@@ -21,10 +21,15 @@ export function pageMetadata({
   title,
   description,
   path,
+  socialTitle = title,
+  socialDescription = description,
 }: {
   title: string;
   description: string;
   path: string;
+  /** Titre/description d'aperçu (WhatsApp, LinkedIn) quand ils diffèrent de ceux du moteur de recherche. */
+  socialTitle?: string;
+  socialDescription?: string;
 }): Metadata {
   return {
     title,
@@ -33,16 +38,16 @@ export function pageMetadata({
     openGraph: {
       type: 'website',
       siteName: 'AMUD Skills',
-      locale: 'fr_FR',
+      locale: 'fr_MA',
       url: path,
-      title,
-      description,
+      title: socialTitle,
+      description: socialDescription,
       images: [OG_IMAGE],
     },
     twitter: {
       card: 'summary_large_image',
-      title,
-      description,
+      title: socialTitle,
+      description: socialDescription,
       images: [OG_IMAGE.url],
     },
   };
@@ -53,7 +58,9 @@ export const DEFAULT_SOCIAL: Pick<Metadata, 'openGraph' | 'twitter'> = {
   openGraph: {
     type: 'website',
     siteName: 'AMUD Skills',
-    locale: 'fr_FR',
+    locale: 'fr_MA',
+    title: 'Emploi en Allemagne pour Marocains | Amud Skills',
+    description: 'Des opportunités professionnelles selon votre métier, votre expérience et votre niveau d’allemand.',
     images: [OG_IMAGE],
   },
   twitter: { card: 'summary_large_image', images: [OG_IMAGE.url] },

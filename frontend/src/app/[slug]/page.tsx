@@ -29,9 +29,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     },
     openGraph: { title: page.title, description: page.description, url: `/${slug}`, siteName: 'Amud Skills', type: 'article', locale: 'fr_MA' },
     twitter: { card: 'summary', title: page.title, description: page.description },
-    ...(slug === 'mentions-legales' || slug === 'confidentialite' || slug === 'conditions-utilisation'
-      ? { robots: { index: false, follow: true } }
-      : {}),
   };
 }
 

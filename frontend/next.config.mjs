@@ -138,7 +138,11 @@ const nextConfig = {
    * acquise ; le navigateur conserve l'ancre (`#faq`, `#parcours`…).
    */
   async redirects() {
-    return [{ source: '/accueil-public', destination: '/', permanent: true }];
+    return [
+      { source: '/accueil-public', destination: '/', permanent: true },
+      // The privacy policy lives at one address (content/legal.ts).
+      { source: '/confidentialite', destination: '/politique-de-confidentialite', permanent: true },
+    ];
   },
   /*
    * Les fichiers de `public/` (vidéo du hero, affiches, icônes) sont servis par
