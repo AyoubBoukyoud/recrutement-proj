@@ -281,4 +281,179 @@
   text-underline-offset: 2px;
 }
 
+/* Formulaire de contact de l'accueil : intro à gauche, formulaire à droite, comme la FAQ. */
+.r-contact {
+  display: grid;
+  grid-template-columns: 30% 1fr;
+  gap: 7%;
+  padding: 56px 32px 40px;
+  margin-top: 66px;
+  border-top: 1px solid #f5eeea;
+  scroll-margin-top: 16px;
+}
+
+.r-contact-intro h2 {
+  margin: 4px 0 9px;
+  font-size: clamp(28px, 3vw, 40px);
+  line-height: 1.1;
+}
+
+.r-contact-intro > p:not(.r-eyebrow) {
+  max-width: 280px;
+  color: var(--r-muted);
+  font-size: 13px;
+}
+
+.r-contact-intro .r-contact-mail {
+  margin-top: 14px;
+}
+
+.r-contact-mail a {
+  color: var(--r-red);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.r-contact-form {
+  display: grid;
+  gap: 16px;
+  padding: 26px;
+  border: 1px solid #eee7e3;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 6px 20px #35232104;
+}
+
+.r-contact-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.r-contact-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--r-ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.r-contact-form :is(input, textarea) {
+  width: 100%;
+  min-height: 46px;
+  padding: 11px 14px;
+  border: 1px solid #eaded5;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--r-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.r-contact-form textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.r-contact-form :is(input, textarea)::placeholder {
+  color: #6f6f80;
+}
+
+.r-contact-form :is(input, textarea):focus {
+  border-color: var(--r-red);
+  outline: 2px solid #ba303e26;
+  outline-offset: 0;
+}
+
+.r-contact-form .r-button {
+  justify-self: start;
+}
+
+.r-contact-form .r-button:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+.r-contact-error {
+  padding: 10px 12px;
+  border: 1px solid #ba303e40;
+  border-radius: 10px;
+  background: #ba303e0d;
+  color: #8f2330;
+  font-size: 13px;
+}
+
+.r-contact-privacy {
+  color: var(--r-muted);
+  font-size: 12px;
+}
+
+.r-contact-privacy a {
+  color: var(--r-red);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.r-contact-success {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 8px;
+  padding: 32px;
+  border: 1px solid #eee7e3;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.r-contact-success svg {
+  width: 40px;
+  height: 40px;
+  padding: 9px;
+  border-radius: 50%;
+  background: #ba303e14;
+  color: var(--r-red);
+}
+
+.r-contact-success h3 {
+  font-size: 20px;
+}
+
+.r-contact-success p {
+  color: var(--r-muted);
+}
+
+@media (max-width: 900px) {
+  .r-contact {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 40px 0 32px;
+    margin-top: 56px;
+  }
+
+  .r-contact-intro > p:not(.r-eyebrow) {
+    max-width: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .r-contact-row {
+    grid-template-columns: 1fr;
+  }
+
+  .r-contact-form {
+    padding: 18px;
+  }
+}
+
+/* `<main>` reçoit le focus du lien d'évitement : pas de contour sur toute la page. */
+.marketing-main:focus {
+  outline: none;
+}
+
+/* Le bouton flottant « Gérer les cookies » reste fixé en bas à droite : de la place sous le pied de page, pour qu'il ne masque pas ses derniers liens. */
+.r-footer {
+  padding-bottom: 56px;
+}
 .reference-home .r-startup-cta { margin-top:12px; margin-bottom:38px; border-color:#e7dfc5; background:linear-gradient(110deg,#fff9ed,#fff 76%); }

@@ -13,7 +13,7 @@ export function PublicMarketingLanding({ kind }: { kind: 'employers' | 'centre' 
   return <div className="reference-home" data-landing-motion-scope dir={language === 'ar' ? 'rtl' : 'ltr'} lang={language}>
     <LandingScrollReveal/>
     <PublicSiteHeader locale={language}/>
-    <main className="marketing-main"><Page locale={language}/></main>
+    <main id="main-content" tabIndex={-1} className="marketing-main"><Page locale={language}/></main>
     <PublicSiteFooter locale={language}/>
   </div>;
 }

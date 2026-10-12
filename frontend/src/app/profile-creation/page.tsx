@@ -8,7 +8,7 @@
 // enregistrés — pas à la soumission finale, qui ne fait que déclarer le dossier
 // prêt (et qualifie un parrainage en attente).
 
-import { Suspense, useEffect, useId, useState } from 'react';
+import { Suspense, useEffect, useId, useState, type ReactNode } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/context/AuthContext';
@@ -18,6 +18,7 @@ import { SECTORS } from '@/lib/referenceData';
 import { Button, IconButton } from '@/components/shared/Button';
 import { AuthShell } from '@/components/AuthShell';
 import { ApiError } from '@/lib/api';
+import { LEGAL_PATHS } from '@/content/legal';
 import { candidateProfileRepository } from '@/data/candidateProfile';
 import { useCandidateProfile, useInvalidateCandidateProfile } from '@/lib/useCandidateProfile';
 import {
@@ -599,13 +600,13 @@ function ProfileCreationContent() {
         {step === 6 && (
           <div className="fade-in-entry stagger-1 opacity-0 space-y-4">
             <ConsentRow
-              label="J'accepte les Conditions Générales d'Utilisation d'Amud Skills"
+              label={<>J’accepte les <a href={LEGAL_PATHS.terms} target="_blank" rel="noopener noreferrer" className="font-bold text-primary underline">Conditions d’utilisation</a> d’Amud Skills</>}
               required
               checked={consents.cgu}
               onChange={(v) => setConsents((p) => ({ ...p, cgu: v }))}
             />
             <ConsentRow
-              label="Je consens au traitement de mes données personnelles conformément à la loi marocaine (CNDP) et au règlement européen (RGPD/DSGVO)."
+              label={<>Je consens au traitement de mes données personnelles conformément à la loi marocaine (CNDP) et au règlement européen (RGPD/DSGVO), tel que décrit dans la <a href={LEGAL_PATHS.privacy} target="_blank" rel="noopener noreferrer" className="font-bold text-primary underline">politique de confidentialité</a>.</>}
               required
               checked={consents.privacy}
               onChange={(v) => setConsents((p) => ({ ...p, privacy: v }))}
@@ -711,7 +712,7 @@ function ConsentRow({
   checked,
   onChange,
 }: {
-  label: string;
+  label: ReactNode;
   required?: boolean;
   checked: boolean;
   onChange: (value: boolean) => void;

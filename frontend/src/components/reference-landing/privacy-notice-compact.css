@@ -6,4 +6,9 @@
 .amud-privacy-more summary{display:flex;align-items:center;min-height:36px;color:#8e393d;font-size:12px;font-weight:650;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .amud-privacy-more>p{margin:2px 0 8px;color:#514844;font-size:13px;line-height:1.45}
 @media(max-width:600px){.amud-privacy-notice{max-height:min(72svh,520px);padding:14px 16px}.amud-privacy-top{margin-bottom:6px}.amud-privacy-links{margin-top:5px;gap:2px 12px}.amud-privacy-actions{margin-top:7px;gap:7px}.amud-privacy-actions button{flex:1 1 110px;min-height:44px;padding:7px 9px;font-size:13px}}
-@media(max-width:600px){.amud-privacy-notice{top:max(82px,calc(10px + env(safe-area-inset-top)));bottom:auto}}
+/* Sur téléphone, le bandeau se pose en bas : en haut il masquait le titre de la page à la première visite. */
+@media(max-width:600px){.amud-privacy-notice{top:auto;bottom:calc(10px + env(safe-area-inset-bottom));max-height:min(58svh,430px)}}
+/* En arabe (de droite à gauche), le bandeau passe côté gauche, comme le reste de la mise en page. */
+.amud-privacy-notice[dir=rtl],.amud-privacy-settings[dir=rtl]{right:auto;left:max(14px,env(safe-area-inset-left))}
+@media(max-width:600px){.amud-privacy-notice[dir=rtl],.amud-privacy-settings[dir=rtl]{left:12px}}
+.amud-privacy-notice[dir=rtl] h2{margin:0 0 8px;padding-inline-end:0}

@@ -291,7 +291,7 @@
 .reference-home .company-service:hover .company-service-art img { transform:scale(1.025); }
 .reference-home .company-service-copy { position:relative; min-height:180px; padding:21px 24px 23px; }
 .reference-home .company-service-icon { width:42px; height:42px; display:grid; place-items:center; float:inline-start; margin-inline-end:13px; border-radius:13px; color:var(--company-red); background:#fcf0ed; }
-.reference-home .company-service-number { float:inline-end; color:#cc920e; font-size:.78rem; font-weight:800; letter-spacing:.06em; }
+.reference-home .company-service-number { float:inline-end; color:#946800; font-size:.78rem; font-weight:800; letter-spacing:.06em; }
 .reference-home .company-service-copy h3 { min-height:42px; margin:1px 46px 9px 0; color:var(--company-ink); font-size:1.18rem; font-weight:780; letter-spacing:-.025em; line-height:1.3; }
 .reference-home [dir=rtl] .company-service-copy h3 { margin:1px 0 9px 46px; }
 .reference-home .company-service-copy>p { clear:both; margin:0; color:var(--company-muted); font-size:.91rem; line-height:1.65; }

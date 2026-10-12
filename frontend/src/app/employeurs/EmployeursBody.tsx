@@ -37,7 +37,7 @@ export function EmployeursBody() {
           <div className="rounded-3xl border border-outline-variant bg-surface-lowest p-6 shadow-floating sm:p-8">
             <div className="flex items-center gap-4 border-b border-outline-variant pb-5">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Icon name="business_center" /></div>
-              <div><p className="text-xs font-bold uppercase tracking-wider text-outline">{content.preview.eyebrow}</p><h2 className="mt-1 text-xl font-black text-primary-dark">{content.preview.title}</h2></div>
+              <div><p className="text-xs font-bold uppercase tracking-wider text-onSurface-variant">{content.preview.eyebrow}</p><h2 className="mt-1 text-xl font-black text-primary-dark">{content.preview.title}</h2></div>
             </div>
             <div className="mt-6 space-y-3">
               {content.preview.items.map((item) => (

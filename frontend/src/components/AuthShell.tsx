@@ -31,7 +31,7 @@ export function AuthShell({
       <div className="min-h-[100dvh] bg-surface lg:grid lg:grid-cols-2 xl:grid-cols-[minmax(0,7fr)_minmax(0,6fr)]">
         <AuthBrandPanel />
         <div className="relative flex min-h-[100dvh] min-w-0 flex-col">
-          <HeaderPreferences className="absolute end-2 top-[max(0.5rem,env(safe-area-inset-top))] z-[70] rounded-full bg-surface-container-lowest p-0.5 shadow-soft lg:end-6 lg:top-6 lg:shadow-none" />
+          <header className="contents"><HeaderPreferences className="absolute end-2 top-[max(0.5rem,env(safe-area-inset-top))] z-[70] rounded-full bg-surface-container-lowest p-0.5 shadow-soft lg:end-6 lg:top-6 lg:shadow-none" /></header>
           {children}
         </div>
       </div>
@@ -52,7 +52,7 @@ export function AuthShell({
     return (
       <div className="lg:min-h-screen lg:bg-gradient-to-br lg:from-primary-light lg:via-surface lg:to-secondary-light/40">
         <div className="relative lg:mx-auto lg:max-w-md lg:shadow-floating lg:ring-1 lg:ring-outline-variant">
-          <HeaderPreferences className="absolute right-2 top-[max(0.5rem,env(safe-area-inset-top))] z-[70] rounded-full bg-surface/90 p-0.5 backdrop-blur-md" />
+          <header className="contents"><HeaderPreferences className="absolute right-2 top-[max(0.5rem,env(safe-area-inset-top))] z-[70] rounded-full bg-surface/90 p-0.5 backdrop-blur-md" /></header>
           {children}
         </div>
       </div>
@@ -68,7 +68,7 @@ export function AuthShell({
   return (
     <div className="lg:flex lg:min-h-screen lg:items-center lg:justify-center lg:bg-gradient-to-br lg:from-primary-light lg:via-surface lg:to-secondary-light/40 lg:py-10">
       <div className="relative lg:w-full lg:max-w-md lg:overflow-hidden lg:rounded-card lg:shadow-floating lg:ring-1 lg:ring-outline-variant">
-        <HeaderPreferences className="absolute right-2 top-[max(0.5rem,env(safe-area-inset-top))] z-[70] rounded-full bg-surface/90 p-0.5 backdrop-blur-md" />
+        <header className="contents"><HeaderPreferences className="absolute right-2 top-[max(0.5rem,env(safe-area-inset-top))] z-[70] rounded-full bg-surface/90 p-0.5 backdrop-blur-md" /></header>
         {children}
       </div>
     </div>

@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { SharedPublicFooter, SharedPublicHeader } from '@/components/reference-landing/SharedPublicChrome';
 import { TradeDetail } from '@/components/home/TradeDetail';
+import { LocalizedTradeTitle } from '@/components/seo/LocalizedTitle';
+import { pageMetadata } from '@/lib/seo';
 import { allSlugs, findTrade } from '@/lib/trades';
 
 /**
@@ -20,6 +22,11 @@ export function generateStaticParams() {
   return allSlugs().map((slug) => ({ slug }));
 }
 
+// Un métier inconnu doit répondre 404, pas 200 avec une page « introuvable » :
+// sans cela, `/metiers/n'importe-quoi` ressemble à une vraie page pour les
+// moteurs de recherche. Seuls les slugs de `generateStaticParams` existent.
+export const dynamicParams = false;
+
 type TradePageParams = Promise<{ slug: string }>;
 
 export async function generateMetadata({ params }: { params: TradePageParams }): Promise<Metadata> {
@@ -29,11 +36,11 @@ export async function generateMetadata({ params }: { params: TradePageParams }):
   const trade = findTrade(slug);
   if (!trade) return { title: 'Métier introuvable' };
 
-  return {
+  return pageMetadata({
     title: `${trade.label} en Allemagne — Amud Skills`,
     description: trade.summary,
-    alternates: { canonical: `/metiers/${slug}` },
-  };
+    path: `/metiers/${slug}`,
+  });
 }
 
 export default async function TradePage({ params }: { params: TradePageParams }) {
@@ -42,6 +49,7 @@ export default async function TradePage({ params }: { params: TradePageParams })
 
   return (
     <>
+      <LocalizedTradeTitle slug={slug} />
       <SharedPublicHeader />
       <main id="main-content" tabIndex={-1} className="pt-2 outline-none lg:pt-6">
         <TradeDetail slug={slug} />

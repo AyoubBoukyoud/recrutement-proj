@@ -52,7 +52,9 @@ check('public CTAs use implemented candidate, recruiter, and trade routes', () =
   assert.match(routes, /AUTH='\/auth-phone'/);
   assert.match(routes, /RECRUIT=AUTH\+'\?intent=recruiter'/);
   assert.match(marketplace, /href=\{'\/metiers\/'\+slug\}/);
-  assert.match(tradeDetail, /href="\/#metiers"/);
+  // The home page no longer carries a trades section (`#metiers`); the back
+  // link goes to the /metiers index instead of an anchor that does not exist.
+  assert.match(tradeDetail, /href="\/metiers"/);
 });
 
 check('localized public footer has no placeholder links', () => {

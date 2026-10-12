@@ -256,7 +256,7 @@ export function ProductHome() {
                   <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amud-primary text-headline-md text-white transition-transform duration-300 group-hover:scale-110">
                     {idx + 1}
                   </div>
-                  <h4 className="mb-2 font-bold text-amud-on-surface">{m.title}</h4>
+                  <h3 className="mb-2 font-bold text-amud-on-surface">{m.title}</h3>
                   <p className="text-label-sm text-amud-on-surface-variant">{m.desc}</p>
                 </div>
               </Reveal>

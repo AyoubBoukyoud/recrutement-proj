@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Providers } from '@/components/shared/Providers';
+import { DEFAULT_SOCIAL } from '@/lib/seo';
 import { SITE_URL } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -8,13 +9,7 @@ export const metadata: Metadata = {
   title: 'Emploi en Allemagne pour Marocains | Amud Skills',
   description: 'Amud Skills met en relation les talents marocains avec des entreprises et des opportunités professionnelles en Allemagne.',
   applicationName: 'Amud Skills',
-  openGraph: {
-    siteName: 'Amud Skills', type: 'website', locale: 'fr_MA',
-    title: 'Emploi en Allemagne pour Marocains | Amud Skills',
-    description: 'Des opportunités professionnelles selon votre métier, votre expérience et votre niveau d’allemand.',
-    images: [{ url: '/landing-assets/hero/amud-journey-poster-desktop.webp', width: 1280, height: 720, alt: 'Talents marocains et opportunités professionnelles en Allemagne' }],
-  },
-  twitter: { card: 'summary_large_image' },
+  ...DEFAULT_SOCIAL,
   verification: {
     google: 'BGjobcxF6OnklCX0OWOqR8rI73o1aDRosrV_dgN8HE0',
   },

@@ -5,6 +5,7 @@ import { ArrowUpRight, Facebook, Instagram, Linkedin, Menu, X, Youtube } from 'l
 import Image from 'next/image';
 import { useLanguage } from '@/context/LanguageContext';
 import { AUTH, translator, type Locale } from '@/components/landing/content';
+import { LEGAL_PATHS } from '@/content/legal';
 import { COMPANY, companyPlace } from '@/lib/company';
 import './reference.css';
 import './reference-enhancements.css';
@@ -67,6 +68,7 @@ export function PublicSiteFooter({ locale }: { locale: Locale }) {
       ['/hotellerie-allemagne',t('Hôtellerie','الفندقة','Hotellerie','Hospitality')],
       ['/sante-allemagne',t('Santé','الصحة','Gesundheit','Healthcare')],
       ['/btp-allemagne',t('BTP','البناء والأشغال','Bauwesen','Construction')],
+      ['/metiers',t('Tous les métiers','كل المهن','Alle Berufe','All trades')],
     ]},
     { title: t('Entreprises','الشركات','Unternehmen','Employers'), links: [
       ['/employeurs',t('Recruter des talents','استقطاب المواهب','Talente rekrutieren','Recruit talent')],
@@ -87,6 +89,6 @@ export function PublicSiteFooter({ locale }: { locale: Locale }) {
     <div className="premium-footer-top"><div className="premium-footer-brand"><a href="/" aria-label={t('Accueil Amud Skills','الرئيسية Amud Skills','Amud Skills Startseite','Amud Skills home')}><Image src="/landing-assets/amud-logo-brand.svg" alt="AMUD Skills" width={62} height={62} unoptimized/></a><p>{t('Des compétences. Des rencontres. Un avenir.','مهارات. لقاءات. مستقبل.','Kompetenzen. Begegnungen. Zukunft.','Skills. Connections. A future.')}<span>{t('Du Maroc vers l’Allemagne.','من المغرب إلى ألمانيا.','Von Marokko nach Deutschland.','From Morocco to Germany.')}</span></p></div>
     <nav className="r-social" aria-label={t('Réseaux sociaux','الشبكات الاجتماعية','Soziale Medien','Social media')}>{SOCIAL_LINKS.map(({name,href,Icon})=><a key={name} href={href} target="_blank" rel="noopener noreferrer" aria-label={name}><Icon size={18} aria-hidden="true"/></a>)}<span className="r-social-placeholder" role="img" aria-label={t('YouTube, bientôt','يوتيوب، قريبًا','YouTube, demnächst','YouTube, coming soon')}><Youtube size={18} aria-hidden="true"/></span></nav></div>
     <nav className="premium-footer-nav" aria-label={t('Pied de page','روابط التذييل','Fußnavigation','Footer navigation')}>{columns.map(column=><AccordionFooterColumn key={column.title} {...column}/>)}</nav>
-    <div className="premium-footer-bottom"><small>© 2026 {COMPANY.legalName ?? COMPANY.name}{COMPANY.registration && <><br/>{COMPANY.registration}</>}{place && <><br/>{place}</>}<br/><a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a><br/>{t('Tous droits réservés.','جميع الحقوق محفوظة.','Alle Rechte vorbehalten.','All rights reserved.')}</small><nav className="premium-footer-legal" aria-label={t('Informations légales','المعلومات القانونية','Rechtliche Informationen','Legal information')}><a href="/confidentialite">{t('Confidentialité','الخصوصية','Datenschutz','Privacy')}</a><a href="/mentions-legales">{t('Mentions légales','الإشعارات القانونية','Impressum','Legal notice')}</a><a href="/conditions-utilisation">{t('Conditions d’utilisation','شروط الاستخدام','Nutzungsbedingungen','Terms of use')}</a></nav></div>
+    <div className="premium-footer-bottom"><small>© 2026 {COMPANY.legalName ?? COMPANY.name}{COMPANY.registration && <><br/>{COMPANY.registration}</>}{place && <><br/>{place}</>}<br/><a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a><br/>{t('Tous droits réservés.','جميع الحقوق محفوظة.','Alle Rechte vorbehalten.','All rights reserved.')}</small><nav className="premium-footer-legal" aria-label={t('Informations légales','المعلومات القانونية','Rechtliche Informationen','Legal information')}><a href={LEGAL_PATHS.privacy}>{t('Confidentialité','الخصوصية','Datenschutz','Privacy')}</a><a href={LEGAL_PATHS.notice}>{t('Mentions légales','الإشعارات القانونية','Impressum','Legal notice')}</a><a href={LEGAL_PATHS.terms}>{t('Conditions d’utilisation','شروط الاستخدام','Nutzungsbedingungen','Terms of use')}</a></nav></div>
   </div></footer>;
 }

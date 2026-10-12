@@ -64,7 +64,7 @@ export function CompanyAboutPage({ locale }: { locale: Locale }) {
   };
 
   return <div className="company-page" dir={locale === 'ar' ? 'rtl' : 'ltr'} lang={locale}>
-    <div id="main-content">
+    <div>
       <section className="company-hero" aria-labelledby="company-title">
         <div className="company-hero-copy">
           <p className="company-eyebrow">{t('AMUD SKILLS · EXPERTISES NUMÉRIQUES', 'AMUD SKILLS · خبرات رقمية', 'AMUD SKILLS · DIGITALE EXPERTISE', 'AMUD SKILLS · DIGITAL EXPERTISE')}</p>
