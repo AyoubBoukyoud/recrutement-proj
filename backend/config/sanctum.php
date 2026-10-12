@@ -54,6 +54,28 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Sign-in session lifetime
+    |--------------------------------------------------------------------------
+    |
+    | Sessions used to last forever: a token minted at a cybercafé, on a lost
+    | phone or a retired laptop stayed valid until somebody remembered to
+    | revoke it, and an administrator's was no different. Every session issued
+    | at sign-in (AuthSession::issue) now carries an expiry — administrators'
+    | much shorter, since one session reaches every candidate's documents.
+    | An expired token is answered with 401 and the apps send the person back
+    | to the sign-in screen, exactly as for a revoked one.
+    |
+    | Minutes. The impersonation token has its own, shorter limit
+    | (config/admin.php).
+    |
+    */
+
+    'session_ttl_minutes' => (int) env('SESSION_TOKEN_TTL_MINUTES', 60 * 24 * 90),
+
+    'admin_session_ttl_minutes' => (int) env('ADMIN_SESSION_TOKEN_TTL_MINUTES', 60 * 24 * 7),
+
+    /*
+    |--------------------------------------------------------------------------
     | Token Prefix
     |--------------------------------------------------------------------------
     |

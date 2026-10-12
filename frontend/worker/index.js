@@ -7,6 +7,21 @@
  * message and to the user clicking the resulting system notification.
  */
 
+/*
+ * Earlier versions of this worker cached `/api/` responses and every image,
+ * private ones included (see next.config.mjs). Workbox never deletes caches
+ * it no longer writes to, so a device that already holds them would keep
+ * them. Drop them whenever a new worker takes over; the public images simply
+ * refill.
+ */
+self.addEventListener('activate', (event) => {
+  const stale = ['apis', 'others', 'static-image-assets', 'next-image', 'static-data-assets', 'cross-origin'];
+
+  event.waitUntil(
+    caches.keys().then((names) => Promise.all(names.filter((name) => stale.includes(name)).map((name) => caches.delete(name)))),
+  );
+});
+
 self.addEventListener('push', (event) => {
   let data = { title: 'Amud Skills', body: '' };
   try {

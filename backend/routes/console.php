@@ -13,5 +13,9 @@ Artisan::command('inspire', function () {
 // otherwise invisible — the candidate just sees "Queued for scanning…" forever.
 Schedule::command('documents:scan-pending')->everyTenMinutes()->withoutOverlapping();
 
+// Expired sign-in sessions (config/sanctum.php) are already refused; this only
+// stops them piling up in personal_access_tokens.
+Schedule::command('sanctum:prune-expired --hours=24')->daily();
+
 // CNDP erasure requests become final after their 30-day cancellation window.
 Schedule::command('candidates:purge-deleted')->daily()->withoutOverlapping();

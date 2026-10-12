@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CandidateProfile;
 use App\Models\RecruiterShortlist;
 use App\Services\RecruiterProfileView;
+use App\Support\Csv;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -27,7 +28,7 @@ class RecruiterShortlistController extends Controller
     public function index(Request $request): JsonResponse
     {
         $entries = RecruiterShortlist::where('user_id', $request->user()->id)
-            ->with(['candidateProfile.languages', 'candidateProfile.user:id,phone,email'])
+            ->with(['candidateProfile.languages', 'candidateProfile.user:id,phone,email,status,deletion_requested_at'])
             ->latest('updated_at')
             ->paginate((int) $request->integer('per_page', 20));
 
@@ -55,7 +56,7 @@ class RecruiterShortlistController extends Controller
         $entry->fill($data)->save();
 
         return response()->json(
-            $this->present($entry->load(['candidateProfile.languages', 'candidateProfile.user:id,phone,email'])),
+            $this->present($entry->load(['candidateProfile.languages', 'candidateProfile.user:id,phone,email,status,deletion_requested_at'])),
             $wasNew ? 201 : 200,
         );
     }
@@ -126,7 +127,7 @@ class RecruiterShortlistController extends Controller
     public function export(Request $request): StreamedResponse
     {
         $entries = RecruiterShortlist::where('user_id', $request->user()->id)
-            ->with(['candidateProfile.languages', 'candidateProfile.user:id,phone,email'])
+            ->with(['candidateProfile.languages', 'candidateProfile.user:id,phone,email,status,deletion_requested_at'])
             ->latest('updated_at')
             ->get();
 
@@ -146,27 +147,43 @@ class RecruiterShortlistController extends Controller
                     continue;
                 }
 
+                $released = $this->contactReleased($entry, $profile);
+
+                // Every cell a person typed goes through csvCell(). The phone
+                // is the exception: it is validated E.164, so its leading `+`
+                // is data, and prefixing it would corrupt the number.
                 fputcsv($handle, [
-                    trim("{$profile->first_name} {$profile->last_name}"),
-                    $profile->profession,
-                    $profile->specialization,
+                    Csv::cell(trim("{$profile->first_name} {$profile->last_name}")),
+                    Csv::cell($profile->profession),
+                    Csv::cell($profile->specialization),
                     $profile->years_of_experience,
                     $profile->availability_status,
                     $profile->languages
                         ->map(fn ($l) => strtoupper($l->language).' '.($l->cefr_level ?? '—'))
                         ->implode(', '),
                     $entry->stage,
-                    $entry->contact_revealed_at ? $profile->user?->phone : '',
-                    $entry->contact_revealed_at ? $profile->user?->email : '',
+                    $released ? $profile->user?->phone : '',
+                    $released ? Csv::cell($profile->user?->email) : '',
                     $entry->contact_revealed_at?->toDateString() ?? '',
                     // Newlines inside a CSV cell survive quoting, but they make
                     // the file unreadable in half the tools that open it.
-                    str_replace(["\r\n", "\n"], ' ', (string) $entry->notes),
+                    Csv::cell(str_replace(["\r\n", "\n"], ' ', (string) $entry->notes)),
                 ]);
             }
 
             fclose($handle);
         }, $filename, ['Content-Type' => 'text/csv']);
+    }
+
+    /**
+     * The contact details a recruiter took stay on their list only while the
+     * candidate remains visible: pausing, withdrawing consent, being blocked
+     * or asking for deletion all take the phone and email back off the screen
+     * and out of the export.
+     */
+    private function contactReleased(RecruiterShortlist $entry, ?CandidateProfile $profile): bool
+    {
+        return $entry->contact_revealed_at !== null && $profile !== null && RecruiterProfileView::isVisible($profile);
     }
 
     /** @return array<string, mixed> */
@@ -191,7 +208,7 @@ class RecruiterShortlistController extends Controller
                 'availability_status' => $profile->availability_status,
                 'languages' => $profile->languages,
             ] : null,
-            'contact' => $entry->contact_revealed_at ? [
+            'contact' => $this->contactReleased($entry, $profile) ? [
                 'phone' => $profile?->user?->phone,
                 'email' => $profile?->user?->email,
             ] : null,

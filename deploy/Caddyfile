@@ -1,9 +1,21 @@
 {$SITE_ADDRESS} {
     encode zstd gzip
 
+    # `www.` serves the same pages as the bare domain, which splits what search
+    # engines index across two addresses. Send it to the canonical one
+    # (frontend/src/lib/site.ts). The matcher names the production host, so on
+    # any other SITE_ADDRESS (staging, localhost) it never fires.
+    @www host www.amudskills.com
+    redir @www https://amudskills.com{uri} permanent
+
     @backend path /api/* /up /storage/*
     handle @backend {
-        reverse_proxy backend-web:8080
+        # Laravel keys its per-IP rate limits on X-Forwarded-For (it trusts the
+        # private proxy network, see bootstrap/app.php). Caddy already replaces
+        # a client-sent value; saying so here keeps it true on any version.
+        reverse_proxy backend-web:8080 {
+            header_up X-Forwarded-For {remote_host}
+        }
     }
 
     handle {
@@ -15,7 +27,12 @@
         X-Content-Type-Options nosniff
         Referrer-Policy strict-origin-when-cross-origin
         X-Frame-Options SAMEORIGIN
+        # Camera and microphone are used by the app itself (presentation video,
+        # language test, QR scanner); nothing else is, and nothing is delegated
+        # to third-party frames.
+        Permissions-Policy "camera=(self), microphone=(self), geolocation=(), payment=(), usb=()"
         -Server
+        -X-Powered-By
     }
 
     log {

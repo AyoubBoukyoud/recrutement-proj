@@ -1,0 +1,6 @@
+# To report a security problem with amudskills.com, write to the address below
+# and please do not disclose it publicly before we have had a chance to fix it.
+Contact: mailto:contact@amudskills.com
+Expires: 2027-10-11T00:00:00.000Z
+Preferred-Languages: fr, en, ar, de
+Canonical: https://amudskills.com/.well-known/security.txt

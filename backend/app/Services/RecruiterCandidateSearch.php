@@ -36,6 +36,8 @@ class RecruiterCandidateSearch
             ->whereNotNull('terms_consent_at')
             ->whereNotNull('cndp_consent_at');
         $query->whereNull('cndp_withdrawn_at')->whereNull('visibility_paused_at');
+        // Same rule as RecruiterProfileView::isVisible(): not blocked, not leaving.
+        $query->whereHas('user', fn (Builder $user) => $user->where('status', 'active')->whereNull('deletion_requested_at'));
 
         if ($recruiterId) {
             $query->with(['shortlistEntries' => fn ($q) => $q->where('user_id', $recruiterId)]);

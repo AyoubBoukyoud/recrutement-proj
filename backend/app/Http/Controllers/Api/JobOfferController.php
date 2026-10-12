@@ -44,7 +44,9 @@ class JobOfferController extends Controller
             'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
             'page' => ['sometimes', 'integer', 'min:1'],
         ]);
-        $query = JobOffer::with('employer.companyProfile')
+        // `employer` is the recruiter's User row: its phone is the credential
+        // they sign in with and its email is private, so only the name goes out.
+        $query = JobOffer::with(['employer:id,name', 'employer.companyProfile'])
             ->where('status', 'published')
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now());
@@ -91,7 +93,7 @@ class JobOfferController extends Controller
     public function show(Request $request, JobOffer $offer): JsonResponse
     {
         abort_unless($offer->status === 'published' && $offer->published_at?->isPast(), 404);
-        $offer->load('employer.companyProfile');
+        $offer->load(['employer:id,name', 'employer.companyProfile']);
         if ($request->user()->candidateProfile) {
             $offer->setAttribute('match_score', $this->matching->score($request->user()->candidateProfile, $offer));
         }

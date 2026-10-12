@@ -32,14 +32,14 @@ type Interview = {
   application: {
     id: number;
     offer: { id: number; title: string };
-    candidate_profile: { id: number; first_name: string | null; last_name: string | null; user: { phone: string } | null } | null;
+    candidate_profile: { id: number; first_name: string | null; last_name: string | null } | null;
   };
 };
 
 type ApplicationOption = {
   id: number;
   offer: { title: string };
-  candidate_profile: { first_name: string | null; last_name: string | null; user: { phone: string } | null } | null;
+  candidate_profile: { first_name: string | null; last_name: string | null } | null;
 };
 
 const TYPE_ICON: Record<InterviewType, string> = { in_person: 'location_on', video: 'videocam', phone: 'call' };
@@ -65,7 +65,8 @@ const TABS: { id: TabId; label: string }[] = [
 function candidateName(app: { candidate_profile: ApplicationOption['candidate_profile'] } | Interview['application']) {
   const p = app.candidate_profile;
   const name = `${p?.first_name ?? ''} ${p?.last_name ?? ''}`.trim();
-  return name || p?.user?.phone || 'Candidat';
+  // Never the phone number: contact details come only from the contact reveal.
+  return name || 'Candidat';
 }
 
 function isoDate(d: Date) {

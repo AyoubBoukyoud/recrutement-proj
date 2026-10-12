@@ -33,6 +33,27 @@ return Application::configure(basePath: dirname(__DIR__))
          */
         $middleware->redirectGuestsTo(fn () => null);
 
+        /*
+         * Behind Caddy and the nginx container, every request reaches PHP from
+         * the proxy's own address, so `$request->ip()` was the same for every
+         * visitor. All the per-IP limiters (OTP, contact form, quote form,
+         * recruiter search) therefore shared one bucket across the whole
+         * site: twenty requests a minute from anyone locked everybody out of
+         * signing in, and none of them could tell attackers from users.
+         * `X-Forwarded-For` is only believed when the connection comes from
+         * a private address — the proxy — never from the open internet.
+         */
+        $middleware->trustProxies(
+            at: array_values(array_filter(array_map('trim', explode(',', (string) env(
+                'TRUSTED_PROXIES',
+                '127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16',
+            ))))),
+            headers: Request::HEADER_X_FORWARDED_FOR
+                | Request::HEADER_X_FORWARDED_HOST
+                | Request::HEADER_X_FORWARDED_PORT
+                | Request::HEADER_X_FORWARDED_PROTO,
+        );
+
         $middleware->alias([
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,

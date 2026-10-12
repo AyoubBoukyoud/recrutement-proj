@@ -15,6 +15,11 @@ use Illuminate\Http\Request;
  * actual date/time/mode/location, and can be rescheduled without losing the
  * application's status history.
  */
+/*
+ * The candidate's `user` (phone, email) is deliberately never loaded into an
+ * interview response: those details are released only by the attributable
+ * contact reveal, not as a side effect of scheduling.
+ */
 class RecruiterInterviewController extends Controller
 {
     public function __construct(private readonly Notifications $notifications) {}
@@ -26,7 +31,7 @@ class RecruiterInterviewController extends Controller
         ]);
 
         $query = Interview::whereHas('application.offer', fn ($offer) => $offer->where('user_id', $request->user()->id))
-            ->with(['application.offer', 'application.candidateProfile.user', 'feedback.author:id,name']);
+            ->with(['application.offer', 'application.candidateProfile', 'feedback.author:id,name']);
 
         if (isset($data['status'])) {
             $query->where('status', $data['status']);
@@ -38,7 +43,7 @@ class RecruiterInterviewController extends Controller
     public function show(Request $request, Interview $interview): JsonResponse
     {
         $this->authorizeOwnership($request, $interview);
-        $interview->load(['application.offer', 'application.candidateProfile.user', 'feedback.author:id,name']);
+        $interview->load(['application.offer', 'application.candidateProfile', 'feedback.author:id,name']);
 
         return response()->json($interview);
     }
@@ -70,7 +75,7 @@ class RecruiterInterviewController extends Controller
 
         $this->notifications->interviewScheduled($interview);
 
-        return response()->json($interview->load(['application.offer', 'application.candidateProfile.user']), 201);
+        return response()->json($interview->load(['application.offer', 'application.candidateProfile']), 201);
     }
 
     public function update(Request $request, Interview $interview): JsonResponse
@@ -98,7 +103,7 @@ class RecruiterInterviewController extends Controller
             $this->notifications->interviewScheduled($interview->fresh());
         }
 
-        return response()->json($interview->fresh(['application.offer', 'application.candidateProfile.user']));
+        return response()->json($interview->fresh(['application.offer', 'application.candidateProfile']));
     }
 
     public function storeFeedback(Request $request, Interview $interview): JsonResponse

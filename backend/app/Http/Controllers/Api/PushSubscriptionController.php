@@ -18,7 +18,7 @@ class PushSubscriptionController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'endpoint' => ['required', 'string', 'max:2048'],
+            'endpoint' => ['required', 'string', 'max:2048', $this->pushServiceEndpoint(...)],
             'keys' => ['required', 'array'],
             'keys.p256dh' => ['required', 'string'],
             'keys.auth' => ['required', 'string'],
@@ -38,6 +38,28 @@ class PushSubscriptionController extends Controller
         );
 
         return response()->json($subscription, 201);
+    }
+
+    /**
+     * Validation rule: an https URL, with no credentials or custom port, on a
+     * known push service. See config/webpush.php for why.
+     */
+    private function pushServiceEndpoint(string $attribute, mixed $value, \Closure $fail): void
+    {
+        $parts = is_string($value) ? parse_url($value) : false;
+        $host = is_array($parts) ? strtolower((string) ($parts['host'] ?? '')) : '';
+
+        $allowed = $host !== ''
+            && ($parts['scheme'] ?? null) === 'https'
+            && ! isset($parts['user'], $parts['pass'])
+            && (! isset($parts['port']) || $parts['port'] === 443)
+            && collect(config('webpush.allowed_hosts', []))->contains(
+                fn (string $suffix) => $host === $suffix || str_ends_with($host, '.'.$suffix),
+            );
+
+        if (! $allowed) {
+            $fail('The push endpoint is not a supported push service.');
+        }
     }
 
     public function destroy(Request $request): JsonResponse

@@ -16,7 +16,10 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable(['name', 'email', 'phone', 'password', 'status', 'status_reason', 'status_changed_at', 'status_changed_by_id', 'deletion_requested_at'])]
-#[Hidden(['password', 'remember_token', 'google_id'])]
+// Internal bookkeeping stays out of every serialised User — this model rides
+// along in other people's responses (an offer's employer, an application's
+// candidate), not just in the owner's `/auth/me`.
+#[Hidden(['password', 'remember_token', 'google_id', 'status_changed_by_id', 'pending_referral_agent_id'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */

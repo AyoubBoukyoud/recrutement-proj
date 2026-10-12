@@ -93,6 +93,11 @@ class AdminUserController extends Controller
 
         $user->syncRoles($data['roles']);
 
+        AdminActivityLog::record($request->user(), $user, 'user_created', [
+            'phone' => $user->phone,
+            'roles' => $user->roles->pluck('name')->values()->all(),
+        ]);
+
         return response()->json([
             'id' => $user->id,
             'name' => $user->name,
@@ -124,7 +129,16 @@ class AdminUserController extends Controller
 
         $this->guardAgainstSelfLockout($request, $user, $data['roles']);
 
+        $before = $user->roles->pluck('name')->sort()->values()->all();
+
         $user->syncRoles($data['roles']);
+
+        // Who gave whom which access, and when: the one change that decides
+        // what an account can reach, and until now it left no trace.
+        AdminActivityLog::record($request->user(), $user, 'roles_changed', [
+            'from' => $before,
+            'to' => $user->fresh()->roles->pluck('name')->sort()->values()->all(),
+        ]);
 
         return response()->json([
             'id' => $user->id,

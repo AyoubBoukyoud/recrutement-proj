@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Services\FileAccess;
 use Illuminate\Database\Eloquent\Attributes\Appends;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +14,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Appends(['video_url'])]
+// Administrators' private judgement of a dossier. This model is serialised
+// as-is for the candidate (`/candidate/profile`) and for recruiters
+// (RecruiterProfileView), so it is hidden by default and made visible
+// explicitly where an administrator is the reader.
+#[Hidden(['admin_notes'])]
 #[Fillable([
     'first_name',
     'last_name',

@@ -27,16 +27,73 @@ if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SHOW_DEV_TO
   );
 }
 
+/*
+ * `next-pwa`'s default rules cache every same-origin GET under `/api/`
+ * (NetworkFirst, a day) and every image/other file — which includes the
+ * private ones: a candidate's profile and documents, a recruiter's search
+ * results, and the signed `/storage/…` links to ID scans and videos. They
+ * sat in Cache Storage after sign-out and were served to whoever used the
+ * device next whenever the network was slow or off — on the shared phones
+ * and cybercafé PCs this product is built for. This rule comes first, and
+ * Workbox takes the first match, so none of that is ever stored. (A
+ * function pattern is serialised into the worker: it cannot close over
+ * anything here.)
+ */
+const neverCachePrivate = {
+  urlPattern: ({ url }) =>
+    self.origin === url.origin &&
+    (url.pathname.startsWith('/api/') ||
+      (url.pathname.startsWith('/storage/') && !url.pathname.startsWith('/storage/company-logos/'))),
+  handler: 'NetworkOnly',
+  // next-pwa reads `options` on every rule when an offline fallback is set.
+  options: {},
+};
+
 const withPWA = withPWAInit({
   dest: 'public',
   disable: process.env.NODE_ENV === 'development',
   register: true,
   skipWaiting: true,
-  runtimeCaching,
+  runtimeCaching: [neverCachePrivate, ...runtimeCaching],
   fallbacks: {
     document: '/offline',
   },
 });
+
+/*
+ * Content-Security-Policy for the pages Next serves (the API and the private
+ * files come from Laravel through the proxy and carry their own headers).
+ *
+ * It cannot forbid inline scripts: Next.js writes its own (the RSC payload,
+ * the theme bootstrap, the JSON-LD) and would need a nonce on each, which
+ * means rendering every page per request. What it does is close the rest —
+ * scripts only from this origin and Google Tag Manager, requests only to this
+ * origin and Google Analytics (so injected script has nowhere to send a
+ * stolen token), no plugins, no <base> tricks, nobody framing the app, forms
+ * only to ourselves. Everything allowed below is something the app uses:
+ * Google Fonts (and the service worker's fetches of them), Google profile
+ * photos, camera/microphone recordings as blob: URLs, signed document
+ * previews in a same-origin iframe, consent-gated Analytics.
+ *
+ * Not set in development: webpack's dev builds need `eval`.
+ */
+const googleAnalytics = 'https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com';
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://*.googletagmanager.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  `img-src 'self' data: blob: https://lh3.googleusercontent.com ${googleAnalytics}`,
+  "media-src 'self' blob:",
+  `connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com ${googleAnalytics}`,
+  "frame-src 'self'",
+  "worker-src 'self' blob:",
+  "manifest-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'self'",
+].join('; ');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -82,6 +139,24 @@ const nextConfig = {
    */
   async redirects() {
     return [{ source: '/accueil-public', destination: '/', permanent: true }];
+  },
+  /*
+   * Les fichiers de `public/` (vidéo du hero, affiches, icônes) sont servis par
+   * Next avec `max-age=0` : le navigateur les revalide à chaque visite, y
+   * compris la vidéo de 4 Mo. Leurs noms ne portent pas d'empreinte, donc pas
+   * d'`immutable` : un jour de cache franc, puis une semaine de revalidation
+   * en arrière-plan, pour qu'un fichier remplacé finisse par arriver.
+   * (`/_next/static/*`, lui, est déjà immuable.)
+   */
+  async headers() {
+    const cache = [{ key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' }];
+    const assets = ['/landing-assets/:path*', '/icons/:path*', '/assets/:path*', '/favicon.svg', '/favicon.png', '/favicon.ico'].map(
+      (source) => ({ source, headers: cache }),
+    );
+
+    return process.env.NODE_ENV === 'production'
+      ? [...assets, { source: '/:path*', headers: [{ key: 'Content-Security-Policy', value: contentSecurityPolicy }] }]
+      : assets;
   },
 };
 

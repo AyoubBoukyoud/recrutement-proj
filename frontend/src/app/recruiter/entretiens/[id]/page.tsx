@@ -36,7 +36,7 @@ type Interview = {
   application: {
     id: number;
     offer: { title: string };
-    candidate_profile: { first_name: string | null; last_name: string | null; user: { phone: string } | null } | null;
+    candidate_profile: { first_name: string | null; last_name: string | null } | null;
   };
   feedback: Feedback[];
 };
@@ -61,7 +61,8 @@ const RECOMMENDATION_CLASS: Record<Recommendation, string> = {
 function candidateName(app: Interview['application']) {
   const p = app.candidate_profile;
   const name = `${p?.first_name ?? ''} ${p?.last_name ?? ''}`.trim();
-  return name || p?.user?.phone || 'Candidat';
+  // Never the phone number: contact details come only from the contact reveal.
+  return name || 'Candidat';
 }
 
 function errorMessage(error: unknown, fallback: string) {

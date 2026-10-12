@@ -17,13 +17,18 @@ class AuthSession
      */
     public function issue(User $user, ?string $deviceName): array
     {
-        $token = $user->createToken($deviceName ?: 'Mobile app');
+        $minutes = $user->hasRole('Administrator')
+            ? (int) config('sanctum.admin_session_ttl_minutes')
+            : (int) config('sanctum.session_ttl_minutes');
+
+        $token = $user->createToken($deviceName ?: 'Mobile app', ['*'], now()->addMinutes($minutes));
 
         return [
             'token' => $token->plainTextToken,
             'session' => [
                 'id' => $token->accessToken->getKey(),
                 'device_name' => $token->accessToken->name,
+                'expires_at' => $token->accessToken->expires_at,
             ],
             'user' => [
                 'id' => $user->id,

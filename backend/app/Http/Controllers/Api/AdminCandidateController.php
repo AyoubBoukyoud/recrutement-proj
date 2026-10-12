@@ -11,6 +11,7 @@ use App\Services\ActivityFeed;
 use App\Services\Notifications;
 use App\Services\ProfileCompleteness;
 use App\Services\TaskEngagement;
+use App\Support\Csv;
 use App\Support\PhoneNumber;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -248,7 +249,7 @@ class AdminCandidateController extends Controller
             'shortlistEntries.user:id,name,phone',
         ]);
 
-        return response()->json($candidateProfile->toArray() + [
+        return response()->json($candidateProfile->makeVisible('admin_notes')->toArray() + [
             'completeness' => ProfileCompleteness::for($candidateProfile),
             'checklist' => ProfileCompleteness::adminChecklist($candidateProfile),
             'engagement' => TaskEngagement::for($candidateProfile),
@@ -280,7 +281,7 @@ class AdminCandidateController extends Controller
 
         $candidateProfile->update($data);
 
-        return response()->json($candidateProfile->fresh('verifiedBy:id,name,phone'));
+        return response()->json($candidateProfile->fresh('verifiedBy:id,name,phone')->makeVisible('admin_notes'));
     }
 
     /**
@@ -335,7 +336,7 @@ class AdminCandidateController extends Controller
             'reason' => $data['status_reason'] ?? null,
         ]);
 
-        return response()->json($candidateProfile->user->fresh());
+        return response()->json($candidateProfile->user->fresh()->makeVisible('status_changed_by_id'));
     }
 
     /** The derived "Activités"/"Historique" feed — see App\Services\ActivityFeed. */
@@ -398,10 +399,10 @@ class AdminCandidateController extends Controller
 
             foreach ($profiles as $profile) {
                 fputcsv($out, [
-                    trim("{$profile->first_name} {$profile->last_name}"),
+                    Csv::cell(trim("{$profile->first_name} {$profile->last_name}")),
                     $profile->user->phone,
-                    $profile->user->email,
-                    $profile->city,
+                    Csv::cell($profile->user->email),
+                    Csv::cell($profile->city),
                     $profile->user->status,
                     ProfileCompleteness::for($profile)['percent'],
                     $profile->created_at?->toDateString(),

@@ -24,7 +24,7 @@ type Application = {
   id: number;
   status: ApplicationStatus;
   applied_at: string;
-  candidate_profile: { id: number; first_name: string | null; last_name: string | null; profession: string | null; user: { phone: string } | null } | null;
+  candidate_profile: { id: number; first_name: string | null; last_name: string | null; profession: string | null } | null;
   offer: { id: number; title: string; city: string };
 };
 
@@ -49,7 +49,7 @@ function isDecided(status: ApplicationStatus): status is 'accepted' | 'rejected'
 
 function candidateName(a: Application) {
   const name = `${a.candidate_profile?.first_name ?? ''} ${a.candidate_profile?.last_name ?? ''}`.trim();
-  return name || a.candidate_profile?.user?.phone || `Candidat #${a.candidate_profile?.id ?? '?'}`;
+  return name || `Candidat #${a.candidate_profile?.id ?? '?'}`;
 }
 
 function initials(name: string) {

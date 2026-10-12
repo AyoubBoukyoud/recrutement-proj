@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AdminActivityLog;
 use App\Models\User;
 use App\Services\ActivityFeed;
+use App\Support\Csv;
 use App\Support\PhoneNumber;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -239,7 +240,9 @@ class AdminRecruiterController extends Controller
             'reason' => $data['status_reason'] ?? null,
         ]);
 
-        return response()->json($recruiter->fresh());
+        // Hidden on a User by default (it rides in other people's responses);
+        // the console that made the change is the one reader entitled to it.
+        return response()->json($recruiter->fresh()->makeVisible('status_changed_by_id'));
     }
 
     /** Distinct from `status`: verification is a judgement on the company, not account access. */
@@ -318,12 +321,12 @@ class AdminRecruiterController extends Controller
 
             foreach ($recruiters as $recruiter) {
                 fputcsv($out, [
-                    $recruiter->name,
+                    Csv::cell($recruiter->name),
                     $recruiter->phone,
-                    $recruiter->email,
-                    $recruiter->companyProfile?->company_name,
-                    $recruiter->companyProfile?->sector,
-                    $recruiter->companyProfile?->city,
+                    Csv::cell($recruiter->email),
+                    Csv::cell($recruiter->companyProfile?->company_name),
+                    Csv::cell($recruiter->companyProfile?->sector),
+                    Csv::cell($recruiter->companyProfile?->city),
                     $recruiter->status,
                     $recruiter->companyProfile?->verified_at ? 'oui' : 'non',
                     $recruiter->created_at?->toDateString(),

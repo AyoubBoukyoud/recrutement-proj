@@ -95,25 +95,34 @@ class OtpService
 
         $maxAttempts = (int) config('otp.throttle.max_verify_attempts', 5);
 
-        // Checked before this attempt is counted, so an exhausted code stays
-        // locked until a new one is sent rather than freeing a guess per call.
-        if ($record->attempts >= $maxAttempts) {
+        // The attempt is claimed with one conditional UPDATE rather than a
+        // read-then-increment: with the check and the increment as separate
+        // statements, a burst of parallel guesses all read the same count
+        // below the ceiling and every one of them got to try the code. An
+        // exhausted code stays locked until a new one is sent.
+        $claimed = OtpCode::whereKey($record->getKey())->where('attempts', '<', $maxAttempts)->increment('attempts');
+
+        if ($claimed === 0) {
             throw OtpVerificationException::tooManyAttempts();
         }
 
-        $record->increment('attempts');
-
         if (! Hash::check($code, $record->code_hash)) {
-            $remaining = max(0, $maxAttempts - $record->attempts);
+            $remaining = max(0, $maxAttempts - (int) $record->fresh()->attempts);
 
             throw $remaining === 0
                 ? OtpVerificationException::tooManyAttempts()
                 : OtpVerificationException::invalid($remaining);
         }
 
-        $record->forceFill(['consumed_at' => CarbonImmutable::now()])->save();
+        // Consumed the same way: of two parallel requests carrying the right
+        // code, only one may turn it into a session.
+        $consumed = OtpCode::whereKey($record->getKey())->whereNull('consumed_at')->update(['consumed_at' => CarbonImmutable::now()]);
 
-        return $record;
+        if ($consumed === 0) {
+            throw OtpVerificationException::notRequested();
+        }
+
+        return $record->fresh();
     }
 
     /** Seconds until this phone may request another code; 0 if it may now. */

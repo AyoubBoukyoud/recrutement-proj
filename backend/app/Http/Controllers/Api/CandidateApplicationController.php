@@ -25,7 +25,10 @@ class CandidateApplicationController extends Controller
             'page' => 'sometimes|integer|min:1',
         ]);
         $query = JobApplication::whereHas('offer', fn ($offer) => $offer->where('user_id', $request->user()->id))
-            ->with(['offer', 'candidateProfile.user', 'candidateProfile.languages']);
+            // No `candidateProfile.user`: that is the candidate's phone and
+            // email, which a recruiter only gets through the attributable
+            // contact reveal (RecruiterShortlistController::revealContact).
+            ->with(['offer', 'candidateProfile.languages']);
 
         foreach (['status', 'offer_id'] as $field) {
             if (isset($data[$field])) {
@@ -42,7 +45,7 @@ class CandidateApplicationController extends Controller
 
         return response()->json(
             $profile->jobApplications()
-                ->with('offer.employer.companyProfile')
+                ->with(['offer.employer:id,name', 'offer.employer.companyProfile'])
                 ->latest('applied_at')
                 ->paginate(min(100, max(1, $request->integer('per_page', 20))))
         );
@@ -94,6 +97,8 @@ class CandidateApplicationController extends Controller
         $application->update(['status' => $data['status'], 'status_changed_at' => now()]);
         $this->notifications->applicationStatusChanged($application);
 
-        return response()->json($application);
+        // The notification loaded the candidate and their User row onto this
+        // model; none of that belongs in a recruiter's response.
+        return response()->json($application->unsetRelation('candidateProfile'));
     }
 }
