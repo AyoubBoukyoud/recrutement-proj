@@ -30,6 +30,7 @@ use App\Http\Controllers\Api\LanguageAssessmentController;
 use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\PhoneChangeController;
 use App\Http\Controllers\Api\PushSubscriptionController;
+use App\Http\Controllers\Api\QuoteRequestController;
 use App\Http\Controllers\Api\RecruiterCandidateController;
 use App\Http\Controllers\Api\RecruiterInterviewController;
 use App\Http\Controllers\Api\RecruiterProfileController;
@@ -63,6 +64,9 @@ Route::post('/auth/google/exchange', [GoogleAuthController::class, 'exchange'])-
 // The public "contact us" form at the bottom of the homepage — a visitor
 // with no account yet, so this stays outside the auth:sanctum group below.
 Route::post('/contact', [ContactMessageController::class, 'store'])->middleware('throttle:contact-create');
+
+// Likewise the quote form on the public company page (`/notre-entreprise`).
+Route::post('/quote-requests', [QuoteRequestController::class, 'store'])->middleware('throttle:quote-create');
 
 // `throttle:api` is a generous per-user catch-all (AppServiceProvider) so
 // every authenticated route has *some* bound, even the ones with no
@@ -230,6 +234,9 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
 
         Route::get('/admin/contact-messages', [ContactMessageController::class, 'index']);
         Route::patch('/admin/contact-messages/{contactMessage}', [ContactMessageController::class, 'update']);
+
+        Route::get('/admin/quote-requests', [QuoteRequestController::class, 'index']);
+        Route::patch('/admin/quote-requests/{quoteRequest}', [QuoteRequestController::class, 'update']);
 
         Route::get('/admin/users', [AdminUserController::class, 'index']);
         Route::post('/admin/users', [AdminUserController::class, 'store']);

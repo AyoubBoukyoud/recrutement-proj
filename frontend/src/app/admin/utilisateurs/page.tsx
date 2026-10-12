@@ -7,11 +7,10 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/opsApi';
 import { useAuth } from '@/context/AuthContext';
 import { destinationForRole } from '@/lib/roleDestination';
-import { toInternationalPhone } from '@/lib/phoneNumber';
 import type { PaginatedResponse } from '@/types/candidate';
 import type { UserRole } from '@/lib/types';
 import { Avatar, Badge, Button, DropdownMenu, FilterBar, Modal, PageHeader, type BadgeTone } from '@/components/amud/ui';
-import { SelectField, TextField } from '@/components/amud/form';
+import { PhoneField, SelectField, TextField } from '@/components/amud/form';
 import { useToast } from '@/components/amud/Toast';
 import { Pagination } from '@/components/Pagination';
 
@@ -469,12 +468,13 @@ function CreateUserForm({
       className="grid gap-4"
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit({ name, phone: toInternationalPhone(phone, '+212'), roles: [role] });
+        if (!phone) return;
+        onSubmit({ name, phone, roles: [role] });
       }}
     >
       <p className="text-label-md text-amud-on-surface-variant">Aucun mot de passe : la personne se connectera avec ce numéro et un code à six chiffres.</p>
       <TextField label="Nom" value={name} onChange={(e) => setName(e.target.value)} autoFocus required />
-      <TextField label="Téléphone" hint="+212 par défaut" placeholder="0632594914" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+      <PhoneField label="Téléphone" value={phone} onChange={setPhone} required />
       <SelectField
         label="Rôle"
         value={role}
@@ -482,7 +482,7 @@ function CreateUserForm({
         options={roles.map((name) => ({ value: name, label: `${ROLE_LABELS[name] ?? name} — ${ROLE_DESTINATION[name] ?? ''}` }))}
       />
       <div>
-        <Button type="submit" loading={pending} loadingLabel="Création…">
+        <Button type="submit" loading={pending} loadingLabel="Création…" disabled={!phone || !name.trim()}>
           Créer le compte
         </Button>
       </div>

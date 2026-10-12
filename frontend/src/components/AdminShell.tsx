@@ -31,6 +31,7 @@ const NAV: NavItem[] = [
   { href: '/admin/centres', icon: 'apartment', label: 'Centres de recrutement' },
   { href: '/admin/reclamations', icon: 'support_agent', label: 'Réclamations' },
   { href: '/admin/contact', icon: 'mail', label: 'Contact' },
+  { href: '/admin/devis', icon: 'request_quote', label: 'Demandes de devis' },
   { href: '/admin/journal', icon: 'history', label: 'Journal' },
   { href: '/admin/notifications', icon: 'notifications', label: 'Notifications' },
 ];

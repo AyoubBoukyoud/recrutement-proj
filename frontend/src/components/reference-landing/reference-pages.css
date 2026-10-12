@@ -322,12 +322,6 @@
 .reference-home .company-form-error { margin:0; color:#a92737; font-size:.84rem; }
 .reference-home .company-form-success { min-height:220px; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:8px; padding:24px; border-radius:18px; color:#245a3b; background:#fff; }
 .reference-home .company-form-success h3,.reference-home .company-form-success p { margin:0; }
-.reference-home .r-company-cta { display:flex; align-items:center; justify-content:space-between; gap:24px; margin:38px 0 20px; padding:24px 27px; border:1px solid #f1ded7; border-radius:20px; background:#fff6f1; }
-.reference-home .r-startup-cta { margin-top:12px; margin-bottom:38px; border-color:#e7dfc5; background:linear-gradient(110deg,#fff9ed,#fff 76%); }
-.reference-home .r-company-cta>div { max-width:750px; }
-.reference-home .r-company-cta h2 { margin:0 0 7px; color:#191b20; font-size:clamp(1.35rem,2.5vw,2rem); font-weight:800; letter-spacing:-.035em; line-height:1.15; }
-.reference-home .r-company-cta p:not(.r-eyebrow) { margin:0; color:#55556a; font-size:.9rem; line-height:1.55; }
-.reference-home .r-company-cta .r-button { flex:none; }
 @media(max-width:800px) {
   .reference-home .company-hero { grid-template-columns:1fr; min-height:0; gap:27px; padding:34px 0 52px; }
   .reference-home .company-startup-profile { grid-template-columns:1fr; gap:24px; margin-bottom:60px; }
@@ -384,10 +378,32 @@
   .reference-home .company-quote { padding:19px 15px; border-radius:19px; }
   .reference-home .company-form-row { grid-template-columns:1fr; }
   .reference-home .company-quote-form .company-button { width:100%; }
-  .reference-home .r-company-cta { flex-direction:column; align-items:stretch; padding:19px 16px; }
-  .reference-home .r-company-cta .r-button { justify-content:center; }
 }
 @media(prefers-reduced-motion:reduce) {
   .reference-home .company-service,.reference-home .company-service-art img,.reference-home .company-button { transition:none; }
 }
 
+
+/* Identité de l'entreprise : présentation, faits clés, fondateurs */
+.reference-home .company-facts { width:min(1220px,calc(100% - 48px)); margin:0 auto 64px; display:grid; grid-template-columns:1.05fr .95fr; align-items:start; gap:clamp(24px,5vw,64px); }
+.reference-home .company-facts h2 { margin:0 0 14px; color:var(--company-ink); font-size:clamp(1.8rem,3vw,2.6rem); font-weight:820; letter-spacing:-.04em; line-height:1.1; }
+.reference-home .company-facts-copy p:last-child { max-width:58ch; margin:0; color:var(--company-muted); font-size:1rem; line-height:1.72; }
+.reference-home .company-facts-list { margin:0; padding:6px 22px; border:1px solid #f0ddd6; border-radius:20px; background:#fff; }
+.reference-home .company-facts-list > div { display:grid; grid-template-columns:minmax(120px,.38fr) 1fr; gap:14px; padding:14px 0; border-bottom:1px solid #f4e9e3; }
+.reference-home .company-facts-list > div:last-child { border-bottom:0; }
+.reference-home .company-facts-list dt { color:var(--company-muted); font-size:.78rem; font-weight:700; letter-spacing:.02em; }
+.reference-home .company-facts-list dd { margin:0; color:var(--company-ink); font-size:.92rem; font-weight:600; line-height:1.5; overflow-wrap:anywhere; }
+.reference-home .company-facts-list a { color:var(--company-red); text-decoration:underline; text-underline-offset:3px; }
+.reference-home .company-founders { grid-column:1 / -1; }
+.reference-home .company-founders h3 { margin:0 0 12px; color:var(--company-ink); font-size:1.05rem; font-weight:780; }
+.reference-home .company-founders ul { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin:0; padding:0; list-style:none; }
+.reference-home .company-founders li { display:flex; flex-direction:column; gap:3px; padding:16px 18px; border:1px solid #f0ddd6; border-radius:16px; background:#fff; }
+.reference-home .company-founders li span { color:var(--company-muted); font-size:.82rem; }
+.reference-home .company-founders li a { margin-top:6px; color:var(--company-red); font-size:.82rem; font-weight:700; text-underline-offset:3px; }
+@media(max-width:800px) {
+  .reference-home .company-facts { grid-template-columns:1fr; margin-bottom:44px; }
+}
+@media(max-width:560px) {
+  .reference-home .company-facts { width:calc(100% - 32px); }
+  .reference-home .company-facts-list > div { grid-template-columns:1fr; gap:3px; }
+}

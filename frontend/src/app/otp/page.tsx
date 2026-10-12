@@ -53,13 +53,15 @@ function OtpContent() {
   // ou compte Google qui n'a pas pu être rattaché à ce numéro.
   const [notice, setNotice] = useState<Notice | null>(null);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
-  // « Retour » garde un rattachement Google en cours plutôt que de l'abandonner.
-  const [backHref, setBackHref] = useState("/auth-phone?method=phone");
+  // « Retour » ramène au numéro avec la même intention, et garde un
+  // rattachement Google en cours plutôt que de l'abandonner.
+  const intentQuery = intent === "recruiter" ? "&intent=recruiter" : "";
+  const [backHref, setBackHref] = useState(`/auth-phone?method=phone${intentQuery}`);
 
   useEffect(() => {
     inputsRef.current[0]?.focus();
-    if (readPendingGoogleLink()) setBackHref("/auth-phone?google=link");
-  }, []);
+    if (readPendingGoogleLink()) setBackHref(`/auth-phone?google=link${intentQuery}`);
+  }, [intentQuery]);
 
   useEffect(() => {
     if (secondsLeft <= 0) return;
@@ -182,8 +184,8 @@ function OtpContent() {
 
   if (notice) {
     return (
-      <AuthShell>
-        <main id="main-content" tabIndex={-1} className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center bg-surface px-6 py-10 text-center shadow-subtle outline-none">
+      <AuthShell split>
+        <main id="main-content" tabIndex={-1} className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center bg-surface px-6 py-10 text-center outline-none">
           <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-surface-container-low text-primary shadow-subtle">
             <span
               className="material-symbols-outlined"
@@ -211,8 +213,8 @@ function OtpContent() {
   }
 
   return (
-    <AuthShell>
-      <main id="main-content" tabIndex={-1} className="mx-auto flex min-h-screen max-w-md flex-col bg-surface shadow-subtle outline-none">
+    <AuthShell split>
+      <main id="main-content" tabIndex={-1} className="mx-auto flex min-h-screen max-w-md flex-col bg-surface outline-none">
         <header className="sticky top-0 z-10 border-b border-surface-container-high bg-surface px-6 py-4">
           <div className="flex items-center gap-4">
             <Link

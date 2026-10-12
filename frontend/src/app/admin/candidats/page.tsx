@@ -8,9 +8,10 @@ import { isAxiosError } from 'axios';
 import { api } from '@/lib/opsApi';
 import type { Page } from '@/lib/candidateMarketplace';
 import { ConfirmDialog, Modal, ModalActions } from '@/components/amud/ui';
-import { FormGrid, TextField } from '@/components/amud/form';
+import { FormGrid, PhoneField, TextField } from '@/components/amud/form';
 import { useToast } from '@/components/amud/Toast';
 import { Pagination } from '@/components/Pagination';
+import { initials } from '@/lib/initials';
 
 /*
  * Liste des candidats — porte le style de la maquette `/amud/admin/candidats`
@@ -25,7 +26,8 @@ import { Pagination } from '@/components/Pagination';
 type CandidateRow = {
   id: number;
   name: string | null;
-  phone: string;
+  /** Absent pour un compte créé avec Google. */
+  phone: string | null;
   email: string | null;
   city: string | null;
   account_status: 'active' | 'inactive' | 'blocked';
@@ -51,16 +53,6 @@ const ACCOUNT_STATUS_CLASS: Record<CandidateRow['account_status'], string> = {
   inactive: 'bg-amud-surface-container-highest text-amud-on-surface-variant',
   blocked: 'bg-amud-error-container text-amud-on-error-container',
 };
-
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
-}
 
 function errorMessage(error: unknown, fallback: string) {
   if (isAxiosError(error)) {
@@ -278,7 +270,8 @@ function AdminCandidatsPageInner() {
               </tr>
             ) : null}
             {rows.map((c) => {
-              const name = c.name?.trim() || c.phone;
+              const name = c.name?.trim() || c.phone || c.email || `Candidat #${c.id}`;
+              const contact = [c.phone, c.email].filter((value) => value && value !== name).join(' · ');
               return (
                 <tr key={c.id} className="transition-colors hover:bg-amud-surface-container-lowest/50">
                   <td className="px-6 py-4">
@@ -288,7 +281,7 @@ function AdminCandidatsPageInner() {
                       </div>
                       <div className="min-w-0">
                         <p className="truncate font-semibold text-amud-on-surface transition-colors group-hover:text-amud-primary">{name}</p>
-                        <p className="truncate text-label-sm text-amud-on-surface-variant">{c.phone}{c.email ? ` · ${c.email}` : ''}</p>
+                        <p className="truncate text-label-sm text-amud-on-surface-variant">{contact || '—'}</p>
                       </div>
                     </Link>
                   </td>
@@ -394,13 +387,12 @@ function AdminCandidatsPageInner() {
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             placeholder="Amine Alami"
           />
-          <TextField
+          <PhoneField
             label="Téléphone"
             required
+            className="sm:col-span-2"
             value={form.phone}
-            onChange={(e) => setForm({ ...form, phone: e.target.value })}
-            placeholder="+212600000000"
-            hint="Format international — c'est le numéro qui sert à se connecter."
+            onChange={(phone) => setForm((current) => ({ ...current, phone }))}
           />
           <TextField
             label="E-mail"

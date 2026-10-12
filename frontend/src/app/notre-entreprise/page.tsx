@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
 import { PublicMarketingLanding } from '@/components/reference-landing/PublicMarketingLanding';
+import { OrganizationJsonLd } from '@/components/seo/OrganizationJsonLd';
 
 export const metadata: Metadata = {
-  title: 'AMUD Skills — Startup marocaine de solutions numériques',
-  description: 'Fondée le 10 septembre 2023, AMUD Skills développe des applications, des solutions d’ingénierie numérique et de formation technologique.',
+  title: 'Notre entreprise — AMUD Skills',
+  description: 'AMUD Skills relie les talents du Maroc aux employeurs en Allemagne. Nous réalisons aussi sites web, applications, jeux éducatifs et formations pour les entreprises.',
   alternates: { canonical: '/notre-entreprise' },
 };
 
 export default function CompanyPage() {
-  return <PublicMarketingLanding kind="company"/>;
+  return <><OrganizationJsonLd /><PublicMarketingLanding kind="company"/></>;
 }

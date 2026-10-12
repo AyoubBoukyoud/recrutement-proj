@@ -15,6 +15,15 @@ declare global {
   }
 }
 
+/**
+ * Google's documented opt-out switch: while `window['ga-disable-<ID>']` is true,
+ * an already-loaded gtag.js sends nothing, automatic events included (scroll,
+ * outbound clicks…), which replacing `window.gtag` alone cannot stop.
+ */
+function setCollectionDisabled(disabled: boolean) {
+  (window as unknown as Record<string, boolean>)[`ga-disable-${GA_MEASUREMENT_ID}`] = disabled;
+}
+
 export function GoogleAnalytics() {
   const pathname = usePathname();
   const [consent, setConsent] = useState<'unknown' | 'granted' | 'denied'>('unknown');
@@ -44,15 +53,22 @@ export function GoogleAnalytics() {
   useEffect(() => {
     if (!isTrackable || consent !== 'granted') {
       // gtag.js may stay loaded after a visitor withdraws consent or enters a
-      // private app route. Drop future automatic events until tracking is
+      // private app route. Stop it sending anything until tracking is
       // explicitly enabled again.
-      if (window.__amudAnalyticsConfigured) window.gtag = () => {};
+      setCollectionDisabled(true);
       previousPage.current = null;
       return;
     }
 
+    setCollectionDisabled(false);
     window.dataLayer = window.dataLayer || [];
-    window.gtag = (...args: unknown[]) => window.dataLayer?.push(args);
+    // gtag.js only executes commands pushed as an `arguments` object. A rest
+    // parameter (`(...args) => dataLayer.push(args)`) pushes a plain array,
+    // which it ignores: no hit would ever be sent.
+    window.gtag = function gtag() {
+      // eslint-disable-next-line prefer-rest-params
+      window.dataLayer?.push(arguments);
+    };
 
     if (!window.__amudAnalyticsConfigured) {
       window.gtag('js', new Date());

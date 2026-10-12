@@ -13,4 +13,3 @@ const names = ['chauffeur','logistique','hotellerie','sante','btp','startup','gr
   }
   console.log('21 responsive WebP assets saved');
 })().catch(error => { console.error(error.message); process.exitCode=1; });
-

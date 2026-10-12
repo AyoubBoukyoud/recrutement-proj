@@ -59,3 +59,9 @@ Thumbs.db
 .idea/
 .claude/
 .impeccable/
+
+# Local-only: application/partner documents and scratch files
+/docs/commercial-plan-germany/
+/docs/qdb-application/
+/image.png
+/test.py

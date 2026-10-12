@@ -54,7 +54,7 @@ class LanguageCertificateTest extends TestCase
         return $candidate->candidateProfile->documents()->create([
             'type' => $type,
             'file_path' => 'documents/proof.pdf',
-            'ocr_status' => 'done',
+            'ocr_status' => 'completed',
         ]);
     }
 

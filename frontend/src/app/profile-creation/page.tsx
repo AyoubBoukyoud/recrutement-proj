@@ -10,6 +10,7 @@
 
 import { Suspense, useEffect, useId, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/context/AuthContext';
 import { useNetwork } from '@/context/NetworkContext';
 import { CEFRGauge } from '@/components/shared/CEFRGauge';
@@ -116,7 +117,8 @@ function messageOf(error: unknown, fallback: string): string {
 function ProfileCreationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, token } = useAuth();
+  const { user, token, logout } = useAuth();
+  const queryClient = useQueryClient();
   const { isOnline } = useNetwork();
   const { data: profile, isLoading: profileLoading } = useCandidateProfile();
   const invalidateProfile = useInvalidateCandidateProfile();
@@ -192,6 +194,20 @@ function ProfileCreationContent() {
   }, [profile]);
 
   const goToStep = (target: number) => router.push(`/profile-creation?step=${target}`);
+
+  /*
+   * « Retour » à l'étape 1 : il n'y a pas d'étape précédente, et l'écran de
+   * connexion renvoie ici toute personne déjà connectée. Revenir en arrière,
+   * c'est donc fermer cette session et rouvrir le choix de méthode (autre
+   * numéro, ou Google). Rien n'est perdu : l'étape 1 n'écrit qu'au clic sur
+   * « Continuer ». Le cache est vidé pour que le profil de ce compte ne
+   * s'affiche pas à la personne qui se connecte ensuite sur cet appareil.
+   */
+  const leaveFlow = () => {
+    logout();
+    queryClient.clear();
+    router.replace('/auth-phone');
+  };
 
   const validateStep = (): string | null => {
     if (step === 1) {
@@ -326,20 +342,17 @@ function ProfileCreationContent() {
     <main className="mx-auto min-h-screen max-w-md bg-surface pb-32 shadow-subtle flex flex-col">
       <header className="sticky top-0 z-10 border-b border-surface-container-high bg-surface px-6 py-4">
         <div className="flex items-center justify-between">
-          {step > 1 ? (
-            <Button
-              variant="link"
-              onClick={() => goToStep(step - 1)}
-              className="gap-1 font-bold"
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
-                arrow_back
-              </span>
-              Retour
-            </Button>
-          ) : (
-            <span />
-          )}
+          <Button
+            variant="link"
+            onClick={() => (step > 1 ? goToStep(step - 1) : leaveFlow())}
+            aria-label={step > 1 ? 'Retour à l’étape précédente' : 'Retour à la connexion'}
+            className="min-h-11 gap-1 font-bold"
+          >
+            <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 20 }}>
+              arrow_back
+            </span>
+            Retour
+          </Button>
           <h1 className="text-base font-extrabold text-primary">Amud Skills</h1>
           <span className="w-12" />
         </div>

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { PublicHome } from '@/components/home/PublicHome';
+import { OrganizationJsonLd } from '@/components/seo/OrganizationJsonLd';
 
 /**
  * La page d'accueil publique vit à la racine. L'ancienne adresse
@@ -19,12 +20,10 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      { '@type': 'Organization', '@id': 'https://amudskills.com/#organization', name: 'Amud Skills', url: 'https://amudskills.com/', description: 'Plateforme de mise en relation entre talents marocains et entreprises, notamment en Allemagne.', logo: 'https://amudskills.com/assets/images/logo.png' },
-      { '@type': 'WebSite', '@id': 'https://amudskills.com/#website', name: 'Amud Skills', url: 'https://amudskills.com/', inLanguage: ['fr-MA', 'ar-MA', 'de-DE', 'en'] },
-    ],
+  const website = {
+    '@context': 'https://schema.org', '@type': 'WebSite',
+    '@id': 'https://amudskills.com/#website', name: 'Amud Skills',
+    url: 'https://amudskills.com/', inLanguage: ['fr-MA', 'ar-MA', 'de-DE', 'en'],
   };
-  return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, '\\u003c') }} /><PublicHome /></>;
+  return <><OrganizationJsonLd /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(website).replace(/</g, '\\u003c') }}/><PublicHome /></>;
 }

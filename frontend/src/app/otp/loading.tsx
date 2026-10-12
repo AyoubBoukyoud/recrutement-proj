@@ -2,9 +2,11 @@ import { Skeleton, SkeletonPage } from '@/components/shared/Skeleton';
 
 export default function OtpLoading() {
   return (
-    <SkeletonPage className="lg:flex lg:min-h-screen lg:items-stretch lg:justify-center lg:bg-gradient-to-br lg:from-primary-light lg:via-surface lg:to-secondary-light/40 lg:py-10">
-      <div className="lg:w-full lg:max-w-md lg:overflow-hidden lg:rounded-card lg:shadow-floating lg:ring-1 lg:ring-outline-variant">
-        <main className="mx-auto flex min-h-screen max-w-md flex-col bg-surface shadow-subtle">
+    <SkeletonPage className="min-h-[100dvh] bg-surface lg:grid lg:grid-cols-2 xl:grid-cols-[minmax(0,7fr)_minmax(0,6fr)]">
+      {/* Colonne de marque d'AuthShell `split`. */}
+      <Skeleton className="hidden rounded-none lg:block lg:h-[100dvh]" />
+      <div>
+        <main className="mx-auto flex min-h-screen max-w-md flex-col bg-surface">
           <header className="sticky top-0 z-10 border-b border-surface-container-high bg-surface px-6 py-4">
             <div className="flex items-center gap-4">
               <Skeleton className="h-10 w-10 rounded-full" />

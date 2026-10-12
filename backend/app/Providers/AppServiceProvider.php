@@ -122,6 +122,13 @@ class AppServiceProvider extends ServiceProvider
             Limit::perMinute(3)->by('contact-ip:'.$request->ip()),
             Limit::perDay(20)->by('contact-ip:'.$request->ip()),
         ]);
+
+        // Same shape for the company-page quote form, with its own bucket so
+        // a visitor who wrote in through "Contact" can still ask for a quote.
+        RateLimiter::for('quote-create', fn (Request $request) => [
+            Limit::perMinute(3)->by('quote-ip:'.$request->ip()),
+            Limit::perDay(20)->by('quote-ip:'.$request->ip()),
+        ]);
     }
 
     private function userKey(Request $request): string
