@@ -1,4 +1,5 @@
-FROM php:8.3-cli
+# 8.3.36 fixes CVE-2026-109618 / CVE-2026-109619; see Dockerfile.prod.
+FROM php:8.3.36-cli
 
 # System deps: build headers for PHP extensions, a MySQL client, Tesseract OCR
 # (TesseractOcrService shells out to the `tesseract` binary), Python/ffmpeg for

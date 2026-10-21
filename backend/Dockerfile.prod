@@ -1,4 +1,7 @@
-FROM php:8.4-fpm-bookworm
+# Pinned to the patch release so a rebuild can never reuse a stale cached
+# 8.4 base. 8.4.27 fixes CVE-2026-109618 / CVE-2026-109619 (unauthenticated
+# RCE, php.net 2026-10-21). Bump it on every PHP security release.
+FROM php:8.4.27-fpm-bookworm
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git unzip curl ca-certificates \
