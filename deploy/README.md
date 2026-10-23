@@ -42,6 +42,11 @@ The number is not a secret: it names the account, and the code sent to that
 handset is what proves it is yours. Removing an entry does **not** revoke the
 role; take it away in the console instead.
 
+`ADMIN_EMAILS` does the same for "Continue with Google" (which needs
+`GOOGLE_CLIENT_ID`): the address Google verified for the signing-in account
+gets the role on its first sign-in, with no phone and no WhatsApp involved.
+It takes effect on `up -d` — no rebuild needed.
+
 ## WhatsApp pairing
 
 Evolution Go 0.7 requires one-time server activation and a paired WhatsApp
@@ -54,6 +59,15 @@ ssh -i ~/.ssh/oracle-recruitment.key -L 4000:127.0.0.1:4000 ubuntu@51.170.131.16
 Then open `http://localhost:4000`, activate the server, create the instance
 using `EVOLUTION_GLOBAL_API_KEY`, and use `EVOLUTION_INSTANCE_TOKEN` as the
 instance token. Scan the QR code from the sending WhatsApp account.
+
+If sign-in codes stop arriving (the backend logs `Evolution Go unreachable`),
+check the instance through the same tunnel with
+`curl -H "apikey: $EVOLUTION_INSTANCE_TOKEN" localhost:4000/instance/status`.
+On `Connected: false`, send `POST /instance/connect` with the same header and
+`{"subscribe":["MESSAGE"]}`: while WhatsApp still knows the device, the stored
+session reconnects with no QR. Restarting `evolution-go` alone does not
+reconnect an instance it last saw disconnected. A QR in the answer means
+WhatsApp logged the device out: scan it again.
 
 ## Enable the domain and HTTPS
 

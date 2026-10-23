@@ -128,6 +128,9 @@ The number is not a secret: it identifies the account, and the code sent to that
 proves it is yours. Removing an entry does **not** revoke anything — the list only ever adds, so
 take the role away in the console instead.
 
+`ADMIN_EMAILS` is the same list for "Continue with Google": an address on it gets `Administrator`
+on its first Google sign-in. Only the address Google itself verified counts, never `users.email`.
+
 ---
 
 ## Check it is actually working

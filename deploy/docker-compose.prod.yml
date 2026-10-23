@@ -31,6 +31,8 @@ x-backend-environment: &backend-environment
   # the entrypoint provisions them as accounts. See deploy/README.md.
   ADMIN_PHONES: ${ADMIN_PHONES:?ADMIN_PHONES must be set in deploy/.env.prod}
   ADMIN_PHONE_COUNTRY: ${ADMIN_PHONE_COUNTRY:-+212}
+  # The same for "Continue with Google", by the address Google verified.
+  ADMIN_EMAILS: ${ADMIN_EMAILS:-}
   EVOLUTION_BASE_URL: http://evolution-go:4000
   EVOLUTION_INSTANCE_TOKEN: ${EVOLUTION_INSTANCE_TOKEN:?EVOLUTION_INSTANCE_TOKEN must be set in deploy/.env.prod}
   COMPLAINT_ALERT_EMAIL: ${COMPLAINT_ALERT_EMAIL:-}
@@ -176,6 +178,12 @@ services:
   evolution-postgres:
     image: postgres:15-alpine
     restart: unless-stopped
+    # Evolution Go 0.7.2 opens a fresh pool on every WhatsApp reconnect and
+    # never closes the old one. After a few days of reconnects the 100
+    # connections were all its idle leftovers, every reconnect then failed
+    # with "too many clients", and no OTP could be sent. Reap idle sessions;
+    # the pools it still uses just reconnect.
+    command: ["postgres", "-c", "idle_session_timeout=10min"]
     environment:
       POSTGRES_USER: evolution
       POSTGRES_PASSWORD: ${EVOLUTION_DB_PASSWORD:?EVOLUTION_DB_PASSWORD must be set in deploy/.env.prod}

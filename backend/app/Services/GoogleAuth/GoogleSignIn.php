@@ -4,6 +4,7 @@ namespace App\Services\GoogleAuth;
 
 use App\Models\User;
 use App\Services\AuthSession;
+use App\Support\AdminEmails;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -95,6 +96,13 @@ class GoogleSignIn
             return ['outcome' => 'blocked'];
         }
 
+        // ADMIN_EMAILS, checked on every sign-in like ADMIN_PHONES so an
+        // address added later promotes its existing account. $email is the
+        // one Google verified above, which is what makes this safe.
+        if (AdminEmails::contains($email) && ! $user->hasRole('Administrator')) {
+            $user->assignRole('Administrator');
+        }
+
         return ['outcome' => 'signed_in', 'exchange_code' => $this->issueExchangeCode($user)];
     }
 
@@ -170,7 +178,12 @@ class GoogleSignIn
             return User::where('google_id', $sub)->firstOrFail();
         }
 
-        $user->assignRole('User');
+        // An allowlisted administrator is not also made a candidate: holding
+        // "User" too would send them to candidate screens. resolve() grants
+        // Administrator right after.
+        if (! AdminEmails::contains($email)) {
+            $user->assignRole('User');
+        }
 
         return $user;
     }

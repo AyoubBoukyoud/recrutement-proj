@@ -47,4 +47,22 @@ return [
         preg_split('/[,\s]+/', (string) env('ADMIN_PHONES', '')) ?: []
     )))),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Administrator allowlist — Google
+    |--------------------------------------------------------------------------
+    |
+    | The same, for "Continue with Google": an address on ADMIN_EMAILS holds
+    | the Administrator role from its first Google sign-in, no phone needed.
+    | Matched against the address Google itself verified for the account
+    | signing in, never against users.email, which an admin can type in.
+    | Comma-separated, case-insensitive; like the phones, it only ever adds.
+    |
+    */
+
+    'emails' => array_values(array_unique(array_filter(array_map(
+        fn (string $entry) => strtolower(trim($entry)),
+        preg_split('/[,\s]+/', (string) env('ADMIN_EMAILS', '')) ?: []
+    )))),
+
 ];

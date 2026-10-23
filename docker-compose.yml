@@ -97,6 +97,8 @@ services:
     image: postgres:15-alpine
     container_name: recruitment_evolution_db
     restart: unless-stopped
+    # Reaps the pools Evolution Go leaks on reconnect; see the prod compose.
+    command: ["postgres", "-c", "idle_session_timeout=10min"]
     environment:
       POSTGRES_USER: evolution
       POSTGRES_PASSWORD: evolution

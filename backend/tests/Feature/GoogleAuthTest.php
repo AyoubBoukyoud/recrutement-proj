@@ -312,6 +312,50 @@ class GoogleAuthTest extends TestCase
             ->assertJsonStructure(['token', 'session' => ['id', 'device_name'], 'user' => ['id', 'phone', 'roles'], 'deletion_pending']);
     }
 
+    // ---------------------------------------------------------- ADMIN_EMAILS
+
+    public function test_an_allowlisted_address_is_an_administrator_from_its_first_google_sign_in(): void
+    {
+        // config/admin.php stores the list lower-cased; case must not matter.
+        config()->set('admin.emails', ['amina@gmail.com']);
+        $this->googleReturns($this->claims(['email' => 'Amina@Gmail.com']));
+
+        $this->postJson('/api/auth/google/exchange', ['code' => $this->googleCallback()['code']])
+            ->assertOk()
+            ->assertJsonPath('user.phone', null)
+            // Not "User" too: that would route the account to candidate screens.
+            ->assertJsonPath('user.roles', ['Administrator']);
+    }
+
+    public function test_an_address_added_to_the_allowlist_later_promotes_its_account(): void
+    {
+        $user = User::factory()->create(['google_id' => 'google-sub-1']);
+        $user->assignRole('User');
+        config()->set('admin.emails', ['amina@gmail.com']);
+        $this->googleReturns($this->claims());
+
+        $this->assertArrayHasKey('code', $this->googleCallback());
+        $this->assertTrue($user->fresh()->hasRole('Administrator'));
+    }
+
+    public function test_the_allowlist_never_trusts_an_unverified_google_address(): void
+    {
+        config()->set('admin.emails', ['amina@gmail.com']);
+        $this->googleReturns($this->claims(['email_verified' => false]));
+
+        $this->assertSame('unverified_email', $this->googleCallback()['error']);
+        $this->assertSame(0, User::count());
+    }
+
+    public function test_an_address_not_on_the_allowlist_stays_a_candidate(): void
+    {
+        config()->set('admin.emails', ['someone-else@gmail.com']);
+        $this->googleReturns($this->claims());
+
+        $this->postJson('/api/auth/google/exchange', ['code' => $this->googleCallback()['code']])
+            ->assertOk()->assertJsonPath('user.roles', ['User']);
+    }
+
     // --------------------------------------------------------- ID token checks
 
     public function test_the_id_token_is_verified_against_signature_issuer_audience_expiry_and_nonce(): void
