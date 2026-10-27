@@ -7,6 +7,7 @@ import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 import { ToastProvider } from '@/components/amud/Toast';
 import { Drawer } from '@/components/amud/ui';
 import { useAuth } from '@/context/AuthContext';
+import { DemoRoleButton } from '@/components/demo/DemoRoleButton';
 
 /**
  * Coquille de la console d'administration, portée depuis `AdminShell` du
@@ -117,6 +118,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
             className={`border-t border-amud-outline-variant p-md ${collapsed ? 'md:px-sm' : ''}`}
             style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}
           >
+            <DemoRoleButton collapsed={collapsed} />
             <div className={`flex items-center gap-3 rounded-lg p-2 ${collapsed ? 'md:justify-center' : ''}`}>
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amud-primary-container font-bold text-white">
                 {initialsOf(displayName)}
@@ -184,6 +186,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </div>
 
         <Drawer open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} title="Navigation" anchor="bottom">
+          <div onClick={() => setMobileNavOpen(false)}><DemoRoleButton /></div>
           <nav className="flex flex-col gap-0.5" aria-label="Navigation de la console d’administration">
             {NAV.map((item) => {
               const active = isActive(pathname, item.href);

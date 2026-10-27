@@ -671,7 +671,8 @@ class AdminOperationsTest extends TestCase
 
         $this->getJson('/api/admin/roles')
             ->assertSuccessful()
-            ->assertJsonCount(4);
+            ->assertJsonCount(5)
+            ->assertJsonFragment(['Training Center']);
     }
 
     // --- Metrics --------------------------------------------------------------

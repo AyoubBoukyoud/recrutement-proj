@@ -101,5 +101,18 @@
   "nav_candidate_aria_label": "Navigation candidat",
   "pagination_previous": "← Précédent",
   "pagination_next": "Suivant →",
-  "pagination_page_of": "Page {current} sur {last} · {count}"
+  "pagination_page_of": "Page {current} sur {last} · {count}",
+  "auth_space_label": "Choisissez votre espace",
+  "auth_role_candidate": "Candidat",
+  "auth_role_recruiter": "Recruteur",
+  "auth_intent_training_center": "Centre de formation",
+  "phone_screen_title_training_center": "Connexion centre de formation",
+  "phone_screen_subtitle_training_center": "Utilisez le numéro associé à votre centre. Un code vous sera envoyé pour vous connecter.",
+  "auth_choose_subtitle_training_center": "Connectez-vous avec le compte Google ou le numéro associé à votre centre.",
+  "auth_center_access_hint": "L’accès centre est activé par l’administrateur. Utilisez le numéro ou le compte Google enregistré pour votre établissement.",
+  "center_access_pending_title": "Accès centre non activé",
+  "center_access_pending_body": "Votre compte est connecté, mais il ne dispose pas encore de l’accès centre de formation. Contactez votre administrateur pour l’activer.",
+  "center_access_pending_cta": "Continuer vers mon espace",
+  "auth_brand_ecosystem": "Candidats, recruteurs et centres de formation : un même espace pour faire avancer chaque parcours.",
+  "auth_brand_secure": "Connexion sécurisée · Sans mot de passe"
 }

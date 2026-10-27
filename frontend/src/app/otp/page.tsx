@@ -33,7 +33,7 @@ function OtpContent() {
   const searchParams = useSearchParams();
   const phone = searchParams.get("phone") ?? "";
   const intent =
-    searchParams.get("intent") === "recruiter" ? "recruiter" : "job_seeker";
+    searchParams.get("intent") === "training_center" ? "training_center" : searchParams.get("intent") === "recruiter" ? "recruiter" : "job_seeker";
   const initialDebugCode = searchParams.get("debug_code");
   const { verifyOtp, requestOtp, resendAvailableIn } = useAuth();
   const { getIncompleteStep } = useProfile();
@@ -55,7 +55,7 @@ function OtpContent() {
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   // « Retour » ramène au numéro avec la même intention, et garde un
   // rattachement Google en cours plutôt que de l'abandonner.
-  const intentQuery = intent === "recruiter" ? "&intent=recruiter" : "";
+  const intentQuery = intent === "job_seeker" ? "" : `&intent=${intent}`;
   const [backHref, setBackHref] = useState(`/auth-phone?method=phone${intentQuery}`);
 
   useEffect(() => {
@@ -154,6 +154,16 @@ function OtpContent() {
         title: "recruiter_access_pending_title",
         body: "recruiter_access_pending_body",
         cta: "recruiter_access_pending_cta",
+      });
+      return;
+    }
+
+    if (intent === "training_center" && result.role !== "centre" && result.role !== "admin") {
+      setNotice({
+        destination,
+        title: "center_access_pending_title",
+        body: "center_access_pending_body",
+        cta: "center_access_pending_cta",
       });
       return;
     }

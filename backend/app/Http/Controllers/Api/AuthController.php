@@ -61,7 +61,7 @@ class AuthController extends Controller
             $user->assignRole('Administrator');
         }
 
-        if (! $user->hasAnyRole(['User', 'Administrator', 'Commercial Agent', 'Company'])) {
+        if (! $user->hasAnyRole(['User', 'Administrator', 'Commercial Agent', 'Company', 'Training Center'])) {
             $user->assignRole('User');
         }
 

@@ -7,6 +7,7 @@ import { DropdownMenu, NavItem, isNavActive } from '@/components/amud/ui';
 import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 import { ToastProvider } from '@/components/amud/Toast';
 import { DemoBanner } from '@/components/amud/DemoBanner';
+import { DemoRoleButton } from '@/components/demo/DemoRoleButton';
 import { GlobalSearch, useGlobalSearchShortcut, type GlobalSearchResult } from '@/components/amud/GlobalSearch';
 import { NotificationCenter } from '@/components/amud/NotificationCenter';
 import { RoleBottomNav, type RoleNavItem } from '@/components/amud/RoleBottomNav';
@@ -174,6 +175,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
             className={`border-t border-amud-outline-variant p-md ${collapsed ? 'md:px-sm' : ''}`}
             style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}
           >
+            <DemoRoleButton collapsed={collapsed} />
             <div className={`flex items-center gap-3 rounded-lg p-2 ${collapsed ? 'md:justify-center' : ''}`}>
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amud-primary-container font-bold text-white">A</div>
               <div className={`min-w-0 ${hiddenWhenCollapsed}`}>

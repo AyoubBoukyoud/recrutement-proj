@@ -18,6 +18,7 @@ import { loadLocalCenterTeachers } from '@/lib/amud/localCenterTeachers';
 import { loadLocalCenterFormations } from '@/lib/amud/localCenterFormations';
 import { loadLocalCenterGroups } from '@/lib/amud/localCenterGroups';
 import { useCollection } from '@/lib/amud/storage/useCollection';
+import { useAuth } from '@/context/AuthContext';
 
 /** Recherche header, bornée aux données du centre actif (même pattern que `useGlobalSearchResults` d'AdminShell). */
 function useCentreSearchResults(query: string, centerId: string): GlobalSearchResult[] {
@@ -113,6 +114,7 @@ const SIDEBAR_GROUPS = [{ label: '', items: NAV.filter((i) => i.group === '') }]
 export function CentreShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { user, logout } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const profileMenu = useDropdown<HTMLDivElement>();
   const [query, setQuery] = useState('');
@@ -263,6 +265,9 @@ export function CentreShell({ children }: { children: ReactNode }) {
                       <Link href="/amud" onClick={() => profileMenu.setOpen(false)} className="flex items-center gap-sm px-md py-sm text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
                         <span className="material-symbols-outlined text-[18px]">apps</span> Changer d&apos;espace
                       </Link>
+                      {user?.role === 'centre' && <button type="button" onClick={() => { logout(); router.replace('/auth-phone?intent=training_center'); }} className="flex items-center gap-sm px-md py-sm text-left text-label-md text-amud-error transition-colors hover:bg-amud-surface-container-low">
+                        <span className="material-symbols-outlined text-[18px]">logout</span> Déconnexion
+                      </button>}
                     </div>
                   </div>
                 ) : null}

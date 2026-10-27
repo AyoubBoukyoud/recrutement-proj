@@ -18,5 +18,7 @@ export function destinationForRole(role: UserRole, incompleteProfileStep: number
       return '/admin';
     case 'agent':
       return '/agent';
+    case 'centre':
+      return '/amud/centre/dashboard';
   }
 }

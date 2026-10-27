@@ -25,6 +25,7 @@ export const MOCK_ACCOUNTS: MockAccount[] = [
   { phone: '+212600000003', roles: ['Company'], id: 201 },
   { phone: '+212600000004', roles: ['Administrator'], id: 301 },
   { phone: '+212600000005', roles: ['Commercial Agent'], id: 401 },
+  { phone: '+212600000006', roles: ['Training Center'], id: 501 },
 ]
 
 const digitsOf = (phone: string) => phone.replace(/\D/g, '')

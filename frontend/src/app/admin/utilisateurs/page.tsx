@@ -33,11 +33,12 @@ type AdminUser = {
   created_at: string;
 };
 
-const ROLE_PRIORITY = ['Administrator', 'Company', 'Commercial Agent', 'User'] as const;
+const ROLE_PRIORITY = ['Administrator', 'Company', 'Training Center', 'Commercial Agent', 'User'] as const;
 
 const ROLE_LABELS: Record<string, string> = {
   Administrator: 'Administrateur',
   Company: 'Recruteur',
+  'Training Center': 'Centre de formation',
   'Commercial Agent': 'Agent commercial',
   User: 'Candidat',
 };
@@ -45,6 +46,7 @@ const ROLE_LABELS: Record<string, string> = {
 const ROLE_DESTINATION: Record<string, string> = {
   Administrator: '/admin',
   Company: '/recruiter',
+  'Training Center': '/amud/centre/dashboard',
   'Commercial Agent': '/agent',
   User: '/dashboard',
 };
@@ -64,6 +66,7 @@ const STATUS_TONE: Record<AdminUser['status'], BadgeTone> = {
 const APP_ROLE_BY_BACKEND_NAME: Record<string, UserRole> = {
   Administrator: 'admin',
   Company: 'employer',
+  'Training Center': 'centre',
   'Commercial Agent': 'agent',
   User: 'candidate',
 };

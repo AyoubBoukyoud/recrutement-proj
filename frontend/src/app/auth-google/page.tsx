@@ -4,16 +4,18 @@
 // dans le fragment d'URL (#code=… / #link=… / #error=…). Écran de transit :
 // il ouvre la session puis redirige comme après un code OTP.
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, type AuthFailure } from '@/context/AuthContext';
 import { useProfile } from '@/context/ProfileContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { AuthShell } from '@/components/AuthShell';
+import { Button } from '@/components/shared/Button';
 import { destinationForRole } from '@/lib/roleDestination';
 import {
   asGoogleFailure,
   consumeGoogleFlow,
+  consumeGoogleIntent,
   savePendingGoogleLink,
   type GoogleFailure,
 } from '@/lib/googleAuth';
@@ -33,6 +35,7 @@ export default function AuthGooglePage() {
   // Le code d'échange est à usage unique : le double montage du mode strict
   // ne doit pas le dépenser deux fois.
   const handled = useRef(false);
+  const [accessDestination, setAccessDestination] = useState<string | null>(null);
 
   useEffect(() => {
     if (handled.current) return;
@@ -43,8 +46,10 @@ export default function AuthGooglePage() {
     // l'historique : on l'efface avant toute autre chose.
     window.history.replaceState(null, '', window.location.pathname);
     const expectedFlow = consumeGoogleFlow();
+    const intent = consumeGoogleIntent();
+    const intentQuery = intent === 'job_seeker' ? '' : `&intent=${intent}`;
 
-    const fail = (failure: GoogleFailure) => router.replace(`/auth-phone?google_error=${failure}`);
+    const fail = (failure: GoogleFailure) => router.replace(`/auth-phone?google_error=${failure}${intentQuery}`);
 
     const error = asGoogleFailure(params.get('error'));
     if (error) {
@@ -62,7 +67,7 @@ export default function AuthGooglePage() {
     const link = params.get('link');
     if (link) {
       savePendingGoogleLink({ ticket: link, email: params.get('email') ?? '' });
-      router.replace('/auth-phone?google=link');
+      router.replace(`/auth-phone?google=link${intentQuery}`);
       return;
     }
 
@@ -77,12 +82,24 @@ export default function AuthGooglePage() {
         fail(FAILURE_FROM_EXCHANGE[result.reason] ?? 'failed');
         return;
       }
-      router.replace(
-        result.deletionPending ? '/compte' : destinationForRole(result.role, getIncompleteStep()),
-      );
+      const destination = result.deletionPending ? '/compte' : destinationForRole(result.role, getIncompleteStep());
+      if (intent === 'training_center' && result.role !== 'centre' && result.role !== 'admin') {
+        setAccessDestination(destination);
+        return;
+      }
+      router.replace(destination);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (accessDestination) {
+    return <AuthShell><main id="main-content" className="flex min-h-screen flex-col items-center justify-center gap-5 px-6 text-center">
+      <span className="material-symbols-outlined text-4xl text-primary" aria-hidden="true">school</span>
+      <h1 className="text-2xl font-bold text-primary">{t('center_access_pending_title')}</h1>
+      <p className="text-sm leading-relaxed text-onSurface-variant">{t('center_access_pending_body')}</p>
+      <Button fullWidth onClick={() => router.replace(accessDestination)}>{t('center_access_pending_cta')}</Button>
+    </main></AuthShell>;
+  }
 
   return (
     <AuthShell>

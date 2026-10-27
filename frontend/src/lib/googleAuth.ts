@@ -22,6 +22,7 @@ export const GOOGLE_SIGN_IN_ENABLED =
 
 const FLOW_KEY = 'as_google_flow';
 const LINK_KEY = 'as_google_link';
+const INTENT_KEY = 'as_google_intent';
 
 /** Ce que l'API peut renvoyer dans `#error=` — voir GoogleAuthController. */
 export type GoogleFailure =
@@ -74,7 +75,16 @@ function randomFlow(): string {
 export function startGoogleSignIn(): void {
   const flow = randomFlow();
   session()?.setItem(FLOW_KEY, flow);
+  const intent = new URLSearchParams(window.location.search).get('intent');
+  session()?.setItem(INTENT_KEY, intent === 'training_center' || intent === 'recruiter' ? intent : 'job_seeker');
   window.location.assign(`${API_BASE_URL}/auth/google/redirect?flow=${encodeURIComponent(flow)}`);
+}
+
+export function consumeGoogleIntent(): string {
+  const store = session();
+  const intent = store?.getItem(INTENT_KEY);
+  store?.removeItem(INTENT_KEY);
+  return intent === 'training_center' || intent === 'recruiter' ? intent : 'job_seeker';
 }
 
 /** Lit puis efface le `flow` de cet onglet : il ne sert qu'à un retour. */

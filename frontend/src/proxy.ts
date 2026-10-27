@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { isCandidatePath } from '@/lib/protectedRoutes';
+import { demoRoleForPath } from '@/lib/demoRoles';
 
 /**
  * Duplicate Stitch-template pages, superseded by a functional rewrite. The
@@ -50,8 +51,9 @@ function isAdminPath(pathname: string) {
 
 function redirectTo(request: NextRequest, targetPathname: string) {
   const url = request.nextUrl.clone();
-  url.pathname = targetPathname;
-  url.search = '';
+  const [pathname, search = ''] = targetPathname.split('?');
+  url.pathname = pathname;
+  url.search = search;
   const response = NextResponse.redirect(url);
   response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
   return response;
@@ -67,7 +69,15 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const role = request.cookies.get('as_role')?.value;
 
-  const amudDestination = realDestinationForAmud(pathname);
+  // Admin presentation uses local fixture portals, keeping the real session.
+  // This exception changes navigation only; Laravel still authorizes every API call.
+  const adminPresentation = role === 'admin' && !!demoRoleForPath(pathname);
+  const isCentrePortal = pathname === '/amud/centre' || pathname.startsWith('/amud/centre/');
+  const centreAccess = role === 'centre' && isCentrePortal;
+  if (isCentrePortal && !adminPresentation && !centreAccess && !SHOW_PROTOTYPES) {
+    return redirectTo(request, '/auth-phone?intent=training_center');
+  }
+  const amudDestination = adminPresentation || centreAccess ? null : realDestinationForAmud(pathname);
   if (amudDestination) return redirectTo(request, amudDestination);
 
   if (pathname in LEGACY_REDIRECTS) {

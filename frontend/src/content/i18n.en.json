@@ -101,5 +101,18 @@
   "nav_candidate_aria_label": "Candidate navigation",
   "pagination_previous": "← Previous",
   "pagination_next": "Next →",
-  "pagination_page_of": "Page {current} of {last} · {count}"
+  "pagination_page_of": "Page {current} of {last} · {count}",
+  "auth_space_label": "Choose your workspace",
+  "auth_role_candidate": "Candidate",
+  "auth_role_recruiter": "Recruiter",
+  "auth_intent_training_center": "Training centre",
+  "phone_screen_title_training_center": "Training centre sign-in",
+  "phone_screen_subtitle_training_center": "Use the phone number linked to your centre. We’ll send you a code to sign in.",
+  "auth_choose_subtitle_training_center": "Sign in with the Google account or phone number linked to your centre.",
+  "auth_center_access_hint": "Centre access is activated by an administrator. Use the phone number or Google account registered for your organisation.",
+  "center_access_pending_title": "Centre access is not active",
+  "center_access_pending_body": "You’re signed in, but your account does not yet have training centre access. Contact your administrator to activate it.",
+  "center_access_pending_cta": "Continue to my workspace",
+  "auth_brand_ecosystem": "Candidates, recruiters and training centres: one place to move every career forward.",
+  "auth_brand_secure": "Secure sign-in · No password"
 }

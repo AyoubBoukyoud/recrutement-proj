@@ -101,5 +101,18 @@
   "nav_candidate_aria_label": "Kandidatennavigation",
   "pagination_previous": "← Zurück",
   "pagination_next": "Weiter →",
-  "pagination_page_of": "Seite {current} von {last} · {count}"
+  "pagination_page_of": "Seite {current} von {last} · {count}",
+  "auth_space_label": "Wählen Sie Ihren Bereich",
+  "auth_role_candidate": "Bewerber",
+  "auth_role_recruiter": "Recruiter",
+  "auth_intent_training_center": "Bildungszentrum",
+  "phone_screen_title_training_center": "Anmeldung für Bildungszentren",
+  "phone_screen_subtitle_training_center": "Nutzen Sie die Telefonnummer Ihres Zentrums. Wir senden Ihnen einen Anmeldecode.",
+  "auth_choose_subtitle_training_center": "Melden Sie sich mit dem Google-Konto oder der Telefonnummer Ihres Zentrums an.",
+  "auth_center_access_hint": "Der Zugang wird von einem Administrator freigeschaltet. Nutzen Sie die für Ihre Einrichtung registrierte Telefonnummer oder das Google-Konto.",
+  "center_access_pending_title": "Zugang zum Zentrum nicht aktiv",
+  "center_access_pending_body": "Sie sind angemeldet, aber Ihr Konto hat noch keinen Zugang zum Bildungszentrum. Wenden Sie sich zur Freischaltung an Ihren Administrator.",
+  "center_access_pending_cta": "Weiter zu meinem Bereich",
+  "auth_brand_ecosystem": "Bewerber, Recruiter und Bildungszentren: ein gemeinsamer Ort für den nächsten Karriereschritt.",
+  "auth_brand_secure": "Sichere Anmeldung · Ohne Passwort"
 }

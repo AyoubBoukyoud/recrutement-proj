@@ -14,7 +14,7 @@ export function DemoBanner() {
       </span>
       <p className="leading-relaxed">
         <span className="font-bold">Maquette de démonstration</span> — données fictives, rien n&apos;est
-        envoyé à un serveur. L&apos;espace réel équivalent est accessible via la connexion habituelle.
+        envoyé à un serveur.
       </p>
     </div>
   );

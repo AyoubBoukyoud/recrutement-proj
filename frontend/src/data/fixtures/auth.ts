@@ -26,6 +26,7 @@ export const MOCK_ACCOUNTS: MockAccount[] = [
   { phone: '+212600000003', role: 'employer', id: 201, incompleteProfileStep: null },
   { phone: '+212600000004', role: 'admin', id: 301, incompleteProfileStep: null },
   { phone: '+212600000005', role: 'agent', id: 401, incompleteProfileStep: null },
+  { phone: '+212600000006', role: 'centre', id: 501, incompleteProfileStep: null },
 ];
 
 /** Tout numéro non listé ouvre une session candidat : le cas courant. */

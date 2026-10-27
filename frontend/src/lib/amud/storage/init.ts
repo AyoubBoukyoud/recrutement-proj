@@ -42,6 +42,7 @@ import { centerModificationRequestsSeed } from '@/data/amud/centerModificationRe
 import { centerUsersSeed } from '@/data/amud/centerUsers';
 import { centerStudentResultsSeed } from '@/data/amud/centerStudentResults';
 import { teacherResourcesSeed } from '@/data/amud/teacherResources';
+import { presentationCandidate, presentationDocuments, presentationFavorites } from '@/data/amud/presentationCandidate';
 
 /**
  * Initialise chaque collection manquante avec un jeu de données de
@@ -105,6 +106,9 @@ export function initAmudDemoData() {
   seedIfMissing(AMUD_KEYS.centerUsers, () => centerUsersSeed);
   seedIfMissing(AMUD_KEYS.studentResults, () => centerStudentResultsSeed);
   seedIfMissing(AMUD_KEYS.teacherResources, () => teacherResourcesSeed);
+  seedIfMissing(AMUD_KEYS.candidateAccounts, () => [presentationCandidate]);
+  seedIfMissing(AMUD_KEYS.candidateDocuments, () => presentationDocuments);
+  seedIfMissing(AMUD_KEYS.candidateOfferFavorites, () => presentationFavorites);
 }
 
 /**

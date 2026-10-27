@@ -31,7 +31,8 @@ import { GERMAN_LEVELS } from './centerTypes';
  * réexporte juste la tranche correspondante de `CENTER_DEMO`.
  */
 
-const TODAY = new Date(2026, 7, 23);
+// Keep fresh demo timetables in the week currently shown by the portals.
+const TODAY = new Date();
 
 function mondayOf(d: Date): Date {
   const date = new Date(d);

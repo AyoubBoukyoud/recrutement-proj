@@ -21,9 +21,9 @@ export function AuthShell({
 }) {
   /*
    * `split` sert le parcours de connexion (/auth-phone, /otp) : à partir de
-   * `lg`, la colonne de marque (photo + promesse) occupe une moitié et le
+   * `lg`, la colonne de marque occupe une moitié et le
    * formulaire l'autre, au lieu d'une carte étroite perdue au centre d'un
-   * fond vide. La grille suit le sens de lecture : en arabe, la photo passe
+   * fond vide. La grille suit le sens de lecture : en arabe, la marque passe
    * à droite. Sous `lg`, rien ne change : une colonne plein écran.
    */
   if (split) {

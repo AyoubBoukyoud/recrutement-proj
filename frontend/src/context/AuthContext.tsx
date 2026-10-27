@@ -103,6 +103,7 @@ const ROLE_BY_BACKEND_NAME: Record<string, UserRole> = {
   Administrator: "admin",
   Company: "employer",
   "Commercial Agent": "agent",
+  "Training Center": "centre",
   User: "candidate",
 };
 
@@ -111,12 +112,13 @@ const DEFAULT_NAME_BY_ROLE: Record<UserRole, string> = {
   employer: "Espace Employeur",
   admin: "Administrateur",
   agent: "Agent commercial",
+  centre: "Centre de formation",
 };
 
 function roleFrom(roles: string[]): UserRole {
   // Administrator l'emporte : un compte qui cumule les rôles doit atterrir sur
   // l'espace le plus large, pas sur le premier renvoyé par la base.
-  for (const name of ["Administrator", "Company", "Commercial Agent", "User"]) {
+  for (const name of ["Administrator", "Company", "Training Center", "Commercial Agent", "User"]) {
     if (roles.includes(name)) return ROLE_BY_BACKEND_NAME[name];
   }
   return "candidate";

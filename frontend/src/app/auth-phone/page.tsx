@@ -45,7 +45,7 @@ const COUNTRY_CODES = [
  * `intent` n'est qu'une intention affichée et transmise à /otp, qui prévient
  * l'appelant si le numéro n'a en réalité pas d'accès recruteur.
  */
-type Intent = 'job_seeker' | 'recruiter';
+type Intent = 'job_seeker' | 'recruiter' | 'training_center';
 
 /**
  * Google et le numéro sont deux portes d'entrée indépendantes : l'écran
@@ -101,6 +101,7 @@ export default function AuthPhonePage() {
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     if (query.get('intent') === 'recruiter') setIntent('recruiter');
+    if (query.get('intent') === 'training_center') setIntent('training_center');
     setSessionExpired(query.get('reason') === 'session_expired');
     setReferralToken(query.get('ref'));
 
@@ -129,6 +130,15 @@ export default function AuthPhonePage() {
   useEffect(() => {
     if (method === 'phone' && openedFromChooser.current) phoneInputRef.current?.focus();
   }, [method]);
+
+  const chooseIntent = (next: Intent) => {
+    setIntent(next);
+    setError(null);
+    const url = new URL(window.location.href);
+    if (next === 'job_seeker') url.searchParams.delete('intent');
+    else url.searchParams.set('intent', next);
+    window.history.replaceState(null, '', `${url.pathname}${url.search}`);
+  };
 
   const choosePhone = () => {
     setError(null);
@@ -195,7 +205,7 @@ export default function AuthPhonePage() {
 
   return (
     <AuthShell split>
-    {/* Mobile : bandeau photo, contenu en haut, action principale collée en
+    {/* Mobile : bandeau de marque, contenu en haut, action principale collée en
         bas. Bureau (`lg`) : colonne de formulaire à côté de la colonne de
         marque d'AuthShell, contenu centré verticalement et aligné à gauche. */}
     <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col outline-none">
@@ -245,28 +255,30 @@ export default function AuthPhonePage() {
         {/* Sélecteur discret : il précise le public, il ne doit pas voler la
             vedette aux deux méthodes de connexion. */}
         {showIntentSwitch && (
-          <div className="fade-in-entry opacity-0 mb-8 grid grid-cols-2 gap-1 rounded-pillar border border-outline-variant bg-surface-container-low p-1">
+          <div role="group" aria-label={t('auth_space_label')} className="fade-in-entry opacity-0 mb-6 grid grid-cols-3 gap-2">
             {(
               [
-                ['job_seeker', t('auth_intent_job_seeker')],
-                ['recruiter', t('auth_intent_recruiter')],
+                ['job_seeker', t('auth_role_candidate'), 'person'],
+                ['recruiter', t('auth_role_recruiter'), 'business_center'],
+                ['training_center', t('auth_intent_training_center'), 'school'],
               ] as const
-            ).map(([value, label]) => {
+            ).map(([value, label, icon]) => {
               const selected = intent === value;
               return (
                 <button
                   key={value}
                   type="button"
-                  onClick={() => setIntent(value)}
+                  onClick={() => chooseIntent(value)}
                   aria-pressed={selected}
                   className={[
-                    'h-10 rounded-pillar px-3 text-xs font-bold transition-[background-color,color,box-shadow] duration-150',
+                    'flex min-h-[92px] flex-col items-center justify-center gap-2 rounded-xl border px-2 py-3 text-center text-xs font-bold leading-snug transition-[background-color,color,box-shadow] duration-150',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
                     selected
-                      ? 'bg-surface-container-lowest text-primary shadow-sm ring-1 ring-outline-variant'
-                      : 'text-onSurface-variant hover:text-onSurface',
+                      ? 'border-primary bg-primary/5 text-primary shadow-sm ring-1 ring-primary'
+                      : 'border-outline-variant bg-surface-container-lowest text-onSurface-variant hover:border-primary/40 hover:text-onSurface',
                   ].join(' ')}
                 >
+                  <span className="material-symbols-outlined text-[22px]" aria-hidden="true">{icon}</span>
                   {label}
                 </button>
               );
@@ -274,14 +286,21 @@ export default function AuthPhonePage() {
           </div>
         )}
 
+        {intent === 'training_center' && (
+          <p className="mb-6 flex items-start gap-2 rounded-xl border border-outline-variant bg-surface-container-low p-3 text-xs leading-relaxed text-onSurface-variant">
+            <span className="material-symbols-outlined shrink-0 text-primary" aria-hidden="true" style={{ fontSize: 18 }}>info</span>
+            {t('auth_center_access_hint')}
+          </p>
+        )}
+
         {method === 'choose' ? (
           <>
             <div className="fade-in-entry opacity-0 mb-8">
               <h1 className="text-[1.75rem] font-extrabold leading-tight tracking-tight text-primary lg:text-[2rem]">
-                {intent === 'recruiter' ? t('phone_screen_title_recruiter') : t('auth_choose_title')}
+                {intent === 'training_center' ? t('phone_screen_title_training_center') : intent === 'recruiter' ? t('phone_screen_title_recruiter') : t('auth_choose_title')}
               </h1>
               <p className="mt-2 text-sm leading-relaxed text-onSurface-variant">
-                {intent === 'recruiter' ? t('auth_choose_subtitle_recruiter') : t('auth_choose_subtitle')}
+                {intent === 'training_center' ? t('auth_choose_subtitle_training_center') : intent === 'recruiter' ? t('auth_choose_subtitle_recruiter') : t('auth_choose_subtitle')}
               </p>
             </div>
             {errorBanner}
@@ -318,10 +337,10 @@ export default function AuthPhonePage() {
           >
             <div className="fade-in-entry opacity-0 mb-6">
               <h1 className="text-[1.75rem] font-extrabold leading-tight tracking-tight text-primary lg:text-[2rem]">
-                {intent === 'recruiter' ? t('phone_screen_title_recruiter') : t('phone_screen_title')}
+                {intent === 'training_center' ? t('phone_screen_title_training_center') : intent === 'recruiter' ? t('phone_screen_title_recruiter') : t('phone_screen_title')}
               </h1>
               <p className="mt-2 text-sm leading-relaxed text-onSurface-variant">
-                {intent === 'recruiter' ? t('phone_screen_subtitle_recruiter') : t('phone_screen_subtitle')}
+                {intent === 'training_center' ? t('phone_screen_subtitle_training_center') : intent === 'recruiter' ? t('phone_screen_subtitle_recruiter') : t('phone_screen_subtitle')}
               </p>
             </div>
 

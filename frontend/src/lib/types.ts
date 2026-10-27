@@ -1,6 +1,6 @@
 // Types partagés de l'application Amud Skills
 
-export type UserRole = 'candidate' | 'employer' | 'admin' | 'agent';
+export type UserRole = 'candidate' | 'employer' | 'admin' | 'agent' | 'centre';
 
 export type Language = 'fr' | 'ar' | 'en' | 'de';
 

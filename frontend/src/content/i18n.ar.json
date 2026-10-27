@@ -101,5 +101,18 @@
   "nav_candidate_aria_label": "تنقّل المرشح",
   "pagination_previous": "→ السابق",
   "pagination_next": "التالي ←",
-  "pagination_page_of": "الصفحة {current} من {last} · {count}"
+  "pagination_page_of": "الصفحة {current} من {last} · {count}",
+  "auth_space_label": "اختر مساحتك",
+  "auth_role_candidate": "مرشح",
+  "auth_role_recruiter": "مسؤول توظيف",
+  "auth_intent_training_center": "مركز تكوين",
+  "phone_screen_title_training_center": "تسجيل دخول مركز التكوين",
+  "phone_screen_subtitle_training_center": "استخدم رقم الهاتف المرتبط بمركزك. سنرسل إليك رمزًا لتسجيل الدخول.",
+  "auth_choose_subtitle_training_center": "سجّل الدخول بحساب Google أو رقم الهاتف المرتبط بمركزك.",
+  "auth_center_access_hint": "يُفعّل المسؤول صلاحية المركز. استخدم رقم الهاتف أو حساب Google المسجل لمؤسستك.",
+  "center_access_pending_title": "صلاحية المركز غير مفعّلة",
+  "center_access_pending_body": "تم تسجيل دخولك، لكن حسابك لا يملك بعد صلاحية مركز التكوين. تواصل مع المسؤول لتفعيلها.",
+  "center_access_pending_cta": "المتابعة إلى مساحتي",
+  "auth_brand_ecosystem": "المرشحون ومسؤولو التوظيف ومراكز التكوين: مساحة مشتركة لدعم كل مسار مهني.",
+  "auth_brand_secure": "دخول آمن · دون كلمة مرور"
 }

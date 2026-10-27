@@ -31,6 +31,7 @@ const BACKEND_ROLE_NAME = {
   employer: "Company",
   agent: "Commercial Agent",
   candidate: "User",
+  centre: "Training Center",
 } as const;
 
 export interface AuthRepository {
