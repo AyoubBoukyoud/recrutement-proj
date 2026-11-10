@@ -69,6 +69,14 @@ session reconnects with no QR. Restarting `evolution-go` alone does not
 reconnect an instance it last saw disconnected. A QR in the answer means
 WhatsApp logged the device out: scan it again.
 
+The scheduler runs `php artisan otp:check-whatsapp` every five minutes. On a
+dropped session it sends that same reconnect itself; if the pairing is still
+down on the second check in a row it posts to `COMPLAINT_SLACK_WEBHOOK` (and
+mails `COMPLAINT_ALERT_EMAIL`), repeats every six hours, and announces the
+recovery. Neither variable set means the outage is only logged — set at least
+one. Run the command by hand in the `backend` container to see the current
+state.
+
 ## Enable the domain and HTTPS
 
 After the DNS records resolve to the VM, update `deploy/.env.prod`:

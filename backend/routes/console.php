@@ -13,6 +13,10 @@ Artisan::command('inspire', function () {
 // otherwise invisible — the candidate just sees "Queued for scanning…" forever.
 Schedule::command('documents:scan-pending')->everyTenMinutes()->withoutOverlapping();
 
+// Every sign-in code leaves through one paired WhatsApp account. When that
+// pairing drops nothing else notices, so this asks the gateway and alerts.
+Schedule::command('otp:check-whatsapp')->everyFiveMinutes()->withoutOverlapping();
+
 // Expired sign-in sessions (config/sanctum.php) are already refused; this only
 // stops them piling up in personal_access_tokens.
 Schedule::command('sanctum:prune-expired --hours=24')->daily();
