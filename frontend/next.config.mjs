@@ -38,12 +38,19 @@ if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SHOW_DEV_TO
  * Workbox takes the first match, so none of that is ever stored. (A
  * function pattern is serialised into the worker: it cannot close over
  * anything here.)
+ *
+ * When the API has an origin of its own (frontend on Vercel, API on Heroku:
+ * deploy/HEROKU.md), the same responses and the buckets' presigned file links
+ * are cross-origin, and next-pwa's last default rule caches every cross-origin
+ * GET for an hour. So nothing cross-origin is stored either, except Google
+ * Fonts, which fall through to next-pwa's own rules for them.
  */
 const neverCachePrivate = {
   urlPattern: ({ url }) =>
-    self.origin === url.origin &&
-    (url.pathname.startsWith('/api/') ||
-      (url.pathname.startsWith('/storage/') && !url.pathname.startsWith('/storage/company-logos/'))),
+    self.origin === url.origin
+      ? url.pathname.startsWith('/api/') ||
+        (url.pathname.startsWith('/storage/') && !url.pathname.startsWith('/storage/company-logos/'))
+      : !/^fonts\.(googleapis|gstatic)\.com$/.test(url.hostname),
   handler: 'NetworkOnly',
   // next-pwa reads `options` on every rule when an offline fallback is set.
   options: {},
@@ -76,24 +83,35 @@ const withPWA = withPWAInit({
  * previews in a same-origin iframe, consent-gated Analytics.
  *
  * Not set in development: webpack's dev builds need `eval`.
+ *
+ * Behind Caddy all of that is this origin. With the API on an origin of its
+ * own (an absolute NEXT_PUBLIC_API_URL, deploy/HEROKU.md), the API and its
+ * file links are allowed too, and so are the buckets the files are linked
+ * from when FILE_STORAGE=s3: FILE_STORAGE_ORIGINS, comma-separated.
  */
 const googleAnalytics = 'https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com';
+const apiOrigin = URL.canParse(process.env.NEXT_PUBLIC_API_URL ?? '') ? new URL(process.env.NEXT_PUBLIC_API_URL).origin : '';
+const fileOrigins = [apiOrigin, ...(process.env.FILE_STORAGE_ORIGINS ?? '').split(',').map((origin) => origin.trim())]
+  .filter(Boolean)
+  .join(' ');
 const contentSecurityPolicy = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://*.googletagmanager.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
-  `img-src 'self' data: blob: https://lh3.googleusercontent.com ${googleAnalytics}`,
-  "media-src 'self' blob:",
-  `connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com ${googleAnalytics}`,
-  "frame-src 'self'",
+  `img-src 'self' data: blob: ${fileOrigins} https://lh3.googleusercontent.com ${googleAnalytics}`,
+  `media-src 'self' blob: ${fileOrigins}`,
+  `connect-src 'self' ${fileOrigins} https://fonts.googleapis.com https://fonts.gstatic.com ${googleAnalytics}`,
+  `frame-src 'self' ${fileOrigins}`,
   "worker-src 'self' blob:",
   "manifest-src 'self'",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'self'",
-].join('; ');
+]
+  .map((directive) => directive.replace(/ +/g, ' ').trim())
+  .join('; ');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -158,9 +176,17 @@ const nextConfig = {
       (source) => ({ source, headers: cache }),
     );
 
-    return process.env.NODE_ENV === 'production'
-      ? [...assets, { source: '/:path*', headers: [{ key: 'Content-Security-Policy', value: contentSecurityPolicy }] }]
-      : assets;
+    // The rest is what Caddy adds on the Compose deploy, restated so a host
+    // without it (Vercel) sends it too. Caddy replaces these with its own.
+    const security = [
+      { key: 'Content-Security-Policy', value: contentSecurityPolicy },
+      { key: 'X-Content-Type-Options', value: 'nosniff' },
+      { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+      { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+      { key: 'Permissions-Policy', value: 'camera=(self), microphone=(self), geolocation=(), payment=(), usb=()' },
+    ];
+
+    return process.env.NODE_ENV === 'production' ? [...assets, { source: '/:path*', headers: security }] : assets;
   },
 };
 

@@ -7,10 +7,10 @@ use App\Services\Ocr\DocumentFieldExtractor;
 use App\Services\Ocr\GeminiCvExtractor;
 use App\Services\Ocr\TesseractOcrService;
 use App\Services\Ocr\TransientOcrFailure;
+use App\Support\LocalFile;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 class ProcessDocumentOcr implements ShouldQueue
@@ -47,17 +47,16 @@ class ProcessDocumentOcr implements ShouldQueue
 
         $document->update(['ocr_status' => 'processing']);
 
-        $absolutePath = Storage::disk('local')->path($document->file_path);
         $mimeType = $this->mimeType($document->file_path);
 
-        $result = $this->shouldUseGemini($document, $mimeType, $gemini)
+        $result = LocalFile::use('local', $document->file_path, fn (string $absolutePath) => $this->shouldUseGemini($document, $mimeType, $gemini)
             ? $this->viaGemini($gemini, $absolutePath, $mimeType)
             : $this->escalateIfWeak(
                 $this->viaTesseract($ocr, $extractor, $absolutePath),
                 $gemini,
                 $absolutePath,
                 $mimeType,
-            );
+            ));
 
         $document->extraction()->updateOrCreate([], [
             'extracted_fields' => $result['fields'],

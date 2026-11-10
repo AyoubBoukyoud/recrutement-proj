@@ -1,0 +1,17 @@
+# Heroku deploy of the API: Laravel, its queue and its scheduler, as one Docker
+# image (the app's stack must be `container`). The Next.js frontend is deployed
+# on Vercel. Runbook: deploy/HEROKU.md.
+build:
+  docker:
+    # The build context is the Dockerfile's directory, i.e. backend/.
+    web: backend/Dockerfile.heroku
+release:
+  image: web
+  command:
+    - /var/www/html/docker/heroku/release.sh
+run:
+  web: /var/www/html/docker/heroku/web.sh
+  worker:
+    command:
+      - /var/www/html/docker/heroku/worker.sh
+    image: web

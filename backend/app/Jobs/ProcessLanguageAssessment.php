@@ -7,9 +7,11 @@ use App\Services\LanguageAssessment\CefrScorer;
 use App\Services\LanguageAssessment\LanguageLevelReconciler;
 use App\Services\LanguageAssessment\PronunciationAnalyzer;
 use App\Services\LanguageAssessment\WhisperTranscriber;
+use App\Support\LocalFile;
+use App\Support\UnreadableStoredFile;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ProcessLanguageAssessment implements ShouldQueue
 {
@@ -40,11 +42,20 @@ class ProcessLanguageAssessment implements ShouldQueue
 
         $assessment->update(['status' => 'processing', 'failure_reason' => null]);
 
-        $absolutePath = Storage::disk('local')->path($assessment->audio_path);
-
         // The language being tested is known, so Whisper is told rather than
         // left to guess — auto-detect misfires on short, accented clips.
-        $result = $transcriber->transcribe($absolutePath, $assessment->language);
+        try {
+            $result = LocalFile::use(
+                'local',
+                $assessment->audio_path,
+                fn (string $absolutePath) => $transcriber->transcribe($absolutePath, $assessment->language),
+            );
+        } catch (UnreadableStoredFile $e) {
+            // An unreadable recording ends the same way a missing one always
+            // has: the candidate is told to retry, not left on "processing".
+            Log::warning("Language assessment {$assessment->id}: {$e->getMessage()}");
+            $result = null;
+        }
 
         if (! $result) {
             $this->fail($assessment, 'transcription_unavailable');

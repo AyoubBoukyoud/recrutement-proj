@@ -1,5 +1,35 @@
 <?php
 
+/*
+ * Where uploads live. `local` keeps them on this machine's disk, which is right
+ * for the Docker Compose deploy (a named volume). A Heroku dyno's disk is wiped
+ * on every restart, at least daily, so there FILE_STORAGE=s3 moves both disks
+ * to S3-compatible buckets (Cloudflare R2, AWS S3...) — see deploy/HEROKU.md:
+ *
+ * - `local`, the private candidate files: AWS_BUCKET, never public. FileAccess
+ *   hands out presigned links that expire, as it hands out signed ones here.
+ * - `public`, the company logos: AWS_PUBLIC_BUCKET, linked at AWS_PUBLIC_URL
+ *   (the bucket's public domain).
+ *
+ * The disk names stay the same so no call site has to know. The buckets get no
+ * `visibility`: R2 has no per-object ACLs, public access is a bucket setting.
+ */
+$onBuckets = env('FILE_STORAGE', 'local') === 's3';
+
+$bucket = fn (?string $name, ?string $url = null): array => [
+    'driver' => 's3',
+    'key' => env('AWS_ACCESS_KEY_ID'),
+    'secret' => env('AWS_SECRET_ACCESS_KEY'),
+    'region' => env('AWS_DEFAULT_REGION', 'auto'),
+    'bucket' => $name,
+    'url' => $url,
+    'endpoint' => env('AWS_ENDPOINT'),
+    'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+    'retain_visibility' => false,
+    'throw' => false,
+    'report' => false,
+];
+
 return [
 
     /*
@@ -30,7 +60,7 @@ return [
 
     'disks' => [
 
-        'local' => [
+        'local' => $onBuckets ? $bucket(env('AWS_BUCKET')) : [
             'driver' => 'local',
             'root' => storage_path('app/private'),
             'serve' => true,
@@ -38,7 +68,7 @@ return [
             'report' => false,
         ],
 
-        'public' => [
+        'public' => $onBuckets ? $bucket(env('AWS_PUBLIC_BUCKET'), env('AWS_PUBLIC_URL')) : [
             'driver' => 'local',
             'root' => storage_path('app/public'),
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
