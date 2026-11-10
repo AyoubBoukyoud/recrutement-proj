@@ -12,6 +12,8 @@ import { useLanguage } from '@/context/LanguageContext';
 import { Button, IconButton } from '@/components/shared/Button';
 import { AuthShell } from '@/components/AuthShell';
 import { toInternationalPhone } from '@/lib/phoneNumber';
+import { DEFAULT_COUNTRY, countryByIso, detectCountry } from '@/lib/countries';
+import { CountryPicker } from '@/components/shared/CountryPicker';
 import { useProfile } from '@/context/ProfileContext';
 import { destinationForRole } from '@/lib/roleDestination';
 import { GoogleSignInButton } from '@/components/GoogleSignInButton';
@@ -33,11 +35,6 @@ import {
 const DevAuthTools = process.env.NEXT_PUBLIC_SHOW_DEV_TOOLS === '1'
   ? dynamic(() => import('./DevAuthTools').then((module) => module.DevAuthTools), { ssr: false })
   : null;
-
-const COUNTRY_CODES = [
-  { code: '+212', label: '🇲🇦 +212' },
-  { code: '+49', label: '🇩🇪 +49' },
-];
 
 /**
  * Connexion candidat ou recruteur/staff : même téléphone, même code — le rôle
@@ -70,7 +67,9 @@ export default function AuthPhonePage() {
   const { getIncompleteStep } = useProfile();
   const { t } = useLanguage();
   const [intent, setIntent] = useState<Intent>('job_seeker');
-  const [countryCode, setCountryCode] = useState(COUNTRY_CODES[0].code);
+  // Code ISO du pays : plusieurs pays partagent un même indicatif (+1, +44…).
+  const [country, setCountry] = useState(DEFAULT_COUNTRY);
+  const countryCode = countryByIso(country).dial;
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -163,6 +162,21 @@ export default function AuthPhonePage() {
     setGoogleLink(null);
     if (GOOGLE_SIGN_IN_ENABLED) setMethod('choose');
     router.replace('/auth-phone');
+  };
+
+  // Un numéro collé avec son indicatif (« +41 79… », « 0041… ») l'emporte sur
+  // le sélecteur : on aligne le pays affiché sur ce qui sera réellement envoyé.
+  const changePhone = (value: string) => {
+    setPhone(value);
+    const typed = detectCountry(value, country);
+    if (typed && typed.iso !== country) setCountry(typed.iso);
+  };
+
+  const chooseCountry = (iso: string) => {
+    setCountry(iso);
+    // L'indicatif saisi à la main contredirait le pays qu'on vient de choisir.
+    if (/^\s*(\+|00)/.test(phone)) setPhone('');
+    phoneInputRef.current?.focus();
   };
 
   const submit = async () => {
@@ -352,19 +366,7 @@ export default function AuthPhonePage() {
                 <span className="material-symbols-outlined text-primary" style={{ fontSize: 20 }} aria-hidden="true">
                   phone
                 </span>
-                <select
-                  id="auth-phone-country"
-                  aria-label={t('phone_country_label')}
-                  value={countryCode}
-                  onChange={(e) => setCountryCode(e.target.value)}
-                  className="shrink-0 cursor-pointer border-none bg-transparent p-0 text-sm font-bold text-primary outline-none focus:ring-0"
-                >
-                  {COUNTRY_CODES.map((c) => (
-                    <option key={c.code} value={c.code}>
-                      {c.label}
-                    </option>
-                  ))}
-                </select>
+                <CountryPicker value={country} onChange={chooseCountry} label={t('phone_country_label')} />
                 <div className="h-6 w-px bg-outline-variant" aria-hidden="true" />
                 <input
                   ref={phoneInputRef}
@@ -373,8 +375,8 @@ export default function AuthPhonePage() {
                   inputMode="numeric"
                   autoComplete="tel-national"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="6 12 34 56 78"
+                  onChange={(e) => changePhone(e.target.value)}
+                  placeholder={country === 'MA' ? '6 12 34 56 78' : t('phone_number_placeholder')}
                   className="min-w-0 flex-1 border-none bg-transparent p-0 text-base font-semibold text-onSurface placeholder:text-outline outline-none focus:ring-0"
                 />
               </div>

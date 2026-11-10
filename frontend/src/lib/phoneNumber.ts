@@ -1,10 +1,12 @@
+import { DIAL_CODES_KEEPING_LEADING_ZERO } from './countries';
+
 /**
  * Convertit ce que l'utilisateur colle dans le champ téléphone en E.164.
  *
  * Le sélecteur fournit le pays pour une saisie nationale (`07…`), mais un
- * numéro déjà international (`+212…` ou `00212…`) reste prioritaire. Les
- * indicatifs proposés par l'écran, Maroc et Allemagne, utilisent tous deux un
- * zéro national qui doit disparaître après l'indicatif.
+ * numéro déjà international (`+212…` ou `00212…`) reste prioritaire. Le zéro
+ * national disparaît après l'indicatif, sauf dans les rares pays où il fait
+ * partie du numéro (voir DIAL_CODES_KEEPING_LEADING_ZERO).
  */
 export function toInternationalPhone(input: string, selectedCountryCode: string): string {
   const compact = input.trim().replace(/[\s\-().]/g, '');
@@ -19,15 +21,25 @@ export function toInternationalPhone(input: string, selectedCountryCode: string)
     return removeNationalTrunkPrefix(`+${digits.slice(2)}`);
   }
 
+  // « 212612345678 » saisi sans « + » : l'indicatif est déjà là. Réservé aux
+  // pays où aucun numéro national ne commence par l'indicatif — ailleurs
+  // (un mobile indien en 91…, norvégien en 47…) ce serait amputer le numéro.
   const countryDigits = selectedCountryCode.replace(/\D/g, '');
-  if (digits.startsWith(countryDigits)) {
+  if (
+    digits.startsWith(countryDigits)
+    && (countryDigits === '' || INDICATIFS_SANS_AMBIGUITE.includes(selectedCountryCode))
+  ) {
     return removeNationalTrunkPrefix(`+${digits}`);
   }
 
-  const nationalNumber = digits.replace(/^0+/, '');
+  const nationalNumber = DIAL_CODES_KEEPING_LEADING_ZERO.has(selectedCountryCode)
+    ? digits
+    : digits.replace(/^0+/, '');
 
   return `${selectedCountryCode}${nationalNumber}`;
 }
+
+const INDICATIFS_SANS_AMBIGUITE = ['+212', '+49'];
 
 function removeNationalTrunkPrefix(phone: string): string {
   for (const countryCode of ['+212', '+49']) {
