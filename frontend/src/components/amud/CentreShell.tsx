@@ -1,62 +1,17 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { NavItem, isNavActive, useDropdown } from '@/components/amud/ui';
 import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 import { ToastProvider } from '@/components/amud/Toast';
-import { GlobalSearch, useGlobalSearchShortcut, type GlobalSearchResult } from '@/components/amud/GlobalSearch';
-import { NotificationCenter } from '@/components/amud/NotificationCenter';
 import { RoleBottomNav } from '@/components/amud/RoleBottomNav';
-import { useCurrentCenter } from '@/lib/amud/currentCentre';
-import { CENTER_ROLES, CENTER_ROLE_LABELS } from '@/data/amud/centerTypes';
-import { centresCollection } from '@/lib/amud/localCentres';
-import { centresSeed } from '@/data/amud/centres';
-import { loadLocalCenterStudents } from '@/lib/amud/localCenterStudents';
-import { loadLocalCenterTeachers } from '@/lib/amud/localCenterTeachers';
-import { loadLocalCenterFormations } from '@/lib/amud/localCenterFormations';
-import { loadLocalCenterGroups } from '@/lib/amud/localCenterGroups';
-import { useCollection } from '@/lib/amud/storage/useCollection';
 import { useAuth } from '@/context/AuthContext';
-
-/** Recherche header, bornée aux données du centre actif (même pattern que `useGlobalSearchResults` d'AdminShell). */
-function useCentreSearchResults(query: string, centerId: string): GlobalSearchResult[] {
-  return useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (q.length < 2) return [];
-    const results: GlobalSearchResult[] = [];
-
-    for (const s of loadLocalCenterStudents().filter((s) => s.centerId === centerId)) {
-      if (results.filter((r) => r.icon === 'group').length >= 3) break;
-      const nom = `${s.prenom} ${s.nom}`;
-      if (nom.toLowerCase().includes(q)) {
-        results.push({ id: `etu-${s.id}`, label: nom, sub: 'Étudiant', href: '/amud/centre/etudiants', icon: 'group' });
-      }
-    }
-    for (const t of loadLocalCenterTeachers().filter((t) => t.centerId === centerId)) {
-      if (results.filter((r) => r.icon === 'cast_for_education').length >= 3) break;
-      const nom = `${t.prenom} ${t.nom}`;
-      if (nom.toLowerCase().includes(q)) {
-        results.push({ id: `ens-${t.id}`, label: nom, sub: 'Enseignant', href: '/amud/centre/enseignants', icon: 'cast_for_education' });
-      }
-    }
-    for (const f of loadLocalCenterFormations().filter((f) => f.centerId === centerId)) {
-      if (results.filter((r) => r.icon === 'menu_book').length >= 3) break;
-      if (f.nom.toLowerCase().includes(q)) {
-        results.push({ id: `for-${f.id}`, label: f.nom, sub: 'Formation', href: '/amud/centre/formations', icon: 'menu_book' });
-      }
-    }
-    for (const g of loadLocalCenterGroups().filter((g) => g.centerId === centerId)) {
-      if (results.filter((r) => r.icon === 'diversity_3').length >= 3) break;
-      if (g.nom.toLowerCase().includes(q)) {
-        results.push({ id: `grp-${g.id}`, label: g.nom, sub: 'Groupe', href: '/amud/centre/groupes', icon: 'diversity_3' });
-      }
-    }
-
-    return results.slice(0, 8);
-  }, [query, centerId]);
-}
+import { isTimetablePath } from '@/lib/amud/timetable/paths';
+import { useTimetableScope } from '@/lib/amud/timetable/useTimetable';
 
 type CentreNavItem = {
   href: string;
@@ -78,6 +33,7 @@ type CentreNavItem = {
 const NAV: CentreNavItem[] = [
   { href: '/amud/centre/dashboard', icon: 'dashboard', label: 'Tableau de bord', group: '', inBottomNav: true, bottomLabel: 'Accueil' },
   { href: '/amud/centre/etudiants', icon: 'group', label: 'Étudiants', group: 'Pédagogie', inBottomNav: true },
+  { href: '/amud/centre/salles', icon: 'meeting_room', label: 'Salles', group: 'Pédagogie' },
   { href: '/amud/centre/planning', icon: 'calendar_month', label: 'Planning', group: 'Pédagogie', inBottomNav: true },
   { href: '/amud/centre/paiements-etudiants', icon: 'payments', label: 'Paiements étudiants', group: 'Finances', inBottomNav: true, bottomLabel: 'Paiements' },
   { href: '/amud/centre/formations', icon: 'menu_book', label: 'Formations', group: 'Pédagogie' },
@@ -98,51 +54,34 @@ const SIDEBAR_GROUPS = [{ label: '', items: NAV.filter((i) => i.group === '') }]
   GROUP_LABELS.map((label) => ({ label, items: NAV.filter((i) => i.group === label) })),
 );
 
-/**
- * Coquille de l'espace self-service `/amud/centre/*` (cahier des charges
- * §25-42), même architecture que `AdminShell`/`CommercialShell` : nav fixe,
- * header avec cloche (`scope:'centre'`), `ToastProvider`. Comme le reste du
- * module `/amud` n'a pas de vraie authentification, le sélecteur "Centre" +
- * "Rôle" dans le menu profil simule "je suis connecté à ce centre, avec ce
- * rôle" (`useCurrentCenter`) — indispensable ici puisque toutes les pages
- * ont besoin de savoir "mon" `centerId`, contrairement à Admin/Commercial
- * qui voient plusieurs centres à la fois. Chaque page applique en plus
- * `canPerform(role, action)` (`centerPermissions.ts`) pour désactiver/bloquer
- * réellement les actions que le rôle courant n'a pas le droit de faire — le
- * menu de rôle ci-dessous ne change donc pas que l'affichage.
- */
+const CentrePrototypeShell = dynamic(() => import('./CentrePrototypeShell').then((module) => module.CentrePrototypeShell));
+
 export function CentreShell({ children }: { children: ReactNode }) {
+  const { enabled } = useTimetableScope();
+  return enabled ? <CentreShellFrame>{children}</CentreShellFrame> : <CentrePrototypeShell>{children}</CentrePrototypeShell>;
+}
+
+/** Shared navigation, without importing any localStorage demo data. */
+export function CentreShellFrame({ children, centerName, search, notifications, profileControls }: {
+  children: ReactNode;
+  centerName?: string;
+  search?: ReactNode;
+  notifications?: ReactNode;
+  profileControls?: ReactNode;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
+  const timetable = useTimetableScope();
+  const displayedCenterName = (timetable.enabled ? timetable.center?.name : centerName) ?? (timetable.enabled ? 'Emploi du temps' : 'Espace Centre');
   const [collapsed, setCollapsed] = useState(false);
   const profileMenu = useDropdown<HTMLDivElement>();
-  const [query, setQuery] = useState('');
-  const [searchOpen, setSearchOpen] = useState(false);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-
-  const { centerId, role, setCenterId, setRole } = useCurrentCenter();
-  const [centres] = useCollection(centresCollection, centresSeed);
-  const currentCentre = useMemo(() => centres.find((c) => c.id === centerId), [centres, centerId]);
-  const results = useCentreSearchResults(query, centerId);
-
-  useGlobalSearchShortcut(() => {
-    setSearchOpen(true);
-    searchInputRef.current?.focus();
-  });
-
   useEffect(() => {
-    setSearchOpen(false);
     profileMenu.setOpen(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  function goToResult(href: string) {
-    setSearchOpen(false);
-    setQuery('');
-    router.push(href);
-  }
-
+  const navItems = timetable.enabled ? NAV.map((item) => ({ ...item, prefetch: isTimetablePath(item.href) ? undefined : false })) : NAV;
   const hiddenWhenCollapsed = collapsed ? 'md:hidden md:group-hover:block' : '';
 
   return (
@@ -154,10 +93,10 @@ export function CentreShell({ children }: { children: ReactNode }) {
           }`}
         >
           <div className={`flex items-center gap-sm border-b border-amud-outline-variant px-lg py-2.5 ${collapsed ? 'md:px-md' : ''}`}>
-            <img src="/assets/images/logo-mark.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
+            <Image src="/assets/images/logo-mark.png" alt="" width={40} height={40} className="h-10 w-10 shrink-0 object-contain" />
             <div className={hiddenWhenCollapsed}>
               <h1 className="text-title-lg font-bold text-amud-primary">Amud Skills</h1>
-              <p className="truncate text-label-sm text-amud-on-surface-variant">{currentCentre?.nom ?? 'Espace Centre'}</p>
+              <p className="truncate text-label-sm text-amud-on-surface-variant">{displayedCenterName}</p>
             </div>
           </div>
 
@@ -173,6 +112,7 @@ export function CentreShell({ children }: { children: ReactNode }) {
                       <NavItem
                         key={item.href}
                         href={item.href}
+                        prefetch={timetable.enabled && !isTimetablePath(item.href) ? false : undefined}
                         icon={item.icon}
                         label={item.label}
                         active={isNavActive(pathname, item.href, item.href === '/amud/centre/dashboard')}
@@ -187,7 +127,7 @@ export function CentreShell({ children }: { children: ReactNode }) {
 
           <div className={`border-t border-amud-outline-variant p-md ${collapsed ? 'md:px-sm' : ''}`} style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}>
             <Link
-              href="/amud"
+              href="/amud" prefetch={false}
               className="flex items-center justify-center gap-2 rounded-lg border border-amud-outline-variant px-3 py-2 text-label-sm font-medium text-amud-on-surface-variant transition-colors hover:bg-amud-surface-container-low hover:text-amud-primary"
               title={collapsed ? "Changer d'espace" : undefined}
             >
@@ -209,60 +149,29 @@ export function CentreShell({ children }: { children: ReactNode }) {
                 <span className="material-symbols-outlined">menu</span>
               </button>
             </div>
-            <GlobalSearch
-              query={query}
-              onQueryChange={setQuery}
-              results={results}
-              onSelect={goToResult}
-              open={searchOpen}
-              onOpenChange={setSearchOpen}
-              inputRef={searchInputRef}
-              placeholder="Rechercher un étudiant, un enseignant…"
-              className="relative hidden w-64 md:block"
-            />
+            {search}
             <div className="ml-auto flex items-center gap-sm">
               <HeaderPreferences />
-              <NotificationCenter key={pathname} scope="centre" />
+              {notifications}
               <div ref={profileMenu.ref} className="relative">
                 <button onClick={() => profileMenu.setOpen((v) => !v)} className="flex h-9 w-9 items-center justify-center rounded-full bg-amud-primary-container font-bold text-white transition-opacity hover:opacity-90" aria-label="Menu du compte" aria-haspopup="menu" aria-expanded={profileMenu.open}>
-                  {(currentCentre?.nom ?? 'C').charAt(0)}
+                  {displayedCenterName.charAt(0)}
                 </button>
                 {profileMenu.open ? (
                   <div className="absolute right-0 top-full z-40 mt-2 w-72 overflow-hidden rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
                     <div className="border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm">
-                      <div className="text-label-md font-semibold text-amud-on-surface">{currentCentre?.nom ?? 'Espace Centre'}</div>
-                      <div className="text-label-sm text-amud-on-surface-variant">Simulation — aucune vraie authentification</div>
+                      <div className="text-label-md font-semibold text-amud-on-surface">{displayedCenterName}</div>
+                      <div className="text-label-sm text-amud-on-surface-variant">{timetable.enabled ? "Planning connecté · accès vérifié par le serveur" : "Simulation — aucune vraie authentification"}</div>
                     </div>
-                    <div className="flex flex-col gap-sm p-md">
-                      <label className="text-label-sm text-amud-on-surface-variant">
-                        Centre actif
-                        <select value={centerId} onChange={(e) => setCenterId(e.target.value)} className="mt-1 w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary">
-                          {centres.map((c) => (
-                            <option key={c.id} value={c.id}>
-                              {c.nom}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <label className="text-label-sm text-amud-on-surface-variant">
-                        Rôle simulé
-                        <select value={role} onChange={(e) => setRole(e.target.value as typeof role)} className="mt-1 w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary">
-                          {CENTER_ROLES.map((r) => (
-                            <option key={r} value={r}>
-                              {CENTER_ROLE_LABELS[r]}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                    </div>
+                    {profileControls}
                     <div className="flex flex-col border-t border-amud-outline-variant py-1">
-                      <Link href="/amud/centre/parametres" onClick={() => profileMenu.setOpen(false)} className="flex items-center gap-sm px-md py-sm text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
+                      <Link href="/amud/centre/parametres" prefetch={false} onClick={() => profileMenu.setOpen(false)} className="flex items-center gap-sm px-md py-sm text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
                         <span className="material-symbols-outlined text-[18px]">settings</span> Paramètres
                       </Link>
                       <button type="button" className="flex items-center gap-sm px-md py-sm text-left text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
                         <span className="material-symbols-outlined text-[18px]">help</span> Aide
                       </button>
-                      <Link href="/amud" onClick={() => profileMenu.setOpen(false)} className="flex items-center gap-sm px-md py-sm text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
+                      <Link href="/amud" prefetch={false} onClick={() => profileMenu.setOpen(false)} className="flex items-center gap-sm px-md py-sm text-label-md text-amud-on-surface transition-colors hover:bg-amud-surface-container-low">
                         <span className="material-symbols-outlined text-[18px]">apps</span> Changer d&apos;espace
                       </Link>
                       {user?.role === 'centre' && <button type="button" onClick={() => { logout(); router.replace('/auth-phone?intent=training_center'); }} className="flex items-center gap-sm px-md py-sm text-left text-label-md text-amud-error transition-colors hover:bg-amud-surface-container-low">
@@ -279,7 +188,7 @@ export function CentreShell({ children }: { children: ReactNode }) {
           </main>
         </div>
 
-        <RoleBottomNav items={NAV} />
+        <RoleBottomNav items={navItems} />
       </div>
     </ToastProvider>
   );

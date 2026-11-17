@@ -71,8 +71,10 @@ export function ScheduleFormModal({
 
   const selectedGroup = centerGroups.find((g) => g.id === groupId);
 
+  const invalidHours = !heureDebut || !heureFin || heureFin <= heureDebut;
+
   const conflicts = useMemo(() => {
-    if (!selectedGroup || !date || !heureDebut || !heureFin) return [];
+    if (!selectedGroup || !date || !heureDebut || !heureFin || heureFin <= heureDebut) return [];
     return findScheduleConflicts(
       { centerId, date, heureDebut, heureFin, enseignantId: selectedGroup.enseignantId, salle, groupId },
       schedules,
@@ -82,7 +84,11 @@ export function ScheduleFormModal({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!selectedGroup || !date || conflicts.length > 0) return;
+    if (!selectedGroup) {
+      notify('Créez d’abord un groupe pour pouvoir planifier un cours.', 'error');
+      return;
+    }
+    if (!date || invalidHours || conflicts.length > 0) return;
     if (isEdit && schedule) {
       const patch = { formationId: selectedGroup.formationId, groupId, enseignantId: selectedGroup.enseignantId, salle: salle.trim(), date, jour: frDayOf(date), heureDebut, heureFin };
       update(schedule.id, patch);
@@ -114,7 +120,7 @@ export function ScheduleFormModal({
       open={open}
       onClose={onClose}
       title={isEdit ? 'Modifier le créneau' : 'Ajouter un créneau'}
-      footer={<ModalActions onCancel={onClose} form="schedule-form" submitLabel={isEdit ? 'Enregistrer' : 'Ajouter'} disabled={conflicts.length > 0} />}
+      footer={<ModalActions onCancel={onClose} form="schedule-form" submitLabel={isEdit ? 'Enregistrer' : 'Ajouter'} disabled={conflicts.length > 0 || invalidHours} />}
     >
       <form id="schedule-form" onSubmit={handleSubmit} className="flex flex-col gap-md">
         <div>
@@ -144,6 +150,9 @@ export function ScheduleFormModal({
             <input value={heureFin} onChange={(e) => setHeureFin(e.target.value)} className="min-h-[44px] w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary" type="time" />
           </div>
         </div>
+        {invalidHours ? (
+          <p className="text-label-md font-medium text-amud-error">L’heure de fin doit être postérieure à l’heure de début.</p>
+        ) : null}
         {conflicts.length > 0 ? (
           <div className="rounded-lg border border-amud-error/40 bg-amud-error-container/20 p-md">
             <p className="mb-1 text-label-md font-semibold text-amud-on-error-container">Conflit de planning détecté :</p>

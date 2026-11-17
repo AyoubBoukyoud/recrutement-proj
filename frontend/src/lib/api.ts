@@ -107,8 +107,8 @@ export function apiPatch<T>(path: string, body: unknown, token?: string | null):
   return request<T>('PATCH', path, body, token);
 }
 
-export function apiDelete<T>(path: string, token?: string | null): Promise<T> {
-  return request<T>('DELETE', path, undefined, token);
+export function apiDelete<T>(path: string, token?: string | null, body?: unknown): Promise<T> {
+  return request<T>('DELETE', path, body, token);
 }
 
 /**

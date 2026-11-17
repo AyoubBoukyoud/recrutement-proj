@@ -39,6 +39,7 @@ use App\Http\Controllers\Api\RecruiterStatsController;
 use App\Http\Controllers\Api\RecruiterTeamController;
 use App\Http\Controllers\Api\RecruitmentCenterController;
 use App\Http\Controllers\Api\ReferralAgentController;
+use App\Http\Controllers\Api\TimetableController;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Session\Middleware\StartSession;
@@ -72,6 +73,22 @@ Route::post('/quote-requests', [QuoteRequestController::class, 'store'])->middle
 // every authenticated route has *some* bound, even the ones with no
 // endpoint-specific limiter below. `account.active` refuses a blocked account.
 Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(function () {
+    Route::prefix('timetable')->controller(TimetableController::class)->group(function () {
+        Route::get('/centers', 'centers');
+        Route::prefix('centers/{center}')->group(function () {
+            Route::get('/resources', 'resources');
+            Route::post('/resources/{resource}', 'saveResource');
+            Route::put('/resources/{resource}/{id}', 'saveResource')->whereNumber('id');
+            Route::delete('/resources/{resource}/{id}', 'deleteResource')->whereNumber('id');
+            Route::get('/sessions', 'sessions');
+            Route::post('/availability', 'availability');
+            Route::post('/sessions', 'store');
+            Route::put('/sessions/{id}', 'update')->whereNumber('id');
+            Route::delete('/sessions/{id}', 'destroy')->whereNumber('id');
+            Route::put('/members', 'member');
+        });
+    });
+
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
