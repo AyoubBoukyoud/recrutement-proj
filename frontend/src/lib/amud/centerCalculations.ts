@@ -6,6 +6,7 @@ import type { CenterEnrollment } from '@/data/amud/centerEnrollments';
 import type { CenterSchedule } from '@/data/amud/centerSchedules';
 import type { CenterAttendanceRecord, AttendanceStatus } from '@/data/amud/centerAttendance';
 import { PAYMENT_STATUS_LABELS, type CenterStudentPayment, type PaymentStatus } from '@/data/amud/centerStudentPayments';
+import type { CenterTeacherPayment } from '@/data/amud/centerTeacherPayments';
 import { bucketTimeSeries, comparePeriods, inRange, parseFrDate, previousPeriodRange, type PeriodRange } from '@/lib/amud/analytics/period';
 import { countBy, sum, type Count } from '@/lib/amud/analytics/aggregate';
 
@@ -53,6 +54,38 @@ export function computeTeacherRemuneration(teacher: Pick<CenterTeacher, 'id' | '
   return { heures, montant: Math.round(heures * teacher.tauxHoraire) };
 }
 
+/**
+ * Solde réel d'un enseignant. Avant, « dû » = toutes les heures jamais
+ * planifiées × taux, sans jamais retrancher les versements : le montant ne
+ * baissait pas après un paiement et le bouton « Payer » proposait de repayer
+ * l'intégralité. Désormais :
+ * - `gagne` : heures effectuées (jusqu'à `upToDate`) × taux ;
+ * - `verse` : versements au statut PAYE ;
+ * - `enregistre` : tous les versements saisis (PAYE + EN_ATTENTE) ;
+ * - `du` : ce qui reste réellement à verser (`gagne - verse`) ;
+ * - `aEnregistrer` : heures/montant pas encore couverts par une saisie —
+ *   c'est ce que le formulaire de rémunération pré-remplit.
+ */
+export function computeTeacherBalance(
+  teacher: Pick<CenterTeacher, 'id' | 'tauxHoraire'>,
+  schedules: CenterSchedule[],
+  payments: Pick<CenterTeacherPayment, 'enseignantId' | 'montant' | 'nombreHeures' | 'statut'>[],
+  upToDate?: string,
+) {
+  const { heures, montant: gagne } = computeTeacherRemuneration(teacher, schedules, upToDate);
+  const own = payments.filter((p) => p.enseignantId === teacher.id);
+  const verse = own.filter((p) => p.statut === 'PAYE').reduce((total, p) => total + p.montant, 0);
+  const enregistre = own.reduce((total, p) => total + p.montant, 0);
+  const heuresEnregistrees = own.reduce((total, p) => total + p.nombreHeures, 0);
+  return {
+    heures,
+    gagne,
+    verse,
+    du: Math.max(0, gagne - verse),
+    aEnregistrer: { heures: Math.max(0, Math.round((heures - heuresEnregistrees) * 100) / 100), montant: Math.max(0, gagne - enregistre) },
+  };
+}
+
 export type CenterDashboardStats = {
   totalStudents: number;
   activeStudents: number;
@@ -76,6 +109,8 @@ export function computeCenterStats(
     schedules: CenterSchedule[];
     attendance: CenterAttendanceRecord[];
     studentPayments: CenterStudentPayment[];
+    /** Versements enseignants : quand fournis, les rémunérations dues tiennent compte de ce qui a déjà été payé. */
+    teacherPayments?: CenterTeacherPayment[];
     today: string;
   },
 ): CenterDashboardStats {
@@ -90,7 +125,8 @@ export function computeCenterStats(
   const { presenceRate } = computeAttendanceRates(attendance);
   const revenus = payments.reduce((sum, p) => sum + p.montantPaye, 0);
   const paiementsEnAttente = payments.reduce((sum, p) => sum + Math.max(0, p.prixTotal - p.montantPaye), 0);
-  const remunerationsDues = teachers.reduce((sum, t) => sum + computeTeacherRemuneration(t, schedules, data.today).montant, 0);
+  const teacherPayments = (data.teacherPayments ?? []).filter((p) => p.centerId === centerId);
+  const remunerationsDues = teachers.reduce((sum, t) => sum + computeTeacherBalance(t, schedules, teacherPayments, data.today).du, 0);
 
   return {
     totalStudents: students.length,
@@ -238,4 +274,81 @@ export function computeFormationPerformance(
       progression: formationProgression(f, today),
     };
   });
+}
+
+/*
+ * ------------------------------------------------------------------
+ * Graphiques du tableau de bord Centre (`/amud/centre/dashboard`) — tous
+ * calculés à partir des mêmes collections que les KPI, jamais en dur. Les
+ * tableaux passés sont déjà scopés au centre courant par l'appelant.
+ * ------------------------------------------------------------------
+ */
+
+function mondayOfIso(dateIso: string): Date {
+  const d = new Date(`${dateIso}T00:00:00`);
+  const day = (d.getDay() + 6) % 7; // 0 = lundi
+  d.setDate(d.getDate() - day);
+  return d;
+}
+
+function isoOf(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/** Taux de présence par semaine (lundi → dimanche) sur les `weeks` dernières semaines, semaine courante incluse. Les semaines sans pointage sont omises plutôt que tracées à 0 %. */
+export function computeWeeklyPresenceRate(attendance: CenterAttendanceRecord[], today: string, weeks = 8): { label: string; value: number; total: number }[] {
+  const currentMonday = mondayOfIso(today);
+  const rows: { label: string; value: number; total: number }[] = [];
+  for (let w = weeks - 1; w >= 0; w--) {
+    const start = new Date(currentMonday);
+    start.setDate(start.getDate() - w * 7);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 6);
+    const startIso = isoOf(start);
+    const endIso = isoOf(end);
+    const records = attendance.filter((a) => a.date >= startIso && a.date <= endIso);
+    if (records.length === 0) continue;
+    const { presenceRate } = computeAttendanceRates(records);
+    rows.push({ label: start.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }), value: presenceRate, total: records.length });
+  }
+  return rows;
+}
+
+const WEEKDAY_SHORT = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+
+/** Cours et heures programmés pour chaque jour de la semaine en cours. */
+export function computeWeekSessions(schedules: CenterSchedule[], today: string): { label: string; cours: number; heures: number }[] {
+  const monday = mondayOfIso(today);
+  return WEEKDAY_SHORT.map((label, i) => {
+    const d = new Date(monday);
+    d.setDate(d.getDate() + i);
+    const dayIso = isoOf(d);
+    const daySchedules = schedules.filter((s) => s.date === dayIso);
+    return { label, cours: daySchedules.length, heures: Math.round(daySchedules.reduce((total, s) => total + sessionHours(s), 0) * 10) / 10 };
+  });
+}
+
+/** Remplissage des groupes en cours (`Actif`/`Complet`/`À venir`) : inscrits actifs vs places restantes. */
+export function computeGroupFill(groups: CenterGroup[], enrollments: CenterEnrollment[]): { label: string; inscrits: number; libres: number }[] {
+  return groups
+    .filter((g) => g.statut !== 'Terminé')
+    .map((g) => {
+      const inscrits = enrollments.filter((e) => e.groupId === g.id && e.statut === 'ACTIF').length;
+      return { label: g.nom, inscrits, libres: Math.max(0, g.capaciteMax - inscrits) };
+    })
+    .sort((a, b) => b.inscrits - a.inscrits);
+}
+
+/**
+ * Entonnoir des leads. Un lead ne porte que son statut actuel ; un lead
+ * « Inscrit » est forcément passé par « Contacté » et « Intéressé », donc
+ * chaque étape compte les leads qui l'ont atteinte ou dépassée. Les leads
+ * rejetés sont comptés à part.
+ */
+export function computeLeadFunnel(leads: { statut: string }[]): { stages: Count[]; rejected: number } {
+  const order = ['NOUVEAU', 'CONTACTE', 'INTERESSE', 'INSCRIT'];
+  const labels = ['Leads reçus', 'Contactés', 'Intéressés', 'Inscrits'];
+  const active = leads.filter((l) => l.statut !== 'REJETE');
+  const stages = labels.map((label, i) => ({ label, value: active.filter((l) => order.indexOf(l.statut) >= i).length }));
+  return { stages, rejected: leads.length - active.length };
 }

@@ -13,6 +13,7 @@ import { FORMATION_STATUSES, GERMAN_LEVELS } from '@/data/amud/centerTypes';
 import { CenterCrudTable } from '@/components/amud/centre/CenterCrudTable';
 import { FormationFormModal } from '@/components/amud/centre/FormationFormModal';
 import { PERMISSION_DENIED_MESSAGE } from '@/lib/amud/centerPermissions';
+import { blockedDeleteMessage, deleteBlockersForFormation } from '@/lib/amud/centerIntegrity';
 
 export default function CentreFormationsPage() {
   const notify = useToast();
@@ -46,6 +47,12 @@ export default function CentreFormationsPage() {
   function handleDelete() {
     if (!deleting) return;
     if (!allowed) return notify(PERMISSION_DENIED_MESSAGE, 'error');
+    const blockers = deleteBlockersForFormation(deleting.id);
+    if (blockers.length > 0) {
+      notify(blockedDeleteMessage(`la formation « ${deleting.nom} »`, blockers, 'Passez plutôt son statut à « Terminée » ou « Archivée ».'), 'error');
+      setDeleting(null);
+      return;
+    }
     remove(deleting.id);
     logAudit({ utilisateur: 'Centre (self-service)', role: 'Centre', action: `Suppression formation ${deleting.nom}`, actionType: 'delete', module: 'Centres de formation — Formations', reference: `${deleting.nom} (#${deleting.id})`, centerId });
     notify('Formation supprimée.', 'info');

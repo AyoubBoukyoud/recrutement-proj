@@ -7,6 +7,7 @@ import { useToast } from '@/components/amud/Toast';
 import { useCollection } from '@/lib/amud/storage/useCollection';
 import { logAudit } from '@/lib/amud/storage/audit';
 import { canPerform, PERMISSION_DENIED_MESSAGE } from '@/lib/amud/centerPermissions';
+import { removeCentreCascade } from '@/lib/amud/centerIntegrity';
 import { centresCollection } from '@/lib/amud/localCentres';
 import { centresSeed, PARTNERSHIP_LABELS, PARTNERSHIP_CLASS, PARTNERSHIP_STATUSES, type Centre } from '@/data/amud/centres';
 import { centerStudentsCollection } from '@/lib/amud/localCenterStudents';
@@ -25,7 +26,7 @@ const PAGE_SIZE = 6;
 
 export default function AmudAdminCentresPage() {
   const notify = useToast();
-  const [centres, { remove: removeCentre }] = useCollection(centresCollection, centresSeed);
+  const [centres] = useCollection(centresCollection, centresSeed);
   const [students] = useCollection(centerStudentsCollection, centerStudentsSeed);
   const [teachers] = useCollection(centerTeachersCollection, centerTeachersSeed);
   const [formations] = useCollection(centerFormationsCollection, centerFormationsSeed);
@@ -95,7 +96,7 @@ export default function AmudAdminCentresPage() {
       return;
     }
     const c = centres.find((x) => x.id === id);
-    removeCentre(id);
+    removeCentreCascade(id);
     if (c) logAudit({ utilisateur: 'Administrateur', role: 'Admin', action: 'Suppression centre', actionType: 'delete', module: 'Centres de formation', reference: `${c.nom} (#${c.id})`, centerId: c.id });
     setOpenMenu(null);
     notify('Centre supprimé.', 'info');
@@ -369,11 +370,11 @@ export default function AmudAdminCentresPage() {
       </div>
 
       {pageCount > 1 ? (
-        <div className="mt-6 flex items-center justify-between text-amud-on-surface-variant">
+        <div className="mt-6 flex flex-col items-start gap-3 text-amud-on-surface-variant sm:flex-row sm:items-center sm:justify-between">
           <span className="text-body-md">
             Affichage de {paged.length ? (page - 1) * PAGE_SIZE + 1 : 0} à {(page - 1) * PAGE_SIZE + paged.length} sur {filtered.length}
           </span>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))} className="rounded-md border border-amud-outline-variant px-3 py-1 hover:bg-amud-surface-container-low disabled:opacity-50">
               Précédent
             </button>

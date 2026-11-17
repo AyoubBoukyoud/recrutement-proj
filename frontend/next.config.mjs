@@ -172,7 +172,7 @@ const nextConfig = {
    */
   async headers() {
     const cache = [{ key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' }];
-    const assets = ['/landing-assets/:path*', '/icons/:path*', '/assets/:path*', '/favicon.svg', '/favicon.png', '/favicon.ico'].map(
+    const assets = ['/landing-assets/:path*', '/icons/:path*', '/assets/:path*', '/fonts/:path*', '/favicon.svg', '/favicon.png', '/favicon.ico'].map(
       (source) => ({ source, headers: cache }),
     );
 

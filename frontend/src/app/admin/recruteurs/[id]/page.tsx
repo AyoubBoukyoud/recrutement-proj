@@ -313,8 +313,10 @@ export default function AdminRecruteurDetailPage() {
             <tbody className="divide-y divide-amud-outline-variant">
               {r.shortlist.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-10 text-center text-body-md text-amud-on-surface-variant">
-                    Aucun candidat dans le pipeline.
+                  <td colSpan={3} className="px-6 py-10 text-left md:text-center text-body-md text-amud-on-surface-variant">
+                    <div className="max-w-[calc(100vw-5rem)] md:max-w-none">
+                      Aucun candidat dans le pipeline.
+                    </div>
                   </td>
                 </tr>
               ) : null}

@@ -425,6 +425,7 @@ export function NavItem({
   badge,
   variant = 'default',
   collapsed = false,
+  prefetch,
 }: {
   href: string;
   icon: string;
@@ -435,6 +436,7 @@ export function NavItem({
   /** Rail réduite (icônes seules) — cf. AdminShell. Le libellé reste dans le
    * DOM pour réapparaître au survol du conteneur `group`. */
   collapsed?: boolean;
+  prefetch?: boolean;
 }) {
   const base = 'flex items-center gap-3 rounded-lg px-4 py-2.5 text-label-md font-medium transition-colors';
   const activeCls =
@@ -448,7 +450,7 @@ export function NavItem({
   const labelCls = collapsed ? 'md:hidden md:group-hover:inline' : '';
 
   return (
-    <Link href={href} className={`${base} ${active ? activeCls : inactiveCls}`} title={collapsed ? label : undefined}>
+    <Link href={href} prefetch={prefetch} className={`${base} ${active ? activeCls : inactiveCls}`} title={collapsed ? label : undefined}>
       <span
         className="material-symbols-outlined shrink-0 text-[20px]"
         style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}

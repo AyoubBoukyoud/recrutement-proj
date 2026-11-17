@@ -18,6 +18,7 @@ import { centerStudentsSeed } from '@/data/amud/centerStudents';
 import { centerEnrollmentsCollection, activeStudentIdsForGroup } from '@/lib/amud/localCenterEnrollments';
 import { centerEnrollmentsSeed } from '@/data/amud/centerEnrollments';
 import { generateId as genId } from '@/lib/amud/storage/ids';
+import { parseFrDate } from '@/lib/amud/analytics/period';
 
 /**
  * Le rattachement étudiant ↔ groupe est une entité de première classe,
@@ -112,7 +113,33 @@ export function GroupFormModal({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!nom.trim() || !formationId) return;
+    if (!nom.trim()) return;
+    if (!formationId) {
+      notify('Créez d’abord une formation pour pouvoir ouvrir un groupe.', 'error');
+      return;
+    }
+    if (!enseignantId) {
+      notify('Ajoutez d’abord un enseignant pour pouvoir lui affecter ce groupe.', 'error');
+      return;
+    }
+    if (capaciteMax < 1) {
+      notify('La capacité doit être d’au moins 1 étudiant.', 'error');
+      return;
+    }
+    if (studentIds.length > capaciteMax) {
+      notify(`Ce groupe est limité à ${capaciteMax} étudiant(s) : ${studentIds.length} sont sélectionnés.`, 'error');
+      return;
+    }
+    const start = parseFrDate(dateDebut);
+    const end = dateFin.trim() ? parseFrDate(dateFin) : null;
+    if (!start || (dateFin.trim() && !end)) {
+      notify('Date invalide — format attendu : jj/mm/aaaa.', 'error');
+      return;
+    }
+    if (end && end < start) {
+      notify('La date de fin doit être postérieure à la date de début.', 'error');
+      return;
+    }
     const formation = centerFormations.find((f) => f.id === formationId);
     const niveau = (formation?.niveau ?? 'A1') as CenterGroup['niveau'];
     if (isEdit && group) {
@@ -200,7 +227,9 @@ export function GroupFormModal({
           </div>
         </div>
         <div>
-          <label className="mb-1 block text-label-md text-amud-on-surface-variant">Étudiants du groupe ({studentIds.length}/{capaciteMax})</label>
+          <label className="mb-1 block text-label-md text-amud-on-surface-variant">Étudiants du groupe ({studentIds.length}/{capaciteMax})
+            {studentIds.length > capaciteMax ? <span className="ml-2 font-semibold text-amud-error">Capacité dépassée</span> : null}
+          </label>
           <div className="max-h-40 space-y-1 overflow-y-auto rounded-lg border border-amud-outline-variant p-sm">
             {centerStudents.length === 0 ? (
               <p className="px-2 py-1 text-label-sm text-amud-on-surface-variant">Aucun étudiant dans ce centre pour le moment.</p>

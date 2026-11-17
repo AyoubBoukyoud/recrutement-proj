@@ -19,6 +19,7 @@ import { centerEnrollmentsSeed } from '@/data/amud/centerEnrollments';
 import { CenterCrudTable } from '@/components/amud/centre/CenterCrudTable';
 import { GroupFormModal } from '@/components/amud/centre/GroupFormModal';
 import { PERMISSION_DENIED_MESSAGE } from '@/lib/amud/centerPermissions';
+import { blockedDeleteMessage, deleteBlockersForGroup } from '@/lib/amud/centerIntegrity';
 
 export default function CentreGroupesPage() {
   const notify = useToast();
@@ -62,6 +63,12 @@ export default function CentreGroupesPage() {
   function handleDelete() {
     if (!deleting) return;
     if (!allowed) return notify(PERMISSION_DENIED_MESSAGE, 'error');
+    const blockers = deleteBlockersForGroup(deleting.id);
+    if (blockers.length > 0) {
+      notify(blockedDeleteMessage(`le groupe « ${deleting.nom} »`, blockers, 'Retirez ses étudiants et ses cours, ou passez son statut à « Terminé ».'), 'error');
+      setDeleting(null);
+      return;
+    }
     remove(deleting.id);
     logAudit({ utilisateur: 'Centre (self-service)', role: 'Centre', action: `Suppression groupe ${deleting.nom}`, actionType: 'delete', module: 'Centres de formation — Groupes', reference: `${deleting.nom} (#${deleting.id})`, centerId });
     notify('Groupe supprimé.', 'info');

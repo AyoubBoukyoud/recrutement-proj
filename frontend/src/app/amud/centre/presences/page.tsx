@@ -75,9 +75,12 @@ export default function CentrePresencesPage() {
     if (!selected || !selectedGroup) return;
     let count = 0;
     groupStudents.forEach((s) => {
-      const statut = draft[s.id];
-      if (!statut) return;
       const existingId = existingByStudent.get(s.id);
+      // L'écran affiche « Présent » par défaut pour un étudiant non encore
+      // pointé : on enregistre ce statut affiché, sinon cliquer sur
+      // « Enregistrer » sans rien toucher n'écrivait aucune présence.
+      const statut = draft[s.id] ?? (existingId ? undefined : statusFor(s.id));
+      if (!statut) return;
       if (existingId) {
         update(existingId, { statut });
       } else {
@@ -98,7 +101,8 @@ export default function CentrePresencesPage() {
   const groupAttendance = selectedGroup ? attendance.filter((a) => a.centerId === centerId && a.groupId === selectedGroup.id) : [];
   const rates = computeAttendanceRates(groupAttendance);
 
-  const dirtyCount = Object.keys(draft).length;
+  const unrecordedCount = groupStudents.filter((s) => !draft[s.id] && !existingByStudent.has(s.id)).length;
+  const dirtyCount = Object.keys(draft).length + unrecordedCount;
 
   const qrSessions = useMemo(() => {
     return sessionStates

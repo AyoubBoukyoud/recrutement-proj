@@ -253,15 +253,19 @@ export default function AdminUtilisateursPage() {
           <tbody className="divide-y divide-amud-outline-variant">
             {users.isLoading ? (
               <tr>
-                <td colSpan={4} className="px-6 py-10 text-center text-body-md text-amud-on-surface-variant">
-                  Chargement…
+                <td colSpan={4} className="px-6 py-10 text-left md:text-center text-body-md text-amud-on-surface-variant">
+                  <div className="max-w-[calc(100vw-5rem)] md:max-w-none">
+                    Chargement…
+                  </div>
                 </td>
               </tr>
             ) : null}
             {!users.isLoading && rows.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-10 text-center text-body-md text-amud-on-surface-variant">
-                  Aucun compte ne correspond. Un recruteur qui ne s’est jamais connecté n’existe pas encore — demandez-lui de se connecter avec son numéro, ou créez le compte.
+                <td colSpan={4} className="px-6 py-10 text-left md:text-center text-body-md text-amud-on-surface-variant">
+                  <div className="max-w-[calc(100vw-5rem)] md:max-w-none">
+                    Aucun compte ne correspond. Un recruteur qui ne s’est jamais connecté n’existe pas encore — demandez-lui de se connecter avec son numéro, ou créez le compte.
+                  </div>
                 </td>
               </tr>
             ) : null}

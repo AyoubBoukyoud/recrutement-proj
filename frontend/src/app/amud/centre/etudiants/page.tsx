@@ -12,6 +12,7 @@ import { centerStudentsSeed, STUDENT_STATUSES, GERMAN_LEVELS, type CenterStudent
 import { CenterCrudTable } from '@/components/amud/centre/CenterCrudTable';
 import { StudentFormModal } from '@/components/amud/centre/StudentFormModal';
 import { PERMISSION_DENIED_MESSAGE } from '@/lib/amud/centerPermissions';
+import { blockedDeleteMessage, deleteBlockersForStudent } from '@/lib/amud/centerIntegrity';
 
 export default function CentreEtudiantsPage() {
   const notify = useToast();
@@ -45,6 +46,12 @@ export default function CentreEtudiantsPage() {
   function handleDelete() {
     if (!deleting) return;
     if (!allowed) return notify(PERMISSION_DENIED_MESSAGE, 'error');
+    const blockers = deleteBlockersForStudent(deleting.id);
+    if (blockers.length > 0) {
+      notify(blockedDeleteMessage(`l’étudiant « ${deleting.prenom} ${deleting.nom} »`, blockers, 'Passez plutôt son statut à « Inactif ».'), 'error');
+      setDeleting(null);
+      return;
+    }
     remove(deleting.id);
     logAudit({ utilisateur: 'Centre (self-service)', role: 'Centre', action: `Suppression étudiant ${deleting.prenom} ${deleting.nom}`, actionType: 'delete', module: 'Centres de formation — Étudiants', reference: `${deleting.prenom} ${deleting.nom} (#${deleting.id})`, centerId });
     notify('Étudiant supprimé.', 'info');

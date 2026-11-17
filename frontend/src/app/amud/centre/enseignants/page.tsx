@@ -12,6 +12,7 @@ import { centerTeachersSeed, CONTRACT_TYPES, type CenterTeacher } from '@/data/a
 import { CenterCrudTable } from '@/components/amud/centre/CenterCrudTable';
 import { TeacherFormModal } from '@/components/amud/centre/TeacherFormModal';
 import { PERMISSION_DENIED_MESSAGE } from '@/lib/amud/centerPermissions';
+import { blockedDeleteMessage, deleteBlockersForTeacher } from '@/lib/amud/centerIntegrity';
 
 export default function CentreEnseignantsPage() {
   const notify = useToast();
@@ -45,6 +46,12 @@ export default function CentreEnseignantsPage() {
   function handleDelete() {
     if (!deleting) return;
     if (!allowed) return notify(PERMISSION_DENIED_MESSAGE, 'error');
+    const blockers = deleteBlockersForTeacher(deleting.id);
+    if (blockers.length > 0) {
+      notify(blockedDeleteMessage(`l’enseignant « ${deleting.prenom} ${deleting.nom} »`, blockers, 'Réaffectez ses groupes/cours ou passez son statut à « Inactif ».'), 'error');
+      setDeleting(null);
+      return;
+    }
     remove(deleting.id);
     logAudit({ utilisateur: 'Centre (self-service)', role: 'Centre', action: `Suppression enseignant ${deleting.prenom} ${deleting.nom}`, actionType: 'delete', module: 'Centres de formation — Enseignants', reference: `${deleting.prenom} ${deleting.nom} (#${deleting.id})`, centerId });
     notify('Enseignant supprimé.', 'info');

@@ -55,13 +55,13 @@ export default function StudentProfilePage() {
 
   return (
     <div className="space-y-lg">
-      <div className="flex items-start gap-lg rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg shadow-sm">
-        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-amud-secondary-container text-3xl font-bold text-amud-on-secondary-container">
+      <div className="flex flex-wrap items-start gap-md rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg shadow-sm sm:flex-nowrap sm:gap-lg">
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-amud-secondary-container text-3xl font-bold text-amud-on-secondary-container sm:h-20 sm:w-20">
           {student.prenom.charAt(0)}{student.nom.charAt(0)}
         </div>
-        <div className="min-w-0 flex-1">
-          <h1 className="text-headline-sm text-amud-on-surface">{student.prenom} {student.nom}</h1>
-          <p className="text-body-md text-amud-on-surface-variant">{student.email}</p>
+        <div className="min-w-0 flex-1 basis-[calc(100%-5rem)] sm:basis-auto">
+          <h1 className="break-words text-headline-sm text-amud-on-surface">{student.prenom} {student.nom}</h1>
+          <p className="break-all text-body-md text-amud-on-surface-variant">{student.email}</p>
           <div className="mt-sm flex flex-wrap gap-sm">
             <span className="rounded-full bg-amud-primary/10 px-3 py-0.5 text-label-sm font-medium text-amud-primary">Niveau {student.niveau}</span>
             <span className={`rounded-full border px-3 py-0.5 text-label-sm font-medium ${student.statut === 'Actif' ? 'border-amud-primary/20 bg-amud-primary/10 text-amud-primary' : 'border-amud-outline-variant bg-amud-surface-container-high text-amud-on-surface-variant'}`}>

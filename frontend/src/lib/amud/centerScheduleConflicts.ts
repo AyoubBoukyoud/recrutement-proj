@@ -27,7 +27,8 @@ export function findScheduleConflicts(
     if (s.enseignantId === candidate.enseignantId) {
       conflicts.push({ type: 'enseignant', message: `Cet enseignant a déjà un cours de ${s.heureDebut} à ${s.heureFin} le même jour.`, withScheduleId: s.id });
     }
-    if (s.salle === candidate.salle) {
+    // Une salle non renseignée n'est pas « la même salle » qu'une autre salle vide.
+    if (candidate.salle.trim() && s.salle.trim().toLowerCase() === candidate.salle.trim().toLowerCase()) {
       conflicts.push({ type: 'salle', message: `La salle "${candidate.salle}" est déjà occupée de ${s.heureDebut} à ${s.heureFin} le même jour.`, withScheduleId: s.id });
     }
     if (s.groupId === candidate.groupId) {

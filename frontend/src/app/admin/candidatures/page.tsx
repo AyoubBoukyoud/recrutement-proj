@@ -280,8 +280,10 @@ export default function AdminCandidaturesPage() {
               ))}
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="p-lg text-center text-amud-on-surface-variant">
-                    Aucune candidature ne correspond à ces filtres.
+                  <td colSpan={4} className="p-lg text-left md:text-center text-amud-on-surface-variant">
+                    <div className="max-w-[calc(100vw-5rem)] md:max-w-none">
+                      Aucune candidature ne correspond à ces filtres.
+                    </div>
                   </td>
                 </tr>
               ) : null}

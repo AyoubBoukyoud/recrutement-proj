@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import './fonts.css';
 import { Providers } from '@/components/shared/Providers';
 import { DEFAULT_SOCIAL } from '@/lib/seo';
 import { SITE_URL } from '@/lib/site';
@@ -48,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" suppressHydrationWarning>
+    <html lang="fr" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         {/* Pose la classe `dark` avant le premier paint pour éviter un flash du
             mauvais thème : lit la préférence stockée (identique à ThemeContext),
@@ -60,21 +61,7 @@ export default function RootLayout({
             __html: `(function(){var path=window.location.pathname;var root=document.documentElement;if(path.indexOf('/ar/')===0){root.lang='ar';root.dir='rtl';}else if(path.indexOf('/de/')===0){root.lang='de';root.dir='ltr';}else if(path.indexOf('/fr/')===0){root.lang='fr';root.dir='ltr';}try{var raw=localStorage.getItem('as_theme');var mode=raw?JSON.parse(raw):'light';var dark=mode==='dark'||(mode==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(dark){root.classList.add('dark');root.style.colorScheme='dark';}else{root.style.colorScheme='light';}}catch(e){}})();`,
           }}
         />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-          rel="stylesheet"
-        />
-        {/* Chiffres de tableau des écrans recruteur/admin/agent uniquement. */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&display=swap"
-          rel="stylesheet"
-        />
+        <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
       <body className="min-h-screen bg-surface text-onSurface antialiased">
         <a

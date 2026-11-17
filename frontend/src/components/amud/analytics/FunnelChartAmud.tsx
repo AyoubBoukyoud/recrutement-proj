@@ -1,7 +1,6 @@
 'use client';
 
-import { Cell, Funnel, FunnelChart, LabelList, ResponsiveContainer, Tooltip } from 'recharts';
-import { ChartTooltip } from './ChartTooltip';
+import { FunnelPlot } from './lazyPlots';
 import { ChartLegend } from './ChartLegend';
 import { EmptyChartState } from './EmptyChartState';
 import { colorAt } from './chartColors';
@@ -30,18 +29,7 @@ export function FunnelChartAmud({
 
   return (
     <div role="img" aria-label={ariaLabel}>
-      <ResponsiveContainer width="100%" height={height}>
-        <FunnelChart>
-          <Tooltip content={<ChartTooltip />} />
-          <Funnel dataKey="value" data={colored} isAnimationActive>
-            {colored.map((entry) => (
-              <Cell key={entry.label} fill={entry.color} />
-            ))}
-            <LabelList position="right" dataKey="label" fill="var(--amud-on-surface-variant)" stroke="none" fontSize={12} />
-            <LabelList position="center" dataKey="value" fill="#ffffff" stroke="none" fontSize={13} fontWeight={700} />
-          </Funnel>
-        </FunnelChart>
-      </ResponsiveContainer>
+      <FunnelPlot stages={colored} height={height} />
       <ChartLegend
         items={colored.map((s, i) => {
           const conversion = i === 0 || colored[0].value === 0 ? null : Math.round((s.value / colored[0].value) * 100);

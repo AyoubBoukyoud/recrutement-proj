@@ -254,7 +254,7 @@ export default function AdminOffresPage() {
             type="text"
           />
         </div>
-        <div className="relative flex w-full gap-2 overflow-x-auto pb-1 md:w-auto md:pb-0">
+        <div className="relative flex w-full flex-wrap gap-2 md:w-auto md:flex-nowrap">
           <select
             value={status}
             onChange={(e) => {
@@ -288,15 +288,19 @@ export default function AdminOffresPage() {
           <tbody className="divide-y divide-amud-outline-variant">
             {offers.isLoading ? (
               <tr>
-                <td colSpan={5} className="px-6 py-10 text-center text-body-md text-amud-on-surface-variant">
-                  Chargement…
+                <td colSpan={5} className="px-6 py-10 text-left md:text-center text-body-md text-amud-on-surface-variant">
+                  <div className="max-w-[calc(100vw-5rem)] md:max-w-none">
+                    Chargement…
+                  </div>
                 </td>
               </tr>
             ) : null}
             {!offers.isLoading && rows.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-10 text-center text-body-md text-amud-on-surface-variant">
-                  Aucune offre ne correspond à ces filtres.
+                <td colSpan={5} className="px-6 py-10 text-left md:text-center text-body-md text-amud-on-surface-variant">
+                  <div className="max-w-[calc(100vw-5rem)] md:max-w-none">
+                    Aucune offre ne correspond à ces filtres.
+                  </div>
                 </td>
               </tr>
             ) : null}

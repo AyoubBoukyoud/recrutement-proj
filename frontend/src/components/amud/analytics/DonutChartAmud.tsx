@@ -1,7 +1,6 @@
 'use client';
 
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
-import { ChartTooltip } from './ChartTooltip';
+import { DonutPlot } from './lazyPlots';
 import { ChartLegend } from './ChartLegend';
 import { EmptyChartState } from './EmptyChartState';
 import { colorAt } from './chartColors';
@@ -33,16 +32,7 @@ export function DonutChartAmud({
   return (
     <div role="img" aria-label={ariaLabel}>
       <div className="relative">
-        <ResponsiveContainer width="100%" height={height}>
-          <PieChart>
-            <Pie data={colored} dataKey="value" nameKey="label" innerRadius="62%" outerRadius="90%" paddingAngle={2} stroke="var(--amud-surface-container-lowest)" strokeWidth={2}>
-              {colored.map((entry) => (
-                <Cell key={entry.label} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip content={<ChartTooltip />} />
-          </PieChart>
-        </ResponsiveContainer>
+        <DonutPlot slices={colored} height={height} />
         {centerLabel ? (
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-headline-md text-amud-on-surface">{centerLabel}</span>

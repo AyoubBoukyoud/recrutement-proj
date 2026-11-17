@@ -1,12 +1,27 @@
-/* Polices : chargées par les <link> de app/layout.tsx (Inter, Material
-   Symbols, IBM Plex Mono), en parallèle et avec preconnect. Des @import ici
-   étaient bloquants et en série derrière cette feuille, en doublon des <link>,
-   et tiraient quatre familles que rien n'utilise (Plus Jakarta Sans, Outfit,
-   DM Sans, Space Grotesk). */
+/* Fonts are served locally from app/fonts.css; no external stylesheet requests. */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+}
+
 
 html {
   scroll-behavior: smooth;

@@ -7,6 +7,7 @@ import { useToast } from '@/components/amud/Toast';
 import { useCollection } from '@/lib/amud/storage/useCollection';
 import { logAudit } from '@/lib/amud/storage/audit';
 import { canPerform, PERMISSION_DENIED_MESSAGE } from '@/lib/amud/centerPermissions';
+import { removeCentreCascade } from '@/lib/amud/centerIntegrity';
 import { centresCollection } from '@/lib/amud/localCentres';
 import { centresSeed } from '@/data/amud/centres';
 import { centerStudentsCollection } from '@/lib/amud/localCenterStudents';
@@ -24,7 +25,9 @@ import { centerAttendanceSeed } from '@/data/amud/centerAttendance';
 import { centerStudentPaymentsCollection } from '@/lib/amud/localCenterStudentPayments';
 import { centerStudentPaymentsSeed } from '@/data/amud/centerStudentPayments';
 import { PAYMENT_STATUS_CLASS, PAYMENT_STATUS_LABELS } from '@/data/amud/centerStudentPayments';
-import { computeCenterStats, computeTeacherRemuneration, todayIso } from '@/lib/amud/centerCalculations';
+import { centerTeacherPaymentsCollection } from '@/lib/amud/localCenterTeacherPayments';
+import { centerTeacherPaymentsSeed } from '@/data/amud/centerTeacherPayments';
+import { computeCenterStats, computeTeacherBalance, todayIso } from '@/lib/amud/centerCalculations';
 import { CenterFormModal } from '@/components/amud/centre/CenterFormModal';
 import { AdminCenterHeader, ADMIN_CENTER_ROUTE_TABS } from '@/components/amud/centre/AdminCenterHeader';
 import { SimpleTable } from '@/components/amud/centre/SimpleTable';
@@ -37,7 +40,7 @@ export default function AmudAdminCenterFinancePage() {
   const [editOpen, setEditOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
-  const [centres, { remove: removeCentre }] = useCollection(centresCollection, centresSeed);
+  const [centres] = useCollection(centresCollection, centresSeed);
   const [students] = useCollection(centerStudentsCollection, centerStudentsSeed);
   const [teachers] = useCollection(centerTeachersCollection, centerTeachersSeed);
   const [formations] = useCollection(centerFormationsCollection, centerFormationsSeed);
@@ -45,14 +48,15 @@ export default function AmudAdminCenterFinancePage() {
   const [schedules] = useCollection(centerSchedulesCollection, centerSchedulesSeed);
   const [attendance] = useCollection(centerAttendanceCollection, centerAttendanceSeed);
   const [payments] = useCollection(centerStudentPaymentsCollection, centerStudentPaymentsSeed);
+  const [teacherPayments] = useCollection(centerTeacherPaymentsCollection, centerTeacherPaymentsSeed);
 
   const centre = centres.find((c) => c.id === params.id);
   const today = todayIso();
 
   const stats = useMemo(() => {
     if (!centre) return null;
-    return computeCenterStats(centre.id, { students, teachers, formations, groups, schedules, attendance, studentPayments: payments, today });
-  }, [centre, students, teachers, formations, groups, schedules, attendance, payments, today]);
+    return computeCenterStats(centre.id, { students, teachers, formations, groups, schedules, attendance, studentPayments: payments, teacherPayments, today });
+  }, [centre, students, teachers, formations, groups, schedules, attendance, payments, teacherPayments, today]);
 
   const scoped = useMemo(() => {
     if (!centre) return null;
@@ -74,7 +78,7 @@ export default function AmudAdminCenterFinancePage() {
       notify(PERMISSION_DENIED_MESSAGE, 'error');
       return;
     }
-    removeCentre(centre.id);
+    removeCentreCascade(centre.id);
     logAudit({ utilisateur: 'Administrateur', role: 'Admin', action: 'Suppression centre', actionType: 'delete', module: 'Centres de formation', reference: `${centre.nom} (#${centre.id})`, centerId: centre.id });
     notify('Centre supprimé.', 'info');
     router.push('/amud/admin/centres');
@@ -97,7 +101,7 @@ export default function AmudAdminCenterFinancePage() {
         <div className="grid grid-cols-1 gap-lg sm:grid-cols-3">
           <StatCard label="Revenus étudiants" value={stats.revenus} suffix=" MAD" accent="bg-amud-primary" />
           <StatCard label="Paiements en attente" value={stats.paiementsEnAttente} suffix=" MAD" accent="bg-amud-secondary" />
-          <StatCard label="Rémunérations enseignants" value={stats.remunerationsDues} suffix=" MAD" />
+          <StatCard label="Rémunérations dues" value={stats.remunerationsDues} suffix=" MAD" />
         </div>
         <SimpleTable
           empty="Aucun paiement enregistré."
@@ -117,10 +121,10 @@ export default function AmudAdminCenterFinancePage() {
           <h3 className="mb-md text-title-lg text-amud-on-surface">Rémunération des enseignants</h3>
           <SimpleTable
             empty="Aucun enseignant."
-            columns={['Enseignant', 'Heures', 'Taux', 'Montant dû']}
+            columns={['Enseignant', 'Heures', 'Taux', 'Gagné', 'Versé', 'Reste dû']}
             rows={scoped.teachers.map((t) => {
-              const r = computeTeacherRemuneration(t, scoped.schedules, today);
-              return [`${t.prenom} ${t.nom}`, `${r.heures}h`, `${t.tauxHoraire} MAD/h`, `${r.montant.toLocaleString('fr-FR')} MAD`];
+              const b = computeTeacherBalance(t, scoped.schedules, teacherPayments.filter((p) => p.centerId === t.centerId), today);
+              return [`${t.prenom} ${t.nom}`, `${b.heures}h`, `${t.tauxHoraire} MAD/h`, `${b.gagne.toLocaleString('fr-FR')} MAD`, `${b.verse.toLocaleString('fr-FR')} MAD`, `${b.du.toLocaleString('fr-FR')} MAD`];
             })}
           />
         </div>

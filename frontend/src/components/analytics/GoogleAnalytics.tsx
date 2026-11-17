@@ -2,8 +2,8 @@
 
 import Script from 'next/script';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
-import { ANALYTICS_CONSENT_EVENT, ANALYTICS_CONSENT_KEY, isPublicAnalyticsPage } from '@/lib/analytics';
+import { useEffect, useRef } from 'react';
+import { isPublicAnalyticsPage } from '@/lib/analytics';
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-R08YBZ2XZS';
 
@@ -26,35 +26,12 @@ function setCollectionDisabled(disabled: boolean) {
 
 export function GoogleAnalytics() {
   const pathname = usePathname();
-  const [consent, setConsent] = useState<'unknown' | 'granted' | 'denied'>('unknown');
   const previousPage = useRef<string | null>(null);
   const isTrackable = isPublicAnalyticsPage(pathname);
 
   useEffect(() => {
-    const readChoice = () => {
-      try {
-        const choice = window.localStorage.getItem(ANALYTICS_CONSENT_KEY);
-        setConsent(choice === 'granted' || choice === 'denied' ? choice : 'unknown');
-      } catch {
-        setConsent('unknown');
-      }
-    };
-
-    readChoice();
-    const handleChoice = (event: Event) => {
-      const choice = (event as CustomEvent<'granted' | 'denied'>).detail;
-      if (choice === 'granted' || choice === 'denied') setConsent(choice);
-      else readChoice();
-    };
-    window.addEventListener(ANALYTICS_CONSENT_EVENT, handleChoice);
-    return () => window.removeEventListener(ANALYTICS_CONSENT_EVENT, handleChoice);
-  }, []);
-
-  useEffect(() => {
-    if (!isTrackable || consent !== 'granted') {
-      // gtag.js may stay loaded after a visitor withdraws consent or enters a
-      // private app route. Stop it sending anything until tracking is
-      // explicitly enabled again.
+    if (!isTrackable) {
+      // An already-loaded gtag.js must stop collecting on private app routes.
       setCollectionDisabled(true);
       previousPage.current = null;
       return;
@@ -86,9 +63,9 @@ export function GoogleAnalytics() {
         page_location: `${window.location.origin}${pathname}`,
       });
     }
-  }, [consent, isTrackable, pathname]);
+  }, [isTrackable, pathname]);
 
-  if (!isTrackable || consent !== 'granted') return null;
+  if (!isTrackable) return null;
 
   return (
     <Script

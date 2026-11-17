@@ -295,11 +295,11 @@ export default function AmudAdminEntreprisesPage() {
         </table>
       </div>
 
-      <div className="mt-6 flex items-center justify-between text-amud-on-surface-variant">
+      <div className="mt-6 flex flex-col items-start gap-3 text-amud-on-surface-variant sm:flex-row sm:items-center sm:justify-between">
         <span className="text-body-md">
           Affichage de {paged.length ? (page - 1) * PAGE_SIZE + 1 : 0} à {(page - 1) * PAGE_SIZE + paged.length} sur {filtered.length}
         </span>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button
             disabled={page <= 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}

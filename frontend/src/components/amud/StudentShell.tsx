@@ -25,9 +25,9 @@ type StudentNavItem = {
 
 const NAV: StudentNavItem[] = [
   { href: '/amud/student/dashboard', icon: 'home', label: 'Accueil', group: '', inBottomNav: true },
-  { href: '/amud/student/formation', icon: 'menu_book', label: 'Ma formation', group: 'Formation', inBottomNav: true },
-  { href: '/amud/student/planning', icon: 'calendar_month', label: 'Mon planning', group: 'Formation', inBottomNav: true },
-  { href: '/amud/student/presences', icon: 'fact_check', label: 'Mes présences', group: 'Formation', inBottomNav: true },
+  { href: '/amud/student/formation', icon: 'menu_book', label: 'Ma formation', group: 'Formation', inBottomNav: true, bottomLabel: 'Formation' },
+  { href: '/amud/student/planning', icon: 'calendar_month', label: 'Mon planning', group: 'Formation', inBottomNav: true, bottomLabel: 'Planning' },
+  { href: '/amud/student/presences', icon: 'fact_check', label: 'Mes présences', group: 'Formation', inBottomNav: true, bottomLabel: 'Présences' },
   { href: '/amud/student/payments', icon: 'payments', label: 'Mes paiements', group: 'Finances', inBottomNav: true, bottomLabel: 'Paiements' },
   { href: '/amud/student/quiz', icon: 'quiz', label: 'Quiz', group: 'Formation' },
   { href: '/amud/student/group', icon: 'diversity_3', label: 'Mon groupe', group: 'Formation' },

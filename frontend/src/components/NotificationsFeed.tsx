@@ -18,8 +18,8 @@ export function NotificationsFeed() {
   const all = useMutation({ mutationFn: () => api.patch('/candidate/notifications/read-all'), onSuccess: refresh });
 
   return (
-    <main className="mx-auto grid max-w-4xl gap-4 p-6">
-      <div className="flex justify-between gap-4">
+    <main className="mx-auto grid max-w-4xl gap-4 p-4 sm:p-6">
+      <div className="flex flex-col items-start gap-3 sm:flex-row sm:justify-between sm:gap-4">
         <div>
           <h1 className="text-2xl font-bold">Notifications</h1>
           <p className="helper-text mt-1">Les événements importants de votre espace apparaissent ici.</p>

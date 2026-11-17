@@ -101,15 +101,19 @@ export default function AdminJournalPage() {
             <tbody className="divide-y divide-amud-outline-variant">
               {activity.isLoading ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-10 text-center text-body-md text-amud-on-surface-variant">
-                    Chargement…
+                  <td colSpan={4} className="px-6 py-10 text-left md:text-center text-body-md text-amud-on-surface-variant">
+                    <div className="max-w-[calc(100vw-5rem)] md:max-w-none">
+                      Chargement…
+                    </div>
                   </td>
                 </tr>
               ) : null}
               {!activity.isLoading && rows.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-10 text-center text-body-md text-amud-on-surface-variant">
-                    Aucun évènement ne correspond à ces filtres.
+                  <td colSpan={4} className="px-6 py-10 text-left md:text-center text-body-md text-amud-on-surface-variant">
+                    <div className="max-w-[calc(100vw-5rem)] md:max-w-none">
+                      Aucun évènement ne correspond à ces filtres.
+                    </div>
                   </td>
                 </tr>
               ) : null}

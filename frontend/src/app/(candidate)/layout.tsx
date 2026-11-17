@@ -108,7 +108,7 @@ export default function CandidateLayout({
       </aside>
 
       <div className="mx-auto flex min-h-screen w-full max-w-md flex-1 flex-col pb-24 shadow-subtle lg:mx-0 lg:max-w-none lg:pb-0 lg:shadow-none">
-        <div id="main-content" tabIndex={-1} className="flex-1 outline-none [&>div>header]:pr-24">{children}</div>
+        <div id="main-content" tabIndex={-1} className="flex-1 outline-none [&>div>header]:pr-[6.75rem]">{children}</div>
 
         {/* Tab bar mobile — masquée dès lg, remplacée par la sidebar. */}
         <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto flex max-w-md items-center justify-around border-t border-surface-container-high bg-surface-container-lowest/95 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-subtle backdrop-blur-md lg:hidden">

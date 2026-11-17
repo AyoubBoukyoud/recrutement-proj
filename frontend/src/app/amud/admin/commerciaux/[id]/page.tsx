@@ -70,13 +70,13 @@ export default function AmudAdminCommercialProfilePage() {
       <section className="relative mb-lg overflow-hidden rounded-xl border border-amud-outline-variant/30 bg-amud-surface-container-lowest p-lg shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
         <div className="absolute bottom-0 left-0 top-0 w-2 bg-amud-primary" />
         <div className="flex flex-col items-start justify-between gap-lg md:flex-row md:items-center">
-          <div className="flex items-center gap-lg">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-amud-surface bg-amud-primary-container text-title-lg font-bold text-white shadow-sm">
+          <div className="flex min-w-0 flex-col items-start gap-md sm:flex-row sm:items-center sm:gap-lg">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-4 border-amud-surface bg-amud-primary-container text-title-lg font-bold text-white shadow-sm sm:h-24 sm:w-24">
               {c.avatarInitials}
             </div>
-            <div>
-              <div className="mb-1 flex items-center gap-sm">
-                <h2 className="text-headline-lg text-amud-on-surface">
+            <div className="min-w-0">
+              <div className="mb-1 flex flex-wrap items-center gap-sm">
+                <h2 className="break-words text-headline-lg text-amud-on-surface">
                   {c.prenom} {c.nom}
                 </h2>
                 <span
@@ -88,7 +88,7 @@ export default function AmudAdminCommercialProfilePage() {
                   {actif ? STATUT_LABEL[c.statut] : 'Désactivé'}
                 </span>
               </div>
-              <p className="flex items-center gap-xs text-title-lg text-amud-on-surface-variant">
+              <p className="flex flex-wrap items-center gap-xs text-title-lg text-amud-on-surface-variant">
                 {c.fonction}
                 <span className="text-amud-outline-variant">•</span>
                 <span className="material-symbols-outlined text-sm">location_on</span> {c.ville}

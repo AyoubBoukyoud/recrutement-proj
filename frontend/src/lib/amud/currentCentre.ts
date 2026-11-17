@@ -22,8 +22,12 @@ const DEFAULT_ROLE: CenterRole = 'CENTER_OWNER';
 export function getCurrentCenterId(): string {
   if (typeof window === 'undefined') return '';
   const stored = window.localStorage.getItem(STORAGE_KEY);
-  if (stored) return stored;
-  return loadLocalCentres()[0]?.id ?? '';
+  const centres = loadLocalCentres();
+  // Un id mémorisé dont le centre a été supprimé (par l'Admin) laissait
+  // l'espace Centre bloqué sur « Chargement du centre… » : on retombe sur
+  // le premier centre existant.
+  if (stored && centres.some((c) => c.id === stored)) return stored;
+  return centres[0]?.id ?? '';
 }
 
 export function setCurrentCenterId(id: string) {

@@ -129,7 +129,7 @@ export default function AmudAdminCandidaturesPage() {
             <h2 className="text-headline-lg text-amud-on-surface">Gestion des candidatures</h2>
             <p className="mt-xs text-amud-on-surface-variant">Suivi et gestion du pipeline de recrutement.</p>
           </div>
-          <div className="flex items-center gap-md">
+          <div className="flex flex-wrap items-center gap-md">
             <div className="flex rounded-lg bg-amud-surface-container-low p-xs">
               <button
                 onClick={() => setVue('kanban')}
@@ -302,9 +302,9 @@ export default function AmudAdminCandidaturesPage() {
 
       {decisions.length > 0 ? (
         <section className="mt-lg rounded-lg border border-amud-outline-variant bg-amud-surface-container-lowest p-md">
-          <div className="mb-sm flex items-center justify-between">
+          <div className="mb-sm flex flex-wrap items-center justify-between gap-sm">
             <h3 className="text-title-lg text-amud-on-surface">Décisions récentes</h3>
-            <div className="flex rounded-lg bg-amud-surface-container-low p-xs">
+            <div className="flex max-w-full overflow-x-auto rounded-lg bg-amud-surface-container-low p-xs">
               <button
                 onClick={() => setDecisionsTab('ACCEPTED')}
                 className={`rounded-md px-md py-xs text-label-md ${decisionsTab === 'ACCEPTED' ? 'bg-amud-surface text-amud-primary shadow-sm' : 'text-amud-on-surface-variant'}`}

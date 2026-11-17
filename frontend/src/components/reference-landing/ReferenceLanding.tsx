@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect,useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
 import {ArrowRight,ArrowUpRight,BarChart3,Camera,Check,ChevronDown,Compass,GraduationCap,MessageCircle,MessagesSquare,UserRound} from 'lucide-react';
 import {AUTH,RECRUIT,content,translator,type Locale} from '@/components/landing/content';
 import {journeyCopy} from '@/components/landing/journey-copy';
@@ -28,17 +28,32 @@ function ResponsiveStepArtwork({ name }: { name: string }) {
 
 export default function ReferenceLanding({locale='fr'}:{locale?:Locale}){
   const t=translator(locale),copy=journeyCopy(locale),c=content(locale);
-  const [motion,setMotion]=useState(false),[heroVideo,setHeroVideo]=useState(false),[heroSource,setHeroSource]=useState<'responsive'|'webm'|'mp4'>('responsive'),[allFaq,setAllFaq]=useState(false);
+  const [motion,setMotion]=useState(false),[heroVideo,setHeroVideo]=useState(false),[allFaq,setAllFaq]=useState(false);
+  const heroVideoRef=useRef<HTMLVideoElement>(null);
   useEffect(()=>{
     const query=window.matchMedia('(prefers-reduced-motion: reduce)');
     // Sur téléphone, la vidéo (~1 Mo) n'occupe qu'un bandeau décoratif dont
     // l'affiche montre déjà la même scène : on la réserve aux écrans ≥ 640px.
     const wide=window.matchMedia('(min-width: 640px)');
     const saveData=Boolean((navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData);
-    const update=()=>{setMotion(!query.matches);setHeroVideo(!query.matches&&!saveData&&wide.matches);};
+    let timer: ReturnType<typeof setTimeout>;
+    const update=()=>{
+      setMotion(!query.matches);setHeroVideo(false);clearTimeout(timer);
+      if(!query.matches&&!saveData&&wide.matches) timer=setTimeout(()=>setHeroVideo(true),1500);
+    };
     update();query.addEventListener('change',update);wide.addEventListener('change',update);
-    return()=>{query.removeEventListener('change',update);wide.removeEventListener('change',update);};
+    return()=>{clearTimeout(timer);query.removeEventListener('change',update);wide.removeEventListener('change',update);};
   },[]);
+  useEffect(()=>{
+    const video=heroVideoRef.current;
+    if(!video) return;
+    let inView=true;
+    const update=()=>{if(document.hidden||!inView) video.pause();else void video.play().catch(()=>{});};
+    const observer=new IntersectionObserver(([entry])=>{inView=entry.isIntersecting;update();});
+    observer.observe(video);
+    document.addEventListener('visibilitychange',update);
+    return()=>{observer.disconnect();document.removeEventListener('visibilitychange',update);video.pause();};
+  },[heroVideo]);
   const steps=[
     {image:'profile',Icon:UserRound,title:c.steps[0][0],body:t('Créez votre profil et partagez votre parcours, vos motivations et vos centres d’intérêt.','أنشئ ملفك وشارك مسارك ودوافعك واهتماماتك.','Erstellen Sie Ihr Profil und teilen Sie Ihren Werdegang, Ihre Motivation und Interessen.','Create your profile and share your experience, motivation and interests.'),note:t('Un profil qui vous ressemble.','ملف يعكس شخصيتك.','Ein Profil, das zu Ihnen passt.','A profile that reflects you.')},
     {image:'skills',Icon:GraduationCap,title:c.steps[1][0],body:t('Ajoutez vos formations, expériences, compétences et langues.','أضف تكويناتك وخبراتك ومهاراتك ولغاتك.','Ergänzen Sie Ausbildungen, Erfahrungen, Kompetenzen und Sprachen.','Add your education, experience, skills and languages.'),note:t('Mettez en avant ce que vous savez faire.','أبرز ما تتقنه.','Zeigen Sie, was Sie können.','Show what you can do.')},
@@ -74,7 +89,7 @@ export default function ReferenceLanding({locale='fr'}:{locale?:Locale}){
           width={1280}
           height={720}
           priority
-        />{heroVideo&&<video key={heroSource} autoPlay muted loop playsInline preload="none" poster="/landing-assets/hero/amud-journey-poster-mobile.webp" onError={(event)=>{if(heroSource==='responsive')setHeroSource(event.currentTarget.currentSrc.endsWith('.mp4')?'webm':'mp4');else if(heroSource==='webm')setHeroSource('mp4');else event.currentTarget.style.display='none';}} aria-hidden="true">{heroSource==='responsive'?<><source media="(max-width: 639px)" src="/landing-assets/hero/amud-journey-mobile.webm" type="video/webm"/><source src="/landing-assets/hero/amud-journey.mp4" type="video/mp4"/></>:<source src={heroSource==='webm'?'/landing-assets/hero/amud-journey-mobile.webm':'/landing-assets/hero/amud-journey.mp4'} type={heroSource==='webm'?'video/webm':'video/mp4'}/>}</video>}
+        />{heroVideo&&<video ref={heroVideoRef} autoPlay muted loop playsInline preload="none" poster="/landing-assets/hero/amud-journey-poster-mobile.webp" onError={(event)=>{event.currentTarget.style.display='none';}} aria-hidden="true"><source src="/landing-assets/hero/amud-journey-mobile.webm" type="video/webm"/><source src="/landing-assets/hero/amud-journey.mp4" type="video/mp4"/></video>}
         </div>
         <div className="r-hero-card"><p className="r-eyebrow">{copy.heroEyebrow}</p><h1 id="r-title">{copy.heroTitle}<span>{copy.heroAccent}</span></h1><p className="r-hero-description">{copy.heroBody}</p><div className="r-hero-buttons"><a className="r-button" href="/offres">{t('Voir les offres','عرض الفرص','Stellenangebote ansehen','View opportunities')}<ArrowUpRight/></a><a className="r-button r-button--outline" href={AUTH}>{t('Créer mon profil gratuitement','أنشئ ملفي مجانًا','Profil kostenlos erstellen','Create my free profile')}</a></div><p className="r-note"><Check/>{copy.heroNote}</p></div>
       </section>

@@ -11,16 +11,19 @@ import { centerSchedulesCollection } from '@/lib/amud/localCenterSchedules';
 import { centerSchedulesSeed } from '@/data/amud/centerSchedules';
 import { centerTeacherPaymentsCollection } from '@/lib/amud/localCenterTeacherPayments';
 import { centerTeacherPaymentsSeed } from '@/data/amud/centerTeacherPayments';
-import { computeTeacherRemuneration, todayIso } from '@/lib/amud/centerCalculations';
+import { computeTeacherBalance, todayIso } from '@/lib/amud/centerCalculations';
+import { canPerform } from '@/lib/amud/centerPermissions';
+import { RestrictedAccess } from '@/components/amud/centre/RestrictedAccess';
 import { TeacherPaymentFormModal } from '@/components/amud/centre/TeacherPaymentFormModal';
 import { PERMISSION_DENIED_MESSAGE } from '@/lib/amud/centerPermissions';
+import { logAudit } from '@/lib/amud/storage/audit';
 
 export default function CentreRemunerationPage() {
   const notify = useToast();
   const { centerId, role, allowed } = useCenterAccess('manage-teacher-payments');
   const [teachers] = useCollection(centerTeachersCollection, centerTeachersSeed);
   const [schedules] = useCollection(centerSchedulesCollection, centerSchedulesSeed);
-  const [payments] = useCollection(centerTeacherPaymentsCollection, centerTeacherPaymentsSeed);
+  const [payments, { update: updatePayment }] = useCollection(centerTeacherPaymentsCollection, centerTeacherPaymentsSeed);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTeacherId, setSelectedTeacherId] = useState<string | undefined>(undefined);
   const today = todayIso();
@@ -29,7 +32,12 @@ export default function CentreRemunerationPage() {
   const centerSchedules = useMemo(() => schedules.filter((s) => s.centerId === centerId), [schedules, centerId]);
   const centerPayments = useMemo(() => payments.filter((p) => p.centerId === centerId).sort((a, b) => b.date.localeCompare(a.date)), [payments, centerId]);
 
-  const totalDue = centerTeachers.reduce((sum, t) => sum + computeTeacherRemuneration(t, centerSchedules, today).montant, 0);
+  const balances = useMemo(
+    () => new Map(centerTeachers.map((t) => [t.id, computeTeacherBalance(t, centerSchedules, centerPayments, today)])),
+    [centerTeachers, centerSchedules, centerPayments, today],
+  );
+  const totalDue = Array.from(balances.values()).reduce((sum, b) => sum + b.du, 0);
+  const canView = allowed || canPerform(role, 'view-financials');
 
   function openPayment(teacherId?: string) {
     if (!allowed) return notify(PERMISSION_DENIED_MESSAGE, 'error');
@@ -37,11 +45,23 @@ export default function CentreRemunerationPage() {
     setModalOpen(true);
   }
 
+  function markPaid(paymentId: string) {
+    if (!allowed) return notify(PERMISSION_DENIED_MESSAGE, 'error');
+    const p = centerPayments.find((x) => x.id === paymentId);
+    if (!p) return;
+    updatePayment(p.id, { statut: 'PAYE', date: new Date().toLocaleDateString('fr-FR') });
+    const t = centerTeachers.find((x) => x.id === p.enseignantId);
+    logAudit({ utilisateur: 'Centre (self-service)', role: 'Centre', action: `Rémunération marquée payée — ${t ? `${t.prenom} ${t.nom}` : p.enseignantId}`, actionType: 'update', module: 'Centres de formation — Rémunération', reference: `${p.periode} · #${p.id}`, centerId });
+    notify('Versement marqué comme payé.');
+  }
+
+  if (!canView) return <RestrictedAccess title="Rémunération des enseignants" />;
+
   return (
     <div className="space-y-lg pb-20 md:pb-0">
       <PageHeader
         title="Rémunération des enseignants"
-        subtitle="Montants calculés à partir des heures réellement planifiées."
+        subtitle="Heures effectuées × taux horaire, moins les versements déjà payés."
         actionLabel={allowed ? 'Enregistrer une rémunération' : undefined}
         onAction={allowed ? () => openPayment(undefined) : undefined}
       />
@@ -63,14 +83,14 @@ export default function CentreRemunerationPage() {
         <h2 className="mb-md text-title-lg text-amud-on-surface">À payer</h2>
         <ResponsiveTable
           caption="Rémunération due par enseignant"
-          columns={['Enseignant', 'Heures effectuées', 'Taux', 'Montant dû']}
+          columns={['Enseignant', 'Heures effectuées', 'Taux', 'Gagné', 'Déjà versé', 'Reste dû']}
           empty={<EmptyState icon="cast_for_education" title="Aucun enseignant" description="Ajoutez des enseignants pour suivre leur rémunération." />}
           rows={centerTeachers.map((t) => {
-            const r = computeTeacherRemuneration(t, centerSchedules, today);
+            const b = balances.get(t.id)!;
             return {
               id: t.id,
-              cells: [`${t.prenom} ${t.nom}`, `${r.heures}h`, `${t.tauxHoraire} MAD/h`, `${r.montant.toLocaleString('fr-FR')} MAD`],
-              action: allowed ? (
+              cells: [`${t.prenom} ${t.nom}`, `${b.heures}h`, `${t.tauxHoraire} MAD/h`, `${b.gagne.toLocaleString('fr-FR')} MAD`, `${b.verse.toLocaleString('fr-FR')} MAD`, `${b.du.toLocaleString('fr-FR')} MAD`],
+              action: allowed && b.aEnregistrer.montant > 0 ? (
                 <button
                   onClick={() => openPayment(t.id)}
                   className="min-h-[44px] w-full rounded-lg border border-amud-outline-variant px-4 text-label-md font-medium text-amud-primary transition-colors hover:bg-amud-surface-container-low md:w-auto"
@@ -95,6 +115,15 @@ export default function CentreRemunerationPage() {
               id: p.id,
               badge: p.statut === 'PAYE' ? { label: 'Payé', tone: 'success' as const } : { label: 'En attente', tone: 'warning' as const },
               cells: [t ? `${t.prenom} ${t.nom}` : '—', p.periode, `${p.montant.toLocaleString('fr-FR')} MAD`, p.date],
+              action:
+                allowed && p.statut === 'EN_ATTENTE' ? (
+                  <button
+                    onClick={() => markPaid(p.id)}
+                    className="min-h-[44px] w-full rounded-lg border border-amud-outline-variant px-4 text-label-md font-medium text-amud-primary transition-colors hover:bg-amud-surface-container-low md:w-auto"
+                  >
+                    Marquer payé
+                  </button>
+                ) : undefined,
             };
           })}
         />

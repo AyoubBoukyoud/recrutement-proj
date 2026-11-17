@@ -8,6 +8,7 @@ import { useCollection } from '@/lib/amud/storage/useCollection';
 import { logAudit, auditLogs } from '@/lib/amud/storage/audit';
 import { auditLogSeed } from '@/data/amud/auditLog';
 import { canPerform, PERMISSION_DENIED_MESSAGE } from '@/lib/amud/centerPermissions';
+import { removeCentreCascade } from '@/lib/amud/centerIntegrity';
 import { centresCollection } from '@/lib/amud/localCentres';
 import { centresSeed } from '@/data/amud/centres';
 import { CenterFormModal } from '@/components/amud/centre/CenterFormModal';
@@ -21,7 +22,7 @@ export default function AmudAdminCenterActivitePage() {
   const [editOpen, setEditOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
-  const [centres, { remove: removeCentre }] = useCollection(centresCollection, centresSeed);
+  const [centres] = useCollection(centresCollection, centresSeed);
   const [logs] = useCollection(auditLogs, auditLogSeed);
   const centre = centres.find((c) => c.id === params.id);
 
@@ -40,7 +41,7 @@ export default function AmudAdminCenterActivitePage() {
       notify(PERMISSION_DENIED_MESSAGE, 'error');
       return;
     }
-    removeCentre(centre.id);
+    removeCentreCascade(centre.id);
     logAudit({ utilisateur: 'Administrateur', role: 'Admin', action: 'Suppression centre', actionType: 'delete', module: 'Centres de formation', reference: `${centre.nom} (#${centre.id})`, centerId: centre.id });
     notify('Centre supprimé.', 'info');
     router.push('/amud/admin/centres');

@@ -45,12 +45,12 @@ export default function TeacherProfilePage() {
   return (
     <div className="space-y-lg">
       {/* Carte identité */}
-      <div className="flex items-start gap-lg rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg shadow-sm">
-        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-amud-primary-container text-3xl font-bold text-white">
+      <div className="flex flex-wrap items-start gap-md rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg shadow-sm sm:flex-nowrap sm:gap-lg">
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-amud-primary-container text-3xl font-bold text-white sm:h-20 sm:w-20">
           {teacher.prenom.charAt(0)}{teacher.nom.charAt(0)}
         </div>
-        <div className="min-w-0 flex-1">
-          <h1 className="text-headline-sm text-amud-on-surface">{teacher.prenom} {teacher.nom}</h1>
+        <div className="min-w-0 flex-1 basis-[calc(100%-5rem)] sm:basis-auto">
+          <h1 className="break-words text-headline-sm text-amud-on-surface">{teacher.prenom} {teacher.nom}</h1>
           <p className="text-body-md text-amud-on-surface-variant">{teacher.specialite}</p>
           <div className="mt-sm flex flex-wrap gap-sm">
             {teacher.niveauxEnseignes.map((n) => (

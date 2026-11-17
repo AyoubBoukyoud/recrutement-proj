@@ -14,7 +14,8 @@ import { centerStudentsCollection } from '@/lib/amud/localCenterStudents';
 import { centerStudentsSeed } from '@/data/amud/centerStudents';
 import { CenterCrudTable } from '@/components/amud/centre/CenterCrudTable';
 import { StudentPaymentFormModal } from '@/components/amud/centre/StudentPaymentFormModal';
-import { PERMISSION_DENIED_MESSAGE } from '@/lib/amud/centerPermissions';
+import { canPerform, PERMISSION_DENIED_MESSAGE } from '@/lib/amud/centerPermissions';
+import { RestrictedAccess } from '@/components/amud/centre/RestrictedAccess';
 
 const STATUS_TONE: Record<PaymentStatus, 'success' | 'warning' | 'danger'> = {
   PAYE: 'success',
@@ -68,6 +69,8 @@ export default function CentrePaiementsEtudiantsPage() {
     notify('Paiement supprimé.', 'info');
     setDeleting(null);
   }
+
+  if (!allowed && !canPerform(role, 'view-financials')) return <RestrictedAccess title="Paiements étudiants" />;
 
   return (
     <>

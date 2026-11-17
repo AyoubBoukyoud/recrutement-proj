@@ -8,12 +8,13 @@ import { generateId } from '@/lib/amud/storage/ids';
 import { logAudit } from '@/lib/amud/storage/audit';
 import { logCenterActivity } from '@/lib/amud/localCenterActivities';
 import { centerStudentPaymentsCollection } from '@/lib/amud/localCenterStudentPayments';
-import { centerStudentPaymentsSeed, PAYMENT_MODES, type CenterStudentPayment } from '@/data/amud/centerStudentPayments';
+import { centerStudentPaymentsSeed, PAYMENT_MODES, PAYMENT_STATUS_LABELS, type CenterStudentPayment } from '@/data/amud/centerStudentPayments';
 import { centerStudentsCollection } from '@/lib/amud/localCenterStudents';
 import { centerStudentsSeed } from '@/data/amud/centerStudents';
 import { centerFormationsCollection } from '@/lib/amud/localCenterFormations';
 import { centerFormationsSeed } from '@/data/amud/centerFormations';
 import { computePaymentStatus } from '@/lib/amud/centerCalculations';
+import { parseFrDate } from '@/lib/amud/analytics/period';
 
 /**
  * Enregistre un paiement étudiant et fait enfin tourner
@@ -85,7 +86,23 @@ export function StudentPaymentFormModal({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!studentId || !formationId) return;
+    if (!studentId || !formationId) {
+      notify('Un étudiant et une formation sont nécessaires pour enregistrer un paiement.', 'error');
+      return;
+    }
+    if (prixTotal <= 0) {
+      notify('Le prix total doit être supérieur à 0.', 'error');
+      return;
+    }
+    if (montantPaye > prixTotal) {
+      notify('Le montant payé ne peut pas dépasser le prix total.', 'error');
+      return;
+    }
+    if (!parseFrDate(date)) {
+      // Une date mal saisie rendait le paiement invisible dans les graphiques de revenus.
+      notify('Date invalide — format attendu : jj/mm/aaaa.', 'error');
+      return;
+    }
     const student = centerStudents.find((s) => s.id === studentId);
     if (isEdit && payment) {
       const patch = { studentId, formationId, prixTotal, montantPaye, date, mode, reference: reference.trim() || undefined, note: note.trim() || undefined, statut: finalStatus };
@@ -184,7 +201,7 @@ export function StudentPaymentFormModal({
           <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} className="min-h-[44px] w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 py-2 text-body-md outline-none focus:ring-2 focus:ring-amud-primary" />
         </div>
         <div className="sm:col-span-2 rounded-lg border border-amud-outline-variant bg-amud-surface-container-low px-md py-sm text-label-md text-amud-on-surface">
-          Statut calculé automatiquement : <span className="font-semibold">{finalStatus}</span> (reste {Math.max(0, prixTotal - montantPaye).toLocaleString('fr-FR')} MAD)
+          Statut calculé automatiquement : <span className="font-semibold">{PAYMENT_STATUS_LABELS[finalStatus]}</span> (reste {Math.max(0, prixTotal - montantPaye).toLocaleString('fr-FR')} MAD)
         </div>
       </form>
     </Modal>

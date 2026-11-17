@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "node node_modules/next/dist/bin/next dev --webpack",
+    "prebuild": "node scripts/icons/material-symbols.cjs",
     "build": "node --max-old-space-size=4096 node_modules/next/dist/bin/next build --webpack",
+    "icons:subset": "python3 scripts/icons/subset-material-symbols.py",
     "start": "node node_modules/next/dist/bin/next start",
     "lint": "eslint src --ext .ts,.tsx",
     "audit:prod": "node scripts/audit-prod.mjs",

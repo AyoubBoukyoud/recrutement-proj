@@ -7,6 +7,7 @@ import { Drawer, NavItem, isNavActive } from '@/components/amud/ui';
 
 export type RoleNavItem = {
   href: string;
+  prefetch?: boolean;
   icon: string;
   label: string;
   /** Section affichée dans le tiroir "Plus" pour les entrées hors barre du bas. Omis = pas de section (racine). */
@@ -65,8 +66,9 @@ export function RoleBottomNav({
             <Link
               key={item.href}
               href={item.href}
+              prefetch={item.prefetch}
               aria-current={active ? 'page' : undefined}
-              className={`flex flex-1 flex-col items-center justify-center gap-0.5 px-1 text-[11px] font-medium transition-colors ${
+              className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 text-[11px] font-medium transition-colors ${
                 active ? activeClassName : 'text-amud-on-surface-variant'
               }`}
             >
@@ -97,7 +99,7 @@ export function RoleBottomNav({
             {ungroupedRest.length > 0 ? (
               <div className="flex flex-col gap-0.5">
                 {ungroupedRest.map((item) => (
-                  <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label} active={isNavActive(pathname, item.href)} />
+                  <NavItem key={item.href} href={item.href} prefetch={item.prefetch} icon={item.icon} label={item.label} active={isNavActive(pathname, item.href)} />
                 ))}
               </div>
             ) : null}
@@ -106,7 +108,7 @@ export function RoleBottomNav({
                 <div className="px-1 pb-1 text-label-sm font-semibold uppercase tracking-wider text-amud-outline">{group.label}</div>
                 <div className="flex flex-col gap-0.5">
                   {group.items.map((item) => (
-                    <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label} active={isNavActive(pathname, item.href)} />
+                    <NavItem key={item.href} href={item.href} prefetch={item.prefetch} icon={item.icon} label={item.label} active={isNavActive(pathname, item.href)} />
                   ))}
                 </div>
               </div>

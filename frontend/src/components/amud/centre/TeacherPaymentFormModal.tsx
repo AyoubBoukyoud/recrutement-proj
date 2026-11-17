@@ -12,12 +12,13 @@ import { centerTeachersCollection } from '@/lib/amud/localCenterTeachers';
 import { centerTeachersSeed } from '@/data/amud/centerTeachers';
 import { centerSchedulesCollection } from '@/lib/amud/localCenterSchedules';
 import { centerSchedulesSeed } from '@/data/amud/centerSchedules';
-import { computeTeacherRemuneration, todayIso } from '@/lib/amud/centerCalculations';
+import { computeTeacherBalance, todayIso } from '@/lib/amud/centerCalculations';
+import { parseFrDate } from '@/lib/amud/analytics/period';
 
 /** Enregistre une rémunération versée à un enseignant — heures/montant pré-remplis depuis `computeTeacherRemuneration` (calcul réel, pas figé). */
 export function TeacherPaymentFormModal({ open, onClose, centerId, teacherId, actor }: { open: boolean; onClose: () => void; centerId: string; teacherId?: string; actor: { utilisateur: string; role: string } }) {
   const notify = useToast();
-  const [, { add }] = useCollection(centerTeacherPaymentsCollection, centerTeacherPaymentsSeed);
+  const [payments, { add }] = useCollection(centerTeacherPaymentsCollection, centerTeacherPaymentsSeed);
   const [teachers] = useCollection(centerTeachersCollection, centerTeachersSeed);
   const [schedules] = useCollection(centerSchedulesCollection, centerSchedulesSeed);
   const centerTeachers = teachers.filter((t) => t.centerId === centerId);
@@ -37,11 +38,27 @@ export function TeacherPaymentFormModal({ open, onClose, centerId, teacherId, ac
   }, [open, teacherId]);
 
   const teacher = centerTeachers.find((t) => t.id === enseignantId);
-  const remuneration = teacher ? computeTeacherRemuneration(teacher, schedules.filter((s) => s.centerId === centerId), todayIso()) : { heures: 0, montant: 0 };
+  const balance = teacher
+    ? computeTeacherBalance(teacher, schedules.filter((s) => s.centerId === centerId), payments.filter((p) => p.centerId === centerId), todayIso())
+    : null;
+  // Uniquement les heures pas encore couvertes par un versement saisi —
+  // avant, chaque saisie reprenait toutes les heures depuis le début.
+  const remuneration = balance?.aEnregistrer ?? { heures: 0, montant: 0 };
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!teacher) return;
+    if (!teacher) {
+      notify('Sélectionnez un enseignant.', 'error');
+      return;
+    }
+    if (remuneration.montant <= 0) {
+      notify('Rien à verser : toutes les heures effectuées sont déjà couvertes par une rémunération.', 'error');
+      return;
+    }
+    if (!parseFrDate(date)) {
+      notify('Date invalide — format attendu : jj/mm/aaaa.', 'error');
+      return;
+    }
     const created: CenterTeacherPayment = {
       id: generateId('tpay'),
       centerId,
@@ -64,7 +81,7 @@ export function TeacherPaymentFormModal({ open, onClose, centerId, teacherId, ac
       open={open}
       onClose={onClose}
       title="Enregistrer une rémunération"
-      footer={<ModalActions onCancel={onClose} form="teacher-payment-form" submitLabel="Enregistrer" />}
+      footer={<ModalActions onCancel={onClose} form="teacher-payment-form" submitLabel="Enregistrer" disabled={!teacher || remuneration.montant <= 0} />}
     >
       <form id="teacher-payment-form" onSubmit={handleSubmit} className="grid grid-cols-1 gap-md sm:grid-cols-2">
         <div className="sm:col-span-2">
@@ -92,7 +109,11 @@ export function TeacherPaymentFormModal({ open, onClose, centerId, teacherId, ac
         </div>
         <div className="sm:col-span-2 rounded-lg border border-amud-outline-variant bg-amud-surface-container-low px-md py-sm text-label-md text-amud-on-surface">
           {teacher ? (
-            <>Calculé automatiquement : {remuneration.heures}h × {teacher.tauxHoraire} MAD/h = <span className="font-semibold">{remuneration.montant.toLocaleString('fr-FR')} MAD</span></>
+            remuneration.montant > 0 ? (
+              <>Reste à enregistrer : {remuneration.heures}h × {teacher.tauxHoraire} MAD/h = <span className="font-semibold">{remuneration.montant.toLocaleString('fr-FR')} MAD</span>{balance && balance.verse > 0 ? <> (déjà versé : {balance.verse.toLocaleString('fr-FR')} MAD)</> : null}</>
+            ) : (
+              'Toutes les heures effectuées sont déjà couvertes par une rémunération enregistrée.'
+            )
           ) : (
             'Sélectionnez un enseignant.'
           )}

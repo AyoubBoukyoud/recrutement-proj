@@ -1,7 +1,6 @@
 'use client';
 
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { ChartTooltip } from './ChartTooltip';
+import { BarPlot } from './lazyPlots';
 import { ChartLegend } from './ChartLegend';
 import { EmptyChartState } from './EmptyChartState';
 import { colorAt } from './chartColors';
@@ -22,6 +21,9 @@ export function BarChartAmud({
   height = 240,
   ariaLabel,
   horizontal = false,
+  stacked = false,
+  unit,
+  showLegend = true,
 }: {
   data: Record<string, string | number>[];
   series?: BarSeries[];
@@ -30,6 +32,12 @@ export function BarChartAmud({
   ariaLabel: string;
   /** Barres horizontales — utile pour de longs libellés (villes, postes). */
   horizontal?: boolean;
+  /** Empile les séries (ex. inscrits + places libres = capacité d'un groupe). */
+  stacked?: boolean;
+  /** Suffixe affiché dans le tooltip (ex. ` MAD`). */
+  unit?: string;
+  /** Une seule série : le titre de la carte la nomme déjà, la légende par barre devient du bruit. */
+  showLegend?: boolean;
 }) {
   const resolvedSeries = series ?? [{ key: 'value', label: ariaLabel }];
   if (data.length === 0) return <EmptyChartState />;
@@ -42,27 +50,8 @@ export function BarChartAmud({
 
   return (
     <div role="img" aria-label={ariaLabel}>
-      <ResponsiveContainer width="100%" height={height}>
-        <BarChart data={data} layout={horizontal ? 'vertical' : 'horizontal'} margin={{ top: 8, right: 8, left: horizontal ? 8 : -16, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--amud-outline-variant)" horizontal={!horizontal} vertical={horizontal} />
-          {horizontal ? (
-            <>
-              <XAxis type="number" tick={{ fill: 'var(--amud-on-surface-variant)', fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} />
-              <YAxis type="category" dataKey={xKey} width={90} tick={{ fill: 'var(--amud-on-surface-variant)', fontSize: 12 }} axisLine={false} tickLine={false} />
-            </>
-          ) : (
-            <>
-              <XAxis dataKey={xKey} tick={{ fill: 'var(--amud-on-surface-variant)', fontSize: 12 }} axisLine={{ stroke: 'var(--amud-outline-variant)' }} tickLine={false} interval={0} angle={data.length > 6 ? -25 : 0} textAnchor={data.length > 6 ? 'end' : 'middle'} height={data.length > 6 ? 46 : 24} />
-              <YAxis tick={{ fill: 'var(--amud-on-surface-variant)', fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} width={32} />
-            </>
-          )}
-          <Tooltip content={<ChartTooltip />} cursor={{ fill: 'var(--amud-surface-container-high)' }} />
-          {colored.map((s) => (
-            <Bar key={s.key} dataKey={s.key} name={s.label} fill={s.color} radius={[4, 4, 0, 0]} maxBarSize={40} />
-          ))}
-        </BarChart>
-      </ResponsiveContainer>
-      <ChartLegend items={legendItems} />
+      <BarPlot data={data} series={colored} xKey={xKey} height={height} horizontal={horizontal} stacked={stacked} unit={unit} />
+      {showLegend ? <ChartLegend items={legendItems} /> : null}
     </div>
   );
 }

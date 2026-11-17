@@ -8,6 +8,7 @@ import { useToast } from '@/components/amud/Toast';
 import { useCollection } from '@/lib/amud/storage/useCollection';
 import { logAudit } from '@/lib/amud/storage/audit';
 import { canPerform, PERMISSION_DENIED_MESSAGE } from '@/lib/amud/centerPermissions';
+import { removeCentreCascade } from '@/lib/amud/centerIntegrity';
 import { centresCollection } from '@/lib/amud/localCentres';
 import { centresSeed, PARTNERSHIP_CLASS, PARTNERSHIP_LABELS } from '@/data/amud/centres';
 import { centerStudentsCollection } from '@/lib/amud/localCenterStudents';
@@ -40,7 +41,7 @@ export default function AmudAdminCenterDetailPage() {
   const [editOpen, setEditOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
-  const [centres, { remove: removeCentre }] = useCollection(centresCollection, centresSeed);
+  const [centres] = useCollection(centresCollection, centresSeed);
   const [students] = useCollection(centerStudentsCollection, centerStudentsSeed);
   const [teachers] = useCollection(centerTeachersCollection, centerTeachersSeed);
   const [formations] = useCollection(centerFormationsCollection, centerFormationsSeed);
@@ -89,7 +90,7 @@ export default function AmudAdminCenterDetailPage() {
       notify(PERMISSION_DENIED_MESSAGE, 'error');
       return;
     }
-    removeCentre(centre.id);
+    removeCentreCascade(centre.id);
     logAudit({ utilisateur: 'Administrateur', role: 'Admin', action: 'Suppression centre', actionType: 'delete', module: 'Centres de formation', reference: `${centre.nom} (#${centre.id})`, centerId: centre.id });
     notify('Centre supprimé.', 'info');
     router.push('/amud/admin/centres');

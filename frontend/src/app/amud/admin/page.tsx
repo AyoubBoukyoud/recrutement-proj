@@ -121,7 +121,7 @@ export default function AmudAdminDashboardPage() {
           <h2 className="mb-sm text-headline-lg font-semibold text-amud-on-surface">Bonjour, Administrateur 👋</h2>
           <p className="text-body-lg text-amud-on-surface-variant">Voici un aperçu de l&apos;activité de votre plateforme.</p>
         </div>
-        <div className="flex gap-sm">
+        <div className="flex flex-wrap gap-sm">
           <Link
             href="/amud/admin/analytics"
             className="flex items-center gap-1 rounded-lg border border-amud-outline-variant px-lg py-sm text-label-md font-medium text-amud-on-surface shadow-sm transition-colors hover:bg-amud-surface-container-low"

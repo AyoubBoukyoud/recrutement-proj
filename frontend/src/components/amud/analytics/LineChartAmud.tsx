@@ -1,7 +1,6 @@
 'use client';
 
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { ChartTooltip } from './ChartTooltip';
+import { LinePlot } from './lazyPlots';
 import { ChartLegend } from './ChartLegend';
 import { EmptyChartState } from './EmptyChartState';
 import { colorAt } from './chartColors';
@@ -19,12 +18,18 @@ export function LineChartAmud({
   xKey = 'label',
   height = 240,
   ariaLabel,
+  unit,
+  yDomain,
 }: {
   data: Record<string, string | number>[];
   series: LineSeries[];
   xKey?: string;
   height?: number;
   ariaLabel: string;
+  /** Suffixe affiché dans le tooltip et la légende (ex. ` %`). */
+  unit?: string;
+  /** Bornes fixes de l'axe Y (ex. `[0, 100]` pour un taux). */
+  yDomain?: [number, number];
 }) {
   if (data.length === 0 || series.length === 0) return <EmptyChartState />;
 
@@ -32,22 +37,12 @@ export function LineChartAmud({
   const lastValues = resolved.map((s) => ({
     label: s.label,
     color: s.color,
-    value: data.length > 0 ? data[data.length - 1][s.key] : undefined,
+    value: data.length > 0 ? `${data[data.length - 1][s.key]}${unit ?? ''}` : undefined,
   }));
 
   return (
     <div role="img" aria-label={ariaLabel}>
-      <ResponsiveContainer width="100%" height={height}>
-        <LineChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--amud-outline-variant)" vertical={false} />
-          <XAxis dataKey={xKey} tick={{ fill: 'var(--amud-on-surface-variant)', fontSize: 12 }} axisLine={{ stroke: 'var(--amud-outline-variant)' }} tickLine={false} />
-          <YAxis tick={{ fill: 'var(--amud-on-surface-variant)', fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} width={32} />
-          <Tooltip content={<ChartTooltip />} />
-          {resolved.map((s) => (
-            <Line key={s.key} type="monotone" dataKey={s.key} name={s.label} stroke={s.color} strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
-          ))}
-        </LineChart>
-      </ResponsiveContainer>
+      <LinePlot data={data} series={resolved} xKey={xKey} height={height} unit={unit} yDomain={yDomain} />
       <ChartLegend items={lastValues.map((v) => ({ label: v.label, color: v.color, value: v.value }))} />
     </div>
   );

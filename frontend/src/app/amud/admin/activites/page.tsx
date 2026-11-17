@@ -184,8 +184,10 @@ export default function AmudAdminActivitesPage() {
               ))}
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="p-10 text-center text-body-md text-amud-on-surface-variant">
-                    Aucune activité ne correspond à ces filtres.
+                  <td colSpan={10} className="p-10 text-left md:text-center text-body-md text-amud-on-surface-variant">
+                    <div className="max-w-[calc(100vw-5rem)] md:max-w-none">
+                      Aucune activité ne correspond à ces filtres.
+                    </div>
                   </td>
                 </tr>
               ) : null}

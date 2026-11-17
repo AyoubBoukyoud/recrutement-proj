@@ -10,6 +10,7 @@ import { AreaChartAmud } from '@/components/amud/analytics/AreaChartAmud';
 import { BarChartAmud } from '@/components/amud/analytics/BarChartAmud';
 import { DonutChartAmud } from '@/components/amud/analytics/DonutChartAmud';
 import { useCurrentCenter } from '@/lib/amud/currentCentre';
+import { canPerform } from '@/lib/amud/centerPermissions';
 import { useCollection } from '@/lib/amud/storage/useCollection';
 import { centerStudentsCollection } from '@/lib/amud/localCenterStudents';
 import { centerStudentsSeed } from '@/data/amud/centerStudents';
@@ -46,7 +47,8 @@ import { resolvePeriod, comparePeriods, inRange, previousPeriodRange, type Perio
 import { sum } from '@/lib/amud/analytics/aggregate';
 
 export default function CentreStatistiquesPage() {
-  const { centerId } = useCurrentCenter();
+  const { centerId, role } = useCurrentCenter();
+  const canSeeFinancials = canPerform(role, 'view-financials');
   const [students] = useCollection(centerStudentsCollection, centerStudentsSeed);
   const [teachers] = useCollection(centerTeachersCollection, centerTeachersSeed);
   const [formations] = useCollection(centerFormationsCollection, centerFormationsSeed);
@@ -117,8 +119,17 @@ export default function CentreStatistiquesPage() {
       <div className="grid grid-cols-2 gap-md lg:grid-cols-4">
         <KpiCard label="Étudiants actifs" value={stats.activeStudents} icon="group" />
         <KpiCard label="Enseignants" value={stats.totalTeachers} icon="cast_for_education" />
-        <KpiCard label="Revenus encaissés" value={stats.revenus} icon="payments" suffix=" MAD" trend={revenueSeries.trend} />
-        <KpiCard label="Paiements en attente" value={stats.paiementsEnAttente} icon="hourglass_empty" suffix=" MAD" trend={paiementsEnAttenteTrend} />
+        {canSeeFinancials ? (
+          <>
+            <KpiCard label="Revenus encaissés" value={stats.revenus} icon="payments" suffix=" MAD" trend={revenueSeries.trend} />
+            <KpiCard label="Paiements en attente" value={stats.paiementsEnAttente} icon="hourglass_empty" suffix=" MAD" trend={paiementsEnAttenteTrend} />
+          </>
+        ) : (
+          <>
+            <KpiCard label="Formations actives" value={stats.activeFormations} icon="menu_book" />
+            <KpiCard label="Taux de présence" value={stats.tauxPresence} icon="fact_check" suffix=" %" />
+          </>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-lg lg:grid-cols-2">
@@ -130,13 +141,17 @@ export default function CentreStatistiquesPage() {
           <DonutChartAmud data={attendanceByPeriod.donutData} ariaLabel="Répartition de l'assiduité : présent, absent, retard, excusé" centerLabel={`${attendanceByPeriod.rates.presenceRate}%`} />
         </AnalyticsCard>
 
-        <AnalyticsCard title="Revenus" subtitle="Paiements encaissés sur la période sélectionnée">
-          <AreaChartAmud data={revenueSeries.series} series={[{ key: 'value', label: 'Revenus (MAD)' }]} ariaLabel="Évolution des revenus encaissés sur la période" />
-        </AnalyticsCard>
+        {canSeeFinancials ? (
+          <AnalyticsCard title="Revenus" subtitle="Paiements encaissés sur la période sélectionnée">
+            <AreaChartAmud data={revenueSeries.series} series={[{ key: 'value', label: 'Revenus (dernière période)' }]} unit=" MAD" ariaLabel="Évolution des revenus encaissés sur la période" />
+          </AnalyticsCard>
+        ) : null}
 
-        <AnalyticsCard title="Paiements par statut">
-          <DonutChartAmud data={paymentsDistribution} ariaLabel="Répartition des paiements par statut" />
-        </AnalyticsCard>
+        {canSeeFinancials ? (
+          <AnalyticsCard title="Paiements par statut">
+            <DonutChartAmud data={paymentsDistribution} ariaLabel="Répartition des paiements par statut" />
+          </AnalyticsCard>
+        ) : null}
 
         <AnalyticsCard title="Étudiants par niveau">
           <BarChartAmud data={studentsByLevel} ariaLabel="Répartition des étudiants par niveau" />
@@ -178,10 +193,10 @@ export default function CentreStatistiquesPage() {
       <div>
         <h2 className="mb-md text-title-lg text-amud-on-surface">Performance des formations</h2>
         <ResponsiveTable
-          columns={['Formation', 'Étudiants', 'Assiduité', 'Progression', 'Revenus']}
+          columns={canSeeFinancials ? ['Formation', 'Étudiants', 'Assiduité', 'Progression', 'Revenus'] : ['Formation', 'Étudiants', 'Assiduité', 'Progression']}
           rows={formationPerformance.map((row) => ({
             id: row.formationId,
-            cells: [row.formation, row.studentsCount, `${row.avgAttendance}%`, `${row.progression}%`, `${row.revenue.toLocaleString('fr-FR')} MAD`],
+            cells: [row.formation, row.studentsCount, `${row.avgAttendance}%`, `${row.progression}%`, ...(canSeeFinancials ? [`${row.revenue.toLocaleString('fr-FR')} MAD`] : [])],
           }))}
           empty={<EmptyState compact icon="menu_book" title="Aucune formation" description="Créez une formation pour suivre sa performance." />}
         />

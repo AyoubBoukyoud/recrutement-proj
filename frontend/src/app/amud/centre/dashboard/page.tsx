@@ -37,7 +37,27 @@ import { centerSessionStatesCollection } from '@/lib/amud/localCenterSessionStat
 import { centerSessionStatesSeed } from '@/data/amud/centerSessionStates';
 import { quizSessionsCollection } from '@/lib/amud/localQuizSessions';
 import { quizSessionsSeed } from '@/data/amud/quizSessions';
-import { computeCenterStats, todayIso } from '@/lib/amud/centerCalculations';
+import { centerEnrollmentsCollection } from '@/lib/amud/localCenterEnrollments';
+import { centerEnrollmentsSeed } from '@/data/amud/centerEnrollments';
+import { centerTeacherPaymentsCollection } from '@/lib/amud/localCenterTeacherPayments';
+import { centerTeacherPaymentsSeed } from '@/data/amud/centerTeacherPayments';
+import {
+  computeAttendanceByPeriod,
+  computeCenterStats,
+  computeGroupFill,
+  computeLeadFunnel,
+  computePaymentsDistribution,
+  computeRevenueSeries,
+  computeWeekSessions,
+  computeWeeklyPresenceRate,
+  todayIso,
+} from '@/lib/amud/centerCalculations';
+import { resolvePeriod } from '@/lib/amud/analytics/period';
+import { AnalyticsCard } from '@/components/amud/analytics/AnalyticsCard';
+import { BarChartAmud } from '@/components/amud/analytics/BarChartAmud';
+import { DonutChartAmud } from '@/components/amud/analytics/DonutChartAmud';
+import { FunnelChartAmud } from '@/components/amud/analytics/FunnelChartAmud';
+import { LineChartAmud } from '@/components/amud/analytics/LineChartAmud';
 
 const KPI_LINKS: Record<string, string> = {
   'Étudiants actifs': '/amud/centre/etudiants',
@@ -88,14 +108,32 @@ export default function CentreDashboardPage() {
   const [logs] = useCollection(auditLogs, auditLogSeed);
   const [sessionStates] = useCollection(centerSessionStatesCollection, centerSessionStatesSeed);
   const [quizSessions] = useCollection(quizSessionsCollection, quizSessionsSeed);
+  const [enrollments] = useCollection(centerEnrollmentsCollection, centerEnrollmentsSeed);
+  const [teacherPayments] = useCollection(centerTeacherPaymentsCollection, centerTeacherPaymentsSeed);
 
   const centre = centres.find((c) => c.id === centerId);
   const today = todayIso();
 
   const stats = useMemo(() => {
     if (!centre) return null;
-    return computeCenterStats(centre.id, { students, teachers, formations, groups, schedules, attendance, studentPayments: payments, today });
-  }, [centre, students, teachers, formations, groups, schedules, attendance, payments, today]);
+    return computeCenterStats(centre.id, { students, teachers, formations, groups, schedules, attendance, studentPayments: payments, teacherPayments, today });
+  }, [centre, students, teachers, formations, groups, schedules, attendance, payments, teacherPayments, today]);
+
+  const charts = useMemo(() => {
+    const inCentre = <T extends { centerId: string }>(rows: T[]) => rows.filter((r) => r.centerId === centerId);
+    const centreAttendance = inCentre(attendance);
+    const centrePayments = inCentre(payments);
+    const centreLeads = inCentre(leads);
+    return {
+      revenue: computeRevenueSeries(centrePayments, resolvePeriod('6m')),
+      paymentStatus: computePaymentsDistribution(centrePayments),
+      presenceTrend: computeWeeklyPresenceRate(centreAttendance, today, 8),
+      attendance30d: computeAttendanceByPeriod(centreAttendance, resolvePeriod('30d')),
+      weekSessions: computeWeekSessions(inCentre(schedules), today),
+      groupFill: computeGroupFill(inCentre(groups), inCentre(enrollments)),
+      leadFunnel: computeLeadFunnel(centreLeads),
+    };
+  }, [centerId, attendance, payments, leads, schedules, groups, enrollments, today]);
 
   const recentLogs = useMemo(
     () => logs.filter((l) => l.centerId === centerId).sort((a, b) => `${b.date} ${b.heure}`.localeCompare(`${a.date} ${a.heure}`)).slice(0, 8),
@@ -112,6 +150,14 @@ export default function CentreDashboardPage() {
   }
 
   const actor = { utilisateur: 'Centre (self-service)', role };
+  // Les montants (encaissements, impayés, rémunérations) ne sont montrés
+  // qu'aux rôles qui ont `view-financials` — le droit existait dans la
+  // matrice mais n'était vérifié nulle part.
+  const canSeeFinancials = canPerform(role, 'view-financials');
+  const weekCourses = charts.weekSessions.reduce((total, d) => total + d.cours, 0);
+  const weekHours = charts.weekSessions.reduce((total, d) => total + d.heures, 0);
+  const seatsTaken = charts.groupFill.reduce((total, g) => total + g.inscrits, 0);
+  const seatsTotal = charts.groupFill.reduce((total, g) => total + g.inscrits + g.libres, 0);
 
   function openQuickAction(action: QuickAction, permission: CenterPermission) {
     if (!canPerform(role, permission)) {
@@ -128,8 +174,12 @@ export default function CentreDashboardPage() {
     { label: 'Groupes actifs', value: stats.activeGroups, icon: 'diversity_3' },
     { label: 'Cours aujourd’hui', value: stats.coursAujourdhui, icon: 'event' },
     { label: 'Taux de présence', value: stats.tauxPresence, icon: 'fact_check', suffix: '%' },
-    { label: 'Revenus étudiants', value: stats.revenus, icon: 'payments', suffix: ' MAD' },
-    { label: 'Paiements en attente', value: stats.paiementsEnAttente, icon: 'hourglass_empty', suffix: ' MAD' },
+    ...(canSeeFinancials
+      ? [
+          { label: 'Revenus étudiants', value: stats.revenus, icon: 'payments', suffix: ' MAD' },
+          { label: 'Paiements en attente', value: stats.paiementsEnAttente, icon: 'hourglass_empty', suffix: ' MAD' },
+        ]
+      : []),
     { label: 'Séances QR aujourd’hui', value: qrSessionsToday, icon: 'qr_code_2' },
     { label: 'Quiz en cours', value: quizzesLive, icon: 'quiz' },
   ];
@@ -174,6 +224,66 @@ export default function CentreDashboardPage() {
         ))}
       </div>
 
+
+      <section aria-labelledby="centre-dashboard-charts" className="space-y-md">
+        <div className="flex flex-wrap items-end justify-between gap-sm">
+          <h2 id="centre-dashboard-charts" className="text-title-lg text-amud-on-surface">Vue d’ensemble</h2>
+          <Link href="/amud/centre/statistiques" className="text-label-md text-amud-primary hover:underline">
+            Statistiques détaillées
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 gap-lg lg:grid-cols-2">
+          {canSeeFinancials ? (
+            <AnalyticsCard
+              title="Revenus encaissés"
+              subtitle={`6 derniers mois · ${charts.revenue.currentTotal.toLocaleString('fr-FR')} MAD encaissés`}
+            >
+              <BarChartAmud data={charts.revenue.series} series={[{ key: 'value', label: 'Encaissé' }]} unit=" MAD" showLegend={false} ariaLabel="Revenus encaissés par mois sur les 6 derniers mois" />
+            </AnalyticsCard>
+          ) : null}
+
+          {canSeeFinancials ? (
+            <AnalyticsCard title="Paiements par statut" subtitle={`${stats.paiementsEnAttente.toLocaleString('fr-FR')} MAD restent à encaisser`}>
+              <DonutChartAmud data={charts.paymentStatus} ariaLabel="Répartition des paiements étudiants par statut" />
+            </AnalyticsCard>
+          ) : null}
+
+          <AnalyticsCard title="Taux de présence par semaine" subtitle="8 dernières semaines · semaines sans pointage omises">
+            <LineChartAmud data={charts.presenceTrend} series={[{ key: 'value', label: 'Présence (dernière semaine)' }]} unit=" %" yDomain={[0, 100]} ariaLabel="Évolution du taux de présence hebdomadaire sur 8 semaines" />
+          </AnalyticsCard>
+
+          <AnalyticsCard title="Assiduité" subtitle={`30 derniers jours · ${charts.attendance30d.rates.total} pointage(s)`}>
+            <DonutChartAmud data={charts.attendance30d.donutData} centerLabel={`${charts.attendance30d.rates.presenceRate}%`} ariaLabel="Répartition présent, absent, retard, excusé sur 30 jours" />
+          </AnalyticsCard>
+
+          <AnalyticsCard title="Cours de la semaine" subtitle={`${weekCourses} cours · ${weekHours.toLocaleString('fr-FR')} h programmées`}>
+            <BarChartAmud data={charts.weekSessions} series={[{ key: 'cours', label: 'Cours' }]} showLegend={false} ariaLabel="Nombre de cours programmés par jour cette semaine" />
+          </AnalyticsCard>
+
+          <AnalyticsCard title="Remplissage des groupes" subtitle={seatsTotal > 0 ? `${seatsTaken}/${seatsTotal} places occupées (${Math.round((seatsTaken / seatsTotal) * 100)} %)` : 'Aucun groupe en cours'}>
+            <BarChartAmud
+              data={charts.groupFill}
+              series={[
+                { key: 'inscrits', label: 'Inscrits' },
+                { key: 'libres', label: 'Places libres', color: 'var(--amud-outline-variant)' },
+              ]}
+              stacked
+              horizontal
+              height={Math.max(180, charts.groupFill.length * 40 + 40)}
+              ariaLabel="Étudiants inscrits et places libres par groupe"
+            />
+          </AnalyticsCard>
+
+          <AnalyticsCard
+            title="Entonnoir des leads"
+            subtitle={charts.leadFunnel.rejected > 0 ? `${charts.leadFunnel.rejected} lead(s) rejeté(s) non comptés` : 'Du premier contact à l’inscription'}
+            className="lg:col-span-2"
+          >
+            <FunnelChartAmud stages={charts.leadFunnel.stages} height={220} ariaLabel="Entonnoir des leads : reçus, contactés, intéressés, inscrits" />
+          </AnalyticsCard>
+        </div>
+      </section>
+
       <div className="grid grid-cols-1 gap-lg lg:grid-cols-3">
         <div className="rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg shadow-sm lg:col-span-2">
           <h3 className="mb-md text-title-lg text-amud-on-surface">Cours d’aujourd’hui</h3>
@@ -201,11 +311,25 @@ export default function CentreDashboardPage() {
           )}
         </div>
         <div className="rounded-xl border border-amud-outline-variant bg-amud-surface-container-lowest p-lg shadow-sm">
-          <h3 className="mb-md text-title-lg text-amud-on-surface">Rémunérations dues</h3>
-          <div className="text-headline-md text-amud-on-surface">{stats.remunerationsDues.toLocaleString('fr-FR')} MAD</div>
-          <Link href="/amud/centre/remuneration" className="mt-sm inline-block text-label-md text-amud-primary hover:underline">
-            Voir le détail
-          </Link>
+          {canSeeFinancials ? (
+            <>
+              <h3 className="mb-md text-title-lg text-amud-on-surface">Rémunérations dues</h3>
+              <div className="text-headline-md text-amud-on-surface">{stats.remunerationsDues.toLocaleString('fr-FR')} MAD</div>
+              <p className="text-label-sm text-amud-on-surface-variant">Heures effectuées non encore versées</p>
+              <Link href="/amud/centre/remuneration" className="mt-sm inline-block text-label-md text-amud-primary hover:underline">
+                Voir le détail
+              </Link>
+            </>
+          ) : (
+            <>
+              <h3 className="mb-md text-title-lg text-amud-on-surface">Cette semaine</h3>
+              <div className="text-headline-md text-amud-on-surface">{weekCourses} cours</div>
+              <p className="text-label-sm text-amud-on-surface-variant">{weekHours.toLocaleString('fr-FR')} h programmées</p>
+              <Link href="/amud/centre/planning" className="mt-sm inline-block text-label-md text-amud-primary hover:underline">
+                Voir le planning
+              </Link>
+            </>
+          )}
           <div className="mt-lg border-t border-amud-outline-variant pt-md">
             <h4 className="mb-1 text-label-md font-semibold text-amud-on-surface">Nouveaux leads</h4>
             <div className="text-headline-md text-amud-secondary">{newLeads}</div>
