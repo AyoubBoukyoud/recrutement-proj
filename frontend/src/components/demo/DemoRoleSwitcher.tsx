@@ -9,13 +9,22 @@ import { preparePresentation, selectPresentationCandidate } from '@/lib/amud/pre
 import { endPresentation, startPresentation } from '@/lib/amud/presentationActions';
 import { hasPresentationAccess } from '@/lib/amud/presentationAccess';
 import { useAuth } from '@/context/AuthContext';
+import { apiPost } from '@/lib/api';
+
+/** Real accounts on the live API (unlike the presentation roles), hidden from recruiters. */
+const TEST_CANDIDATES = [
+  { variant: 'complete', label: 'Candidat · profil complet', icon: 'how_to_reg', description: 'Dossier soumis, allemand B1 déclaré : test de langue, offres, candidatures', path: '/dashboard' },
+  { variant: 'incomplete', label: 'Candidat · profil incomplet', icon: 'person_add', description: 'Dossier vide, remis à zéro à chaque ouverture : création du profil', path: '/profile-creation?step=1' },
+] as const;
+
+type TestCandidate = (typeof TEST_CANDIDATES)[number];
 
 export default function DemoRoleSwitcher({ open, onOpen, onClose }: {
   open: boolean; onOpen: () => void; onClose: () => void;
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { token } = useAuth();
+  const { token, impersonate } = useAuth();
   const active = demoRoleForPath(pathname);
   const [error, setError] = useState('');
   const [target, setTarget] = useState('');
@@ -59,6 +68,25 @@ export default function DemoRoleSwitcher({ open, onOpen, onClose }: {
     window.location.assign(role.path);
   }
 
+  async function openTestCandidate(candidate: TestCandidate) {
+    if (!token) { setError('Session administrateur requise.'); return; }
+    setError('');
+    setTarget(candidate.label);
+    try {
+      const { token: candidateToken, user } = await apiPost<{
+        token: string; user: { id: number; name: string | null; phone: string | null; roles: string[] };
+      }>(`/admin/test-candidates/${candidate.variant}`, {}, token);
+      if (active) await endPresentation();
+      impersonate(candidateToken, { id: String(user.id), role: 'candidate', name: user.name ?? candidate.label, phone: user.phone, roles: user.roles });
+    } catch (failure) {
+      setTarget('');
+      setError(failure instanceof Error && failure.message ? `Ouverture impossible : ${failure.message}` : 'Ouverture impossible.');
+      return;
+    }
+    // Full navigation, so the candidate space loads with the new session from scratch.
+    window.location.assign(candidate.path);
+  }
+
   return createPortal(
     <>
       {active && (
@@ -85,7 +113,18 @@ export default function DemoRoleSwitcher({ open, onOpen, onClose }: {
             </button>
           ))}
         </div>
-        <p role="status" className="mt-4 text-center text-xs text-amud-on-surface-variant">{pending ? `Ouverture de l’espace ${target}…` : '7 espaces prêts à présenter · Modifications conservées dans ce navigateur'}</p>
+        <h3 className="mb-1 mt-6 text-sm font-semibold text-amud-on-surface">Comptes de test réels</h3>
+        <p className="mb-3 text-xs text-amud-on-surface-variant">Vraie application candidat et vraies données (test de langue compris). Invisibles pour les recruteurs ; « Revenir à mon compte », en haut de l’écran, ramène à l’administration.</p>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2" aria-busy={pending}>
+          {TEST_CANDIDATES.map((candidate) => (
+            <button key={candidate.variant} type="button" disabled={pending || target !== ''} onClick={() => void openTestCandidate(candidate)}
+              className="flex min-h-24 items-start gap-3 rounded-xl border border-amud-outline-variant bg-amud-surface p-4 text-left transition-colors hover:border-amud-primary hover:bg-amud-primary/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amud-primary disabled:opacity-60">
+              <span className="material-symbols-outlined flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amud-primary/10 text-amud-primary" aria-hidden="true">{candidate.icon}</span>
+              <span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-amud-on-surface">{candidate.label}</span><span className="mt-1 block text-xs leading-relaxed text-amud-on-surface-variant">{candidate.description}</span></span>
+            </button>
+          ))}
+        </div>
+        <p role="status" className="mt-4 text-center text-xs text-amud-on-surface-variant">{pending || target ? `Ouverture de l’espace ${target}…` : '7 espaces prêts à présenter · Modifications conservées dans ce navigateur'}</p>
         {error && <p role="alert" className="mt-3 rounded-lg bg-amud-error-container p-3 text-sm text-amud-error">{error}</p>}
       </Modal>
     </>, document.body,

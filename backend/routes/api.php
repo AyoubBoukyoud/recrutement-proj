@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\AdminMetricsController;
 use App\Http\Controllers\Api\AdminRecruiterController;
 use App\Http\Controllers\Api\AdminReferralController;
 use App\Http\Controllers\Api\AdminTaskController;
+use App\Http\Controllers\Api\AdminTestCandidateController;
 use App\Http\Controllers\Api\AdminUserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CandidateAccountController;
@@ -318,6 +319,8 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
         Route::patch('/admin/users/{user}/status', [AdminUserController::class, 'updateStatus']);
         Route::delete('/admin/users/{user}', [AdminUserController::class, 'destroy']);
         Route::post('/admin/users/{user}/impersonate', [AdminUserController::class, 'impersonate']);
+        // Real test candidates (complete / incomplete dossier) opened from the role switcher.
+        Route::post('/admin/test-candidates/{variant}', [AdminTestCandidateController::class, 'open'])->whereIn('variant', ['complete', 'incomplete']);
         // Recovery for a candidate who lost both the number and every session.
         Route::patch('/admin/users/{user}/phone', [AdminAccountRecoveryController::class, 'reassignPhone']);
         // Referral commissions: qualified automatically, approved and paid by hand.
