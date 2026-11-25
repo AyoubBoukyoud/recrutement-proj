@@ -66,7 +66,7 @@ function PrototypeSearch({ centerId }: { centerId: string }) {
   return <GlobalSearch query={query} onQueryChange={setQuery} results={results}
     onSelect={(href) => { setOpen(false); setQuery(''); router.push(href); }}
     open={open} onOpenChange={setOpen} inputRef={inputRef}
-    placeholder="Rechercher un étudiant, un enseignant…" className="relative hidden w-64 md:block" />;
+    placeholder="Rechercher un étudiant, un enseignant…" className="relative hidden w-64 xl:block" />;
 }
 
 /** Legacy storage is initialized only when a prototype page is actually opened. */

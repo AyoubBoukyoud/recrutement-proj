@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Button, Modal } from '@/components/amud/ui';
 import { useToast } from '@/components/amud/Toast';
 import { ApiError } from '@/lib/api';
-import { timetableError, timetableService, type Availability, type SessionDraft, type TimetableResources, type TimetableSession } from '@/lib/amud/services/timetableService';
+import { timetableError, type Availability, type SessionDraft, type TimetableResources, type TimetableSession } from '@/lib/amud/services/timetableService';
 import { useRefreshTimetable, useTimetableScope } from '@/lib/amud/timetable/useTimetable';
 import { SearchableSelect } from './SearchableSelect';
 
@@ -16,10 +16,21 @@ export type SessionAssignmentFormProps = {
 };
 
 export function SessionAssignmentForm({ initial, session, resources, onClose }: SessionAssignmentFormProps) {
-  const { center, token } = useTimetableScope();
+  const { center, token, demo, service } = useTimetableScope();
   const refresh = useRefreshTimetable();
   const notify = useToast();
-  const [draft, setDraft] = useState(initial);
+  // A group's usual formation, teacher and room pre-fill empty fields of a new course.
+  // Changing group replaces values inherited from the previous group, never a manual choice.
+  const withGroupDefaults = (next: SessionDraft, previousGroupId = 0): SessionDraft => {
+    const group = resources.groups.find((item) => item.id === next.group_id);
+    const previous = resources.groups.find((item) => item.id === previousGroupId);
+    const result = { ...next };
+    for (const field of ['module_id', 'teacher_id', 'room_id'] as const) {
+      if (!next[field] || (previous && next[field] === previous[field])) result[field] = group?.[field] || 0;
+    }
+    return result;
+  };
+  const [draft, setDraft] = useState(() => (session ? initial : withGroupDefaults(initial)));
   const [requestKey] = useState(() => crypto.randomUUID());
   const [availability, setAvailability] = useState<Availability | null>(null);
   const [checking, setChecking] = useState(false);
@@ -34,26 +45,26 @@ export function SessionAssignmentForm({ initial, session, resources, onClose }: 
     let current = true;
     setAvailability(null);
     setError('');
-    if (!valid || !token || !center || !allowed) { setChecking(false); return; }
+    if (!valid || (!token && !demo) || !center || !allowed) { setChecking(false); return; }
     setChecking(true);
     const timer = setTimeout(() => {
-      timetableService.availability(token, center.id, draft, session?.id).then((result) => {
+      service.availability(token ?? '', center.id, draft, session?.id).then((result) => {
         if (current) setAvailability(result);
       }).catch((failure: unknown) => {
         if (current) setError(timetableError(failure));
       }).finally(() => { if (current) setChecking(false); });
     }, 300);
     return () => { current = false; clearTimeout(timer); };
-  }, [draft, session?.id, valid, token, center, allowed]);
+  }, [draft, session?.id, valid, token, center, allowed, demo, service]);
 
-  function patch(patch: Partial<SessionDraft>) { setDraft((current) => ({ ...current, ...patch })); setAvailability(null); }
+  function patch(patch: Partial<SessionDraft>) { setDraft((current) => (patch.group_id && !session ? withGroupDefaults({ ...current, ...patch }, current.group_id) : { ...current, ...patch })); setAvailability(null); }
   function close() { if (!saving) onClose(); }
   async function submit(event: React.FormEvent) {
     event.preventDefault();
-    if (!valid || !allowed || !center || !token || saving || !availability?.available) return;
+    if (!valid || !allowed || !center || (!token && !demo) || saving || !availability?.available) return;
     setSaving(true); setError('');
     try {
-      const saved = await timetableService.save(token, center.id, draft, requestKey, session);
+      const saved = await service.save(token ?? '', center.id, draft, requestKey, session);
       void refresh(saved);
       notify(session ? 'Cours mis à jour.' : 'Cours ajouté au planning.');
       onClose();
@@ -64,10 +75,10 @@ export function SessionAssignmentForm({ initial, session, resources, onClose }: 
     } finally { setSaving(false); }
   }
   async function remove() {
-    if (!session || !center || !token || saving || !allowed) return;
+    if (!session || !center || (!token && !demo) || saving || !allowed) return;
     setSaving(true); setError('');
     try {
-      await timetableService.remove(token, center.id, session);
+      await service.remove(token ?? '', center.id, session);
       void refresh(undefined, session.id); notify('Cours supprimé.', 'info'); onClose();
     } catch (failure) { setError(timetableError(failure)); void refresh(); }
     finally { setSaving(false); }
@@ -81,9 +92,9 @@ export function SessionAssignmentForm({ initial, session, resources, onClose }: 
   </div>}>
     <form id="timetable-session-form" onSubmit={submit} className="space-y-4">
       <fieldset disabled={!allowed || saving} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <SearchableSelect label="Professeur" value={draft.teacher_id} options={resources.teachers} onChange={(teacher_id) => patch({ teacher_id })} disabled={!allowed || saving} />
-        <SearchableSelect label="Module" value={draft.module_id} options={resources.modules} onChange={(module_id) => patch({ module_id })} disabled={!allowed || saving} />
         <SearchableSelect label="Groupe" value={draft.group_id} options={resources.groups} onChange={(group_id) => patch({ group_id })} disabled={!allowed || saving} />
+        <SearchableSelect label="Formation" value={draft.module_id} options={resources.modules} onChange={(module_id) => patch({ module_id })} disabled={!allowed || saving} />
+        <SearchableSelect label="Professeur" value={draft.teacher_id} options={resources.teachers} onChange={(teacher_id) => patch({ teacher_id })} disabled={!allowed || saving} />
         <SearchableSelect label="Salle" value={draft.room_id} options={resources.rooms} onChange={(room_id) => patch({ room_id })} disabled={!allowed || saving} />
         <label className="text-label-md text-amud-on-surface-variant">Date · {day}<input required type="date" value={draft.date} onChange={(event) => patch({ date: event.target.value })} className={`mt-1 ${inputClass}`} /></label>
         <div className="grid grid-cols-2 gap-3">

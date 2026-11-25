@@ -2,6 +2,7 @@
 
 import '@/lib/amud/storage/bootstrap';
 import { useEffect, useState } from 'react';
+import { trainingStorageKey, TRAINING_DEMO_KEY } from './trainingDemo';
 import type { CenterRole } from '@/data/amud/centerTypes';
 import { loadLocalCentres } from './localCentres';
 
@@ -21,7 +22,7 @@ const DEFAULT_ROLE: CenterRole = 'CENTER_OWNER';
 
 export function getCurrentCenterId(): string {
   if (typeof window === 'undefined') return '';
-  const stored = window.localStorage.getItem(STORAGE_KEY);
+  const stored = window.localStorage.getItem(trainingStorageKey(STORAGE_KEY));
   const centres = loadLocalCentres();
   // Un id mémorisé dont le centre a été supprimé (par l'Admin) laissait
   // l'espace Centre bloqué sur « Chargement du centre… » : on retombe sur
@@ -32,18 +33,18 @@ export function getCurrentCenterId(): string {
 
 export function setCurrentCenterId(id: string) {
   if (typeof window === 'undefined') return;
-  window.localStorage.setItem(STORAGE_KEY, id);
+  window.localStorage.setItem(trainingStorageKey(STORAGE_KEY), id);
   window.dispatchEvent(new CustomEvent(CHANGE_EVENT));
 }
 
 export function getCurrentCenterRole(): CenterRole {
   if (typeof window === 'undefined') return DEFAULT_ROLE;
-  return (window.localStorage.getItem(ROLE_STORAGE_KEY) as CenterRole | null) ?? DEFAULT_ROLE;
+  return (window.localStorage.getItem(trainingStorageKey(ROLE_STORAGE_KEY)) as CenterRole | null) ?? DEFAULT_ROLE;
 }
 
 export function setCurrentCenterRole(role: CenterRole) {
   if (typeof window === 'undefined') return;
-  window.localStorage.setItem(ROLE_STORAGE_KEY, role);
+  window.localStorage.setItem(trainingStorageKey(ROLE_STORAGE_KEY), role);
   window.dispatchEvent(new CustomEvent(CHANGE_EVENT));
 }
 
@@ -59,8 +60,12 @@ export function useCurrentCenter() {
       setCenterIdState(getCurrentCenterId());
       setRoleState(getCurrentCenterRole());
     }
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === TRAINING_DEMO_KEY || event.key === null || event.key === trainingStorageKey(STORAGE_KEY) || event.key === trainingStorageKey(ROLE_STORAGE_KEY)) onChange();
+    };
     window.addEventListener(CHANGE_EVENT, onChange);
-    return () => window.removeEventListener(CHANGE_EVENT, onChange);
+    window.addEventListener('storage', onStorage);
+    return () => { window.removeEventListener(CHANGE_EVENT, onChange); window.removeEventListener('storage', onStorage); };
   }, []);
 
   return {

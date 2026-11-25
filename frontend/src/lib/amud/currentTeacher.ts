@@ -2,6 +2,7 @@
 
 import '@/lib/amud/storage/bootstrap';
 import { useEffect, useState } from 'react';
+import { trainingStorageKey, TRAINING_DEMO_KEY } from './trainingDemo';
 import { loadLocalCenterTeachers } from './localCenterTeachers';
 
 /**
@@ -16,14 +17,15 @@ const CHANGE_EVENT = 'amud:current-teacher-change';
 
 export function getCurrentTeacherId(): string {
   if (typeof window === 'undefined') return '';
-  const stored = window.localStorage.getItem(STORAGE_KEY);
-  if (stored) return stored;
-  return loadLocalCenterTeachers()[0]?.id ?? '';
+  const stored = window.localStorage.getItem(trainingStorageKey(STORAGE_KEY));
+  const teachers = loadLocalCenterTeachers();
+  if (stored && teachers.some((teacher) => teacher.id === stored)) return stored;
+  return teachers[0]?.id ?? '';
 }
 
 export function setCurrentTeacherId(id: string) {
   if (typeof window === 'undefined') return;
-  window.localStorage.setItem(STORAGE_KEY, id);
+  window.localStorage.setItem(trainingStorageKey(STORAGE_KEY), id);
   window.dispatchEvent(new CustomEvent(CHANGE_EVENT));
 }
 
@@ -36,8 +38,12 @@ export function useCurrentTeacher() {
     function onChange() {
       setTeacherIdState(getCurrentTeacherId());
     }
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === TRAINING_DEMO_KEY || event.key === null || event.key === trainingStorageKey(STORAGE_KEY)) onChange();
+    };
     window.addEventListener(CHANGE_EVENT, onChange);
-    return () => window.removeEventListener(CHANGE_EVENT, onChange);
+    window.addEventListener('storage', onStorage);
+    return () => { window.removeEventListener(CHANGE_EVENT, onChange); window.removeEventListener('storage', onStorage); };
   }, []);
 
   return {

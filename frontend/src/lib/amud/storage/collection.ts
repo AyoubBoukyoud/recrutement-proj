@@ -1,6 +1,7 @@
 'use client';
 
 import { emitAmudChange, subscribeAmudChange } from './events';
+import { trainingStorageKey } from '../trainingDemo';
 
 export type Entity = { id: string };
 
@@ -30,7 +31,7 @@ export function createCollection<T extends Entity>(key: string): Collection<T> {
   function readRaw(): T[] {
     if (typeof window === 'undefined') return [];
     try {
-      const raw = window.localStorage.getItem(key);
+      const raw = window.localStorage.getItem(trainingStorageKey(key));
       return raw ? (JSON.parse(raw) as T[]) : [];
     } catch {
       return [];
@@ -39,7 +40,7 @@ export function createCollection<T extends Entity>(key: string): Collection<T> {
 
   function writeRaw(all: T[]) {
     if (typeof window === 'undefined') return;
-    window.localStorage.setItem(key, JSON.stringify(all));
+    window.localStorage.setItem(trainingStorageKey(key), JSON.stringify(all));
     emitAmudChange(key);
   }
 

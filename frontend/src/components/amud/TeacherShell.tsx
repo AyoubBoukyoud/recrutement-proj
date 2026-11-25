@@ -4,6 +4,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { NavItem, isNavActive, useDropdown } from '@/components/amud/ui';
+import { TrainingDemoToggle } from './TrainingDemoToggle';
+import { DemoBanner } from './DemoBanner';
+import { useTrainingDemo } from '@/lib/amud/useTrainingDemo';
 import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 import { ToastProvider } from '@/components/amud/Toast';
 import { NotificationCenter } from '@/components/amud/NotificationCenter';
@@ -49,6 +52,7 @@ const SIDEBAR_GROUPS = [{ label: '', items: NAV.filter((i) => i.group === '') }]
  * l'espace enseignant de l'espace étudiant (secondary) et du centre (primary).
  */
 export function TeacherShell({ children }: { children: ReactNode }) {
+  const demo = useTrainingDemo();
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const profileMenu = useDropdown<HTMLDivElement>();
@@ -132,6 +136,7 @@ export function TeacherShell({ children }: { children: ReactNode }) {
               </button>
             </div>
             <div className="ml-auto flex items-center gap-sm">
+              <TrainingDemoToggle />
               <HeaderPreferences />
               <NotificationCenter
                 key={pathname}
@@ -183,6 +188,7 @@ export function TeacherShell({ children }: { children: ReactNode }) {
             </div>
           </header>
           <main key={pathname} className="min-w-0 flex-1 animate-amud-rise-in p-margin-mobile pb-24 md:p-margin-desktop md:pb-margin-desktop">
+            {demo && <DemoBanner />}
             {children}
           </main>
         </div>

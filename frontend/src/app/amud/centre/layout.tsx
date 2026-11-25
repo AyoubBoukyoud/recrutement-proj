@@ -3,10 +3,13 @@
 import { ReactNode } from 'react';
 import { CentreShell } from '@/components/amud/CentreShell';
 import { DemoBanner } from '@/components/amud/DemoBanner';
-import { usePathname } from 'next/navigation';
-import { TimetableScopeProvider, isTimetablePath } from '@/lib/amud/timetable/useTimetable';
+import { TimetableScopeProvider, useTimetableScope } from '@/lib/amud/timetable/useTimetable';
+
+/** Prototype pages keep their warning; API-backed pages do not show it. */
+function PrototypeBanner() {
+  return useTimetableScope().enabled ? null : <DemoBanner />;
+}
 
 export default function CentreLayout({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
-  return <TimetableScopeProvider><CentreShell>{!isTimetablePath(pathname) && <DemoBanner />}{children}</CentreShell></TimetableScopeProvider>;
+  return <TimetableScopeProvider><CentreShell><PrototypeBanner />{children}</CentreShell></TimetableScopeProvider>;
 }

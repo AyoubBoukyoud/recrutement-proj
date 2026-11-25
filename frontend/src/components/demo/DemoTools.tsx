@@ -4,7 +4,8 @@ import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { isTimetablePath } from '@/lib/amud/timetable/paths';
+import { isConnectedPath } from '@/lib/amud/timetable/paths';
+import { useTrainingDemo } from '@/lib/amud/useTrainingDemo';
 import { demoRoleForPath } from '@/lib/demoRoles';
 import { OPEN_DEMO_ROLES } from './DemoRoleButton';
 
@@ -20,7 +21,8 @@ export function DemoTools() {
   const [open, setOpen] = useState(false);
   const close = useCallback(() => setOpen(false), []);
   const allowed = user?.role === 'admin' && !impersonator;
-  const isDemo = !!demoRoleForPath(pathname) && !isTimetablePath(pathname);
+  const trainingDemo = useTrainingDemo();
+  const isDemo = !!demoRoleForPath(pathname) && !isConnectedPath(pathname, trainingDemo);
 
   useEffect(() => {
     const show = () => { if (allowed) setOpen(true); };

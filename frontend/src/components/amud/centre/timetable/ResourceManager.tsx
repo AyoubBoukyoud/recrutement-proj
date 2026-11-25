@@ -4,11 +4,11 @@ import { useState } from 'react';
 import { Button, Modal, SegmentedControl } from '@/components/amud/ui';
 import { useToast } from '@/components/amud/Toast';
 import { apiPut } from '@/lib/api';
-import { RESOURCE_LABELS, timetableError, timetablePath, timetableService, type ResourceKind, type TimetableResource, type TimetableResources } from '@/lib/amud/services/timetableService';
+import { RESOURCE_LABELS, timetableError, timetablePath, type ResourceKind, type TimetableResource, type TimetableResources } from '@/lib/amud/services/timetableService';
 import { useRefreshTimetable, useTimetableScope } from '@/lib/amud/timetable/useTimetable';
 
 export function ResourceManager({ resources, onClose }: { resources: TimetableResources; onClose: () => void }) {
-  const { center, user, token } = useTimetableScope();
+  const { center, user, token, demo, service } = useTimetableScope();
   const refresh = useRefreshTimetable();
   const notify = useToast();
   const [kind, setKind] = useState<ResourceKind>('rooms');
@@ -29,7 +29,7 @@ export function ResourceManager({ resources, onClose }: { resources: TimetableRe
   function reset() { setName(''); setEditing(null); setDeleting(null); setError(''); }
   return <Modal open onClose={() => { if (!busy) onClose(); }} title="Ressources pédagogiques" subtitle={center?.name} widthClassName="max-w-2xl" footer={<Button variant="secondary" disabled={busy} onClick={onClose}>Fermer</Button>}>
     <SegmentedControl label="Type de ressource" value={kind} options={(Object.keys(RESOURCE_LABELS) as ResourceKind[]).map((value) => ({ value, label: RESOURCE_LABELS[value] }))} onChange={(next) => { if (!busy) { setKind(next); reset(); } }} />
-    <form className="mt-4 flex items-end gap-2" onSubmit={(event) => { event.preventDefault(); void run(() => timetableService.saveResource(token!, center!.id, kind, name.trim(), editing?.id), reset); }}>
+    <form className="mt-4 flex items-end gap-2" onSubmit={(event) => { event.preventDefault(); void run(() => service.saveResource(token ?? '', center!.id, kind, name.trim(), editing?.id), reset); }}>
       <label className="flex-1 text-label-md">{editing ? 'Modifier le nom' : 'Ajouter une ressource'}<input required maxLength={150} disabled={busy} value={name} onChange={(event) => setName(event.target.value)} className="mt-1 min-h-[44px] w-full rounded-lg border border-amud-outline-variant bg-amud-surface px-3 outline-none focus:ring-2 focus:ring-amud-primary" /></label>
       <Button type="submit" loading={busy} disabled={!name.trim()}>{editing ? 'Enregistrer' : 'Ajouter'}</Button>
       {editing && <Button variant="ghost" disabled={busy} onClick={reset}>Annuler</Button>}
@@ -40,8 +40,8 @@ export function ResourceManager({ resources, onClose }: { resources: TimetableRe
       </li>)}
       {!resources[kind].length && <li className="p-4 text-body-md text-amud-on-surface-variant">Aucune ressource enregistrée.</li>}
     </ul>
-    {deleting && <div role="alert" className="mt-3 rounded-lg border border-amud-error/30 p-3 text-body-md"><p>Supprimer « {deleting.name} » ? Les ressources utilisées par un cours sont protégées.</p><div className="mt-2 flex gap-2"><Button variant="secondary" disabled={busy} onClick={() => setDeleting(null)}>Annuler</Button><Button variant="danger" loading={busy} onClick={() => void run(() => timetableService.removeResource(token!, center!.id, kind, deleting.id), reset)}>Confirmer</Button></div></div>}
-    {user?.roles?.includes('Administrator') && <details className="mt-5 rounded-lg border border-amud-outline-variant p-3 text-body-md">
+    {deleting && <div role="alert" className="mt-3 rounded-lg border border-amud-error/30 p-3 text-body-md"><p>Supprimer « {deleting.name} » ? Les ressources utilisées par un cours sont protégées.</p><div className="mt-2 flex gap-2"><Button variant="secondary" disabled={busy} onClick={() => setDeleting(null)}>Annuler</Button><Button variant="danger" loading={busy} onClick={() => void run(() => service.removeResource(token ?? '', center!.id, kind, deleting.id), reset)}>Confirmer</Button></div></div>}
+    {!demo && user?.roles?.includes('Administrator') && <details className="mt-5 rounded-lg border border-amud-outline-variant p-3 text-body-md">
       <summary className="cursor-pointer font-semibold">Accès des membres du centre</summary>
       <p className="mt-2 text-amud-on-surface-variant">Saisissez l’identifiant d’un compte existant avec le rôle Training Center.</p>
       <form className="mt-3 flex flex-wrap gap-2" onSubmit={(event) => { event.preventDefault(); void run(() => apiPut(`${timetablePath(center!.id)}/members`, { user_id: Number(memberId), role: memberRole || null }, token), () => setMemberId('')); }}>

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { isCandidatePath } from '@/lib/protectedRoutes';
-import { demoRoleForPath } from '@/lib/demoRoles';
+import { PRESENTATION_COOKIE, presentationSecret, verifyPresentationGrant } from '@/lib/presentationGrant';
+import { UPCOMING_CENTRE_BASE, upcomingCentrePage } from '@/lib/amud/timetable/paths';
 
 /**
  * Duplicate Stitch-template pages, superseded by a functional rewrite. The
@@ -34,7 +35,19 @@ function realDestinationForAmud(pathname: string): string | null {
   if (!SHOW_PROTOTYPES && pathname.startsWith('/amud/admin')) return '/admin';
   if (!SHOW_PROTOTYPES && (pathname.startsWith('/amud/entreprise') || pathname === '/amud/employer')) return '/recruiter';
   if (!SHOW_PROTOTYPES && pathname.startsWith('/amud/commercial')) return '/agent';
+  // Teacher, student and candidate portals only exist as fictional prototypes.
+  if (!SHOW_PROTOTYPES && /^\/amud\/(teacher|student|candidat)(\/|$)/.test(pathname)) return '/';
   return null;
+}
+
+/**
+ * Prototype pages (fictional data) need the build flag or a presentation grant
+ * signed by Laravel for an administrator. A role cookie or a login alone never
+ * unlocks them: cookies like `as_role` are set by the browser and can be forged.
+ */
+async function hasPrototypeAccess(request: NextRequest): Promise<boolean> {
+  if (SHOW_PROTOTYPES) return true;
+  return !!(await verifyPresentationGrant(request.cookies.get(PRESENTATION_COOKIE)?.value, presentationSecret()));
 }
 
 function isRecruiterPath(pathname: string) {
@@ -65,19 +78,20 @@ function privateResponse() {
   return response;
 }
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const role = request.cookies.get('as_role')?.value;
 
-  // Admin presentation uses local fixture portals, keeping the real session.
-  // This exception changes navigation only; Laravel still authorizes every API call.
-  const adminPresentation = role === 'admin' && !!demoRoleForPath(pathname);
+  const prototypeAccess = pathname.startsWith('/amud') ? await hasPrototypeAccess(request) : false;
   const isCentrePortal = pathname === '/amud/centre' || pathname.startsWith('/amud/centre/');
-  const centreAccess = role === 'centre' && isCentrePortal;
-  if (isCentrePortal && !adminPresentation && !centreAccess && !SHOW_PROTOTYPES) {
+  // API-backed centre pages: Laravel authorizes every call, the cookie only routes.
+  const centreAccess = (role === 'centre' || role === 'admin') && isCentrePortal;
+  if (isCentrePortal && !prototypeAccess && !centreAccess) {
     return redirectTo(request, '/auth-phone?intent=training_center');
   }
-  const amudDestination = adminPresentation || centreAccess ? null : realDestinationForAmud(pathname);
+  const upcoming = isCentrePortal && !prototypeAccess ? upcomingCentrePage(pathname) : undefined;
+  if (upcoming) return redirectTo(request, `${UPCOMING_CENTRE_BASE}/${upcoming.slug}`);
+  const amudDestination = prototypeAccess || centreAccess ? null : realDestinationForAmud(pathname);
   if (amudDestination) return redirectTo(request, amudDestination);
 
   if (pathname in LEGACY_REDIRECTS) {

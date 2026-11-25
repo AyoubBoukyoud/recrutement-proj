@@ -15,15 +15,32 @@ class SchedulingService
 
     public const WRITE_ROLES = ['CENTER_OWNER', 'CENTER_ADMIN', 'COORDINATOR'];
 
+    /** Student records hold personal data: hidden from the STUDENT member role. */
+    public const STUDENT_READ_ROLES = ['CENTER_OWNER', 'CENTER_ADMIN', 'COORDINATOR', 'TEACHER', 'ACCOUNTANT'];
+
+    /** Payments and financial reports. */
+    public const FINANCE_ROLES = ['CENTER_OWNER', 'CENTER_ADMIN', 'ACCOUNTANT'];
+
     public function authorize(User $user, RecruitmentCenter $center, bool $write = false): void
+    {
+        $this->authorizeRoles($user, $center, $write ? self::WRITE_ROLES : null, 'Accès au planning non autorisé.');
+    }
+
+    /** Platform administrators pass; centre accounts need a membership whose role is listed (any role when null). */
+    public function authorizeRoles(User $user, RecruitmentCenter $center, ?array $roles, string $message = 'Accès non autorisé pour ce centre.'): void
     {
         abort_unless($center->category === 'training_center', 404);
         if ($user->hasRole('Administrator')) {
             return;
         }
         abort_unless($user->hasRole('Training Center'), 403);
-        $role = DB::table('training_center_members')->where('center_id', $center->id)->where('user_id', $user->id)->value('role');
-        abort_unless($role && (! $write || in_array($role, self::WRITE_ROLES, true)), 403, 'Accès au planning non autorisé.');
+        $role = $this->memberRole($user, $center->id);
+        abort_unless($role && ($roles === null || in_array($role, $roles, true)), 403, $message);
+    }
+
+    public function memberRole(User $user, int $centerId): ?string
+    {
+        return DB::table('training_center_members')->where('center_id', $centerId)->where('user_id', $user->id)->value('role');
     }
 
     /** Lock a persistent parent, even when no sessions exist yet. Every writer

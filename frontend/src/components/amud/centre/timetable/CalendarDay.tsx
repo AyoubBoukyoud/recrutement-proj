@@ -2,7 +2,7 @@
 
 import { memo } from 'react';
 import type { SessionDraft, TimetableResources, TimetableSession } from '@/lib/amud/services/timetableService';
-import { DAY_NAMES, clockTime, minutes, type layoutSessions } from '@/lib/amud/timetable/calendar';
+import { clockTime, minutes, type layoutSessions } from '@/lib/amud/timetable/calendar';
 
 type Range = Pick<SessionDraft, 'date' | 'start_time' | 'end_time'>;
 type Names = { [Key in keyof TimetableResources]: Map<number, string> };
@@ -10,16 +10,16 @@ type Names = { [Key in keyof TimetableResources]: Map<number, string> };
 const COLORS = ['border-l-rose-600 bg-rose-100 text-rose-950 dark:bg-rose-950 dark:text-rose-100', 'border-l-teal-600 bg-teal-100 text-teal-950 dark:bg-teal-950 dark:text-teal-100', 'border-l-amber-600 bg-amber-100 text-amber-950 dark:bg-amber-950 dark:text-amber-100', 'border-l-sky-600 bg-sky-100 text-sky-950 dark:bg-sky-950 dark:text-sky-100', 'border-l-violet-600 bg-violet-100 text-violet-950 dark:bg-violet-950 dark:text-violet-100'];
 
 /** Slot buttons and event blocks do not rerender for a drag-preview update. */
-export const CalendarSlots = memo(function CalendarSlots({ day, dayIndex, slots, start, interval, rowHeight, allowed, busy, onSelect }: {
-  day: string; dayIndex: number; slots: number[]; start: number; interval: number; rowHeight: number; allowed: boolean; busy: boolean; onSelect: (range: Range) => void;
+export const CalendarSlots = memo(function CalendarSlots({ day, dayIndex, dayName, columns, slots, start, interval, rowHeight, allowed, busy, onSelect }: {
+  day: string; dayIndex: number; dayName: string; columns: number; slots: number[]; start: number; interval: number; rowHeight: number; allowed: boolean; busy: boolean; onSelect: (range: Range) => void;
 }) {
   const topOf = (value: number) => (value - start) / interval * rowHeight;
-  return <>{slots.map((time, slotIndex) => <button key={time} type="button" data-slot={slotIndex} data-day-index={dayIndex} aria-label={`${DAY_NAMES[dayIndex]} ${day}, ${clockTime(time)}–${clockTime(Math.min(1439, time + interval))}, ajouter un cours`}
+  return <>{slots.map((time, slotIndex) => <button key={time} type="button" data-slot={slotIndex} data-day-index={dayIndex} aria-label={`${dayName} ${day}, ${clockTime(time)}–${clockTime(Math.min(1439, time + interval))}, ajouter un cours`}
             tabIndex={dayIndex === 0 && slotIndex === 0 ? 0 : -1} disabled={!allowed || busy}
             onClick={(event) => { if (event.detail === 0) onSelect({ date: day, start_time: clockTime(time), end_time: clockTime(Math.min(1439, time + interval)) }); }}
             onKeyDown={(event) => {
               const directions: Record<string, [number, number]> = { ArrowDown: [0, 1], ArrowUp: [0, -1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
-              if (directions[event.key]) { event.preventDefault(); const [dx, dy] = directions[event.key]; event.currentTarget.closest('[data-calendar-grid]')?.querySelector<HTMLButtonElement>(`[data-day-index="${Math.max(0, Math.min(6, dayIndex + dx))}"][data-slot="${Math.max(0, Math.min(slots.length - 1, slotIndex + dy))}"]`)?.focus(); }
+              if (directions[event.key]) { event.preventDefault(); const [dx, dy] = directions[event.key]; event.currentTarget.closest('[data-calendar-grid]')?.querySelector<HTMLButtonElement>(`[data-day-index="${Math.max(0, Math.min(columns - 1, dayIndex + dx))}"][data-slot="${Math.max(0, Math.min(slots.length - 1, slotIndex + dy))}"]`)?.focus(); }
             }}
             className={`absolute left-0 w-full border-t text-left transition-colors hover:bg-amud-primary/10 focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-amud-primary ${time % 60 ? 'border-dashed border-amud-outline-variant/50' : 'border-amud-outline-variant/70'}`} style={{ top: topOf(time), height: rowHeight }} />)}</>;
 });

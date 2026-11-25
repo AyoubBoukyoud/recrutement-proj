@@ -413,6 +413,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (token) {
       void authRepository.logout(token).catch(() => undefined);
     }
+    // A presentation grant never outlives the session that opened it.
+    void import('@/lib/amud/presentationActions').then(({ endPresentation }) => endPresentation()).catch(() => undefined);
 
     setUser(null);
     setToken(null);

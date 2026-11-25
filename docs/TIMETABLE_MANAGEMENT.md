@@ -58,6 +58,19 @@ centre ID never grants access. Other platform roles cannot access timetable data
 
 ## Local sample data
 
+For a browser-only presentation on the deployed website, use **Données test** in
+the top navigation of **Enseignant** or **Centre de formation**. The switch becomes
+**Démo active** and fills an isolated workspace with four centres, teachers,
+students, groups, formations, payments, attendance and current-week timetables.
+Planning and room management use a local demo adapter with course CRUD and
+conflict checks; no sample records are sent to the API. Membership controls are
+hidden in this mode. Turn the switch off to return to the original workspace and
+live timetable API. The switch persists across navigation/reloads, and demo edits
+are retained separately in this browser. As with the original prototype pages,
+the local timetable and the other teaching domains have separate session stores.
+
+The following seeder is an alternative for local backend development only.
+
 To populate the calendar for a local walkthrough, run from `backend`:
 
 ```sh
@@ -189,3 +202,98 @@ Implementation verification on 2026-11-15:
   keyboard slot selection and read-only course details.
 - Screenshots and overflow checks covered desktop and a 390px mobile viewport;
   the calendar scrolls horizontally within its own container.
+
+## Students, groups and monthly payments (2026-11-17)
+
+Outside the browser demo, `/amud/centre/dashboard`, `etudiants`, `groupes`,
+`formations`, `enseignants` and `paiements-etudiants` use the Laravel API, like
+planning and rooms. The other centre modules (attendance, remuneration, tariffs,
+leads, site, site themes, statistics, profile, settings) are not connected yet: see
+"Presentation access" below.
+
+### Data model (`2026_11_17_100000_create_training_students_and_payments_tables.php`)
+
+History is effective-dated and never overwritten, so a report for a past month
+does not change when settings change today.
+
+- A **formation** is a `training_modules` row (`level`). Its fee lives in
+  `training_formation_fees` (`effective_from` = first month, `amount`, null = no fee).
+- `training_groups` gains `module_id` (formation), `teacher_id`, `room_id`
+  (session-form defaults) and `capacity`.
+- `training_students`: identity, contact, level, `status`, `registered_on`, `deactivated_on`.
+- `training_student_periods`: activity periods (`started_on`, `ended_on` = last active day).
+- `training_group_students`: membership periods (`joined_on`, `ended_on` = last day),
+  with `module_id` = the group's formation when the period started.
+- `training_payments`: student, covered month (`period`), amount, date, method,
+  reference; cancellations are soft deletes with `deleted_by`.
+
+Writes go through `App\Services\Training\TrainingHistory` under the centre lock:
+a reassignment closes the old membership the day before `effective_on` and opens a
+new one; a group's new formation splits its current memberships at
+`formation_effective_on`; deactivation closes the activity period and the groups;
+reactivation opens a new period (groups are reassigned explicitly). A period ended
+on the day it started (same-day correction) is removed rather than kept as empty.
+Groups or formations that appear in any history cannot be deleted.
+
+### API (under `/api/timetable/centers/{center}`, same middleware)
+
+| Method and suffix | Behavior | Roles |
+| --- | --- | --- |
+| `GET /students` | List with `group_ids` (today), `memberships`, `periods` | Owner, admin, coordinator, teacher, accountant |
+| `POST /students` | Register; optional `group_ids` start on `registered_on` | Owner, admin, coordinator |
+| `PUT /students/{id}` | Edit; `status` with optional `status_effective_on` (≤ today) | Owner, admin, coordinator |
+| `DELETE /students/{id}` | Only without payment history | Owner, admin, coordinator |
+| `PUT /students/{id}/groups` | Current groups from optional `effective_on` (≤ today) | Owner, admin, coordinator |
+| `PUT /resources/modules/{id}` | `monthly_fee` with optional `fee_effective_from` (default: this month) | Owner, admin, coordinator |
+| `PUT /resources/groups/{id}` | `module_id` with optional `formation_effective_on` (default: today) | Owner, admin, coordinator |
+| `GET /payments?month=` · `POST /payments` · `DELETE /payments/{id}` | Record or cancel payments | Owner, admin, accountant |
+| `GET /reports/monthly?month=&group_id=&module_id=` | Per-student billing for the month, plus totals | Owner, admin, accountant |
+
+Formations in `GET /resources` keep `monthly_fee` (fee in force this month) and add
+`fee_effective_from` and `fees` (history). Omitting the new date fields keeps the
+previous behaviour (change from today / this month).
+
+### Report rules
+
+A student appears in a month when an activity period overlaps it, or when they paid
+for it. Groups and formations come from the membership periods overlapping the
+month; the fee is the one in force for that month.
+
+- One formation: expected = its fee (`no_fee` if none is defined). A student who
+  joins, leaves or changes status during the month is flagged `partial_month` and
+  still shown the full fee (existing rule, pending client confirmation).
+- Several formations in the month: `status = needs_rule`, `billing_issue` is
+  `formation_change` (sequential) or `multiple_formations` (concurrent), and
+  `expected`/`balance` are null. No amount is invented; recorded payments still count.
+- `student_status` is the student's current status (display only).
+
+No seeds or sample financial data exist.
+
+## Presentation access (prototype pages)
+
+Pages still built on fictional browser data (`/amud/teacher/*`, `/amud/student/*`,
+`/amud/candidat/*`, the nine unfinished centre modules, `/amud/admin`, etc.) are
+served only to a browser holding a presentation grant, or when the build sets
+`NEXT_PUBLIC_ENABLE_PROTOTYPES=1`. The check runs in `src/proxy.ts`, server-side:
+
+1. An administrator opens **Changer de rôle**. `POST /api/presentation-access`
+   (Administrator only, logged in `admin_activity_logs`) returns an HMAC-signed grant
+   (`PRESENTATION_ACCESS_TTL_MINUTES`, default 240).
+2. `POST /presentation-access` (Next route handler, same origin) verifies it and
+   stores it as an HttpOnly cookie. The proxy verifies the signature and expiry on
+   every prototype request; role cookies or a login alone never unlock prototypes.
+3. **Retour admin** and sign-out revoke it (`DELETE /presentation-access`).
+
+Without a grant, centre accounts are redirected from unfinished modules to
+`/amud/centre/a-venir/{module}` ("Bientôt disponible"), the "Données test" switch is
+hidden, and a local demo flag is ignored. `PRESENTATION_ACCESS_SECRET` (≥ 32 chars)
+must be identical in the backend and the Next.js server environment; when it is
+missing, no grant can be issued and every prototype stays closed.
+
+## Verification (2026-11-17)
+
+- Laravel: 408 tests, 2,330 assertions (includes `TrainingHistoryTest`,
+  `TrainingStudentsTest`, `TrainingFinanceTest`, `PresentationAccessTest`).
+- Frontend: TypeScript, ESLint (0 errors), production build, `verify-demo-roles.cjs`
+  (signed/forged/expired grants, placeholders, live pages) and
+  `verify-timetable-calendar.cjs`.

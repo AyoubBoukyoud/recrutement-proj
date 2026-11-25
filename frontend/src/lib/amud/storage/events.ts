@@ -25,7 +25,7 @@ export function subscribeAmudChange(key: string, cb: () => void): () => void {
     if (!detail || detail.key === key) cb();
   };
   const handleStorage = (e: StorageEvent) => {
-    if (e.key === key) cb();
+    if (e.key === key || e.key === `amud_training_demo:${key}` || e.key === 'amud_training_demo_enabled' || e.key === null) cb();
   };
 
   window.addEventListener(EVENT_NAME, handleCustom);

@@ -5,43 +5,48 @@ import { usePathname } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/context/AuthContext';
 import { timetableService, type TimetableSession } from '@/lib/amud/services/timetableService';
+import { useTrainingDemo } from '../useTrainingDemo';
+import { demoTimetableService } from './demoService';
 import { academicToday, addDays, mondayOf } from './calendar';
 
-import { isTimetablePath } from './paths';
-export { isTimetablePath } from './paths';
+import { isConnectedPath } from './paths';
+export { isConnectedPath, isTimetablePath } from './paths';
 
 function useScope() {
   const { token, user } = useAuth();
   const pathname = usePathname();
-  const enabled = isTimetablePath(pathname);
+  const demo = useTrainingDemo();
+  const enabled = isConnectedPath(pathname, demo);
+  const service = demo ? demoTimetableService : timetableService;
+  const scopeId = `${user?.id ?? 'anonymous'}:${demo ? 'demo' : 'live'}`;
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const centersQuery = useQuery({
-    queryKey: ['timetable', user?.id, 'centers'],
-    queryFn: () => timetableService.centers(token!),
-    enabled: !!token && enabled,
+    queryKey: ['timetable', scopeId, 'centers'],
+    queryFn: () => service.centers(token ?? ''),
+    enabled: (!!token || demo) && enabled,
     staleTime: 30_000,
     retry: false,
   });
   const client = useQueryClient();
   useEffect(() => {
     let stored: number | null = null;
-    try { stored = Number(localStorage.getItem(`amud_timetable_center_${user?.id}`)) || null; } catch { /* Storage is optional. */ }
+    try { stored = Number(localStorage.getItem(`amud_timetable_center_${scopeId}`)) || null; } catch { /* Storage is optional. */ }
     setSelectedId(stored);
     // Returning users: load the remembered centre's resources and current week
     // alongside the centre list instead of after it (same keys as the hooks below).
-    if (!stored || !token || !enabled || user?.id === undefined) return;
+    if (!stored || (!token && !demo) || !enabled || user?.id === undefined) return;
     const week = mondayOf(academicToday());
     const to = addDays(week, 6);
-    void client.prefetchQuery({ queryKey: ['timetable', user.id, stored, 'resources'], queryFn: () => timetableService.resources(token, stored), staleTime: 30_000, retry: false });
-    void client.prefetchQuery({ queryKey: ['timetable', user.id, stored, 'sessions', week, to], queryFn: () => timetableService.sessions(token, stored, week, to), staleTime: 10_000, retry: false });
-  }, [user?.id, token, enabled, client]);
+    void client.prefetchQuery({ queryKey: ['timetable', scopeId, stored, 'resources'], queryFn: () => service.resources(token ?? '', stored), staleTime: 30_000, retry: false });
+    void client.prefetchQuery({ queryKey: ['timetable', scopeId, stored, 'sessions', week, to], queryFn: () => service.sessions(token ?? '', stored, week, to), staleTime: 10_000, retry: false });
+  }, [scopeId, user?.id, token, demo, enabled, client, service]);
   const centers = centersQuery.data?.centers ?? [];
   const center = centers.find((item) => item.id === selectedId) ?? centers[0];
   function selectCenter(id: number) {
     setSelectedId(id);
-    try { localStorage.setItem(`amud_timetable_center_${user?.id}`, String(id)); } catch { /* Storage is optional. */ }
+    try { localStorage.setItem(`amud_timetable_center_${scopeId}`, String(id)); } catch { /* Storage is optional. */ }
   }
-  return { token, user, enabled, centersQuery, centers, center, selectCenter };
+  return { token, user, enabled, demo, service, scopeId, centersQuery, centers, center, selectCenter };
 }
 const ScopeContext = createContext<ReturnType<typeof useScope> | null>(null);
 export function TimetableScopeProvider({ children }: { children: ReactNode }) {
@@ -54,18 +59,18 @@ export function useTimetableScope() {
   return value;
 }
 export function useTimetableResources() {
-  const { user, token, center } = useTimetableScope();
-  return useQuery({ queryKey: ['timetable', user?.id, center?.id, 'resources'], queryFn: () => timetableService.resources(token!, center!.id), enabled: !!token && !!center, staleTime: 30_000, refetchInterval: 30_000, retry: false });
+  const { scopeId, token, center, demo, service } = useTimetableScope();
+  return useQuery({ queryKey: ['timetable', scopeId, center?.id, 'resources'], queryFn: () => service.resources(token ?? '', center!.id), enabled: (!!token || demo) && !!center, staleTime: 30_000, refetchInterval: 30_000, retry: false });
 }
-export function useTimetableSessions(from: string, to: string) {
-  const { user, token, center } = useTimetableScope();
-  return useQuery({ queryKey: ['timetable', user?.id, center?.id, 'sessions', from, to], queryFn: () => timetableService.sessions(token!, center!.id, from, to), enabled: !!token && !!center, staleTime: 10_000, refetchInterval: 30_000, retry: false });
+export function useTimetableSessions(from: string, to: string, active = true) {
+  const { scopeId, token, center, demo, service } = useTimetableScope();
+  return useQuery({ queryKey: ['timetable', scopeId, center?.id, 'sessions', from, to], queryFn: () => service.sessions(token ?? '', center!.id, from, to), enabled: active && (!!token || demo) && !!center, staleTime: 10_000, refetchInterval: 30_000, retry: false });
 }
 export function useRefreshTimetable() {
   const client = useQueryClient();
-  const { user, center } = useTimetableScope();
+  const { scopeId, center } = useTimetableScope();
   return (session?: TimetableSession, removedId?: number) => {
-    const prefix = ['timetable', user?.id, center?.id];
+    const prefix = ['timetable', scopeId, center?.id];
     for (const [key, data] of client.getQueriesData<{ sessions: TimetableSession[] }>({ queryKey: [...prefix, 'sessions'] })) {
       if (!data) continue;
       const from = key[4] as string;

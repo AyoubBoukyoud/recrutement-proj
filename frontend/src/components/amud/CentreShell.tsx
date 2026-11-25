@@ -6,11 +6,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import { type ReactNode, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { NavItem, isNavActive, useDropdown } from '@/components/amud/ui';
+import { TrainingDemoToggle } from './TrainingDemoToggle';
+import { DemoBanner } from './DemoBanner';
 import { HeaderPreferences } from '@/components/shared/HeaderPreferences';
 import { ToastProvider } from '@/components/amud/Toast';
 import { RoleBottomNav } from '@/components/amud/RoleBottomNav';
 import { useAuth } from '@/context/AuthContext';
-import { isTimetablePath } from '@/lib/amud/timetable/paths';
+import { isConnectedPath, UPCOMING_CENTRE_BASE, upcomingCentrePage } from '@/lib/amud/timetable/paths';
+import { usePresentationAccess } from '@/lib/amud/useTrainingDemo';
 import { useTimetableScope } from '@/lib/amud/timetable/useTimetable';
 
 type CentreNavItem = {
@@ -33,12 +36,12 @@ type CentreNavItem = {
 const NAV: CentreNavItem[] = [
   { href: '/amud/centre/dashboard', icon: 'dashboard', label: 'Tableau de bord', group: '', inBottomNav: true, bottomLabel: 'Accueil' },
   { href: '/amud/centre/etudiants', icon: 'group', label: 'Étudiants', group: 'Pédagogie', inBottomNav: true },
-  { href: '/amud/centre/salles', icon: 'meeting_room', label: 'Salles', group: 'Pédagogie' },
-  { href: '/amud/centre/planning', icon: 'calendar_month', label: 'Planning', group: 'Pédagogie', inBottomNav: true },
-  { href: '/amud/centre/paiements-etudiants', icon: 'payments', label: 'Paiements étudiants', group: 'Finances', inBottomNav: true, bottomLabel: 'Paiements' },
+  { href: '/amud/centre/groupes', icon: 'diversity_3', label: 'Groupes', group: 'Pédagogie' },
   { href: '/amud/centre/formations', icon: 'menu_book', label: 'Formations', group: 'Pédagogie' },
   { href: '/amud/centre/enseignants', icon: 'cast_for_education', label: 'Enseignants', group: 'Pédagogie' },
-  { href: '/amud/centre/groupes', icon: 'diversity_3', label: 'Groupes', group: 'Pédagogie' },
+  { href: '/amud/centre/planning', icon: 'calendar_month', label: 'Planning', group: 'Pédagogie', inBottomNav: true },
+  { href: '/amud/centre/salles', icon: 'meeting_room', label: 'Salles', group: 'Pédagogie' },
+  { href: '/amud/centre/paiements-etudiants', icon: 'payments', label: 'Paiements étudiants', group: 'Finances', inBottomNav: true, bottomLabel: 'Paiements' },
   { href: '/amud/centre/presences', icon: 'fact_check', label: 'Présences', group: 'Pédagogie' },
   { href: '/amud/centre/remuneration', icon: 'account_balance_wallet', label: 'Rémunération', group: 'Finances' },
   { href: '/amud/centre/tarifs', icon: 'sell', label: 'Tarifs', group: 'Finances' },
@@ -49,10 +52,16 @@ const NAV: CentreNavItem[] = [
   { href: '/amud/centre/parametres', icon: 'settings', label: 'Paramètres', group: 'Centre' },
 ];
 
-const GROUP_LABELS = ['Pédagogie', 'Finances', 'Développement', 'Centre'];
-const SIDEBAR_GROUPS = [{ label: '', items: NAV.filter((i) => i.group === '') }].concat(
-  GROUP_LABELS.map((label) => ({ label, items: NAV.filter((i) => i.group === label) })),
-);
+const PREVIEW_GROUP = 'Aperçus · données fictives';
+const UPCOMING_GROUP = 'Bientôt disponible';
+const GROUP_LABELS = ['Pédagogie', 'Finances', 'Développement', 'Centre', PREVIEW_GROUP, UPCOMING_GROUP];
+
+/** Outside the browser demo, pages not yet backed by the API are grouped apart so they are not mistaken for live data. */
+function sidebarGroups(items: CentreNavItem[]) {
+  return [{ label: '', items: items.filter((i) => i.group === '') }].concat(
+    GROUP_LABELS.map((label) => ({ label, items: items.filter((i) => i.group === label) })),
+  ).filter((group) => group.items.length);
+}
 
 const CentrePrototypeShell = dynamic(() => import('./CentrePrototypeShell').then((module) => module.CentrePrototypeShell));
 
@@ -81,7 +90,15 @@ export function CentreShellFrame({ children, centerName, search, notifications, 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  const navItems = timetable.enabled ? NAV.map((item) => ({ ...item, prefetch: isTimetablePath(item.href) ? undefined : false })) : NAV;
+  const presentation = usePresentationAccess();
+  // Without a presentation grant, unfinished modules open their "Bientôt disponible" page (the server enforces the same).
+  const nav = timetable.demo ? NAV : NAV.map((item) => {
+    if (isConnectedPath(item.href, false)) return item;
+    if (presentation) return { ...item, group: PREVIEW_GROUP };
+    const upcoming = upcomingCentrePage(item.href);
+    return { ...item, group: UPCOMING_GROUP, href: upcoming ? `${UPCOMING_CENTRE_BASE}/${upcoming.slug}` : item.href };
+  });
+  const navItems = timetable.enabled ? nav.map((item) => ({ ...item, prefetch: isConnectedPath(item.href, timetable.demo) ? undefined : false })) : nav;
   const hiddenWhenCollapsed = collapsed ? 'md:hidden md:group-hover:block' : '';
 
   return (
@@ -102,7 +119,7 @@ export function CentreShellFrame({ children, centerName, search, notifications, 
 
           <nav className="flex-1 overflow-y-auto px-sm py-md" aria-label="Navigation de l’espace Centre">
             <div className="flex flex-col gap-md">
-              {SIDEBAR_GROUPS.map((group) => (
+              {sidebarGroups(nav).map((group) => (
                 <div key={group.label || 'root'}>
                   {group.label ? (
                     <div className={`px-4 pb-1 text-label-sm font-semibold uppercase tracking-wider text-amud-outline ${hiddenWhenCollapsed}`}>{group.label}</div>
@@ -112,7 +129,7 @@ export function CentreShellFrame({ children, centerName, search, notifications, 
                       <NavItem
                         key={item.href}
                         href={item.href}
-                        prefetch={timetable.enabled && !isTimetablePath(item.href) ? false : undefined}
+                        prefetch={timetable.enabled && !isConnectedPath(item.href, timetable.demo) ? false : undefined}
                         icon={item.icon}
                         label={item.label}
                         active={isNavActive(pathname, item.href, item.href === '/amud/centre/dashboard')}
@@ -151,6 +168,7 @@ export function CentreShellFrame({ children, centerName, search, notifications, 
             </div>
             {search}
             <div className="ml-auto flex items-center gap-sm">
+              <TrainingDemoToggle />
               <HeaderPreferences />
               {notifications}
               <div ref={profileMenu.ref} className="relative">
@@ -161,7 +179,7 @@ export function CentreShellFrame({ children, centerName, search, notifications, 
                   <div className="absolute right-0 top-full z-40 mt-2 w-72 overflow-hidden rounded-lg border border-amud-outline-variant bg-amud-surface shadow-xl animate-amud-fade-in">
                     <div className="border-b border-amud-outline-variant bg-amud-surface-container-low px-md py-sm">
                       <div className="text-label-md font-semibold text-amud-on-surface">{displayedCenterName}</div>
-                      <div className="text-label-sm text-amud-on-surface-variant">{timetable.enabled ? "Planning connecté · accès vérifié par le serveur" : "Simulation — aucune vraie authentification"}</div>
+                      <div className="text-label-sm text-amud-on-surface-variant">{timetable.demo ? 'Démonstration · données fictives' : timetable.enabled ? "Planning connecté · accès vérifié par le serveur" : "Simulation — aucune vraie authentification"}</div>
                     </div>
                     {profileControls}
                     <div className="flex flex-col border-t border-amud-outline-variant py-1">
@@ -184,6 +202,7 @@ export function CentreShellFrame({ children, centerName, search, notifications, 
             </div>
           </header>
           <main key={pathname} className="min-w-0 flex-1 animate-amud-rise-in p-margin-mobile pb-24 md:p-margin-desktop md:pb-margin-desktop">
+            {timetable.enabled && timetable.demo && <DemoBanner />}
             {children}
           </main>
         </div>

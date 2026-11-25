@@ -3,21 +3,24 @@
 import { memo, useMemo, useRef, useState, type PointerEvent } from 'react';
 import type { SessionDraft, TimetableResources, TimetableSession } from '@/lib/amud/services/timetableService';
 import { CalendarSlots, CalendarSessions } from './CalendarDay';
-import { DAY_NAMES, addDays, clockTime, formatDate, layoutSessions, minutes } from '@/lib/amud/timetable/calendar';
+import { DAY_NAMES, clockTime, formatDate, layoutSessions, minutes } from '@/lib/amud/timetable/calendar';
+
+/** Monday-based weekday index of a date-only ISO string. */
+const weekdayOf = (iso: string) => (new Date(`${iso}T12:00:00Z`).getUTCDay() + 6) % 7;
 
 type Range = Pick<SessionDraft, 'date' | 'start_time' | 'end_time'>;
 type Gesture = { mode: 'select' | 'move' | 'resize'; date: string; anchor: number; start: number; end: number; session?: TimetableSession; offset: number; pointerId: number; originX: number; originY: number; moved: boolean };
 
 
-export const WeeklyCalendar = memo(function WeeklyCalendar({ week, sessions, resources, interval, colorBy, allowed, busy, today, onSelect, onOpen, onChange }: {
-  week: string; sessions: TimetableSession[]; resources: TimetableResources; interval: 30 | 60; colorBy: 'module' | 'group'; allowed: boolean; busy: boolean; today: string;
+export const WeeklyCalendar = memo(function WeeklyCalendar({ days, sessions, resources, interval, colorBy, allowed, busy, today, onSelect, onOpen, onChange }: {
+  /** One column per date: seven for the week view, one for the day view. */
+  days: string[]; sessions: TimetableSession[]; resources: TimetableResources; interval: 30 | 60; colorBy: 'module' | 'group'; allowed: boolean; busy: boolean; today: string;
   onSelect: (range: Range) => void; onOpen: (session: TimetableSession) => void; onChange: (session: TimetableSession, range: Range) => void;
 }) {
   const grid = useRef<HTMLDivElement>(null);
   const gesture = useRef<Gesture | null>(null);
   const [preview, setPreview] = useState<Gesture | null>(null);
   const [announcement, setAnnouncement] = useState('');
-  const days = useMemo(() => Array.from({ length: 7 }, (_, index) => addDays(week, index)), [week]);
   // The view expands to include every existing session, including early/late courses.
   const start = Math.min(8 * 60, ...sessions.map((session) => Math.floor(minutes(session.start_time) / 60) * 60));
   const end = Math.max(22 * 60, ...sessions.map((session) => Math.ceil(minutes(session.end_time) / 60) * 60));
@@ -89,12 +92,12 @@ export const WeeklyCalendar = memo(function WeeklyCalendar({ week, sessions, res
 
   return <div className="max-h-[72vh] overflow-auto rounded-xl border border-amud-outline-variant bg-amud-surface" aria-busy={busy}>
     <p className="sr-only" aria-live="polite">{announcement}</p>
-    <div className="min-w-[1050px]">
-      <div className="sticky top-0 z-20 grid border-b border-amud-outline-variant bg-amud-surface shadow-sm" style={{ gridTemplateColumns: '64px repeat(7, minmax(0, 1fr))' }}>
+    <div className={days.length > 1 ? 'min-w-[1050px]' : ''}>
+      <div className="sticky top-0 z-20 grid border-b border-amud-outline-variant bg-amud-surface shadow-sm" style={{ gridTemplateColumns: `64px repeat(${days.length}, minmax(0, 1fr))` }}>
         <div className="p-2 text-[10px] text-amud-on-surface-variant">Heure<br />Casablanca</div>
-        {days.map((day, index) => <div key={day} className={`border-l border-amud-outline-variant px-2 py-3 text-center ${day === today ? 'bg-amud-primary/10 text-amud-primary' : ''}`}><p className="text-label-md font-semibold">{DAY_NAMES[index]}</p><p className="text-label-sm text-amud-on-surface-variant">{formatDate(day)}</p></div>)}
+        {days.map((day) => <div key={day} className={`border-l border-amud-outline-variant px-2 py-3 text-center ${day === today ? 'bg-amud-primary/10 text-amud-primary' : ''}`}><p className="text-label-md font-semibold">{DAY_NAMES[weekdayOf(day)]}</p><p className="text-label-sm text-amud-on-surface-variant">{formatDate(day)}</p></div>)}
       </div>
-      <div ref={grid} data-calendar-grid className="grid select-none" role="group" aria-label="Emploi du temps hebdomadaire" style={{ gridTemplateColumns: '64px repeat(7, minmax(0, 1fr))' }}
+      <div ref={grid} data-calendar-grid className="grid select-none" role="group" aria-label={days.length > 1 ? 'Emploi du temps hebdomadaire' : 'Emploi du temps du jour'} style={{ gridTemplateColumns: `64px repeat(${days.length}, minmax(0, 1fr))` }}
         onPointerDown={begin} onPointerMove={move} onPointerUp={finish} onPointerCancel={cancel} onLostPointerCapture={cancel}
         onKeyDown={(event) => { if (event.key === 'Escape') cancel(); }}
         onFocusCapture={(event) => {
@@ -107,7 +110,7 @@ export const WeeklyCalendar = memo(function WeeklyCalendar({ week, sessions, res
 
         <div className="relative bg-amud-surface-container-low" style={{ height }} aria-hidden="true">{slots.map((time) => <div key={time} className="absolute right-2 text-label-sm text-amud-on-surface-variant" style={{ top: topOf(time) + 3 }}>{clockTime(time)}</div>)}</div>
         {days.map((day, dayIndex) => <div key={day} data-calendar-day={day} className={`relative border-l border-amud-outline-variant ${day === today ? 'bg-amud-primary/[0.025]' : ''}`} style={{ height, touchAction: 'pan-y' }}>
-          <CalendarSlots day={day} dayIndex={dayIndex} slots={slots} start={start} interval={interval} rowHeight={rowHeight} allowed={allowed} busy={busy} onSelect={onSelect} />
+          <CalendarSlots day={day} dayIndex={dayIndex} dayName={DAY_NAMES[weekdayOf(day)]} columns={days.length} slots={slots} start={start} interval={interval} rowHeight={rowHeight} allowed={allowed} busy={busy} onSelect={onSelect} />
           <CalendarSessions entries={byDay.get(day)!} names={names} start={start} interval={interval} rowHeight={rowHeight} colorBy={colorBy} allowed={allowed} busy={busy} onOpen={onOpen} />
           {preview && preview.date === day && <div className="pointer-events-none absolute inset-x-1 z-30 rounded-md border-2 border-amud-primary bg-amud-primary/20 px-2 py-1 text-[11px] font-semibold text-amud-primary" style={{ backgroundColor: 'color-mix(in srgb, var(--amud-primary) 20%, transparent)', top: topOf(preview.start), height: Math.max(22, (preview.end - preview.start) / interval * rowHeight) }}>{clockTime(preview.start)}–{clockTime(preview.end)}</div>}
         </div>)}

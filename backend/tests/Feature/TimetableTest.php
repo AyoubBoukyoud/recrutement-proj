@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\RecruitmentCenter;
+use App\Models\TrainingSession;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -75,7 +76,9 @@ class TimetableTest extends TestCase
         $second = $this->postJson($this->base.'/sessions', [...$this->draft, 'start_time' => '12:00', 'end_time' => '13:00', 'request_key' => (string) Str::uuid()])->assertCreated()->json();
         $this->putJson($this->base.'/sessions/'.$second['id'], [...$this->draft, 'version' => 1])->assertUnprocessable();
         $this->postJson($this->base.'/availability', [...$this->draft, 'exclude_id' => $session['id']])->assertOk()->assertJsonPath('available', true);
-        $this->assertDatabaseHas('training_sessions', ['id' => $second['id'], 'start_time' => '12:00:00', 'version' => 1]);
+        $this->assertDatabaseHas('training_sessions', ['id' => $second['id'], 'version' => 1]);
+        // SQLite retains HH:MM; MySQL TIME returns HH:MM:SS. Both must remain at noon.
+        $this->assertSame('12:00', substr(TrainingSession::findOrFail($second['id'])->start_time, 0, 5));
     }
 
     public function test_stale_updates_and_deletes_cannot_overwrite_a_colleague(): void

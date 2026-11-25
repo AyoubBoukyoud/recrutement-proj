@@ -1,9 +1,24 @@
 import { apiDelete, apiGet, apiPost, apiPut, ApiError } from '@/lib/api';
 
-export type TimetableCenter = { id: number; name: string; can_manage: boolean };
+export type TimetableCenter = {
+  id: number; name: string; can_manage: boolean;
+  /** Present on the live API; the browser demo adapter omits them. */
+  role?: string | null; can_view_students?: boolean; can_manage_finance?: boolean;
+};
 export type TimetableResource = { id: number; name: string };
+export type FeeRow = { effective_from: string; amount: number | null };
+/** A formation (stored as a timetable module): `monthly_fee` is the fee in force this month, `fees` its dated history. */
+export type FormationResource = TimetableResource & { level?: string | null; monthly_fee?: number | null; fee_effective_from?: string | null; fees?: FeeRow[] };
+/** A student group; teacher/room are defaults used to pre-fill the session form. */
+export type GroupResource = TimetableResource & { module_id?: number | null; teacher_id?: number | null; room_id?: number | null; capacity?: number | null; student_count?: number };
 export type ResourceKind = 'teachers' | 'modules' | 'groups' | 'rooms';
-export type TimetableResources = Record<ResourceKind, TimetableResource[]>;
+export type TimetableResources = { teachers: TimetableResource[]; modules: FormationResource[]; groups: GroupResource[]; rooms: TimetableResource[] };
+export type ResourceDetails = Partial<Pick<FormationResource, 'level' | 'monthly_fee'> & Pick<GroupResource, 'module_id' | 'teacher_id' | 'room_id' | 'capacity'>> & {
+  /** First month (YYYY-MM) a new fee applies to; earlier months keep theirs. */
+  fee_effective_from?: string;
+  /** Date from which a group's new formation applies to its current members. */
+  formation_effective_on?: string;
+};
 export type SessionDraft = {
   teacher_id: number;
   module_id: number;
@@ -19,7 +34,7 @@ export type Availability = {
   conflicts: { type: string; session_id: number; message: string }[];
   alternatives: Pick<SessionDraft, 'date' | 'start_time' | 'end_time'>[];
 };
-export const RESOURCE_LABELS: Record<ResourceKind, string> = { teachers: 'Professeurs', modules: 'Modules', groups: 'Groupes', rooms: 'Salles' };
+export const RESOURCE_LABELS: Record<ResourceKind, string> = { teachers: 'Professeurs', modules: 'Formations', groups: 'Groupes', rooms: 'Salles' };
 export const timetablePath = (centerId: number) => `/timetable/centers/${centerId}`;
 
 export const timetableService = {
@@ -31,9 +46,9 @@ export const timetableService = {
     ? apiPut<TimetableSession>(`${timetablePath(centerId)}/sessions/${session.id}`, { ...draft, version: session.version }, token)
     : apiPost<TimetableSession>(`${timetablePath(centerId)}/sessions`, { ...draft, request_key: requestKey }, token),
   remove: (token: string, centerId: number, session: TimetableSession) => apiDelete<void>(`${timetablePath(centerId)}/sessions/${session.id}`, token, { version: session.version }),
-  saveResource: (token: string, centerId: number, kind: ResourceKind, name: string, id?: number) => id
-    ? apiPut<TimetableResource>(`${timetablePath(centerId)}/resources/${kind}/${id}`, { name }, token)
-    : apiPost<TimetableResource>(`${timetablePath(centerId)}/resources/${kind}`, { name }, token),
+  saveResource: (token: string, centerId: number, kind: ResourceKind, name: string, id?: number, details: ResourceDetails = {}) => id
+    ? apiPut<TimetableResource>(`${timetablePath(centerId)}/resources/${kind}/${id}`, { ...details, name }, token)
+    : apiPost<TimetableResource>(`${timetablePath(centerId)}/resources/${kind}`, { ...details, name }, token),
   removeResource: (token: string, centerId: number, kind: ResourceKind, id: number) => apiDelete<void>(`${timetablePath(centerId)}/resources/${kind}/${id}`, token),
 };
 

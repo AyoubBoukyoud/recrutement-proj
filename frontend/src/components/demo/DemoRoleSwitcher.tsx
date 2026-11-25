@@ -6,12 +6,16 @@ import { createPortal } from 'react-dom';
 import { Modal } from '@/components/amud/ui';
 import { DEMO_ROLES, demoRoleForPath, type DemoRole } from '@/lib/demoRoles';
 import { preparePresentation, selectPresentationCandidate } from '@/lib/amud/preparePresentation';
+import { endPresentation, startPresentation } from '@/lib/amud/presentationActions';
+import { hasPresentationAccess } from '@/lib/amud/presentationAccess';
+import { useAuth } from '@/context/AuthContext';
 
 export default function DemoRoleSwitcher({ open, onOpen, onClose }: {
   open: boolean; onOpen: () => void; onClose: () => void;
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { token } = useAuth();
   const active = demoRoleForPath(pathname);
   const [error, setError] = useState('');
   const [target, setTarget] = useState('');
@@ -21,25 +25,38 @@ export default function DemoRoleSwitcher({ open, onOpen, onClose }: {
     if (!open) return;
     try {
       preparePresentation();
-      // Warm dashboard bundles while the presenter chooses a role.
-      for (const role of DEMO_ROLES) router.prefetch(role.path);
+      // Warm dashboard bundles only once the server will serve them: a prefetch
+      // made before the grant would cache the proxy's redirect.
+      if (hasPresentationAccess()) for (const role of DEMO_ROLES) router.prefetch(role.path);
       router.prefetch('/admin');
     } catch {
       setError('Le stockage du navigateur est indisponible. Autorisez-le pour préparer les données de démonstration.');
     }
   }, [open, router]);
 
-  function select(role: DemoRole) {
+  async function select(role: DemoRole) {
     if (active?.id === role.id) { onClose(); return; }
     try {
       setError('');
       preparePresentation();
       if (role.id === 'candidate') selectPresentationCandidate();
-      setTarget(role.label);
-      startTransition(() => router.push(role.path));
     } catch {
       setError('Impossible de préparer la démonstration. Vérifiez que le stockage du navigateur est autorisé.');
+      return;
     }
+    setTarget(role.label);
+    if (hasPresentationAccess()) { startTransition(() => router.push(role.path)); return; }
+    try {
+      // The server only serves prototype pages to a browser holding a signed grant.
+      if (!token) throw new Error('Session administrateur requise.');
+      await startPresentation(token);
+    } catch (failure) {
+      setTarget('');
+      setError(failure instanceof Error && failure.message ? `Présentation non autorisée : ${failure.message}` : 'Présentation non autorisée.');
+      return;
+    }
+    // Full navigation: the client router may hold redirects cached before the grant existed.
+    window.location.assign(role.path);
   }
 
   return createPortal(
@@ -50,7 +67,7 @@ export default function DemoRoleSwitcher({ open, onOpen, onClose }: {
             <span className="material-symbols-outlined text-amud-primary" aria-hidden="true">swap_horiz</span>
             <span><span className="block text-[10px] font-bold uppercase tracking-wider text-amud-primary">Démo · données fictives</span><span className="block text-sm font-semibold">{active.label} <span aria-hidden="true">⌄</span></span></span>
           </button>
-          <button type="button" onClick={() => router.push('/admin')} title="Quitter la présentation et revenir à l’administration" className="min-h-11 rounded-xl border border-amud-outline-variant px-3 text-xs font-semibold hover:bg-amud-surface-container-low">Retour admin</button>
+          <button type="button" onClick={() => { void endPresentation().then(() => window.location.assign('/admin')); }} title="Quitter la présentation et revenir à l’administration" className="min-h-11 rounded-xl border border-amud-outline-variant px-3 text-xs font-semibold hover:bg-amud-surface-container-low">Retour admin</button>
         </div>
       )}
       <Modal open={open} onClose={onClose} title="Changer de rôle" subtitle="Présentation commerciale" widthClassName="max-w-2xl">
@@ -60,7 +77,7 @@ export default function DemoRoleSwitcher({ open, onOpen, onClose }: {
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2" aria-busy={pending}>
           {DEMO_ROLES.map((role) => (
-            <button key={role.id} type="button" disabled={pending} onClick={() => select(role)} aria-current={active?.id === role.id ? 'true' : undefined}
+            <button key={role.id} type="button" disabled={pending} onClick={() => void select(role)} aria-current={active?.id === role.id ? 'true' : undefined}
               className={`flex min-h-24 items-start gap-3 rounded-xl border p-4 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amud-primary disabled:opacity-60 ${active?.id === role.id ? 'border-amud-primary bg-amud-primary/5' : 'border-amud-outline-variant bg-amud-surface hover:border-amud-primary hover:bg-amud-primary/5'}`}>
               <span className="material-symbols-outlined flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amud-primary/10 text-amud-primary" aria-hidden="true">{role.icon}</span>
               <span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-amud-on-surface">{role.label}</span><span className="mt-1 block text-xs leading-relaxed text-amud-on-surface-variant">{role.description}</span></span>
