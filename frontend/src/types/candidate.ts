@@ -12,9 +12,27 @@ export type CandidateLanguage = {
   /** What the last assessment predicted — kept even when it did not win. */
   ai_cefr: CefrLevel | null
   ai_assessed_at: string | null
-  source: 'self_declared' | 'certified' | 'ai_assessed' | string
+  source: 'self_declared' | 'certified' | 'ai_assessed' | 'amud_tested' | string
   /** The declaration and the assessment are two CEFR bands or more apart. */
   level_discrepancy: boolean
+  /** Level validated by an administrator after the full AMUD exam. */
+  tested_cefr?: CefrLevel | null
+  tested_at?: string | null
+  /** With a certificate on file: did the AMUD exam confirm it? null = not tested. */
+  certificate_confirmed?: boolean | null
+}
+
+/** A validated AMUD exam as a recruiter sees it (no answers, no AI reasoning). */
+export type AmudLanguageTest = {
+  id: number
+  language: Language
+  exam_level: CefrLevel
+  level_source: 'certificate' | 'declared' | 'chosen'
+  final_cefr: CefrLevel | null
+  skill_results: Record<string, CefrLevel | null> | null
+  skill_scores: Record<string, number | null> | null
+  validated_at: string | null
+  certificate_confirmed: boolean | null
 }
 
 export type Education = {
@@ -115,6 +133,8 @@ export type CandidateListItem = {
   languages: CandidateLanguage[]
   has_video: boolean
   has_verified_assessment: boolean
+  /** At least one language level validated through the AMUD exam. */
+  has_amud_validated?: boolean
   /** The candidate declared the dossier finished, rather than leaving it a draft. */
   submitted: boolean
   shortlisted: boolean
@@ -125,7 +145,7 @@ export type CandidateListItem = {
 
 export type CandidateDetail = Omit<
   CandidateListItem,
-  'has_video' | 'has_verified_assessment' | 'submitted' | 'shortlisted' | 'shortlist_stage' | 'contact_revealed'
+  'has_video' | 'has_verified_assessment' | 'has_amud_validated' | 'submitted' | 'shortlisted' | 'shortlist_stage' | 'contact_revealed'
 > & {
   date_of_birth: string | null
   presentation_video_path: string | null
@@ -135,6 +155,7 @@ export type CandidateDetail = Omit<
   educations: Education[]
   documents: CandidateDocument[]
   language_assessments: LanguageAssessmentResult[]
+  amud_language_tests?: AmudLanguageTest[]
   shortlist: ShortlistEntry | null
   contact: CandidateContact | null
 }

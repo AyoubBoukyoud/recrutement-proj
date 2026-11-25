@@ -85,6 +85,12 @@ class CandidateProfile extends Model
         return $this->hasMany(LanguageAssessment::class);
     }
 
+    /** Sittings of the AMUD level exam (one exam per certificate level). */
+    public function languageTests(): HasMany
+    {
+        return $this->hasMany(LanguageTest::class);
+    }
+
     /** Every recruiter who has saved this candidate; scoped per recruiter in queries. */
     public function shortlistEntries(): HasMany
     {

@@ -2,8 +2,8 @@
 
 namespace App\Services\Ocr;
 
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Support\Facades\Http;
+use App\Services\Gemini\GeminiClient;
+use App\Services\Gemini\GeminiTransientFailure;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -113,20 +113,11 @@ class GeminiCvExtractor
 
     private const DATE_KEYS = ['date_of_birth', 'started_at', 'ended_at'];
 
+    public function __construct(private readonly GeminiClient $client) {}
+
     public function isConfigured(): bool
     {
-        return filled(config('services.gemini.key'));
-    }
-
-    /**
-     * Rate limiting and server-side faults are about the API's moment, not the
-     * document. Everything else — 400, 401, 403, 404 — will fail identically
-     * on every retry, so it degrades to confidence 0 instead of burning the
-     * queue's attempts.
-     */
-    private function isTransient(int $status): bool
-    {
-        return $status === 429 || $status === 408 || $status >= 500;
+        return $this->client->isConfigured();
     }
 
     /**
@@ -147,77 +138,27 @@ class GeminiCvExtractor
         }
 
         try {
-            $response = Http::withHeaders(['x-goog-api-key' => config('services.gemini.key')])
-                ->timeout(config('services.gemini.timeout'))
-                ->post(config('services.gemini.endpoint'), [
-                    'model' => config('services.gemini.model'),
-                    'input' => [
-                        [
-                            'type' => 'document',
-                            'data' => base64_encode(file_get_contents($absolutePath)),
-                            'mime_type' => $mimeType,
-                        ],
-                        ['type' => 'text', 'text' => self::PROMPT],
-                    ],
-                    'response_format' => [
-                        'type' => 'text',
-                        'mime_type' => 'application/json',
-                        'schema' => self::SCHEMA,
-                    ],
-                ]);
-        } catch (ConnectionException $e) {
+            $text = $this->client->generate(
+                [
+                    GeminiClient::filePart('document', $absolutePath, $mimeType),
+                    GeminiClient::textPart(self::PROMPT),
+                ],
+                self::SCHEMA,
+                'Gemini CV extraction',
+            );
+        } catch (GeminiTransientFailure $e) {
             // The request never completed — nothing was learned about the
             // document, so this is the queue's problem, not the candidate's.
-            throw new TransientOcrFailure('Gemini CV extraction could not reach the API: '.$e->getMessage(), 0, $e);
-        } catch (\Throwable $e) {
-            Log::error('Gemini CV extraction failed: '.$e->getMessage());
+            throw new TransientOcrFailure($e->getMessage(), 0, $e);
+        }
 
+        // A permanent rejection (400/401/403…) will fail identically on every
+        // retry, so it degrades to confidence 0 instead of burning attempts.
+        if ($text === null) {
             return $this->empty();
         }
 
-        if ($response->failed()) {
-            $message = 'Gemini CV extraction returned '.$response->status().': '.$response->body();
-
-            if ($this->isTransient($response->status())) {
-                throw new TransientOcrFailure($message);
-            }
-
-            Log::error($message);
-
-            return $this->empty();
-        }
-
-        return $this->parse($this->outputText($response->json() ?? []));
-    }
-
-    /**
-     * Pull the model's text out of an interactions response.
-     *
-     * The payload is a list of steps — reasoning ones first, then the answer —
-     * so the text lives at steps[type=model_output].content[type=text].text.
-     * `output_text` is checked first only because the documentation describes
-     * a flat field of that name; live responses do not include one.
-     *
-     * @param  array<string, mixed>  $body
-     */
-    private function outputText(array $body): ?string
-    {
-        if (is_string($body['output_text'] ?? null)) {
-            return $body['output_text'];
-        }
-
-        foreach ($body['steps'] ?? [] as $step) {
-            if (($step['type'] ?? null) !== 'model_output') {
-                continue;
-            }
-            foreach ($step['content'] ?? [] as $part) {
-                if (($part['type'] ?? null) === 'text' && is_string($part['text'] ?? null)) {
-                    return $part['text'];
-                }
-            }
-        }
-
-        return null;
+        return $this->parse($text);
     }
 
     /**

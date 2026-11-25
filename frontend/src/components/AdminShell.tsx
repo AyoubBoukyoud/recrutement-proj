@@ -30,6 +30,7 @@ const NAV: NavItem[] = [
   { href: '/admin/stage', icon: 'task_alt', label: 'Stage quotidien' },
   { href: '/admin/parrainages', icon: 'redeem', label: 'Parrainages' },
   { href: '/admin/centres', icon: 'apartment', label: 'Centres de recrutement' },
+  { href: '/admin/tests-langue', icon: 'translate', label: 'Test de langue' },
   { href: '/admin/reclamations', icon: 'support_agent', label: 'Réclamations' },
   { href: '/admin/contact', icon: 'mail', label: 'Contact' },
   { href: '/admin/devis', icon: 'request_quote', label: 'Demandes de devis' },

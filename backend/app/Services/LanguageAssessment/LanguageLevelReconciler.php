@@ -4,6 +4,7 @@ namespace App\Services\LanguageAssessment;
 
 use App\Models\CandidateLanguage;
 use App\Models\CandidateProfile;
+use App\Models\LanguageTest;
 use Illuminate\Support\Carbon;
 
 /**
@@ -21,6 +22,11 @@ use Illuminate\Support\Carbon;
  *   3. Both values are kept and shown side by side, tagged with which source
  *      produced the effective one, and a gap of two bands or more is flagged
  *      so a recruiter can see the disagreement rather than inherit it silently.
+ *
+ * The completed AMUD level exam sits between the
+ * two: below a certificate (which it confirms or not — never overwrites),
+ * above a self-declaration or a one-minute recording (it is a full exam,
+ * with administrator corrections when needed).
  */
 class LanguageLevelReconciler
 {
@@ -35,15 +41,15 @@ class LanguageLevelReconciler
 
         // Older rows predate the split columns: whatever is on a self-declared
         // row was, by definition, self-declared.
-        if ($row->self_declared_cefr === null && $row->source !== 'ai_assessed') {
+        if ($row->self_declared_cefr === null && ! in_array($row->source, ['ai_assessed', 'amud_tested'], true)) {
             $row->self_declared_cefr = $row->cefr_level;
         }
 
         $row->ai_cefr = $predicted;
         $row->ai_assessed_at = Carbon::now();
 
-        if ($row->source === 'certified') {
-            // Recorded, not applied — the certificate stands.
+        if ($row->source === 'certified' || $row->source === 'amud_tested') {
+            // Recorded, not applied — the certificate or validated exam stands.
             $row->save();
 
             return $row;
@@ -73,14 +79,93 @@ class LanguageLevelReconciler
             $this->resolveEffective($row);
         }
 
+        $this->refreshCertificateConfirmation($row);
         $row->save();
 
         return $row;
     }
 
+    /**
+     * A completed or corrected AMUD exam. With a certificate on file the
+     * level stays the certificate's and the exam only confirms it or raises a
+     * flag; without one, the validated level becomes the effective level.
+     */
+    public function applyValidatedTest(LanguageTest $test): CandidateLanguage
+    {
+        $profile = $test->candidateProfile;
+        // An older exam being corrected must not replace a newer sitting.
+        $test = $profile->languageTests()->where('language', $test->language)
+            ->where('status', 'validated')
+            ->orderByDesc('completed_at')->orderByDesc('id')->first() ?? $test;
+        $row = $profile->languages()->firstOrNew(['language' => $test->language]);
+
+        if ($row->self_declared_cefr === null && ! in_array($row->source, ['ai_assessed', 'amud_tested'], true)) {
+            $row->self_declared_cefr = $row->cefr_level;
+        }
+
+        $row->tested_cefr = $test->final_cefr;
+        $row->tested_at = $test->published_at ?? $test->completed_at ?? Carbon::now();
+        $row->language_test_id = $test->id;
+
+        if ($row->certificate_document_id) {
+            $row->source = 'certified';
+        } else {
+            $this->resolveEffective($row);
+        }
+
+        $this->refreshCertificateConfirmation($row);
+        $row->save();
+
+        return $row;
+    }
+
+    /** Recompute whenever a certificate is attached, edited, detached or tested. */
+    public function refreshCertificateConfirmation(CandidateLanguage $row): void
+    {
+        $row->certificate_confirmed = $row->certificate_document_id && $row->cefr_level && $row->language_test_id
+            ? self::rank($row->tested_cefr) >= self::rank($row->cefr_level)
+            : null;
+    }
+
+    /** Restore the preceding result when an administrator annuls a sitting. */
+    public function removeTestResult(LanguageTest $test): void
+    {
+        $profile = $test->candidateProfile;
+        $row = $profile->languages()->where('language', $test->language)->first();
+        if (! $row || $row->language_test_id !== $test->id) {
+            return;
+        }
+
+        $previous = $profile->languageTests()->where('language', $test->language)
+            ->where('status', 'validated')
+            ->orderByDesc('completed_at')->orderByDesc('id')->first();
+        if ($previous) {
+            $this->applyValidatedTest($previous);
+
+            return;
+        }
+
+        $row->tested_cefr = null;
+        $row->tested_at = null;
+        $row->language_test_id = null;
+        if (! $row->certificate_document_id) {
+            $this->resolveEffective($row);
+        }
+        $this->refreshCertificateConfirmation($row);
+        $row->save();
+    }
+
     /** Higher of the two sources wins; `source` names which one that was. */
     private function resolveEffective(CandidateLanguage $row): void
     {
+        // A validated AMUD exam outranks both a declaration and a recording.
+        if ($row->tested_cefr !== null && $row->language_test_id !== null) {
+            $row->cefr_level = $row->tested_cefr;
+            $row->source = 'amud_tested';
+
+            return;
+        }
+
         $declared = $row->self_declared_cefr;
         $predicted = $row->ai_cefr;
 

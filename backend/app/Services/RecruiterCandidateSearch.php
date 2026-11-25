@@ -146,6 +146,21 @@ class RecruiterCandidateSearch
             });
         }
 
+        if (filter_var($filters['amud_validated'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+            // A level published after the full AMUD exam —
+            // scoped to the searched language, and to the minimum level when
+            // one is asked for, measured on the tested level itself.
+            $query->whereHas('languages', function (Builder $q) use ($filters) {
+                $q->whereNotNull('language_test_id')->whereNotNull('tested_cefr');
+                if (! empty($filters['language'])) {
+                    $q->where('language', $filters['language']);
+                }
+                if (! empty($filters['cefr_level'])) {
+                    $q->whereIn('tested_cefr', self::levelsAtLeast($filters['cefr_level']));
+                }
+            });
+        }
+
         if ($recruiterId && filter_var($filters['shortlisted_only'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
             $query->whereHas('shortlistEntries', fn (Builder $q) => $q->where('user_id', $recruiterId));
         }

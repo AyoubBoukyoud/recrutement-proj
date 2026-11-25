@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\AdminAccountRecoveryController;
 use App\Http\Controllers\Api\AdminCandidateController;
+use App\Http\Controllers\Api\AdminLanguageTestController;
+use App\Http\Controllers\Api\AdminLanguageTestItemController;
 use App\Http\Controllers\Api\AdminMarketplaceController;
 use App\Http\Controllers\Api\AdminMetricsController;
 use App\Http\Controllers\Api\AdminRecruiterController;
@@ -13,6 +15,7 @@ use App\Http\Controllers\Api\CandidateAccountController;
 use App\Http\Controllers\Api\CandidateApplicationController;
 use App\Http\Controllers\Api\CandidateFavoriteController;
 use App\Http\Controllers\Api\CandidateLanguageController;
+use App\Http\Controllers\Api\CandidateLanguageTestController;
 use App\Http\Controllers\Api\CandidateNotificationController;
 use App\Http\Controllers\Api\CandidateProfileController;
 use App\Http\Controllers\Api\CandidateReferralController;
@@ -29,6 +32,7 @@ use App\Http\Controllers\Api\JobOfferController;
 use App\Http\Controllers\Api\LanguageAssessmentController;
 use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\PhoneChangeController;
+use App\Http\Controllers\Api\PresentationAccessController;
 use App\Http\Controllers\Api\PushSubscriptionController;
 use App\Http\Controllers\Api\QuoteRequestController;
 use App\Http\Controllers\Api\RecruiterCandidateController;
@@ -40,6 +44,8 @@ use App\Http\Controllers\Api\RecruiterTeamController;
 use App\Http\Controllers\Api\RecruitmentCenterController;
 use App\Http\Controllers\Api\ReferralAgentController;
 use App\Http\Controllers\Api\TimetableController;
+use App\Http\Controllers\Api\TrainingFinanceController;
+use App\Http\Controllers\Api\TrainingStudentController;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Session\Middleware\StartSession;
@@ -88,6 +94,25 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
             Route::put('/members', 'member');
         });
     });
+    // Students, memberships and finance share the timetable's centre scope and ids.
+    Route::prefix('timetable/centers/{center}')->group(function () {
+        Route::controller(TrainingStudentController::class)->group(function () {
+            Route::get('/students', 'index');
+            Route::post('/students', 'store');
+            Route::put('/students/{id}', 'update')->whereNumber('id');
+            Route::delete('/students/{id}', 'destroy')->whereNumber('id');
+            Route::put('/students/{id}/groups', 'groups')->whereNumber('id');
+        });
+        Route::controller(TrainingFinanceController::class)->group(function () {
+            Route::get('/payments', 'payments');
+            Route::post('/payments', 'store');
+            Route::delete('/payments/{id}', 'destroy')->whereNumber('id');
+            Route::get('/reports/monthly', 'monthly');
+        });
+    });
+
+    // Signed, expiring grant for prototype pages; see PresentationAccessController.
+    Route::post('/presentation-access', [PresentationAccessController::class, 'store']);
 
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
@@ -172,6 +197,20 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
     Route::post('/candidate/language-assessments', [LanguageAssessmentController::class, 'store'])->middleware('throttle:language-assessment');
     Route::get('/candidate/language-assessments/{languageAssessment}', [LanguageAssessmentController::class, 'show']);
 
+    // AMUD level exam (one exam per certificate level) — Phase 1.
+    Route::prefix('candidate/language-tests')->controller(CandidateLanguageTestController::class)->group(function () {
+        Route::get('/overview', 'overview');
+        Route::post('/', 'store')->middleware('throttle:language-test-start');
+        Route::get('/{languageTest}', 'show');
+        Route::post('/{languageTest}/sections/{section}/start', 'startSection')->whereIn('section', ['reading', 'listening', 'read_aloud', 'writing', 'oral']);
+        Route::post('/{languageTest}/sections/{section}/complete', 'completeSection')->whereIn('section', ['reading', 'listening', 'read_aloud', 'writing', 'oral']);
+        Route::put('/{languageTest}/responses/{response}', 'answer')->middleware('throttle:language-test-answer');
+        Route::post('/{languageTest}/responses/{response}/recording', 'recording')->middleware('throttle:language-test-start');
+        Route::post('/{languageTest}/responses/{response}/play', 'play');
+        Route::post('/{languageTest}/responses/{response}/reveal', 'reveal');
+        Route::post('/{languageTest}/integrity', 'integrity')->middleware('throttle:language-test-answer');
+    });
+
     // The candidate's side of the daily internship.
     Route::get('/candidate/tasks', [CandidateTaskController::class, 'index']);
     Route::patch('/candidate/tasks/{assignment}', [CandidateTaskController::class, 'update']);
@@ -208,6 +247,22 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'account.active'])->group(fun
         Route::get('/admin/applications', [AdminMarketplaceController::class, 'applications']);
         Route::patch('/admin/applications/{application}', [AdminMarketplaceController::class, 'updateApplicationStatus']);
         Route::get('/admin/activity', [AdminMarketplaceController::class, 'activity']);
+
+        // AMUD level exam — the item bank (one exam per CEFR level).
+        Route::get('/admin/language-test-items', [AdminLanguageTestItemController::class, 'index']);
+        Route::get('/admin/language-test-items/coverage', [AdminLanguageTestItemController::class, 'coverage']);
+        Route::post('/admin/language-test-items/generate', [AdminLanguageTestItemController::class, 'generate'])->middleware('throttle:10,1');
+        Route::get('/admin/language-test-items/{item}', [AdminLanguageTestItemController::class, 'show']);
+        Route::patch('/admin/language-test-items/{item}', [AdminLanguageTestItemController::class, 'update']);
+        Route::post('/admin/language-test-items/{item}/audio', [AdminLanguageTestItemController::class, 'uploadAudio']);
+        Route::post('/admin/language-test-items/{item}/audio/synthesize', [AdminLanguageTestItemController::class, 'synthesizeAudio'])->middleware('throttle:10,1');
+
+        // AMUD level exam — results and optional administrator corrections.
+        Route::get('/admin/language-tests', [AdminLanguageTestController::class, 'index']);
+        Route::get('/admin/language-tests/{languageTest}', [AdminLanguageTestController::class, 'show']);
+        Route::patch('/admin/language-tests/{languageTest}/result', [AdminLanguageTestController::class, 'correctResult']);
+        Route::post('/admin/language-tests/{languageTest}/approve', [AdminLanguageTestController::class, 'approve']);
+        Route::post('/admin/language-tests/{languageTest}/annul', [AdminLanguageTestController::class, 'annul']);
 
         Route::get('/admin/candidates', [AdminCandidateController::class, 'index']);
         Route::post('/admin/candidates', [AdminCandidateController::class, 'store']);

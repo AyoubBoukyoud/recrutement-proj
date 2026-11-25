@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" pdo_mysql mbstring bcmath gd zip pcntl intl \
     && python3 -m venv /opt/whisper-venv \
-    && /opt/whisper-venv/bin/pip install --no-cache-dir faster-whisper \
+    && /opt/whisper-venv/bin/pip install --no-cache-dir 'faster-whisper==1.2.1' 'av>=15,<18' \
     && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*

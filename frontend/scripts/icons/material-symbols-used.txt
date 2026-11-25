@@ -179,7 +179,7 @@ group_add
 groups
 handshake
 handyman
-headset_mic
+headphones
 health_and_safety
 height
 help
@@ -390,6 +390,7 @@ smart_display
 smartphone
 sort
 source
+speaker
 speed
 stack
 star
@@ -435,7 +436,6 @@ today
 token
 toolbar
 tooltip
-topic
 track_changes
 traffic
 transcribe

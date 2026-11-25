@@ -28,7 +28,9 @@ class WhisperTranscriber
     {
         $script = base_path('scripts/transcribe.py');
 
-        $command = ['python3', $script, $absoluteAudioPath];
+        // The interpreter of the venv holding faster-whisper; `python3` on PATH
+        // by default (the Docker images put the venv first on PATH).
+        $command = [config('services.whisper.python', 'python3'), $script, $absoluteAudioPath];
         if ($language) {
             $command[] = '--language';
             $command[] = $language;

@@ -23,6 +23,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'ai_assessed_at',
     'source',
     'certificate_document_id',
+    'tested_cefr',
+    'tested_at',
+    'language_test_id',
+    'certificate_confirmed',
 ])]
 #[Appends(['level_discrepancy'])]
 class CandidateLanguage extends Model
@@ -31,6 +35,8 @@ class CandidateLanguage extends Model
     {
         return [
             'ai_assessed_at' => 'datetime',
+            'tested_at' => 'datetime',
+            'certificate_confirmed' => 'boolean',
         ];
     }
 

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\CandidateProfile;
 use App\Models\Document;
+use App\Models\LanguageTest;
 use App\Models\User;
 
 /**
@@ -27,8 +28,39 @@ class RecruiterProfileView
 
         $data = $profile->toArray();
         $data['documents'] = self::documents($profile);
+        $data['amud_language_tests'] = self::validatedTests($profile);
 
         return $data;
+    }
+
+    /**
+     * The validated AMUD exams, latest per language: the exam level, the
+     * published level, and the result per skill. Never the
+     * answers, recordings, AI reasoning or reviewer notes — those stay with
+     * the candidate and the AMUD team.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private static function validatedTests(CandidateProfile $profile): array
+    {
+        return $profile->languageTests()
+            ->where('status', 'validated')
+            ->orderByDesc('completed_at')->orderByDesc('id')
+            ->get()
+            ->unique('language')
+            ->map(fn (LanguageTest $t) => [
+                'id' => $t->id,
+                'language' => $t->language,
+                'exam_level' => $t->exam_level,
+                'level_source' => $t->level_source,
+                'final_cefr' => $t->final_cefr,
+                'skill_results' => $t->skill_results,
+                'skill_scores' => $t->skill_scores,
+                'validated_at' => ($t->published_at ?? $t->reviewed_at ?? $t->completed_at)?->toIso8601String(),
+                'certificate_confirmed' => $profile->languages->firstWhere('language', $t->language)?->certificate_confirmed,
+            ])
+            ->values()
+            ->all();
     }
 
     /**

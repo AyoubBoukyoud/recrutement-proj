@@ -88,6 +88,15 @@ class AppServiceProvider extends ServiceProvider
         // Language-assessment submission: each dispatches a transcription +
         // scoring job. A candidate retakes a handful of times per language,
         // not continuously.
+        // Starting an exam or uploading a recording: rare, and each one queues work.
+        RateLimiter::for('language-test-start', fn (Request $request) => [
+            Limit::perMinute(6)->by($this->userKey($request)),
+            Limit::perHour(30)->by($this->userKey($request)),
+        ]);
+
+        // Autosaved answers while typing and integrity pings: frequent but bounded.
+        RateLimiter::for('language-test-answer', fn (Request $request) => Limit::perMinute(120)->by($this->userKey($request)));
+
         RateLimiter::for('language-assessment', fn (Request $request) => [
             Limit::perMinute(10)->by($this->userKey($request)),
             Limit::perHour(30)->by($this->userKey($request)),

@@ -78,6 +78,11 @@ export function CandidateDossier({ id, onBack }: { id: number; onBack: () => voi
                       lequel plutôt qu'un chiffre de provenance inconnue. */}
                   {l.self_declared_cefr && <span className="helper-text">déclaré {l.self_declared_cefr}</span>}
                   {l.ai_cefr && <span className="helper-text">IA {l.ai_cefr}</span>}
+                  {l.tested_cefr && <Badge tone="done">examen AMUD {l.tested_cefr}</Badge>}
+                  {l.certificate_confirmed === true && <Badge tone="done">certificat confirmé par AMUD</Badge>}
+                  {l.certificate_confirmed === false && (
+                    <Badge tone="error">certificat non confirmé{l.tested_cefr ? ` (examen : ${l.tested_cefr})` : ' par l’examen AMUD'}</Badge>
+                  )}
                   {l.level_discrepancy && <Badge tone="pending">niveaux déclaré et évalué divergents</Badge>}
                 </div>
               ))}
@@ -96,6 +101,34 @@ export function CandidateDossier({ id, onBack }: { id: number; onBack: () => voi
           <Section title="Documents">
             <DocumentList documents={data.documents} />
           </Section>
+
+          {(data.amud_language_tests ?? []).length > 0 && (
+            <Section title="Examen de langue AMUD">
+              <div className="grid gap-4">
+                {(data.amud_language_tests ?? []).map((t) => (
+                  <div key={t.id} className="grid gap-2">
+                    <p className="text-sm text-on-surface">
+                      <strong>
+                        {t.language.toUpperCase()} {t.final_cefr ?? `— niveau ${t.exam_level} non démontré`}
+                      </strong>{' '}
+                      — résultat de l’examen AMUD{t.validated_at ? ` le ${new Date(t.validated_at).toLocaleDateString('fr-FR')}` : ''} — examen{' '}
+                      {t.exam_level} complet (lecture, écoute, écriture, oral face caméra). Résultat publié automatiquement, avec correction possible par AMUD.
+                    </p>
+                    {t.skill_results && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {Object.entries(t.skill_results).map(([skill, level]) => (
+                          <Badge key={skill} tone="neutral">
+                            {{ reading: 'Lecture', listening: 'Écoute', writing: 'Écriture', speaking: 'Oral' }[skill] ?? skill} {level ?? 'non démontré'}
+                            {t.skill_scores?.[skill] != null ? ` · ${t.skill_scores[skill]}%` : ''}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </Section>
+          )}
 
           {data.language_assessments.length > 0 && (
             <Section title="Mesures de l'évaluation IA">

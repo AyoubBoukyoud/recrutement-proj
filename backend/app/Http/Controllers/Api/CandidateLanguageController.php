@@ -80,6 +80,7 @@ class CandidateLanguageController extends Controller
         }
         $row->certificate_document_id = $document->id;
         $row->source = 'certified';
+        $this->reconciler->refreshCertificateConfirmation($row);
         $row->save();
 
         return response()->json($row->load('certificateDocument'), $row->wasRecentlyCreated ? 201 : 200);

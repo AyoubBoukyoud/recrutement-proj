@@ -50,6 +50,7 @@ type Filters = {
   sort: string
   has_video: boolean
   verified_assessment: boolean
+  amud_validated: boolean
   submitted_only: boolean
 }
 
@@ -65,6 +66,7 @@ const EMPTY_FILTERS: Filters = {
   sort: 'recent',
   has_video: false,
   verified_assessment: false,
+  amud_validated: false,
   submitted_only: false,
 }
 
@@ -133,6 +135,7 @@ function CandidateCard({ candidate, onOpen }: { candidate: CandidateListItem; on
         {candidate.shortlisted && candidate.shortlist_stage && (
           <Badge tone="done">{STAGE_LABELS[candidate.shortlist_stage]}</Badge>
         )}
+        {candidate.has_amud_validated && <Badge tone="done">niveau validé AMUD</Badge>}
         {candidate.has_verified_assessment && <Badge tone="done">évalué</Badge>}
         {candidate.has_video && <Badge tone="done">vidéo</Badge>}
         {!candidate.submitted && <Badge tone="pending">brouillon</Badge>}
@@ -236,6 +239,7 @@ export default function RecruiterSearch() {
     'education_level',
     'has_video',
     'verified_assessment',
+    'amud_validated',
     'submitted_only',
   ] as const satisfies readonly (keyof Filters)[]
   const activeAdvancedFilterCount = ADVANCED_FILTER_KEYS.filter(
@@ -406,6 +410,11 @@ export default function RecruiterSearch() {
                         label="Évaluation de langue vérifiée"
                         checked={filters.verified_assessment}
                         onChange={(v) => setFilters({ ...filters, verified_assessment: v })}
+                      />
+                      <Toggle
+                        label="Niveau validé par l’examen AMUD"
+                        checked={filters.amud_validated}
+                        onChange={(v) => setFilters({ ...filters, amud_validated: v })}
                       />
                       <Toggle
                         label="Dossier soumis"

@@ -10,6 +10,7 @@ use App\Models\Document;
 use App\Models\Interview;
 use App\Models\JobApplication;
 use App\Models\JobOffer;
+use App\Models\LanguageTest;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -94,6 +95,30 @@ class Notifications
             '/documents',
             'Document reviewed',
             $document->rejection_reason ?: $document->approval_status,
+        );
+    }
+
+    /** A result is available, corrected, technically unavailable, or annulled. */
+    public function languageTestReviewed(LanguageTest $test): AppNotification
+    {
+        $test->loadMissing('candidateProfile.user');
+        $validated = $test->status === 'validated';
+        $failed = $test->status === 'failed';
+
+        return $this->create(
+            $test->candidateProfile->user,
+            'language_test.reviewed',
+            [
+                'language_test_id' => $test->id,
+                'status' => $test->status,
+                'exam_level' => $test->exam_level,
+                'final_cefr' => $test->final_cefr,
+            ],
+            '/test-langue',
+            $validated ? ($test->reviewed_by_id && $test->final_cefr !== $test->ai_cefr ? 'Résultat corrigé' : 'Résultat de l’examen') : ($failed ? 'Correction indisponible' : 'Examen annulé'),
+            $validated
+                ? ($test->final_cefr ? "Votre résultat à l’examen d’allemand AMUD est disponible : {$test->final_cefr}." : "Le niveau {$test->exam_level} n’a pas été démontré à l’examen AMUD. Aucun niveau inférieur n’a été attribué.")
+                : ($failed ? 'Une correction technique a échoué. Vous pouvez réessayer l’examen.' : ($test->review_note ?: 'Votre examen a été annulé.')),
         );
     }
 

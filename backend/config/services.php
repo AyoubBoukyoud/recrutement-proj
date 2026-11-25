@@ -35,11 +35,18 @@ return [
         ],
     ],
 
+    'whisper' => [
+        'python' => env('WHISPER_PYTHON', 'python3'),
+    ],
+
     'gemini' => [
         'key' => env('GEMINI_API_KEY'),
         'model' => env('GEMINI_MODEL', 'gemini-3.6-flash'),
         'endpoint' => env('GEMINI_ENDPOINT', 'https://generativelanguage.googleapis.com/v1beta/interactions'),
         'timeout' => (int) env('GEMINI_TIMEOUT', 120),
+        // Listening clips for the level exam (bank time only, never per candidate).
+        'tts_model' => env('GEMINI_TTS_MODEL', 'gemini-2.5-flash-preview-tts'),
+        'tts_endpoint' => env('GEMINI_TTS_ENDPOINT', 'https://generativelanguage.googleapis.com/v1beta/models'),
     ],
 
     /*

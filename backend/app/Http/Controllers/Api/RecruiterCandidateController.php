@@ -28,6 +28,8 @@ class RecruiterCandidateController extends Controller
             'education_level' => ['sometimes', 'in:'.implode(',', RecruiterCandidateSearch::EDUCATION_LEVELS)],
             'has_video' => ['sometimes', 'boolean'],
             'verified_assessment' => ['sometimes', 'boolean'],
+            // Level confirmed by a validated AMUD exam (full exam + human review).
+            'amud_validated' => ['sometimes', 'boolean'],
             'submitted_only' => ['sometimes', 'boolean'],
             'shortlisted_only' => ['sometimes', 'boolean'],
             'sort' => ['sometimes', 'in:'.implode(',', RecruiterCandidateSearch::SORTS)],
@@ -55,6 +57,7 @@ class RecruiterCandidateController extends Controller
                 'has_video' => (bool) $profile->presentation_video_path,
                 'has_verified_assessment' => $profile->languageAssessments
                     ->contains(fn ($a) => $a->status === 'completed' && $a->predicted_cefr),
+                'has_amud_validated' => $profile->languages->contains(fn ($l) => $l->tested_cefr !== null && $l->language_test_id !== null),
                 'submitted' => (bool) $profile->submitted_at,
                 'shortlisted' => (bool) $entry,
                 'shortlist_stage' => $entry?->stage,
